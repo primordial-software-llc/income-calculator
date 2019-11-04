@@ -1,0 +1,32 @@
+{
+  "name": "income-calculator-ui",
+  "version": "0.2.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "tape ./test-archive/*.js",
+    "build": "browserify src/app.js -o app.bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timg456789/income-calculator.git#gh-pages"
+  },
+  "author": "Timothy Gonzalez",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/timg456789/income-calculator/issues"
+  },
+  "homepage": "https://github.com/timg456789/income-calculator/tree/gh-pages#readme",
+  "dependencies": {
+    "amazon-cognito-identity-js": "^3.2.0",
+    "aws-sdk": "^2.438.0",
+    "currency.js": "1.2.1",
+    "jquery": "3.1.0",
+    "moment": "2.24.0",
+    "otpauth": "^5.0.3",
+    "qrcode": "^1.4.2"
+  },
+  "devDependencies": {
+    "tape": "4.5.1"
+  }
+}
