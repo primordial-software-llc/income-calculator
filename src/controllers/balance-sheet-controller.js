@@ -11,8 +11,8 @@ function HomeController() {
     let dataClient;
     async function refresh() {
         try {
-            let data = dataClient.getData();
-            let bankData = sendRequest();
+            let data = sendRequest('budget');
+            let bankData = sendRequest('accountBalance');
             data = await data;
             bankData = await bankData;
             balanceSheetView.setView(data, bankData, getViewModel(data, bankData));
@@ -31,7 +31,7 @@ function HomeController() {
         }
         return balanceSheetViewModel;
     }
-    async function sendRequest() {
+    async function sendRequest(requestType) {
         let requestParams = {
             method: 'POST',
             mode: 'cors',
@@ -39,7 +39,9 @@ function HomeController() {
                 'Authorization': Util.getCookie('idToken'),
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({}) // body data type must match "Content-Type" header
+            body: JSON.stringify({
+                requestType: requestType
+            })
         };
         let responseData;
         try {
