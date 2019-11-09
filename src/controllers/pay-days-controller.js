@@ -32,7 +32,7 @@ function PayDaysController() {
         return paymentDates;
     }
     async function initAsync() {
-        let data = await dataClient.getData();
+        let data = await dataClient.sendRequest('budget');
         $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
         $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
         $('#acceptLicense').prop('checked', settings.agreedToLicense);

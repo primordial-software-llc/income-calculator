@@ -11,7 +11,7 @@ function AccountsController() {
     let settings;
     function cancelTransfer(transferId) {
         let dataClient = new DataClient(settings);
-        dataClient.getData()
+        dataClient.sendRequest('budget')
             .then(data => {
                 let patch = {};
                 patch.pending = data.pending.filter(x => x.id != transferId);
@@ -22,7 +22,7 @@ function AccountsController() {
     }
     async function completeTransfer(transferId) {
         let dataClient = new DataClient(settings);
-        let data = await dataClient.getData();
+        let data = await dataClient.sendRequest('budget');
         let patch = { assets: data.assets || [] };
         let credit = data.pending.find(x => x.id === transferId);
         patch.pending = data.pending.filter(x => x.id !== transferId);
@@ -110,7 +110,7 @@ function AccountsController() {
     }
     async function refresh() {
         try {
-            let data = await dataClient.getData();
+            let data = await dataClient.sendRequest('budget');
             setView(data);
             if (location.hash && document.querySelector(location.hash)) {
                 window.scrollTo(0, document.querySelector(location.hash).offsetTop);
@@ -123,9 +123,7 @@ function AccountsController() {
         settings = settingsIn;
         dataClient = new DataClient(settings);
         new AccountSettingsController().init(settings, balanceSheetView);
-        if (settings.s3ObjectKey) {
-            refresh();
-        }
+        refresh();
     };
 }
 

@@ -9,7 +9,7 @@ function PricesController() {
     let self = this;
     async function initAsync() {
         try {
-            let data = await dataClient.getData();
+            let data = await dataClient.sendRequest('budget');
             if (data.assets) {
                 $('#prices-input-group').empty();
                 $('#prices-input-group').append(self.getHeaderView());
@@ -56,7 +56,7 @@ function PricesController() {
     };
     async function save() {
         let prices = self.getPrices();
-        let data = await dataClient.getData();
+        let data = await dataClient.sendRequest('budget');
         for (let price of prices) {
             let existing = data.assets.find(x => x.name.toLowerCase() === price.name.toLowerCase());
             existing.sharePrice = price.sharePrice;
@@ -78,8 +78,7 @@ function PricesController() {
                 save();
             }
         });
-        initAsync()
-            .catch(err => { Util.log(err); });
+        initAsync().catch(err => { Util.log(err); });
     };
 }
 

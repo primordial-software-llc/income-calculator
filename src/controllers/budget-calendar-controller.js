@@ -22,7 +22,7 @@ function BudgetCalendarController() {
             });
 
             let dataClient = new DataClient(settings);
-            data = await dataClient.getData();
+            data = await dataClient.sendRequest('budget');
             for (let mre of data.monthlyRecurringExpenses) {
                 mre.date = new Date(mre.date);
             }

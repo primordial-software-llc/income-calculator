@@ -7,7 +7,6 @@ const Util = require('../util');
 const Currency = require('currency.js');
 function HomeController() {
     'use strict';
-    let s3ObjKey;
     let dataClient;
     async function refresh() {
         try {
@@ -32,15 +31,12 @@ function HomeController() {
         return balanceSheetViewModel;
     }
     this.init = function (settings) {
-        s3ObjKey = settings.s3ObjectKey;
         dataClient = new DataClient(settings);
         new AccountSettingsController().init(settings, balanceSheetView);
         $('#add-new-balance').click(function () {
             $('#balance-input-group').append(new LoanViewModel().getView(100, 'new balance', '.035'));
         });
-        if (s3ObjKey) {
-            refresh();
-        }
+        refresh();
     };
 }
 
