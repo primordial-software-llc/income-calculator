@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const Moment = require('moment');
+const Util = require('./util');
 function DataClient(settings) {
     function getS3Params() {
         return {
@@ -40,6 +41,29 @@ function DataClient(settings) {
         };
         let response = await dataFactory().upload(options).promise();
         return response;
+    }
+    this.sendRequest = async function (requestType) {
+        let requestParams = {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Authorization': Util.getCookie('idToken'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                requestType: requestType
+            })
+        };
+        let responseData;
+        try {
+            let response = await fetch('https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production', requestParams);
+            responseData = await response.json(); // parses JSON response into native JavaScript objects
+        } catch (error) {
+            console.log(error);
+            console.log('token is likely invalid causing cors to fail (cors can be fixed for errors in api gateway)');
+            window.location=`${Util.rootUrl()}/pages/login.html${window.location.search}`;
+        }
+        return responseData;
     }
 }
 

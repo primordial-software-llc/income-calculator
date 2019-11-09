@@ -11,8 +11,8 @@ function HomeController() {
     let dataClient;
     async function refresh() {
         try {
-            let data = sendRequest('budget');
-            let bankData = sendRequest('accountBalance');
+            let data = dataClient.sendRequest('budget');
+            let bankData = dataClient.sendRequest('accountBalance');
             data = await data;
             bankData = await bankData;
             balanceSheetView.setView(data, bankData, getViewModel(data, bankData));
@@ -30,29 +30,6 @@ function HomeController() {
             balanceSheetViewModel.debtsTotal = balanceSheetViewModel.debtsTotal.add(creditCard.balances.current);
         }
         return balanceSheetViewModel;
-    }
-    async function sendRequest(requestType) {
-        let requestParams = {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Authorization': Util.getCookie('idToken'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                requestType: requestType
-            })
-        };
-        let responseData;
-        try {
-            let response = await fetch('https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production', requestParams);
-            responseData = await response.json(); // parses JSON response into native JavaScript objects
-        } catch (error) {
-            console.log(error);
-            console.log('token is likely invalid causing cors to fail (cors can be fixed for errors in api gateway)');
-            window.location=`${Util.rootUrl()}/pages/login.html${window.location.search}`;
-        }
-        return responseData;
     }
     this.init = function (settings) {
         s3ObjKey = settings.s3ObjectKey;
