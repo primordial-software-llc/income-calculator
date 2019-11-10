@@ -19,7 +19,7 @@ function LoanViewModel() {
             "rate": $(target).find('input.rate').val().trim()
         };
     };
-    this.getView = function (amount, name, rate, weeklyAmount, isReadOnly) {
+    this.getView = function (amount, name, rate, weeklyAmount, isAuthoritative, isCreditCard) {
         let payOffDateText;
         let totalInterestText;
         let lifetimeInterestText;
@@ -47,27 +47,32 @@ function LoanViewModel() {
             }
             lifetimeInterestText = Currency(totalInterestText).divide(amount).multiply(100).toString() + '%';
         } else {
-            payOffDateText = 'WARNING: no payment specified';
+            payOffDateText = isCreditCard ? 'no payment specified' : 'WARNING: no payment specified'; // Warning is intended for long-term loans.
             let infinitySymbol = '&#8734;';
-            totalInterestText = infinitySymbol;
-            lifetimeInterestText = infinitySymbol;
+            totalInterestText = isCreditCard ? 'N/A' : infinitySymbol;
+            lifetimeInterestText = isCreditCard ? 'N/A' : infinitySymbol;
         }
-
-        let view = $(`<div class="balance-item row transaction-input-view ${isReadOnly ? 'read-only' : 'editable'}">
+        let icon = isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
+        let view = $(`<div class="balance-item row transaction-input-view ${isAuthoritative ? 'read-only' : 'editable'}">
                     <div class="col-xs-2">
                         <div class="input-group">
                             <div class="input-group-addon ">$</div>
-                            <input ${isReadOnly ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${amount}" />
+                            <input ${isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${amount}" />
                         </div>
                     </div>
-                    <div class="col-xs-3"><input ${isReadOnly ? 'disabled=disabled' : ''} class="name form-control" type="text" value="${name}" /></div>
-                    <div class="col-xs-1"><input ${isReadOnly ? 'disabled=disabled' : ''} class="rate form-control text-right" type="text" value="${rate}" /></div>
+                    <div class="col-xs-3">
+                        <div class="input-group">
+                            <div class="input-group-addon ">${icon}</div>
+                            <input ${isAuthoritative ? 'disabled=disabled' : ''} class="name form-control" type="text" value="${name}" />
+                        </div>
+                    </div>
+                    <div class="col-xs-1"><input ${isAuthoritative ? 'disabled=disabled' : ''} class="rate form-control text-right" type="text" value="${rate}" /></div>
                     <div class="col-xs-2 text-center vertical-align amount-description-column">${payOffDateText}</div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${totalInterestText}</div>
                     <div class="col-xs-1 text-right vertical-align amount-description-column">${lifetimeInterestText}</div>
                     </div>
         `);
-        if (!isReadOnly) {
+        if (!isAuthoritative) {
             let removeButtonHtml = `<div class="col-xs-1">
                                 <button class="btn remove add-remove-btn" title="Remove Loan">
                                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>

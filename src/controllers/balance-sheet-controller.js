@@ -30,9 +30,9 @@ function HomeController() {
         }
         return balanceSheetViewModel;
     }
-    this.init = function (settings) {
-        dataClient = new DataClient(settings);
-        new AccountSettingsController().init(settings, balanceSheetView);
+    this.init = function () {
+        dataClient = new DataClient();
+        new AccountSettingsController().init(balanceSheetView);
         $('#add-new-balance').click(function () {
             $('#balance-input-group').append(new LoanViewModel().getView(100, 'new balance', '.035'));
         });

@@ -16,10 +16,10 @@ function HomeController() {
             Util.log(err);
         }
     }
-    this.init = function (settings) {
+    this.init = function () {
         homeView = new HomeView();
-        dataClient = new DataClient(settings);
-        new AccountSettingsController().init(settings, homeView);
+        dataClient = new DataClient();
+        new AccountSettingsController().init(homeView);
         $('#add-new-monthly').prop('disabled', true);
         $('#add-new-weekly').prop('disabled', true);
         $('#add-new-monthly').click(function () {

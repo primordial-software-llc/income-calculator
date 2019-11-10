@@ -2,13 +2,10 @@ const AccountSettingsController = require('./account-settings-controller');
 const CalendarView = require('../calendar-view');
 const DataClient = require('../data-client');
 const Util = require('../util');
-
 function BudgetCalendarController() {
     'use strict';
-    let settings;
     let data;
     let month;
-
     async function load() {
         try {
             $('#calendar-date-select').val(new Date().getUTCMonth());
@@ -21,17 +18,17 @@ function BudgetCalendarController() {
                 CalendarView.load(data, start, end);
             });
 
-            let dataClient = new DataClient(settings);
+            let dataClient = new DataClient();
             data = await dataClient.sendRequest('budget');
             for (let mre of data.monthlyRecurringExpenses) {
                 mre.date = new Date(mre.date);
             }
             data.biWeeklyIncome.date = new Date(data.biWeeklyIncome.date);
 
-            var year = new Date().getUTCFullYear();
+            let year = new Date().getUTCFullYear();
             month = new Date().getUTCMonth();
-            var start = new Date(Date.UTC(year, month, 1));
-            var end = new Date(start.getTime());
+            let start = new Date(Date.UTC(year, month, 1));
+            let end = new Date(start.getTime());
             end.setUTCMonth(end.getUTCMonth() + 1);
             CalendarView.build(year, month);
             CalendarView.load(data, start, end);
@@ -39,9 +36,8 @@ function BudgetCalendarController() {
             Util.log(err);
         }
     }
-    this.init = function (settingsIn) {
-        settings = settingsIn;
-        new AccountSettingsController().init(settings);
+    this.init = function () {
+        new AccountSettingsController().init();
         load();
     };
 }

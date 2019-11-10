@@ -8,20 +8,19 @@ const Util = require('../util');
 function AccountsController() {
     'use strict';
     let dataClient;
-    let settings;
     function cancelTransfer(transferId) {
-        let dataClient = new DataClient(settings);
+        let dataClient = new DataClient();
         dataClient.sendRequest('budget')
             .then(data => {
                 let patch = {};
                 patch.pending = data.pending.filter(x => x.id != transferId);
-                return dataClient.patch(settings.s3ObjectKey, patch);
+                return dataClient.patch(patch);
             })
             .then(putResult => { window.location.reload(); })
             .catch(err => { Util.log(err); });
     }
     async function completeTransfer(transferId) {
-        let dataClient = new DataClient(settings);
+        let dataClient = new DataClient();
         let data = await dataClient.sendRequest('budget');
         let patch = { assets: data.assets || [] };
         let credit = data.pending.find(x => x.id === transferId);
@@ -75,7 +74,7 @@ function AccountsController() {
         }
         patch.assets = patch.assets.filter(x => Currency(Util.getAmount(x)).intValue > 0);
         try {
-            await dataClient.patch(settings.s3ObjectKey, patch);
+            await dataClient.patch(patch);
             window.location.reload();
         } catch (err) {
             Util.log(err);
@@ -119,10 +118,9 @@ function AccountsController() {
             Util.log(err);
         }
     }
-    this.init = function (settingsIn) {
-        settings = settingsIn;
-        dataClient = new DataClient(settings);
-        new AccountSettingsController().init(settings, balanceSheetView);
+    this.init = function () {
+        dataClient = new DataClient();
+        new AccountSettingsController().init(balanceSheetView);
         refresh();
     };
 }

@@ -29,26 +29,14 @@ exports.updateQueryStringParameter = function (uri, key, value) {
         return uri + separator + key + "=" + value;
     }
 };
-exports.agreedToLicense = function () {
-    return $('#acceptLicense').is(':checked');
-};
 exports.formatShares = function(shares) {
     return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 }).format(shares);
 };
 exports.format = function(amount) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }).format(amount);
 };
-exports.settings = function() {
-    let settings = {};
-    let optionalOverride = exports.getParameterByName('data');
-    if (optionalOverride) {
-        settings.s3ObjectKey = optionalOverride;
-    }
-    settings.pub = exports.getParameterByName('pub');
-    settings.priv = exports.getParameterByName('priv');
-    settings.s3Bucket = exports.getParameterByName('s3Bucket');
-    settings.agreedToLicense = exports.getParameterByName('agreedToLicense') === 'true';
-    return settings;
+exports.hasAgreedToLicense = function() {
+    return exports.getParameterByName('agreedToLicense') === 'true';
 };
 exports.rootUrl = function () {
     return window.location.origin === 'file://'

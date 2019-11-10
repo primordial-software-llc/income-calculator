@@ -3,16 +3,15 @@ const Util = require('../util');
 function DepositController() {
     'use strict';
     let dataClient;
-    let settings;
     async function deposit(amount) {
-        let dataClient = new DataClient(settings);
-        let data = await dataClient.getData();
+        let dataClient = new DataClient();
+        let data = await dataClient.sendRequest('budget');
         let cashAsset = data.assets.find(x => x.name.toLowerCase() === "cash");
         if (!cashAsset) {
             cashAsset = {name: 'Cash', sharePrice: '1', 'shares': '0'};
         }
         cashAsset.shares = Util.add(cashAsset.shares, amount);
-        await dataClient.patch(settings.s3ObjectKey, { assets: data.assets });
+        await dataClient.patch({ assets: data.assets });
         $('#submit-transfer').prop('disabled', false);
         $('#transfer-amount').val('');
         $('#message-container').html(`<div class="alert alert-success" role="alert">
@@ -28,11 +27,9 @@ function DepositController() {
             deposit($('#transfer-amount').val().trim());
         });
     }
-    this.init = function (settingsIn) {
-        settings = settingsIn;
-        dataClient = new DataClient(settings);
-        initAsync()
-            .catch(err => { Util.log(err); });
+    this.init = function () {
+        dataClient = new DataClient();
+        initAsync().catch(err => { Util.log(err); });
     };
 }
 

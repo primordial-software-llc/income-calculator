@@ -30,12 +30,17 @@ function CashViewModel() {
               <div class="col-xs-1">Transfer</div>
           </div>`);
     };
-    this.getReadOnlyView = function (amount, name, id) {
+    this.getReadOnlyView = function (amount, name, id, isAuthoritative) {
         'use strict';
+        let icon = isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
         let view = $(`
             <div class="dotted-underline-row row transaction-input-view">
                     <div class="col-xs-8 vertical-align amount-description-column">
-                        <div class="dotted-underline">${name}</div></div>
+                        <div class="dotted-underline">
+                            ${icon}
+                            ${name}
+                        </div>
+                    </div>
                     <div class="col-xs-3 text-right vertical-align amount-description-column">
                         <div class="dotted-underline">${Util.format(amount)}</div>
                     </div>

@@ -30,8 +30,8 @@ function TransferController() {
             let cancelTransferBtn = $(`<input type="button" value="Cancel" class="btn btn-default cancel">`);
             transferView.append(cancelTransferBtn);
             saveTransferBtn.click(function () {
-                let dataClient = new DataClient(Util.settings());
-                dataClient.getData()
+                let dataClient = new DataClient();
+                dataClient.sendRequest('budget')
                     .then(data => {
                         let patch = {};
                         data.pending = data.pending || [];
@@ -49,7 +49,7 @@ function TransferController() {
                         }
                         transferModel.debitId = debitId;
                         patch.pending.push(transferModel);
-                        return dataClient.patch(Util.settings().s3ObjectKey, patch);
+                        return dataClient.patch(patch);
                     })
                     .then(putResult => {
                         window.location.reload();

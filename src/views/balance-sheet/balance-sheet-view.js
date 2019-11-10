@@ -44,6 +44,7 @@ exports.setView = function (budget, bankData, viewModel) {
             `Credit Card - ${creditCard.mask}`,
             .18,
             getWeeklyAmount(budget, `Credit Card - ${creditCard.mask}`),
+            true,
             true);
         $('#balance-input-group').append(loanView);
     }
@@ -59,7 +60,8 @@ exports.setView = function (budget, bankData, viewModel) {
         $('#cash-input-group').append(new CashViewModel().getReadOnlyView(
             cashAccount.balances.available,
             `Checking - ${cashAccount.mask}`,
-            cashAccount.account_id));
+            cashAccount.account_id,
+            true));
     }
     totalCash = totalCash.add(authoritativeCashTotal);
     totalNonTangibleAssets = totalNonTangibleAssets.add(authoritativeCashTotal);

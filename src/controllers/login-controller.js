@@ -7,7 +7,6 @@ const Util = require('../util');
 function LoginController() {
     'use strict';
     let dataClient;
-    let settings;
     async function login(username, password) {
         let poolData = {
             UserPoolId : 'us-east-1_CJmKMk0Fw',
@@ -109,10 +108,9 @@ function LoginController() {
             await login($('#login-username').val().trim(), $('#login-password').val().trim());
         });
     }
-    this.init = function (settingsIn) {
-        settings = settingsIn;
-        dataClient = new DataClient(settings);
-        new AccountSettingsController().init(settings);
+    this.init = function () {
+        dataClient = new DataClient();
+        new AccountSettingsController().init();
         initAsync().catch(err => { Util.log(err); });
     };
 }

@@ -9,7 +9,6 @@ const Util = require('../util');
 function PayDaysController() {
     'use strict';
     let dataClient;
-    let settings;
     function getView(paymentNumber, payDate) {
         return `<div class="row">
                     <div class="col-xs-1 text-right">${paymentNumber}</div>
@@ -35,7 +34,7 @@ function PayDaysController() {
         let data = await dataClient.sendRequest('budget');
         $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
         $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
-        $('#acceptLicense').prop('checked', settings.agreedToLicense);
+        $('#acceptLicense').prop('checked', Util.hasAgreedToLicense());
 
         let max401kContribution = 19000;
         $('#max-401k-contribution').text(Util.format(max401kContribution));
@@ -58,10 +57,9 @@ function PayDaysController() {
         $('#remaining-should-contribute-for-year').text(Util.format(remainingShouldContribute.toString()));
         $('#total-should-contribute-for-year').text(Util.format(totalShouldcontribute.toString()));
     }
-    this.init = function (settingsIn) {
-        settings = settingsIn;
-        dataClient = new DataClient(settings);
-        new AccountSettingsController().init(settings, PayDaysView);
+    this.init = function () {
+        dataClient = new DataClient();
+        new AccountSettingsController().init(PayDaysView);
         initAsync()
             .catch(err => { Util.log(err); });
     };

@@ -5,7 +5,6 @@ const Util = require('../util');
 function PricesController() {
     'use strict';
     let dataClient;
-    let settings;
     let self = this;
     async function initAsync() {
         try {
@@ -62,19 +61,18 @@ function PricesController() {
             existing.sharePrice = price.sharePrice;
         }
         try {
-            let response = await dataClient.patch(settings.s3ObjectKey, {assets: data.assets});
+            let response = await dataClient.patch({assets: data.assets});
             window.location.reload();
         } catch (err) {
             Util.log(err);
         }
     }
-    this.init = function (settingsIn) {
-        settings = settingsIn;
-        dataClient = new DataClient(settings);
-        $('#acceptLicense').prop('checked', settings.agreedToLicense);
+    this.init = function () {
+        dataClient = new DataClient();
+        $('#acceptLicense').prop('checked', Util.hasAgreedToLicense());
         $('#save').click(function () {
             $('#save').attr('disabled', 'disabled');
-            if (Util.agreedToLicense()) {
+            if ($('#acceptLicense').is(':checked')) {
                 save();
             }
         });
