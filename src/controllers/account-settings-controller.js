@@ -7,7 +7,7 @@ function AccountSettingsController() {
     async function save() {
         let data = await view.getModel();
         try {
-            let response = await dataClient.patch('S3OBJKEY WILL PROBABLY GO AWAY, YOU GET ONE BUDGET - UNLESS IF YOU PAY WHICH NOBODY IS YET', data);
+            let response = await dataClient.patch(data);
             window.location.reload();
         } catch (err) {
             Util.log(err);
