@@ -6,10 +6,9 @@ const BondViewModel = require('./bond-view-model');
 const cal = require('../../calculators/calendar');
 const Currency = require('currency.js');
 const Util = require('../../util');
+const Moment = require('moment');
 exports.getModel = function () {
-    return {
-        balances: new LoanViewModel().getModels()
-    };
+    return { balances: new LoanViewModel().getModels() };
 };
 function setupToggle(container, detail) {
     $(container).click(function () {
@@ -26,56 +25,38 @@ function setupToggle(container, detail) {
 function getWeeklyAmount(budget, debtName) {
     let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName);
     let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName);
-    return monthlyTxn ? (monthlyTxn.amount/100) / cal.WEEKS_IN_MONTH
-        : weeklyTxn ? weeklyTxn.amount/100 : 0;
+    return monthlyTxn ? Currency(monthlyTxn.amount, Util.getCurrencyDefaults()).divide(cal.WEEKS_IN_MONTH).toString()
+        : weeklyTxn ? weeklyTxn.amount : 0;
 }
-exports.setView = function (budget, bankData, viewModel) {
+exports.setView = function (budget, obfuscate) {
     $('#balance-input-group').empty();
     $('.cash-header-container').append(new CashViewModel().getReadOnlyHeaderView());
     $('.assets-header-container').append(new CashOrStockViewModel().getReadOnlyHeaderView());
     $('.property-plant-and-equipment-header-container').append(new PpeVm().getHeaderView());
-    for (let loan of budget.balances) {
-        let loanView = new LoanViewModel().getView(loan.amount, loan.name, loan.rate, getWeeklyAmount(budget, loan.name));
-        $('#balance-input-group').append(loanView);
-    }
-    for (let creditCard of (bankData.accounts || []).filter(x => (x.type || '').toLowerCase() === 'credit')) {
-        let loanView = new LoanViewModel().getView(
-            creditCard.balances.current,
-            `Credit Card - ${creditCard.mask}`,
-            .18,
-            getWeeklyAmount(budget, `Credit Card - ${creditCard.mask}`),
-            true,
-            true);
-        $('#balance-input-group').append(loanView);
-    }
-    $('#loan-total-amount-value').text(`(${Util.format(viewModel.debtsTotal.toString())})`);
+    let debtTotal = Currency(0, Util.getCurrencyDefaults());
     let totalCash = Currency(0, Util.getCurrencyDefaults());
     let authoritativeCashTotal = Currency(0, Util.getCurrencyDefaults());
     let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults());
+    for (let loan of budget.balances) {
+        debtTotal = debtTotal.add(loan.amount);
+        let loanView = new LoanViewModel().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
+        $('#balance-input-group').append(loanView);
+    }
     for (let asset of budget.assets) {
         totalNonTangibleAssets = totalNonTangibleAssets.add(Util.getAmount(asset));
-    }
-    for (let cashAccount of (bankData.accounts || []).filter(x => (x.type || '').toLowerCase() === 'depository')) {
-        authoritativeCashTotal = authoritativeCashTotal.add(cashAccount.balances.available);
-        $('#cash-input-group').append(new CashViewModel().getReadOnlyView(
-            cashAccount.balances.available,
-            `Checking - ${cashAccount.mask}`,
-            cashAccount.account_id,
-            true));
     }
     totalCash = totalCash.add(authoritativeCashTotal);
     totalNonTangibleAssets = totalNonTangibleAssets.add(authoritativeCashTotal);
     for (let cashAccount of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'cash')) {
         totalCash = totalCash.add(cashAccount.amount);
-        $('#cash-input-group').append(new CashViewModel().getReadOnlyView(cashAccount.amount, cashAccount.name, cashAccount.id));
+        let view = new CashViewModel().getReadOnlyView(cashAccount, obfuscate);
+        $('#cash-input-group').append(view);
     }
     let totalPropertyPlantAndEquipment = Currency(0, Util.getCurrencyDefaults());
     for (let tangibleAsset of budget.propertyPlantAndEquipment || []) {
         totalPropertyPlantAndEquipment = totalPropertyPlantAndEquipment.add(tangibleAsset.amount);
         $('#property-plant-and-equipment-input-group').append(new PpeVm().getReadOnlyView(tangibleAsset.amount, tangibleAsset.name));
     }
-    let ppeTotalView = $(`<div class="subtotal">Total Property, Plant and Equipment<span class="pull-right amount">${Util.format(totalPropertyPlantAndEquipment.toString())}</span></div>`);
-    $('#property-plant-and-equipment-total-amount').append(ppeTotalView);
     let totalEquities = Currency(0, Util.getCurrencyDefaults());
     let equityViewModel = new CashOrStockViewModel();
     for (let equity of (budget.assets || [])
@@ -87,15 +68,19 @@ exports.setView = function (budget, bankData, viewModel) {
             totalNonTangibleAssets.toString(),
             budget.pending,
             equity.shares,
-            equity.sharePrice
+            equity.sharePrice,
+            obfuscate
         );
         $('#asset-input-group').append(view);
     }
     let totalBonds = Currency(0, Util.getCurrencyDefaults());
     for (let bond of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'bond')) {
         totalBonds = totalBonds.add(Currency(bond.amount));
-        $('#bond-input-group').append(new BondViewModel().getReadOnlyView(bond));
+        $('#bond-input-group').append(new BondViewModel().getReadOnlyView(bond, obfuscate));
     }
+    $('#loan-total-amount-value').text(`(${Util.format(debtTotal.toString())})`);
+    let ppeTotalView = $(`<div class="subtotal">Total Property, Plant and Equipment<span class="pull-right amount">${Util.format(totalPropertyPlantAndEquipment.toString())}</span></div>`);
+    $('#property-plant-and-equipment-total-amount').append(ppeTotalView);
     $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
             ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalCash).toString()}</span></div>`));
     $('#cash-total-amount').append(
@@ -112,9 +97,9 @@ exports.setView = function (budget, bankData, viewModel) {
     );
     $('#total-tangible-assets').text(Util.format(totalPropertyPlantAndEquipment));
     $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets));
-    $('#total-debt').text(`(${Util.format(viewModel.debtsTotal)})`);
+    $('#total-debt').text(`(${Util.format(debtTotal)})`);
     let net = Currency(0, Util.getCurrencyDefaults())
-        .subtract(viewModel.debtsTotal)
+        .subtract(debtTotal)
         .add(totalPropertyPlantAndEquipment)
         .add(totalNonTangibleAssets);
     $('#net-total').text(Util.format(net.toString()));
@@ -124,4 +109,10 @@ exports.setView = function (budget, bankData, viewModel) {
     setupToggle('#tree-view-cash-or-stock','#assets-container');
     setupToggle('#tree-view-bonds','#bond-container');
     setupToggle('#tree-view-totals-row','#totals-row');
+
+    if (budget.licenseAgreement && budget.licenseAgreement.agreedToLicense) {
+        $('#acceptLicense').prop('checked', true);
+        $('#acceptLicense').prop('disabled', true);
+        $('.licenseAgreementDetails').append(`agreed to license on ${budget.licenseAgreement.agreementDateUtc} from IP ${budget.licenseAgreement.ipAddress}`);
+    }
 };

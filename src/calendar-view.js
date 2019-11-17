@@ -11,7 +11,7 @@ const calendarAggregator = new CalendarAggregator();
 function getTransactionView(name, amount, type) {
     return `<div class="transaction-view ${type}"> 
                 <div class="name">${name}</div>
-                <div class="amount">$${amount/100}</div>
+                <div class="amount">$${amount}</div>
             </div>`;
 }
 

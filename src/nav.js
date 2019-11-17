@@ -12,9 +12,6 @@ exports.initNav = function (target) {
               <a class="tab-nav-item" onclick="window.location='${root}/pages/balance-sheet.html${window.location.search}';" href="#" title="Balance Sheet">
                   <span class="ac-gn-link-text">Balance Sheet</span>
               </a>
-              <a class="tab-nav-item" onclick="window.location='${root}/pages/accounts.html${window.location.search}';" href="#" title="Accounts">
-                  <span class="ac-gn-link-text">Accounts</span>
-              </a>
               <a class="tab-nav-item" onclick="window.location='${root}/pages/prices.html${window.location.search}';" href="#" title="Prices">
                   <span class="ac-gn-link-text">Prices</span>
               </a>
@@ -23,6 +20,9 @@ exports.initNav = function (target) {
               </a>
               <a class="tab-nav-item" onclick="window.location='${root}/pages/pay-days.html${window.location.search}';" href="#" title="Pay Days">
                   <span class="ac-gn-link-text">Pay Days</span>
+              </a>
+              <a class="tab-nav-item" onclick="window.location='${root}/pages/link-bank-account.html${window.location.search}';" href="#" title="View and Manage Linked Banks">
+                  <span class="ac-gn-link-text">Banks</span>
               </a>
           </div>
       </div>`);

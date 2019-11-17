@@ -18722,10 +18722,10 @@ const HomeController = require('./controllers/home-controller');
 const BudgetCalendarController = require('./controllers/budget-calendar-controller');
 const BalanceSheetController = require('./controllers/balance-sheet-controller');
 const PayDaysController = require('./controllers/pay-days-controller');
-const AccountsController = require('./controllers/accounts-controller');
 const DepositController = require('./controllers/deposit-controller');
 const PricesController = require('./controllers/prices-controller');
 const LoginController = require('./controllers/login-controller');
+const LinkBankAccountController = require('./controllers/link-bank-account-controller');
 const Nav = require('./nav');
 const AccountSettingsView = require('./views/account-settings-view');
 const Util = require('./util');
@@ -18741,8 +18741,6 @@ $(document).ready(function () {
         controller = new BalanceSheetController();
     } else if (pageName.startsWith('pay-days.html')) {
         controller = new PayDaysController();
-    } else if (pageName.startsWith('accounts.html')) {
-        controller = new AccountsController();
     } else if (pageName.startsWith('budget-calendar.html')) {
         controller = new BudgetCalendarController();
     } else if (pageName.startsWith('deposit.html')) {
@@ -18751,8 +18749,12 @@ $(document).ready(function () {
         controller = new PricesController();
     } else if (pageName.startsWith('login.html')) {
         controller = new LoginController();
+    } else if (pageName.startsWith('link-bank-account.html')) {
+        controller = new LinkBankAccountController();
     }
-    $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView());
+
+    let obfuscate = Util.obfuscate();
+    $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView(obfuscate));
     $('body').append('<div id="page-footer"></div>');
     $('#page-footer').append(`<div id="debug-console" class="no-print"></div>`);
     $('#page-footer').append(`<div id="account-settings-container"></div>`).append(AccountSettingsView.getAccountSettingsView());
@@ -18760,7 +18762,7 @@ $(document).ready(function () {
     controller.init();
 });
 
-},{"./controllers/accounts-controller":73,"./controllers/balance-sheet-controller":74,"./controllers/budget-calendar-controller":76,"./controllers/deposit-controller":77,"./controllers/home-controller":78,"./controllers/login-controller":79,"./controllers/pay-days-controller":80,"./controllers/prices-controller":81,"./nav":83,"./util":84,"./views/account-settings-view":85}],63:[function(require,module,exports){
+},{"./controllers/balance-sheet-controller":73,"./controllers/budget-calendar-controller":75,"./controllers/deposit-controller":76,"./controllers/home-controller":77,"./controllers/link-bank-account-controller":78,"./controllers/login-controller":79,"./controllers/pay-days-controller":80,"./controllers/prices-controller":81,"./nav":83,"./util":84,"./views/account-settings-view":85}],63:[function(require,module,exports){
 const Currency = require('currency.js');
 const Util = require('../util');
 function AvailableBalanceCalculator() {
@@ -18790,14 +18792,14 @@ function CalendarAggregator() {
         let debits = summary.budgetItems
                 .filter(x => x.type === 'expense')
                 .map(x => x.amount)
-                .reduce((total, amount) => total + amount);
+                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount));
         let credits =  summary.budgetItems
                 .filter(x => x.type !== 'expense')
                 .map(x => x.amount)
-                .reduce((total, amount) => total + amount);
-        summary.debits = Currency(debits, {precision: 2}).divide(100).toString();
-        summary.credits = Currency(credits, {precision: 2}).divide(100).toString();
-        summary.net = Currency(credits - debits, {precision: 2}).divide(100).toString();
+                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount));
+        summary.debits = Currency(debits, {precision: 2}).toString();
+        summary.credits = Currency(credits, {precision: 2}).toString();
+        summary.net = Currency(credits - debits, {precision: 2}).toString();
         let paymentSources = new Set(summary.budgetItems.map(x => (x.paymentSource || '').toLowerCase()));
         summary.debitsByPaymentSource = [];
         summary.creditsByPaymentSource = [];
@@ -18808,11 +18810,11 @@ function CalendarAggregator() {
                 && x.type !== 'expense');
             let creditsTotal = Currency(0, Util.getCurrencyDefaults());
             for (let credit of credits) {
-                creditsTotal = creditsTotal.add(credit.amount / 100);
+                creditsTotal = creditsTotal.add(credit.amount);
             }
             let debitsTotal = Currency(0, Util.getCurrencyDefaults());
             for (let debit of debits) {
-                debitsTotal = debitsTotal.add(debit.amount / 100);
+                debitsTotal = debitsTotal.add(debit.amount);
             }
             if (credits.length) {
                 summary.creditsByPaymentSource.push({
@@ -19124,7 +19126,7 @@ const calendarAggregator = new CalendarAggregator();
 function getTransactionView(name, amount, type) {
     return `<div class="transaction-view ${type}"> 
                 <div class="name">${name}</div>
-                <div class="amount">$${amount/100}</div>
+                <div class="amount">$${amount}</div>
             </div>`;
 }
 
@@ -19264,8 +19266,11 @@ function AccountSettingsController() {
     'use strict';
     let dataClient;
     let view;
-    async function save() {
+    async function save(agreedToLicense) {
         let data = await view.getModel();
+        data.licenseAgreement = {
+            agreedToLicense: agreedToLicense
+        };
         try {
             let response = await dataClient.patch(data);
             window.location.reload();
@@ -19277,22 +19282,34 @@ function AccountSettingsController() {
         view = viewIn;
         dataClient = new DataClient();
         $('#save').click(function () {
-            $('#save').attr('disabled', 'disabled');
             if ($('#acceptLicense').is(':checked')) {
-                save();
+                $('#save').attr('disabled', 'disabled');
+                save(true);
+            } else {
+                alert('You must agree to the license to proceed');
             }
         });
+        $('#obfuscate-data').click(() => {
+            if (Util.obfuscate()) {
+                document.cookie = 'obfuscate=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
+            } else {
+                document.cookie = `obfuscate=true;Secure;path=/`;
+            }
+            window.location.reload();
+        });
         $('#account-settings-button').click(() => {
+            $('#account-settings-view-cognito-user').val(Util.getUsername());
             $('#account-settings-view').modal({backdrop: 'static'});
         });
         $('#log-out-button').click(() => {
             document.cookie = 'idToken=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
+            document.cookie = 'refreshToken=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
             window.location=`${Util.rootUrl()}/pages/login.html${window.location.search}`;
         });
         $('#view-raw-data-button').click(async () => {
             let data;
             try {
-                data = await dataClient.sendRequest('budget');
+                data = await dataClient.getBudget();
             } catch (err) {
                 Util.log(err);
                 return;
@@ -19304,7 +19321,7 @@ function AccountSettingsController() {
         $('#budget-download').click(async function () {
             let data;
             try {
-                data = await dataClient.sendRequest('budget');
+                data = await dataClient.getBudget();
             } catch (err) {
                 Util.log(err);
                 return;
@@ -19321,176 +19338,91 @@ function AccountSettingsController() {
                 downloadLink.click();
             }
         });
-        $('#acceptLicense').prop('checked', Util.hasAgreedToLicense());
     };
 }
 
 module.exports = AccountSettingsController;
 },{"../data-client":82,"../util":84}],73:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
-const AccountsView = require('../views/accounts-view');
-const AvailableBalanceCalculator = require('../calculators/available-balance-calculator');
-const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
-const Currency = require('currency.js');
-const DataClient = require('../data-client');
-const Util = require('../util');
-function AccountsController() {
-    'use strict';
-    let dataClient;
-    function cancelTransfer(transferId) {
-        let dataClient = new DataClient();
-        dataClient.sendRequest('budget')
-            .then(data => {
-                let patch = {};
-                patch.pending = data.pending.filter(x => x.id != transferId);
-                return dataClient.patch(patch);
-            })
-            .then(putResult => { window.location.reload(); })
-            .catch(err => { Util.log(err); });
-    }
-    async function completeTransfer(transferId) {
-        let dataClient = new DataClient();
-        let data = await dataClient.sendRequest('budget');
-        let patch = { assets: data.assets || [] };
-        let credit = data.pending.find(x => x.id === transferId);
-        patch.pending = data.pending.filter(x => x.id !== transferId);
-        let debitAccount = patch.assets.find(
-            x => (x.id && x.id === credit.debitId)
-                     /* || (x.name || '').toLowerCase() === credit.debitAccount.toLowerCase()*/); // Fail for now until I get the transfers working.
-        if (credit.type && credit.type.toLowerCase() === 'bond' ||
-            credit.type && credit.type.toLowerCase() === 'expense' ||
-            credit.type && credit.type.toLowerCase() === 'cash') {
-            let creditAmount = Util.getAmount(credit);
-            // Not going to work for equity -> cash, but I'm not there yet.
-            debitAccount.amount = Currency(debitAccount.amount, Util.getCurrencyDefaults()).subtract(creditAmount).toString();
-            if (credit.type.toLowerCase() !== 'expense') {
-                let creditAccount = patch.assets.find(asset =>
-                    (asset.type || '').toLowerCase() == (credit.type || '').toLowerCase() &&
-                    (asset.name || '').toLowerCase() === credit.creditAccount.toLowerCase());
-                if (!creditAccount) {
-                    delete credit.creditAccount;
-                    delete credit.debitAccount;
-                    delete credit.transferDate;
-                    patch.assets.push(credit);
-                } else {
-                    creditAccount.amount = Currency(creditAccount.amount, Util.getCurrencyDefaults()).add(credit.amount).toString();
-                }
-            }
-        } else if (credit.type && credit.type.toLowerCase() === 'property-plant-and-equipment') {
-            debitAccount.shares = Currency(debitAccount.shares, Util.getCurrencyDefaults()).subtract(credit.amount).toString();
-            patch.propertyPlantAndEquipment = data.propertyPlantAndEquipment || [];
-            patch.propertyPlantAndEquipment.push({
-                amount: credit.amount,
-                name: credit.name
-            });
-        } else {
-            let newDebitAmount = Currency(Util.getAmount(debitAccount), Util.getCurrencyDefaults()).subtract(Util.getAmount(credit)).toString();
-            debitAccount.shares = Currency(newDebitAmount, Util.getCurrencyDefaults()).divide(debitAccount.sharePrice).toString();
-            let creditAccount = patch.assets.find(x => x.name.toLowerCase() === credit.creditAccount.toLowerCase());
-            if (!creditAccount) {
-                creditAccount = {
-                    name: credit.creditAccount,
-                    shares: credit.shares,
-                    sharePrice: credit.sharePrice
-                };
-                patch.assets.push(creditAccount);
-            } else {
-                creditAccount.shares = Currency(creditAccount.shares, Util.getCurrencyDefaults()).add(credit.shares).toString();
-            }
-            if (Currency(debitAccount.shares).intValue < 1) {
-                patch.assets = patch.assets.filter(x => x.name.toLowerCase() !== debitAccount.name.toLowerCase());
-            }
-        }
-        patch.assets = patch.assets.filter(x => Currency(Util.getAmount(x)).intValue > 0);
-        try {
-            await dataClient.patch(patch);
-            window.location.reload();
-        } catch (err) {
-            Util.log(err);
-        }
-    }
-    function setView(data) {
-        if (!data.pending) {
-            return;
-        }
-        let accounts = data.pending
-            .filter(x => (x.type || '').toLowerCase() !== 'expense')
-            .map(x => (x.creditAccount || '').toLowerCase())
-            .concat(data.pending.map(x => (x.debitAccount || '').toLowerCase()));
-        let uniqueAccounts = new Set(accounts);
-        accounts = [...uniqueAccounts];
-        for (let account of accounts) {
-            let startingBalance = Currency(0, Util.getCurrencyDefaults());
-            let settled = [];
-            if (account.toLowerCase() === 'bonds') {
-                settled = (data.assets || []).filter(x => (x.type || '').toLowerCase() == 'bond');
-            } else {
-                settled = (data.assets || []).filter(x => (x.name || '').toLowerCase() === account.toLowerCase());
-            }
-            for (let settledTransaction of settled) {
-                startingBalance = startingBalance.add(Util.getAmount(settledTransaction));
-            }
-            $('.accounts-container').append(AccountsView.getAccountView(account, data.pending, startingBalance.toString(),
-                cancelTransfer,
-                completeTransfer
-            ));
-        }
-    }
-    async function refresh() {
-        try {
-            let data = await dataClient.sendRequest('budget');
-            setView(data);
-            if (location.hash && document.querySelector(location.hash)) {
-                window.scrollTo(0, document.querySelector(location.hash).offsetTop);
-            }
-        } catch (err) {
-            Util.log(err);
-        }
-    }
-    this.init = function () {
-        dataClient = new DataClient();
-        new AccountSettingsController().init(balanceSheetView);
-        refresh();
-    };
-}
-
-module.exports = AccountsController;
-},{"../calculators/available-balance-calculator":63,"../data-client":82,"../util":84,"../views/accounts-view":86,"../views/balance-sheet/balance-sheet-view":87,"./account-settings-controller":72,"currency.js":26}],74:[function(require,module,exports){
-const AccountSettingsController = require('./account-settings-controller');
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 const CashOrStockViewModel = require('../views/balance-sheet/cash-or-stock-view-model');
+const Currency = require('currency.js');
 const DataClient = require('../data-client');
 const LoanViewModel = require('../views/balance-sheet/loan-view-model');
 const Util = require('../util');
-const Currency = require('currency.js');
 function HomeController() {
     'use strict';
     let dataClient;
     async function refresh() {
         try {
-            let data = dataClient.sendRequest('budget');
-            let bankData = dataClient.sendRequest('accountBalance');
+            let data = dataClient.getBudget();
+            let bankData = dataClient.get('accountBalance');
             data = await data;
             bankData = await bankData;
-            balanceSheetView.setView(data, bankData, getViewModel(data, bankData));
+            let viewModel = getViewModel(data, bankData);
+            if (Util.obfuscate()) {
+                obfuscate(viewModel);
+            }
+            balanceSheetView.setView(viewModel, Util.obfuscate());
         } catch (err) {
             Util.log(err);
         }
     }
-    function getViewModel(budget, bankData) {
-        let balanceSheetViewModel = {};
-        balanceSheetViewModel.debtsTotal = Currency(0, Util.getCurrencyDefaults());
-        for (let loan of budget.balances) {
-            balanceSheetViewModel.debtsTotal = balanceSheetViewModel.debtsTotal.add(loan.amount);
+    function obfuscate(viewModel) {
+        for (let asset of viewModel.assets) {
+            if (asset.shares) {
+                asset.shares = Currency(asset.shares, Util.getCurrencyDefaults()).multiply(
+                    Util.obfuscationAmount()
+                ).toString();
+            }
+            if (asset.amount) {
+                asset.amount = Currency(asset.amount, Util.getCurrencyDefaults()).multiply(
+                    Util.obfuscationAmount()
+                ).toString();
+            }
         }
-        for (let creditCard of (bankData.accounts || []).filter(x => (x.type || '').toLowerCase() === 'credit')) {
-            balanceSheetViewModel.debtsTotal = balanceSheetViewModel.debtsTotal.add(creditCard.balances.current);
+        for (let debt of viewModel.balances) {
+            debt.amount = Currency(debt.amount, Util.getCurrencyDefaults()).multiply(
+                Util.obfuscationAmount()
+            ).toString();
         }
-        return balanceSheetViewModel;
+        for (let ppe of viewModel.propertyPlantAndEquipment) {
+            ppe.amount = Currency(ppe.amount, Util.getCurrencyDefaults()).multiply(
+                Util.obfuscationAmount()
+            ).toString();
+        }
+    }
+    function getViewModel(data, bankData) {
+        let viewModel = JSON.parse(JSON.stringify(data));
+        viewModel.assets = viewModel.assets || [];
+        viewModel.balances = viewModel.balances || [];
+        for (let bankAccount of bankData.allAccounts) {
+            for (let account of bankAccount.accounts.filter(x => x.type === 'depository')) {
+                viewModel.assets.push({
+                    type: account.type === 'depository' ? 'cash' : '',
+                    name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
+                    amount: account.balances.available,
+                    id: account['account_id'],
+                    isAuthoritative: true
+                });
+            }
+            for (let account of bankAccount.accounts.filter(x => x.type === 'credit')) {
+                viewModel.balances.push({
+                    type: account.type,
+                    name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
+                    amount: account.balances.current,
+                    isAuthoritative: true
+                });
+            }
+        }
+        return viewModel;
     }
     this.init = function () {
         dataClient = new DataClient();
         new AccountSettingsController().init(balanceSheetView);
+        if (Util.obfuscate()) {
+            $('#add-new-balance').prop('disabled', true);
+        }
         $('#add-new-balance').click(function () {
             $('#balance-input-group').append(new LoanViewModel().getView(100, 'new balance', '.035'));
         });
@@ -19499,7 +19431,7 @@ function HomeController() {
 }
 
 module.exports = HomeController;
-},{"../data-client":82,"../util":84,"../views/balance-sheet/balance-sheet-view":87,"../views/balance-sheet/cash-or-stock-view-model":89,"../views/balance-sheet/loan-view-model":92,"./account-settings-controller":72,"currency.js":26}],75:[function(require,module,exports){
+},{"../data-client":82,"../util":84,"../views/balance-sheet/balance-sheet-view":86,"../views/balance-sheet/cash-or-stock-view-model":88,"../views/balance-sheet/loan-view-model":91,"./account-settings-controller":72,"currency.js":26}],74:[function(require,module,exports){
 const DataClient = require('../../data-client');
 const Moment = require('moment/moment');
 const TransferView = require('../../views/balance-sheet/transfer-view');
@@ -19533,7 +19465,7 @@ function TransferController() {
             transferView.append(cancelTransferBtn);
             saveTransferBtn.click(function () {
                 let dataClient = new DataClient();
-                dataClient.sendRequest('budget')
+                dataClient.getBudget()
                     .then(data => {
                         let patch = {};
                         data.pending = data.pending || [];
@@ -19572,7 +19504,7 @@ function TransferController() {
 
 module.exports = TransferController;
 
-},{"../../data-client":82,"../../util":84,"../../views/balance-sheet/transfer-view":94,"moment/moment":31}],76:[function(require,module,exports){
+},{"../../data-client":82,"../../util":84,"../../views/balance-sheet/transfer-view":93,"moment/moment":31}],75:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const CalendarView = require('../calendar-view');
 const DataClient = require('../data-client');
@@ -19594,7 +19526,8 @@ function BudgetCalendarController() {
             });
 
             let dataClient = new DataClient();
-            data = await dataClient.sendRequest('budget');
+            data = await dataClient.getBudget();
+
             for (let mre of data.monthlyRecurringExpenses) {
                 mre.date = new Date(mre.date);
             }
@@ -19618,7 +19551,8 @@ function BudgetCalendarController() {
 }
 
 module.exports = BudgetCalendarController;
-},{"../calendar-view":71,"../data-client":82,"../util":84,"./account-settings-controller":72}],77:[function(require,module,exports){
+},{"../calendar-view":71,"../data-client":82,"../util":84,"./account-settings-controller":72}],76:[function(require,module,exports){
+const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const Util = require('../util');
 function DepositController() {
@@ -19626,14 +19560,13 @@ function DepositController() {
     let dataClient;
     async function deposit(amount) {
         let dataClient = new DataClient();
-        let data = await dataClient.sendRequest('budget');
+        let data = await dataClient.getBudget();
         let cashAsset = data.assets.find(x => x.name.toLowerCase() === "cash");
         if (!cashAsset) {
             cashAsset = {name: 'Cash', sharePrice: '1', 'shares': '0'};
         }
         cashAsset.shares = Util.add(cashAsset.shares, amount);
         await dataClient.patch({ assets: data.assets });
-        $('#submit-transfer').prop('disabled', false);
         $('#transfer-amount').val('');
         $('#message-container').html(`<div class="alert alert-success" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -19643,6 +19576,9 @@ function DepositController() {
             </div>`);
     }
     async function initAsync() {
+        if (Util.obfuscate()) {
+            $('#submit-transfer').prop('disabled', true);
+        }
         $('#submit-transfer').click(function() {
             $('#submit-transfer').prop('disabled', true);
             deposit($('#transfer-amount').val().trim());
@@ -19650,12 +19586,13 @@ function DepositController() {
     }
     this.init = function () {
         dataClient = new DataClient();
+        new AccountSettingsController().init();
         initAsync().catch(err => { Util.log(err); });
     };
 }
 
 module.exports = DepositController;
-},{"../data-client":82,"../util":84}],78:[function(require,module,exports){
+},{"../data-client":82,"../util":84,"./account-settings-controller":72}],77:[function(require,module,exports){
 const HomeView = require('../views/home-view');
 const DataClient = require('../data-client');
 const AccountSettingsController = require('./account-settings-controller');
@@ -19666,10 +19603,8 @@ function HomeController() {
     let homeView;
     async function refresh() {
         try {
-            let data = await dataClient.sendRequest('budget');
-            homeView.setView(data);
-            $('#add-new-monthly').prop('disabled', false);
-            $('#add-new-weekly').prop('disabled', false);
+            let data = await dataClient.getBudget();
+            homeView.setView(data, Util.obfuscate());
         } catch (err) {
             Util.log(err);
         }
@@ -19692,7 +19627,121 @@ function HomeController() {
     };
 }
 module.exports = HomeController;
-},{"../data-client":82,"../util":84,"../views/home-view":95,"./account-settings-controller":72}],79:[function(require,module,exports){
+},{"../data-client":82,"../util":84,"../views/home-view":94,"./account-settings-controller":72}],78:[function(require,module,exports){
+const AccountSettingsController = require('./account-settings-controller');
+const DataClient = require('../data-client');
+const Util = require('../util');
+
+function LinkBankAccountController() {
+    'use strict';
+    async function initAsync() {
+        $('#link-button').on('click', function(e) {
+            let selectedProducts = [];
+            $("input[name='plaid-products']:checked").each(function (index, obj) {
+                selectedProducts.push($(obj).val());
+            });
+            let handler = Plaid.create({
+                clientName: 'My App',
+                env: 'development',
+                key: '7e6391ab6cbcc3b212440b5821bfa7',
+                product: selectedProducts,
+                onSuccess: async function(public_token, metadata) {
+                    let dataClient = new DataClient();
+                    try {
+                        let result = await dataClient.post('link-access-token', { publicToken: public_token });
+                        window.location.reload();
+                    } catch (err) {
+                        Util.log(err);
+                    }
+                },
+                onExit: function(err, metadata) {
+                    // The user exited the Link flow.
+                    if (err != null) {
+                        // The user encountered a Plaid API error prior to exiting.
+                        console.log(err);
+                        window.alert(err);
+                    }
+                    // metadata contains information about the institution
+                    // that the user selected and the most recent API request IDs.
+                    // Storing this information can be helpful for support.
+                },
+                onEvent: function(eventName, metadata) {
+                    // Optionally capture Link flow events, streamed through
+                    // this callback as your users connect an Item to Plaid.
+                    // For example:
+                    // eventName = "TRANSITION_VIEW"
+                    // metadata  = {
+                    //   link_session_id: "123-abc",
+                    //   mfa_type:        "questions",
+                    //   timestamp:       "2017-09-14T14:42:19.350Z",
+                    //   view_name:       "MFA",
+                    // }
+                }
+            });
+            handler.open();
+        });
+
+        let dataClient = new DataClient();
+        try {
+            let bankLinks = await dataClient.get('bank-link');
+            for (let bankLink of bankLinks) {
+                let bankLinkView = $('<div class="bank-link-item-container"></div>');
+                bankLinkView.append(`<span title="${bankLink['institution']['name']} - ${bankLink['item_id']}">${bankLink['institution']['name']}</span>`);
+                let bankLinkUpdateButton = $(`
+                    <button class="btn btn-info" title="Re-Authenticate Bank Link" type="button">
+                        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                    </button>
+                `);
+                bankLinkUpdateButton.on('click', async function(e) {
+                    let data = { itemId: bankLink['item_id'] };
+                    let result;
+                    try {
+                        result = await dataClient.post('create-public-token', data);
+                    } catch (err) {
+                        Util.log(err);
+                        return;
+                    }
+                    let handler = Plaid.create({
+                        clientName: 'My App',
+                        env: 'development',
+                        key: '7e6391ab6cbcc3b212440b5821bfa7',
+                        product: ['auth','transactions'],
+                        token: result['public_token'],
+                        onSuccess: async function(public_token, metadata) {
+                            window.alert('updated account access token');
+                        }
+                    });
+                    handler.open();
+                });
+                bankLinkView.append(bankLinkUpdateButton);
+                let bankLinkRemoveButton = $(`
+                    <button class="btn btn-danger" title="Remove Bank Link" type="button">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </button>`);
+                bankLinkRemoveButton.click(async function () {
+                    try {
+                        await dataClient.delete('bank-link', { itemId: bankLink['item_id']});
+                        window.alert(`Bank link deleted: ${bankLink['institution']['name']} - ${bankLink['item_id']}`);
+                        window.location.reload();
+                    } catch (err) {
+                        Util.log(err);
+                    }
+                });
+                bankLinkView.append(bankLinkRemoveButton);
+                $('#existing-link-container').append(bankLinkView);
+            }
+        } catch (err) {
+            Util.log(err);
+        }
+    }
+    this.init = function () {
+        new AccountSettingsController().init({});
+        initAsync().catch(err => { Util.log(err); });
+    };
+}
+
+module.exports = LinkBankAccountController;
+},{"../data-client":82,"../util":84,"./account-settings-controller":72}],79:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
@@ -19703,11 +19752,7 @@ function LoginController() {
     'use strict';
     let dataClient;
     async function login(username, password) {
-        let poolData = {
-            UserPoolId : 'us-east-1_CJmKMk0Fw',
-            ClientId : '1alsnsg84noq81e7f2v5vru7m7'
-        };
-        let userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+        let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
         let userData = {
             Username : username,
             Pool : userPool
@@ -19721,6 +19766,7 @@ function LoginController() {
         let userAuthCallbacks = {
             onSuccess: async function (result) {
                 document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
+                document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
                 window.location=`${Util.rootUrl()}/pages/balance-sheet.html${window.location.search}`;
             },
             onFailure: function(err) {
@@ -19845,7 +19891,7 @@ function PayDaysController() {
         return paymentDates;
     }
     async function initAsync() {
-        let data = await dataClient.sendRequest('budget');
+        let data = await dataClient.getBudget();
         $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
         $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
         $('#acceptLicense').prop('checked', Util.hasAgreedToLicense());
@@ -19870,6 +19916,12 @@ function PayDaysController() {
         $('#should-contribute-for-max').text(Util.format(shouldContributePerPaycheck.toString()));
         $('#remaining-should-contribute-for-year').text(Util.format(remainingShouldContribute.toString()));
         $('#total-should-contribute-for-year').text(Util.format(totalShouldcontribute.toString()));
+
+        if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
+            $('#acceptLicense').prop('checked', true);
+            $('#acceptLicense').prop('disabled', true);
+            $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
+        }
     }
     this.init = function () {
         dataClient = new DataClient();
@@ -19880,92 +19932,45 @@ function PayDaysController() {
 }
 
 module.exports = PayDaysController;
-},{"../calculators/calendar":66,"../calculators/utc-day":69,"../data-client":82,"../util":84,"../views/pay-days-view":96,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],81:[function(require,module,exports){
+},{"../calculators/calendar":66,"../calculators/utc-day":69,"../data-client":82,"../util":84,"../views/pay-days-view":95,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],81:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
-const Currency = require('currency.js');
 const DataClient = require('../data-client');
+const PricesView = require('../views/prices-view');
 const Util = require('../util');
 function PricesController() {
     'use strict';
     let dataClient;
-    let self = this;
     async function initAsync() {
         try {
-            let data = await dataClient.sendRequest('budget');
+            let data = await dataClient.getBudget();
             if (data.assets) {
                 $('#prices-input-group').empty();
-                $('#prices-input-group').append(self.getHeaderView());
-                for (let asset of data.assets) {
-                    $('#prices-input-group').append(self.getView(asset.name, asset.sharePrice));
+                $('#prices-input-group').append(PricesView.getHeaderView());
+                for (let asset of data.assets.filter(x => x.sharePrice)) {
+                    $('#prices-input-group').append(PricesView.getView(asset.name, asset.sharePrice));
                 }
             }
-        } catch (err) {
-            Util.log(err);
-        }
-    }
-    this.getHeaderView = function () {
-        return $(`<div class="row table-header-row">
-              <div class="col-xs-6">Asset</div>
-              <div class="col-xs-6">Price</div>
-          </div>`);
-    };
-    this.getView = function (name, sharePrice) {
-        'use strict';
-        let view = $(`<div class="prices-item row transaction-input-view">
-                    <div class="col-xs-6"><input class="input-name name form-control" type="text" value="${name || ''}" /></div>
-                    <div class="col-xs-6">
-                        <div class="input-group">
-                            <div class="input-group-addon ">$</div>
-                            <input class="share-price form-control text-right" type="text" value="${sharePrice || ''}"
-								placeholder="0.00" />
-                        </div>
-                    </div>
-                  </div>
-        `);
-        let viewContainer = $('<div></div>');
-        viewContainer.append(view);
-        return viewContainer;
-    };
-    this.getPrices = function () {
-        let prices = [];
-        $('.prices-item').each(function () {
-            prices.push({
-                "name": $(this).find('input.input-name').val().trim(),
-                "sharePrice": $(this).find('input.share-price').val().trim(),
-            });
-        });
-        return prices;
-    };
-    async function save() {
-        let prices = self.getPrices();
-        let data = await dataClient.sendRequest('budget');
-        for (let price of prices) {
-            let existing = data.assets.find(x => x.name.toLowerCase() === price.name.toLowerCase());
-            existing.sharePrice = price.sharePrice;
-        }
-        try {
-            let response = await dataClient.patch({assets: data.assets});
-            window.location.reload();
+            if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
+                $('#acceptLicense').prop('checked', true);
+                $('#acceptLicense').prop('disabled', true);
+                $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
+            }
         } catch (err) {
             Util.log(err);
         }
     }
     this.init = function () {
         dataClient = new DataClient();
-        $('#acceptLicense').prop('checked', Util.hasAgreedToLicense());
-        $('#save').click(function () {
-            $('#save').attr('disabled', 'disabled');
-            if ($('#acceptLicense').is(':checked')) {
-                save();
-            }
-        });
+        new AccountSettingsController().init(PricesView);
         initAsync().catch(err => { Util.log(err); });
     };
 }
 
 module.exports = PricesController;
-},{"../data-client":82,"../util":84,"./account-settings-controller":72,"currency.js":26}],82:[function(require,module,exports){
+},{"../data-client":82,"../util":84,"../views/prices-view":96,"./account-settings-controller":72}],82:[function(require,module,exports){
 const Util = require('./util');
+const Currency = require('currency.js');
+const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 function DataClient() {
     this.patch = async function (data) {
         let requestParams = {
@@ -19979,7 +19984,58 @@ function DataClient() {
         };
         return await this.sendRequestInner('budget', requestParams)
     };
-    this.sendRequest = async function (requestType) {
+    this.post = async function (endpoint, data) {
+        let requestParams = {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Authorization': Util.getCookie('idToken'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        };
+        return await this.sendRequestInner(endpoint, requestParams)
+    };
+    this.delete = async function (endpoint, data) {
+        let requestParams = {
+            method: 'DELETE',
+            mode: 'cors',
+            headers: {
+                'Authorization': Util.getCookie('idToken'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        };
+        return await this.sendRequestInner(endpoint, requestParams)
+    };
+    this.getBudget = async function () {
+        let data = await this.get('budget');
+        let obfuscate = Util.obfuscate();
+        if (obfuscate) {
+            $('#save').prop('disabled', true);
+            let obfuscationAmount = Util.obfuscationAmount();
+            if (data.biWeeklyIncome && data.biWeeklyIncome.amount) {
+                data.biWeeklyIncome.amount = Currency(data.biWeeklyIncome.amount, Util.getCurrencyDefaults())
+                    .multiply(obfuscationAmount).toString();
+            }
+            for (let weekly of data.weeklyRecurringExpenses) {
+                weekly.amount = Currency(weekly.amount, Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+            }
+            for (let monthly of data.monthlyRecurringExpenses) {
+                monthly.amount = Currency(monthly.amount, Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+            }
+            if (data['401k-contribution-for-year']) {
+                data['401k-contribution-for-year'] = Currency(data['401k-contribution-for-year'],
+                    Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+            }
+            if (data['401k-contribution-per-pay-check']) {
+                data['401k-contribution-per-pay-check'] = Currency(data['401k-contribution-per-pay-check'],
+                    Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+            }
+        }
+        return data;
+    };
+    this.get = async function (requestType) {
         let requestParams = {
             method: 'GET',
             mode: 'cors',
@@ -19997,15 +20053,28 @@ function DataClient() {
         } catch (error) {
             console.log(error);
             console.log('token is likely invalid causing cors to fail (cors can be fixed for errors in api gateway)');
-            // Do a built-in refresh when I have my own domain and the cookie is more secure.
-            // 1. Create a domain e.g. primordial-software.com
-            // 2. Put api gateway behind the domain e.g. primordial-software.com/production
-            // 3. Create cookie in api and set it on primordial-software.com/production as secure and http only
-            // Doing this will alleviate the need to be super secure for npm modules
-            // and I can remove cors, which isn't an issue for now, but would be if I want to move money at some point,
-            // because the current solution zelle is terrible.
-            console.log('REDIRECTING to login page');
-            window.location=`${Util.rootUrl()}/pages/login.html${window.location.search}`;
+            let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
+            let userData = {
+                Username : 'timg456789@yahoo.com',// Util.getUsername(),
+                Pool : userPool
+            };
+            let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+            cognitoUser.refreshSession( {
+                    getToken: function () {
+                        return Util.getCookie('refreshToken');
+                    }
+            }, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
+                document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
+                window.location=`${Util.rootUrl()}/pages/balance-sheet.html${window.location.search}`;
+            });
+            // Eventually the refresh token will expire and the user will have to login again.
+            // I need to see that happen before I handle that use case.
+            //console.log('REDIRECTING to login page');
+            //window.location=`${Util.rootUrl()}/pages/login.html${window.location.search}`;
         }
         if (response.status.toString()[0] !== "2") {
             throw {
@@ -20020,7 +20089,7 @@ function DataClient() {
 
 module.exports = DataClient;
 
-},{"./util":84}],83:[function(require,module,exports){
+},{"./util":84,"amazon-cognito-identity-js":17,"currency.js":26}],83:[function(require,module,exports){
 const Util = require('./util');
 exports.initNav = function (target) {
     let root = Util.rootUrl();
@@ -20035,9 +20104,6 @@ exports.initNav = function (target) {
               <a class="tab-nav-item" onclick="window.location='${root}/pages/balance-sheet.html${window.location.search}';" href="#" title="Balance Sheet">
                   <span class="ac-gn-link-text">Balance Sheet</span>
               </a>
-              <a class="tab-nav-item" onclick="window.location='${root}/pages/accounts.html${window.location.search}';" href="#" title="Accounts">
-                  <span class="ac-gn-link-text">Accounts</span>
-              </a>
               <a class="tab-nav-item" onclick="window.location='${root}/pages/prices.html${window.location.search}';" href="#" title="Prices">
                   <span class="ac-gn-link-text">Prices</span>
               </a>
@@ -20046,6 +20112,9 @@ exports.initNav = function (target) {
               </a>
               <a class="tab-nav-item" onclick="window.location='${root}/pages/pay-days.html${window.location.search}';" href="#" title="Pay Days">
                   <span class="ac-gn-link-text">Pay Days</span>
+              </a>
+              <a class="tab-nav-item" onclick="window.location='${root}/pages/link-bank-account.html${window.location.search}';" href="#" title="View and Manage Linked Banks">
+                  <span class="ac-gn-link-text">Banks</span>
               </a>
           </div>
       </div>`);
@@ -20136,8 +20205,31 @@ exports.getCookie = function (cookieNmae) {
     }
     return '';
 };
+exports.obfuscate = function () {
+    return exports.getCookie('obfuscate') === 'true';
+};
+exports.obfuscationAmount = function () {
+    return .2;
+};
+exports.getPoolData = function () {
+    return {
+        UserPoolId : 'us-east-1_CJmKMk0Fw',
+        ClientId : '1alsnsg84noq81e7f2v5vru7m7'
+    };
+};
+exports.getUsername = function () {
+    let idToken = exports.getCookie('idToken');
+    if (!idToken) {
+        return '';
+    }
+    let payload = idToken.split('.')[1];
+    let decodedPayload = atob(payload);
+    let parsed = JSON.parse(decodedPayload);
+    return parsed.email;
+};
+
 },{"currency.js":26}],85:[function(require,module,exports){
-exports.getCommandButtonsContainerView = function () {
+exports.getCommandButtonsContainerView = function (obfuscate) {
     return `
       <span id="log-out-button" class="command-button" title="log out">
           <span class="glyphicon glyphicon glyphicon-log-out" aria-hidden="true"></span>
@@ -20150,6 +20242,9 @@ exports.getCommandButtonsContainerView = function () {
       </span>
       <span id="budget-download" class="command-button" title="download">
           <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+      </span>
+      <span id="obfuscate-data" class="command-button" title="${obfuscate ? 'un-' : ''}obfuscate data">
+          <span class="glyphicon glyphicon-eye-${obfuscate ? 'open' : 'close'}" aria-hidden="true"></span>
       </span>`;
 };
 
@@ -20159,31 +20254,18 @@ exports.getAccountSettingsView = function () {
           <div class="modal-content">
               <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal">&times;</button>
-                  <h2 class="modal-title">Account Settings</h2>
+                  <h2 class="modal-title">Profile</h2>
               </div>
               <div class="modal-body">
                   <form>
                       <div class="form-group">
-                          <label for="awsBucket">AWS Bucket</label>
-                          <input type="email" class="form-control" id="awsBucket">
-                      </div>
-                      <div class="form-group">
-                          <label for="budgetName">Budget Name</label>
-                          <input type="text" class="form-control" id="budgetName">
-                      </div>
-                      <div class="form-group">
-                          <label for="awsAccessKeyId">Access Key Id</label>
-                          <input type="text" class="form-control" id="awsAccessKeyId">
-                      </div>
-                      <div class="form-group">
-                          <label for="awsSecretAccessKey">Secret Access Key</label>
-                          <input type="text" class="form-control" id="awsSecretAccessKey">
+                          <label for="account-settings-view-cognito-user">User</label>
+                          <input type="email" class="form-control" id="account-settings-view-cognito-user">
                       </div>
                   </form>
               </div>
               <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button id="account-settings-save-close-button" type="button" class="btn btn-primary">Save As &amp; Close</button>
               </div>
           </div>
       </div>
@@ -20208,90 +20290,6 @@ exports.getRawDataView = function () {
   </div>`
 };
 },{}],86:[function(require,module,exports){
-const AvailableBalanceCalculator = require('../calculators/available-balance-calculator');
-const Currency = require('currency.js');
-const DataClient = require('../data-client');
-const Moment = require('moment');
-const Util = require('../util');
-exports.getAccountView = function (account, allPendingTransfers, startingBalance,
-                                   cancelTransfer,
-                                   completeTransfer) {
-    let pendingTransfers = allPendingTransfers.filter(x =>
-        x.creditAccount.toLowerCase() === account.toLowerCase() ||
-        x.debitAccount.toLowerCase() === account.toLowerCase());
-    let accountContainer = $(`
-                <div>
-                    <h4 id="$account-${account}" class="capitalize-first">${account}</h3>
-                    <div class="row table-header-row">
-                        <div class="col-xs-3"></div>
-                        <div class="col-xs-3">Account</div>
-                        <div class="col-xs-2">Debit Amount</div>
-                        <div class="col-xs-2">Credit Amount</div>
-                        <div class="col-xs-1">Complete</div>
-                        <div class="col-xs-1">Cancel</div>
-                    </div>   
-                </div>`);
-    accountContainer.append(getJournalEntryView({
-        transferDate: '',
-        transferAccount: 'STARTING BALANCE',
-        debitAmount: '',
-        creditAmount: Util.format(startingBalance)
-    }));
-    for (let transfer of pendingTransfers) {
-        let isCredit = transfer.creditAccount.toLowerCase() === account.toLowerCase();
-        let journalEntryView = getJournalEntryView({
-            transferDate: Moment(transfer.issueDate || transfer.transferDate).format('LL'),
-            transferAccount: isCredit ? transfer.debitAccount : transfer.creditAccount,
-            debitAmount: isCredit ? '' : Util.format(Util.getAmount(transfer)),
-            creditAmount: isCredit ? Util.format(Util.getAmount(transfer)) : '',
-            transferId: transfer.id
-        });
-        accountContainer.append(journalEntryView);
-        journalEntryView.find('.cancel-transfer').click(function () { cancelTransfer(transfer.id) });
-        journalEntryView.find('.complete-transfer').click(function () { completeTransfer(transfer.id) });
-    }
-    let availableBalanceCalculator = new AvailableBalanceCalculator();
-    let availableBalance = availableBalanceCalculator.getAvailableBalance(account, startingBalance, allPendingTransfers);
-    let totalDebits = Currency(startingBalance, Util.getCurrencyDefaults()).subtract(availableBalance);
-    accountContainer.append(`
-                    <div class="row">
-                        <div class="col-xs-6 subtotal">Totals</div>
-                        <div class="col-xs-2 subtotal-amount">${totalDebits.intValue > 0 ? Util.format(totalDebits.toString()) : '&nbsp;'}</div>
-                        <div class="col-xs-2 subtotal-amount">${Util.format(availableBalance.toString())}</div>
-                        <div class="cols-xs-2">&nbsp;</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-8 total">Total Future Balance</div>
-                        <div class="col-xs-2 total total-amount">${Util.format(availableBalance.toString())}</span></div>
-                        <div class="cols-xs-2">&nbsp;</div>
-                    </div>`);
-    return accountContainer;
-};
-function getJournalEntryView(viewModel) {
-    let journalEntryView = $(`
-                        <div class="row account-row">
-                            <div class="col-xs-3 vertical-align amount-description-column">${viewModel.transferDate}</div>
-                            <div class="col-xs-3 vertical-align amount-description-column">${viewModel.transferAccount}</div>
-                            <div class="col-xs-2 vertical-align amount-description-column text-right">${viewModel.debitAmount}</div>
-                            <div class="col-xs-2 vertical-align amount-description-column text-right">${viewModel.creditAmount}</div>
-
-                        </div>`);
-    if (viewModel.transferId) {
-        journalEntryView.append(`<div class="col-xs-1 text-center">
-                                <button type="button" class="complete-transfer btn btn-success add-remove-btn-container add-remove-btn" title="Complete transfer">
-                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                                </button>
-                            </div>
-                            <div class="col-xs-1 remove-button-container text-center">
-                                <button type="button" class="cancel-transfer btn remove add-remove-btn-container add-remove-btn" title="Cancel transfer">
-                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                </button>
-                            </div>`);
-    }
-    return journalEntryView;
-}
-
-},{"../calculators/available-balance-calculator":63,"../data-client":82,"../util":84,"currency.js":26,"moment":31}],87:[function(require,module,exports){
 const LoanViewModel = require('./loan-view-model');
 const CashViewModel = require('./cash-view-model');
 const CashOrStockViewModel = require('./cash-or-stock-view-model');
@@ -20300,10 +20298,9 @@ const BondViewModel = require('./bond-view-model');
 const cal = require('../../calculators/calendar');
 const Currency = require('currency.js');
 const Util = require('../../util');
+const Moment = require('moment');
 exports.getModel = function () {
-    return {
-        balances: new LoanViewModel().getModels()
-    };
+    return { balances: new LoanViewModel().getModels() };
 };
 function setupToggle(container, detail) {
     $(container).click(function () {
@@ -20320,56 +20317,38 @@ function setupToggle(container, detail) {
 function getWeeklyAmount(budget, debtName) {
     let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName);
     let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName);
-    return monthlyTxn ? (monthlyTxn.amount/100) / cal.WEEKS_IN_MONTH
-        : weeklyTxn ? weeklyTxn.amount/100 : 0;
+    return monthlyTxn ? Currency(monthlyTxn.amount, Util.getCurrencyDefaults()).divide(cal.WEEKS_IN_MONTH).toString()
+        : weeklyTxn ? weeklyTxn.amount : 0;
 }
-exports.setView = function (budget, bankData, viewModel) {
+exports.setView = function (budget, obfuscate) {
     $('#balance-input-group').empty();
     $('.cash-header-container').append(new CashViewModel().getReadOnlyHeaderView());
     $('.assets-header-container').append(new CashOrStockViewModel().getReadOnlyHeaderView());
     $('.property-plant-and-equipment-header-container').append(new PpeVm().getHeaderView());
-    for (let loan of budget.balances) {
-        let loanView = new LoanViewModel().getView(loan.amount, loan.name, loan.rate, getWeeklyAmount(budget, loan.name));
-        $('#balance-input-group').append(loanView);
-    }
-    for (let creditCard of (bankData.accounts || []).filter(x => (x.type || '').toLowerCase() === 'credit')) {
-        let loanView = new LoanViewModel().getView(
-            creditCard.balances.current,
-            `Credit Card - ${creditCard.mask}`,
-            .18,
-            getWeeklyAmount(budget, `Credit Card - ${creditCard.mask}`),
-            true,
-            true);
-        $('#balance-input-group').append(loanView);
-    }
-    $('#loan-total-amount-value').text(`(${Util.format(viewModel.debtsTotal.toString())})`);
+    let debtTotal = Currency(0, Util.getCurrencyDefaults());
     let totalCash = Currency(0, Util.getCurrencyDefaults());
     let authoritativeCashTotal = Currency(0, Util.getCurrencyDefaults());
     let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults());
+    for (let loan of budget.balances) {
+        debtTotal = debtTotal.add(loan.amount);
+        let loanView = new LoanViewModel().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
+        $('#balance-input-group').append(loanView);
+    }
     for (let asset of budget.assets) {
         totalNonTangibleAssets = totalNonTangibleAssets.add(Util.getAmount(asset));
-    }
-    for (let cashAccount of (bankData.accounts || []).filter(x => (x.type || '').toLowerCase() === 'depository')) {
-        authoritativeCashTotal = authoritativeCashTotal.add(cashAccount.balances.available);
-        $('#cash-input-group').append(new CashViewModel().getReadOnlyView(
-            cashAccount.balances.available,
-            `Checking - ${cashAccount.mask}`,
-            cashAccount.account_id,
-            true));
     }
     totalCash = totalCash.add(authoritativeCashTotal);
     totalNonTangibleAssets = totalNonTangibleAssets.add(authoritativeCashTotal);
     for (let cashAccount of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'cash')) {
         totalCash = totalCash.add(cashAccount.amount);
-        $('#cash-input-group').append(new CashViewModel().getReadOnlyView(cashAccount.amount, cashAccount.name, cashAccount.id));
+        let view = new CashViewModel().getReadOnlyView(cashAccount, obfuscate);
+        $('#cash-input-group').append(view);
     }
     let totalPropertyPlantAndEquipment = Currency(0, Util.getCurrencyDefaults());
     for (let tangibleAsset of budget.propertyPlantAndEquipment || []) {
         totalPropertyPlantAndEquipment = totalPropertyPlantAndEquipment.add(tangibleAsset.amount);
         $('#property-plant-and-equipment-input-group').append(new PpeVm().getReadOnlyView(tangibleAsset.amount, tangibleAsset.name));
     }
-    let ppeTotalView = $(`<div class="subtotal">Total Property, Plant and Equipment<span class="pull-right amount">${Util.format(totalPropertyPlantAndEquipment.toString())}</span></div>`);
-    $('#property-plant-and-equipment-total-amount').append(ppeTotalView);
     let totalEquities = Currency(0, Util.getCurrencyDefaults());
     let equityViewModel = new CashOrStockViewModel();
     for (let equity of (budget.assets || [])
@@ -20381,15 +20360,19 @@ exports.setView = function (budget, bankData, viewModel) {
             totalNonTangibleAssets.toString(),
             budget.pending,
             equity.shares,
-            equity.sharePrice
+            equity.sharePrice,
+            obfuscate
         );
         $('#asset-input-group').append(view);
     }
     let totalBonds = Currency(0, Util.getCurrencyDefaults());
     for (let bond of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'bond')) {
         totalBonds = totalBonds.add(Currency(bond.amount));
-        $('#bond-input-group').append(new BondViewModel().getReadOnlyView(bond));
+        $('#bond-input-group').append(new BondViewModel().getReadOnlyView(bond, obfuscate));
     }
+    $('#loan-total-amount-value').text(`(${Util.format(debtTotal.toString())})`);
+    let ppeTotalView = $(`<div class="subtotal">Total Property, Plant and Equipment<span class="pull-right amount">${Util.format(totalPropertyPlantAndEquipment.toString())}</span></div>`);
+    $('#property-plant-and-equipment-total-amount').append(ppeTotalView);
     $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
             ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalCash).toString()}</span></div>`));
     $('#cash-total-amount').append(
@@ -20406,9 +20389,9 @@ exports.setView = function (budget, bankData, viewModel) {
     );
     $('#total-tangible-assets').text(Util.format(totalPropertyPlantAndEquipment));
     $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets));
-    $('#total-debt').text(`(${Util.format(viewModel.debtsTotal)})`);
+    $('#total-debt').text(`(${Util.format(debtTotal)})`);
     let net = Currency(0, Util.getCurrencyDefaults())
-        .subtract(viewModel.debtsTotal)
+        .subtract(debtTotal)
         .add(totalPropertyPlantAndEquipment)
         .add(totalNonTangibleAssets);
     $('#net-total').text(Util.format(net.toString()));
@@ -20418,8 +20401,14 @@ exports.setView = function (budget, bankData, viewModel) {
     setupToggle('#tree-view-cash-or-stock','#assets-container');
     setupToggle('#tree-view-bonds','#bond-container');
     setupToggle('#tree-view-totals-row','#totals-row');
+
+    if (budget.licenseAgreement && budget.licenseAgreement.agreedToLicense) {
+        $('#acceptLicense').prop('checked', true);
+        $('#acceptLicense').prop('disabled', true);
+        $('.licenseAgreementDetails').append(`agreed to license on ${budget.licenseAgreement.agreementDateUtc} from IP ${budget.licenseAgreement.ipAddress}`);
+    }
 };
-},{"../../calculators/calendar":66,"../../util":84,"./bond-view-model":88,"./cash-or-stock-view-model":89,"./cash-view-model":90,"./loan-view-model":92,"./property-plant-and-equipment-view-model":93,"currency.js":26}],88:[function(require,module,exports){
+},{"../../calculators/calendar":66,"../../util":84,"./bond-view-model":87,"./cash-or-stock-view-model":88,"./cash-view-model":89,"./loan-view-model":91,"./property-plant-and-equipment-view-model":92,"currency.js":26,"moment":31}],87:[function(require,module,exports){
 const Currency = require('currency.js');
 const DataClient = require('../../data-client');
 const Moment = require('moment/moment');
@@ -20447,7 +20436,7 @@ function BondViewModel() {
               <div class="col-xs-4">Time to Maturity</div>
           </div>`);
     };
-    this.getReadOnlyView = function(bond) {
+    this.getReadOnlyView = function(bond, disable) {
         bond = bond || {};
         let maturityDateText = bond.issueDate
             ? Moment(bond.issueDate).add(bond.daysToMaturation, 'days').format('YYYY-MM-DD')
@@ -20469,7 +20458,7 @@ function BondViewModel() {
         `);
         viewContainer.append(view);
         let liquidateButton = $(`<div class="col-xs-1">
-                            <button type="button" class="btn btn-success add-remove-btn" title="Liquidate bond">
+                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate bond">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
                             </button>
                           </div>`);
@@ -20512,7 +20501,7 @@ function BondViewModel() {
 }
 
 module.exports = BondViewModel;
-},{"../../controllers/balance-sheet/transfer-controller":75,"../../data-client":82,"../../util":84,"./cash-view-model":90,"currency.js":26,"moment/moment":31}],89:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":74,"../../data-client":82,"../../util":84,"./cash-view-model":89,"currency.js":26,"moment/moment":31}],88:[function(require,module,exports){
 const AvailableBalanceCalculator = require('../../calculators/available-balance-calculator');
 const Currency = require('currency.js');
 const Util = require('../../util');
@@ -20550,7 +20539,7 @@ function CashOrStockViewModel() {
               <div class="col-xs-1">Liquidate</div>
           </div>`);
     };
-    this.getReadOnlyView = function (name, total, pending, shares, sharePrice) {
+    this.getReadOnlyView = function (name, total, pending, shares, sharePrice, disable) {
         'use strict';
         let amount = Util.getAmount({"sharePrice": sharePrice, "shares": shares});
         name = name || '';
@@ -20573,7 +20562,7 @@ function CashOrStockViewModel() {
                   </div>
         `);
         let transferButton = $(`<div class="col-xs-1">
-                            <button type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
+                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
                             </button>
                           </div>`);
@@ -20619,7 +20608,7 @@ function CashOrStockViewModel() {
 
 module.exports = CashOrStockViewModel;
 
-},{"../../calculators/available-balance-calculator":63,"../../controllers/balance-sheet/transfer-controller":75,"../../util":84,"./cash-view-model":90,"currency.js":26}],90:[function(require,module,exports){
+},{"../../calculators/available-balance-calculator":63,"../../controllers/balance-sheet/transfer-controller":74,"../../util":84,"./cash-view-model":89,"currency.js":26}],89:[function(require,module,exports){
 const Util = require('../../util');
 const ExpenseViewModel = require('./expense-view-model');
 const PropertyPlantAndEquipmentViewModel = require('./property-plant-and-equipment-view-model');
@@ -20652,24 +20641,26 @@ function CashViewModel() {
               <div class="col-xs-1">Transfer</div>
           </div>`);
     };
-    this.getReadOnlyView = function (amount, name, id, isAuthoritative) {
+    this.getReadOnlyView = function (currentAssetAccount, disable) {
         'use strict';
-        let icon = isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
+        let icon = currentAssetAccount.isAuthoritative
+            ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`
+            : '';
         let view = $(`
             <div class="dotted-underline-row row transaction-input-view">
                     <div class="col-xs-8 vertical-align amount-description-column">
                         <div class="dotted-underline">
                             ${icon}
-                            ${name}
+                            ${currentAssetAccount.name}
                         </div>
                     </div>
                     <div class="col-xs-3 text-right vertical-align amount-description-column">
-                        <div class="dotted-underline">${Util.format(amount)}</div>
+                        <div class="dotted-underline">${Util.format(currentAssetAccount.amount)}</div>
                     </div>
             </div>
         `);
         let transferButton = $(`<div class="col-xs-1">
-                            <button type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
+                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
                             </button>
                           </div>`);
@@ -20679,7 +20670,7 @@ function CashViewModel() {
         new TransferController().init(
             transferButton,
             viewContainer,
-            name,
+            currentAssetAccount.name,
             [
                 new CashViewModel(),
                 new CashOrStockViewModel(),
@@ -20687,7 +20678,7 @@ function CashViewModel() {
                 new PropertyPlantAndEquipmentViewModel(),
                 new BondViewModel()
             ],
-            id
+            currentAssetAccount.id
         );
         return viewContainer;
     };
@@ -20711,7 +20702,7 @@ function CashViewModel() {
 }
 module.exports = CashViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":84,"./bond-view-model":88,"./cash-or-stock-view-model":89,"./expense-view-model":91,"./property-plant-and-equipment-view-model":93}],91:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":74,"../../util":84,"./bond-view-model":87,"./cash-or-stock-view-model":88,"./expense-view-model":90,"./property-plant-and-equipment-view-model":92}],90:[function(require,module,exports){
 function ExpenseViewModel() {
     this.getViewDescription = function() {
         return 'Expense';
@@ -20748,7 +20739,7 @@ function ExpenseViewModel() {
     };
 }
 module.exports = ExpenseViewModel;
-},{}],92:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 const cal = require('../../calculators/calendar');
 const PayoffDateCalculator = require('../../calculators/payoff-date-calculator');
 const payoffDateCalculator = new PayoffDateCalculator();
@@ -20770,7 +20761,7 @@ function LoanViewModel() {
             "rate": $(target).find('input.rate').val().trim()
         };
     };
-    this.getView = function (amount, name, rate, weeklyAmount, isAuthoritative, isCreditCard) {
+    this.getView = function (debt, weeklyAmount, disable) {
         let payOffDateText;
         let totalInterestText;
         let lifetimeInterestText;
@@ -20782,12 +20773,11 @@ function LoanViewModel() {
                         new Date().getUTCMonth(),
                         new Date().getUTCDate()
                     ),
-                    totalAmount: amount,
+                    totalAmount: debt.amount,
                     payment: weeklyAmount,
                     DayOfTheWeek: cal.FRIDAY,
-                    rate: rate
+                    rate: debt.rate
                 });
-
                 payOffDateText = balanceStatement.date.getUTCFullYear() + '-' +
                     (balanceStatement.date.getUTCMonth() + 1) + '-' +
                     balanceStatement.date.getUTCDate();
@@ -20796,36 +20786,39 @@ function LoanViewModel() {
                 payOffDateText = err;
                 totalInterestText = err;
             }
-            lifetimeInterestText = Currency(totalInterestText).divide(amount).multiply(100).toString() + '%';
+            lifetimeInterestText = Currency(totalInterestText).divide(debt.amount).multiply(100).toString() + '%';
         } else {
+            let isCreditCard = debt.type === 'credit';
             payOffDateText = isCreditCard ? 'no payment specified' : 'WARNING: no payment specified'; // Warning is intended for long-term loans.
             let infinitySymbol = '&#8734;';
             totalInterestText = isCreditCard ? 'N/A' : infinitySymbol;
             lifetimeInterestText = isCreditCard ? 'N/A' : infinitySymbol;
         }
-        let icon = isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
-        let view = $(`<div class="balance-item row transaction-input-view ${isAuthoritative ? 'read-only' : 'editable'}">
+        let icon = debt.isAuthoritative
+            ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`
+            : '';
+        let view = $(`<div class="balance-item row transaction-input-view ${debt.isAuthoritative ? 'read-only' : 'editable'}">
                     <div class="col-xs-2">
                         <div class="input-group">
                             <div class="input-group-addon ">$</div>
-                            <input ${isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${amount}" />
+                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount}" />
                         </div>
                     </div>
                     <div class="col-xs-3">
                         <div class="input-group">
                             <div class="input-group-addon ">${icon}</div>
-                            <input ${isAuthoritative ? 'disabled=disabled' : ''} class="name form-control" type="text" value="${name}" />
+                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="name form-control" type="text" value="${debt.name}" />
                         </div>
                     </div>
-                    <div class="col-xs-1"><input ${isAuthoritative ? 'disabled=disabled' : ''} class="rate form-control text-right" type="text" value="${rate}" /></div>
+                    <div class="col-xs-1"><input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="rate form-control text-right" type="text" value="${debt.rate || 'Unknown'}" /></div>
                     <div class="col-xs-2 text-center vertical-align amount-description-column">${payOffDateText}</div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${totalInterestText}</div>
                     <div class="col-xs-1 text-right vertical-align amount-description-column">${lifetimeInterestText}</div>
                     </div>
         `);
-        if (!isAuthoritative) {
+        if (!debt.isAuthoritative) {
             let removeButtonHtml = `<div class="col-xs-1">
-                                <button class="btn remove add-remove-btn" title="Remove Loan">
+                                <button ${disable ? 'disabled="disabled"' : ''} class="btn remove add-remove-btn" title="Remove Loan">
                                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                                 </button>
                             </div>`;
@@ -20840,7 +20833,7 @@ function LoanViewModel() {
 }
 
 module.exports = LoanViewModel;
-},{"../../calculators/calendar":66,"../../calculators/payoff-date-calculator":68,"../../util":84,"currency.js":26}],93:[function(require,module,exports){
+},{"../../calculators/calendar":66,"../../calculators/payoff-date-calculator":68,"../../util":84,"currency.js":26}],92:[function(require,module,exports){
 const Util = require('../../util');
 function PropertyPlantAndEquipmentViewModel() {
     this.getViewDescription = function() {
@@ -20895,7 +20888,7 @@ function PropertyPlantAndEquipmentViewModel() {
 }
 module.exports = PropertyPlantAndEquipmentViewModel;
 
-},{"../../util":84}],94:[function(require,module,exports){
+},{"../../util":84}],93:[function(require,module,exports){
 const Moment = require('moment/moment');
 function TransferView() {
     this.getView = function (name, allowableTransferViewModels) {
@@ -20933,7 +20926,7 @@ function TransferView() {
 
 module.exports = TransferView;
 
-},{"moment/moment":31}],95:[function(require,module,exports){
+},{"moment/moment":31}],94:[function(require,module,exports){
 const cal = require('../calculators/calendar');
 const CalendarCalculator = require('../calendar-calculator');
 const calCalc = new CalendarCalculator();
@@ -20965,7 +20958,7 @@ function HomeView() {
     }
     function getTransactionModel(target) {
         return {
-            amount: parseFloat($(target).find('.amount').val().trim()) * 100,
+            amount: $(target).find('.amount').val().trim(),
             date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
             name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
             type: $(target).find('.transaction-type').val() || $(target).data().txntype,
@@ -21009,7 +21002,7 @@ function HomeView() {
                 </div>
             </form>`;
     };
-    this.getTransactionView = function (transaction, iteration) {
+    this.getTransactionView = function (transaction, iteration, disable) {
         let date = transaction.date || '';
         transaction.type = transaction.type || 'expense';
         let paidByHtml = transaction.paymentSource ?
@@ -21020,7 +21013,7 @@ function HomeView() {
             <div class="col-xs-4">
                 <div class="input-group">
                     <div class="input-group-addon ">$</div>
-                    <input class="amount form-control" type="text" value="${transaction.amount ? transaction.amount / 100 : ''}" />
+                    <input class="amount form-control" type="text" value="${transaction.amount ? transaction.amount : ''}" />
                 </div>
             </div>
             <div class="col-xs-3"><span class="date" data-date="${date}">${iteration === 'weekly'
@@ -21028,7 +21021,7 @@ function HomeView() {
             : new Date(date).getUTCDate()}</span></div>
             <div class="col-xs-4"><span class="name">${transaction.name || ''}</span>${paidByHtml}</div>
             <div class="col-xs-1 add-remove-btn-container">
-                <button class="btn remove row-remove-button add-remove-btn-container add-remove-btn">
+                <button ${disable ? 'disabled="disabled"' : ''} class="btn remove row-remove-button add-remove-btn-container add-remove-btn">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                 </button>
             </div>
@@ -21036,26 +21029,33 @@ function HomeView() {
         view.find('.row-remove-button').click(function () { view.remove(); });
         return view;
     };
-    function insertTransactionViews(transactions, target, iteration) {
-        'use strict';
-        $(target).empty();
-        var i;
-        for (i = 0; i < transactions.length; i += 1) {
-            $(target).append(self.getTransactionView(transactions[i], iteration));
-        }
-    }
-    this.setView = function (budget) {
+    this.setView = function (budget, obfuscate) {
         data = budget;
         'use strict';
-        $('#biweekly-input').val(budget.biWeeklyIncome.amount / 100);
-        insertTransactionViews(budget.weeklyRecurringExpenses, '#weekly-input-group', 'weekly');
-        insertTransactionViews(budget.monthlyRecurringExpenses, '#monthly-input-group', 'monthly');
+        $('#biweekly-input').val(budget.biWeeklyIncome.amount);
+        $('#weekly-input-group').empty();
+        $('#monthly-input-group').empty();
+        for (let transaction of budget.weeklyRecurringExpenses) {
+            $('#weekly-input-group').append(self.getTransactionView(transaction, 'weekly', obfuscate));
+        }
+        for (let transaction of budget.monthlyRecurringExpenses) {
+            $('#monthly-input-group').append(self.getTransactionView(transaction, 'monthly', obfuscate));
+        }
+        if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
+            $('#acceptLicense').prop('checked', true);
+            $('#acceptLicense').prop('disabled', true);
+            $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
+        }
+        if (!obfuscate) {
+            $('#add-new-monthly').prop('disabled', false);
+            $('#add-new-weekly').prop('disabled', false);
+        }
     };
     this.getModel = function () {
         'use strict';
         let budgetSettings = {};
         budgetSettings.biWeeklyIncome = {};
-        budgetSettings.biWeeklyIncome.amount = parseInt($('#biweekly-input').val().trim()) * 100;
+        budgetSettings.biWeeklyIncome.amount = parseInt($('#biweekly-input').val().trim());
         budgetSettings.biWeeklyIncome.date = new Date(Date.UTC(2015, 11, 25));
         budgetSettings.monthlyRecurringExpenses = [];
         $('.monthly-expense-item, .monthly-income-item').each(function () {
@@ -21076,7 +21076,7 @@ function HomeView() {
 }
 module.exports = HomeView;
 
-},{"../calculators/calendar":66,"../calendar-calculator":70}],96:[function(require,module,exports){
+},{"../calculators/calendar":66,"../calendar-calculator":70}],95:[function(require,module,exports){
 const Currency = require('currency.js');
 
 exports.getModel = function () {
@@ -21085,4 +21085,54 @@ exports.getModel = function () {
     model['401k-contribution-per-pay-check'] = Currency($('#401k-contribution-per-pay-check').val().trim()).toString();
     return model;
 };
-},{"currency.js":26}]},{},[62]);
+},{"currency.js":26}],96:[function(require,module,exports){
+const DataClient = require('../data-client');
+exports.getModel = async function () {
+    let prices = [];
+    $('.prices-item').each(function () {
+        prices.push({
+            "name": $(this).find('input.input-name').val().trim(),
+            "sharePrice": $(this).find('input.share-price').val().trim(),
+        });
+    });
+    prices = prices.filter(x => (x || '').length > 0);
+    let dataClient = new DataClient();
+    let data = await dataClient.getBudget();
+    let updateModel = {
+        assets: data.assets
+    };
+    for (let price of prices) {
+        let existing = updateModel.assets.find(x =>
+            (x.name || '').length > 0 &&
+            x.name.toLowerCase() === price.name.toLowerCase()
+        );
+        if (existing) {
+            existing.sharePrice = price.sharePrice;
+        }
+    }
+    return updateModel;
+};
+exports.getHeaderView = function () {
+    return $(`<div class="row table-header-row">
+              <div class="col-xs-6">Asset</div>
+              <div class="col-xs-6">Price</div>
+          </div>`);
+};
+exports.getView = function (name, sharePrice) {
+    'use strict';
+    let view = $(`<div class="prices-item row transaction-input-view">
+                    <div class="col-xs-6"><input class="input-name name form-control" type="text" value="${name || ''}" /></div>
+                    <div class="col-xs-6">
+                        <div class="input-group">
+                            <div class="input-group-addon ">$</div>
+                            <input class="share-price form-control text-right" type="text" value="${sharePrice || ''}"
+								placeholder="0.00" />
+                        </div>
+                    </div>
+                  </div>
+        `);
+    let viewContainer = $('<div></div>');
+    viewContainer.append(view);
+    return viewContainer;
+};
+},{"../data-client":82}]},{},[62]);

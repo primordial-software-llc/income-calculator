@@ -8,11 +8,7 @@ function LoginController() {
     'use strict';
     let dataClient;
     async function login(username, password) {
-        let poolData = {
-            UserPoolId : 'us-east-1_CJmKMk0Fw',
-            ClientId : '1alsnsg84noq81e7f2v5vru7m7'
-        };
-        let userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+        let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
         let userData = {
             Username : username,
             Pool : userPool
@@ -26,6 +22,7 @@ function LoginController() {
         let userAuthCallbacks = {
             onSuccess: async function (result) {
                 document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
+                document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
                 window.location=`${Util.rootUrl()}/pages/balance-sheet.html${window.location.search}`;
             },
             onFailure: function(err) {

@@ -8,10 +8,8 @@ function HomeController() {
     let homeView;
     async function refresh() {
         try {
-            let data = await dataClient.sendRequest('budget');
-            homeView.setView(data);
-            $('#add-new-monthly').prop('disabled', false);
-            $('#add-new-weekly').prop('disabled', false);
+            let data = await dataClient.getBudget();
+            homeView.setView(data, Util.obfuscate());
         } catch (err) {
             Util.log(err);
         }

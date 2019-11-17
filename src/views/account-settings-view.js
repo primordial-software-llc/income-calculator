@@ -1,4 +1,4 @@
-exports.getCommandButtonsContainerView = function () {
+exports.getCommandButtonsContainerView = function (obfuscate) {
     return `
       <span id="log-out-button" class="command-button" title="log out">
           <span class="glyphicon glyphicon glyphicon-log-out" aria-hidden="true"></span>
@@ -11,6 +11,9 @@ exports.getCommandButtonsContainerView = function () {
       </span>
       <span id="budget-download" class="command-button" title="download">
           <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
+      </span>
+      <span id="obfuscate-data" class="command-button" title="${obfuscate ? 'un-' : ''}obfuscate data">
+          <span class="glyphicon glyphicon-eye-${obfuscate ? 'open' : 'close'}" aria-hidden="true"></span>
       </span>`;
 };
 
@@ -20,31 +23,18 @@ exports.getAccountSettingsView = function () {
           <div class="modal-content">
               <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal">&times;</button>
-                  <h2 class="modal-title">Account Settings</h2>
+                  <h2 class="modal-title">Profile</h2>
               </div>
               <div class="modal-body">
                   <form>
                       <div class="form-group">
-                          <label for="awsBucket">AWS Bucket</label>
-                          <input type="email" class="form-control" id="awsBucket">
-                      </div>
-                      <div class="form-group">
-                          <label for="budgetName">Budget Name</label>
-                          <input type="text" class="form-control" id="budgetName">
-                      </div>
-                      <div class="form-group">
-                          <label for="awsAccessKeyId">Access Key Id</label>
-                          <input type="text" class="form-control" id="awsAccessKeyId">
-                      </div>
-                      <div class="form-group">
-                          <label for="awsSecretAccessKey">Secret Access Key</label>
-                          <input type="text" class="form-control" id="awsSecretAccessKey">
+                          <label for="account-settings-view-cognito-user">User</label>
+                          <input type="email" class="form-control" id="account-settings-view-cognito-user">
                       </div>
                   </form>
               </div>
               <div class="modal-footer">
                   <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                  <button id="account-settings-save-close-button" type="button" class="btn btn-primary">Save As &amp; Close</button>
               </div>
           </div>
       </div>

@@ -2,10 +2,10 @@ const HomeController = require('./controllers/home-controller');
 const BudgetCalendarController = require('./controllers/budget-calendar-controller');
 const BalanceSheetController = require('./controllers/balance-sheet-controller');
 const PayDaysController = require('./controllers/pay-days-controller');
-const AccountsController = require('./controllers/accounts-controller');
 const DepositController = require('./controllers/deposit-controller');
 const PricesController = require('./controllers/prices-controller');
 const LoginController = require('./controllers/login-controller');
+const LinkBankAccountController = require('./controllers/link-bank-account-controller');
 const Nav = require('./nav');
 const AccountSettingsView = require('./views/account-settings-view');
 const Util = require('./util');
@@ -21,8 +21,6 @@ $(document).ready(function () {
         controller = new BalanceSheetController();
     } else if (pageName.startsWith('pay-days.html')) {
         controller = new PayDaysController();
-    } else if (pageName.startsWith('accounts.html')) {
-        controller = new AccountsController();
     } else if (pageName.startsWith('budget-calendar.html')) {
         controller = new BudgetCalendarController();
     } else if (pageName.startsWith('deposit.html')) {
@@ -31,8 +29,12 @@ $(document).ready(function () {
         controller = new PricesController();
     } else if (pageName.startsWith('login.html')) {
         controller = new LoginController();
+    } else if (pageName.startsWith('link-bank-account.html')) {
+        controller = new LinkBankAccountController();
     }
-    $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView());
+
+    let obfuscate = Util.obfuscate();
+    $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView(obfuscate));
     $('body').append('<div id="page-footer"></div>');
     $('#page-footer').append(`<div id="debug-console" class="no-print"></div>`);
     $('#page-footer').append(`<div id="account-settings-container"></div>`).append(AccountSettingsView.getAccountSettingsView());

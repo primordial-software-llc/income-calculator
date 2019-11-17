@@ -75,6 +75,11 @@ h4 {
     content: normal;
 }
 
+.licenseAgreementDetails {
+    font-style: italic;
+    font-size: 14px;
+}
+
 .allocation {
     font-weight: bold;
 }

@@ -31,7 +31,7 @@ function PayDaysController() {
         return paymentDates;
     }
     async function initAsync() {
-        let data = await dataClient.sendRequest('budget');
+        let data = await dataClient.getBudget();
         $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
         $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
         $('#acceptLicense').prop('checked', Util.hasAgreedToLicense());
@@ -56,6 +56,12 @@ function PayDaysController() {
         $('#should-contribute-for-max').text(Util.format(shouldContributePerPaycheck.toString()));
         $('#remaining-should-contribute-for-year').text(Util.format(remainingShouldContribute.toString()));
         $('#total-should-contribute-for-year').text(Util.format(totalShouldcontribute.toString()));
+
+        if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
+            $('#acceptLicense').prop('checked', true);
+            $('#acceptLicense').prop('disabled', true);
+            $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
+        }
     }
     this.init = function () {
         dataClient = new DataClient();

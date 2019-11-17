@@ -35,7 +35,7 @@ function CashOrStockViewModel() {
               <div class="col-xs-1">Liquidate</div>
           </div>`);
     };
-    this.getReadOnlyView = function (name, total, pending, shares, sharePrice) {
+    this.getReadOnlyView = function (name, total, pending, shares, sharePrice, disable) {
         'use strict';
         let amount = Util.getAmount({"sharePrice": sharePrice, "shares": shares});
         name = name || '';
@@ -58,7 +58,7 @@ function CashOrStockViewModel() {
                   </div>
         `);
         let transferButton = $(`<div class="col-xs-1">
-                            <button type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
+                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
                             </button>
                           </div>`);

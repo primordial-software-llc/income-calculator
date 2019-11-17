@@ -29,7 +29,7 @@ function HomeView() {
     }
     function getTransactionModel(target) {
         return {
-            amount: parseFloat($(target).find('.amount').val().trim()) * 100,
+            amount: $(target).find('.amount').val().trim(),
             date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
             name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
             type: $(target).find('.transaction-type').val() || $(target).data().txntype,
@@ -73,7 +73,7 @@ function HomeView() {
                 </div>
             </form>`;
     };
-    this.getTransactionView = function (transaction, iteration) {
+    this.getTransactionView = function (transaction, iteration, disable) {
         let date = transaction.date || '';
         transaction.type = transaction.type || 'expense';
         let paidByHtml = transaction.paymentSource ?
@@ -84,7 +84,7 @@ function HomeView() {
             <div class="col-xs-4">
                 <div class="input-group">
                     <div class="input-group-addon ">$</div>
-                    <input class="amount form-control" type="text" value="${transaction.amount ? transaction.amount / 100 : ''}" />
+                    <input class="amount form-control" type="text" value="${transaction.amount ? transaction.amount : ''}" />
                 </div>
             </div>
             <div class="col-xs-3"><span class="date" data-date="${date}">${iteration === 'weekly'
@@ -92,7 +92,7 @@ function HomeView() {
             : new Date(date).getUTCDate()}</span></div>
             <div class="col-xs-4"><span class="name">${transaction.name || ''}</span>${paidByHtml}</div>
             <div class="col-xs-1 add-remove-btn-container">
-                <button class="btn remove row-remove-button add-remove-btn-container add-remove-btn">
+                <button ${disable ? 'disabled="disabled"' : ''} class="btn remove row-remove-button add-remove-btn-container add-remove-btn">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                 </button>
             </div>
@@ -100,26 +100,33 @@ function HomeView() {
         view.find('.row-remove-button').click(function () { view.remove(); });
         return view;
     };
-    function insertTransactionViews(transactions, target, iteration) {
-        'use strict';
-        $(target).empty();
-        var i;
-        for (i = 0; i < transactions.length; i += 1) {
-            $(target).append(self.getTransactionView(transactions[i], iteration));
-        }
-    }
-    this.setView = function (budget) {
+    this.setView = function (budget, obfuscate) {
         data = budget;
         'use strict';
-        $('#biweekly-input').val(budget.biWeeklyIncome.amount / 100);
-        insertTransactionViews(budget.weeklyRecurringExpenses, '#weekly-input-group', 'weekly');
-        insertTransactionViews(budget.monthlyRecurringExpenses, '#monthly-input-group', 'monthly');
+        $('#biweekly-input').val(budget.biWeeklyIncome.amount);
+        $('#weekly-input-group').empty();
+        $('#monthly-input-group').empty();
+        for (let transaction of budget.weeklyRecurringExpenses) {
+            $('#weekly-input-group').append(self.getTransactionView(transaction, 'weekly', obfuscate));
+        }
+        for (let transaction of budget.monthlyRecurringExpenses) {
+            $('#monthly-input-group').append(self.getTransactionView(transaction, 'monthly', obfuscate));
+        }
+        if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
+            $('#acceptLicense').prop('checked', true);
+            $('#acceptLicense').prop('disabled', true);
+            $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
+        }
+        if (!obfuscate) {
+            $('#add-new-monthly').prop('disabled', false);
+            $('#add-new-weekly').prop('disabled', false);
+        }
     };
     this.getModel = function () {
         'use strict';
         let budgetSettings = {};
         budgetSettings.biWeeklyIncome = {};
-        budgetSettings.biWeeklyIncome.amount = parseInt($('#biweekly-input').val().trim()) * 100;
+        budgetSettings.biWeeklyIncome.amount = parseInt($('#biweekly-input').val().trim());
         budgetSettings.biWeeklyIncome.date = new Date(Date.UTC(2015, 11, 25));
         budgetSettings.monthlyRecurringExpenses = [];
         $('.monthly-expense-item, .monthly-income-item').each(function () {

@@ -10,14 +10,14 @@ function CalendarAggregator() {
         let debits = summary.budgetItems
                 .filter(x => x.type === 'expense')
                 .map(x => x.amount)
-                .reduce((total, amount) => total + amount);
+                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount));
         let credits =  summary.budgetItems
                 .filter(x => x.type !== 'expense')
                 .map(x => x.amount)
-                .reduce((total, amount) => total + amount);
-        summary.debits = Currency(debits, {precision: 2}).divide(100).toString();
-        summary.credits = Currency(credits, {precision: 2}).divide(100).toString();
-        summary.net = Currency(credits - debits, {precision: 2}).divide(100).toString();
+                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount));
+        summary.debits = Currency(debits, {precision: 2}).toString();
+        summary.credits = Currency(credits, {precision: 2}).toString();
+        summary.net = Currency(credits - debits, {precision: 2}).toString();
         let paymentSources = new Set(summary.budgetItems.map(x => (x.paymentSource || '').toLowerCase()));
         summary.debitsByPaymentSource = [];
         summary.creditsByPaymentSource = [];
@@ -28,11 +28,11 @@ function CalendarAggregator() {
                 && x.type !== 'expense');
             let creditsTotal = Currency(0, Util.getCurrencyDefaults());
             for (let credit of credits) {
-                creditsTotal = creditsTotal.add(credit.amount / 100);
+                creditsTotal = creditsTotal.add(credit.amount);
             }
             let debitsTotal = Currency(0, Util.getCurrencyDefaults());
             for (let debit of debits) {
-                debitsTotal = debitsTotal.add(debit.amount / 100);
+                debitsTotal = debitsTotal.add(debit.amount);
             }
             if (credits.length) {
                 summary.creditsByPaymentSource.push({

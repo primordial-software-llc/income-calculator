@@ -25,7 +25,7 @@ function BondViewModel() {
               <div class="col-xs-4">Time to Maturity</div>
           </div>`);
     };
-    this.getReadOnlyView = function(bond) {
+    this.getReadOnlyView = function(bond, disable) {
         bond = bond || {};
         let maturityDateText = bond.issueDate
             ? Moment(bond.issueDate).add(bond.daysToMaturation, 'days').format('YYYY-MM-DD')
@@ -47,7 +47,7 @@ function BondViewModel() {
         `);
         viewContainer.append(view);
         let liquidateButton = $(`<div class="col-xs-1">
-                            <button type="button" class="btn btn-success add-remove-btn" title="Liquidate bond">
+                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate bond">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
                             </button>
                           </div>`);

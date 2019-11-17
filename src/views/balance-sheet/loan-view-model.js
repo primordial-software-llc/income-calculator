@@ -19,7 +19,7 @@ function LoanViewModel() {
             "rate": $(target).find('input.rate').val().trim()
         };
     };
-    this.getView = function (amount, name, rate, weeklyAmount, isAuthoritative, isCreditCard) {
+    this.getView = function (debt, weeklyAmount, disable) {
         let payOffDateText;
         let totalInterestText;
         let lifetimeInterestText;
@@ -31,12 +31,11 @@ function LoanViewModel() {
                         new Date().getUTCMonth(),
                         new Date().getUTCDate()
                     ),
-                    totalAmount: amount,
+                    totalAmount: debt.amount,
                     payment: weeklyAmount,
                     DayOfTheWeek: cal.FRIDAY,
-                    rate: rate
+                    rate: debt.rate
                 });
-
                 payOffDateText = balanceStatement.date.getUTCFullYear() + '-' +
                     (balanceStatement.date.getUTCMonth() + 1) + '-' +
                     balanceStatement.date.getUTCDate();
@@ -45,36 +44,39 @@ function LoanViewModel() {
                 payOffDateText = err;
                 totalInterestText = err;
             }
-            lifetimeInterestText = Currency(totalInterestText).divide(amount).multiply(100).toString() + '%';
+            lifetimeInterestText = Currency(totalInterestText).divide(debt.amount).multiply(100).toString() + '%';
         } else {
+            let isCreditCard = debt.type === 'credit';
             payOffDateText = isCreditCard ? 'no payment specified' : 'WARNING: no payment specified'; // Warning is intended for long-term loans.
             let infinitySymbol = '&#8734;';
             totalInterestText = isCreditCard ? 'N/A' : infinitySymbol;
             lifetimeInterestText = isCreditCard ? 'N/A' : infinitySymbol;
         }
-        let icon = isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
-        let view = $(`<div class="balance-item row transaction-input-view ${isAuthoritative ? 'read-only' : 'editable'}">
+        let icon = debt.isAuthoritative
+            ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`
+            : '';
+        let view = $(`<div class="balance-item row transaction-input-view ${debt.isAuthoritative ? 'read-only' : 'editable'}">
                     <div class="col-xs-2">
                         <div class="input-group">
                             <div class="input-group-addon ">$</div>
-                            <input ${isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${amount}" />
+                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount}" />
                         </div>
                     </div>
                     <div class="col-xs-3">
                         <div class="input-group">
                             <div class="input-group-addon ">${icon}</div>
-                            <input ${isAuthoritative ? 'disabled=disabled' : ''} class="name form-control" type="text" value="${name}" />
+                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="name form-control" type="text" value="${debt.name}" />
                         </div>
                     </div>
-                    <div class="col-xs-1"><input ${isAuthoritative ? 'disabled=disabled' : ''} class="rate form-control text-right" type="text" value="${rate}" /></div>
+                    <div class="col-xs-1"><input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="rate form-control text-right" type="text" value="${debt.rate || 'Unknown'}" /></div>
                     <div class="col-xs-2 text-center vertical-align amount-description-column">${payOffDateText}</div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${totalInterestText}</div>
                     <div class="col-xs-1 text-right vertical-align amount-description-column">${lifetimeInterestText}</div>
                     </div>
         `);
-        if (!isAuthoritative) {
+        if (!debt.isAuthoritative) {
             let removeButtonHtml = `<div class="col-xs-1">
-                                <button class="btn remove add-remove-btn" title="Remove Loan">
+                                <button ${disable ? 'disabled="disabled"' : ''} class="btn remove add-remove-btn" title="Remove Loan">
                                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                                 </button>
                             </div>`;

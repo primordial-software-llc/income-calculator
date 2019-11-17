@@ -31,7 +31,7 @@ function TransferController() {
             transferView.append(cancelTransferBtn);
             saveTransferBtn.click(function () {
                 let dataClient = new DataClient();
-                dataClient.sendRequest('budget')
+                dataClient.getBudget()
                     .then(data => {
                         let patch = {};
                         data.pending = data.pending || [];

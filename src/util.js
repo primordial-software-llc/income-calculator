@@ -82,3 +82,25 @@ exports.getCookie = function (cookieNmae) {
     }
     return '';
 };
+exports.obfuscate = function () {
+    return exports.getCookie('obfuscate') === 'true';
+};
+exports.obfuscationAmount = function () {
+    return .2;
+};
+exports.getPoolData = function () {
+    return {
+        UserPoolId : 'us-east-1_CJmKMk0Fw',
+        ClientId : '1alsnsg84noq81e7f2v5vru7m7'
+    };
+};
+exports.getUsername = function () {
+    let idToken = exports.getCookie('idToken');
+    if (!idToken) {
+        return '';
+    }
+    let payload = idToken.split('.')[1];
+    let decodedPayload = atob(payload);
+    let parsed = JSON.parse(decodedPayload);
+    return parsed.email;
+};
