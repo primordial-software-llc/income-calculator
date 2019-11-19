@@ -83,9 +83,12 @@ function DataClient() {
         } catch (error) {
             console.log(error);
             console.log('token is likely invalid causing cors to fail (cors can be fixed for errors in api gateway)');
+            if (!Util.getCookie('idToken') || !Util.getCookie('refreshToken')) {
+                window.location=`${Util.rootUrl()}/pages/login.html${window.location.search}`;
+            }
             let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
             let userData = {
-                Username : 'timg456789@yahoo.com',// Util.getUsername(),
+                Username : Util.getUsername(),
                 Pool : userPool
             };
             let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
@@ -103,8 +106,6 @@ function DataClient() {
             });
             // Eventually the refresh token will expire and the user will have to login again.
             // I need to see that happen before I handle that use case.
-            //console.log('REDIRECTING to login page');
-            //window.location=`${Util.rootUrl()}/pages/login.html${window.location.search}`;
         }
         if (response.status.toString()[0] !== "2") {
             throw {
