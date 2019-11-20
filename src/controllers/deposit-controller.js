@@ -7,11 +7,17 @@ function DepositController() {
     async function deposit(amount) {
         let dataClient = new DataClient();
         let data = await dataClient.getBudget();
+        data.assets = data.assets || [];
         let cashAsset = data.assets.find(x => x.name.toLowerCase() === "cash");
         if (!cashAsset) {
-            cashAsset = {name: 'Cash', sharePrice: '1', 'shares': '0'};
+            cashAsset = {
+                name: 'Cash',
+                id: '13a8c8ad-399b-a780-9d39-8ed1c47618b8',
+                type: 'cash'
+            };
+            data.assets.push(cashAsset);
         }
-        cashAsset.shares = Util.add(cashAsset.shares, amount);
+        cashAsset.amount = Util.add(cashAsset.amount, amount);
         await dataClient.patch({ assets: data.assets });
         $('#transfer-amount').val('');
         $('#message-container').html(`<div class="alert alert-success" role="alert">

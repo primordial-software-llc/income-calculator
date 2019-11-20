@@ -38,7 +38,7 @@ function HomeView() {
     }
     this.getEditableTransactionView = function (iteration) {
         let paymentSourceHtml = '';
-        for (paymentSource of data.paymentSources) {
+        for (paymentSource of data.paymentSources || []) {
             paymentSourceHtml += `<option value='${paymentSource}'>${paymentSource}</option>`;
         }
         return `<h4>New ${iteration.charAt(0).toUpperCase()}${iteration.slice(1)} Transaction</h4>

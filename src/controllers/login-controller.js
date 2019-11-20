@@ -6,20 +6,8 @@ const QRCode = require('qrcode');
 const Util = require('../util');
 function LoginController() {
     'use strict';
-    let dataClient;
-    async function login(username, password) {
-        let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
-        let userData = {
-            Username : username,
-            Pool : userPool
-        };
-        let authenticationData = {
-            Username : username,
-            Password : password,
-        };
-        let authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
-        let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-        let userAuthCallbacks = {
+    function getAuthCallback(cognitoUser, username, password) {
+        return {
             onSuccess: async function (result) {
                 document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
                 document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
@@ -38,19 +26,22 @@ function LoginController() {
             newPasswordRequired: function(userAttributes, requiredAttributes) {
                 console.log(userAttributes);
                 console.log(requiredAttributes);
-                let newPassword = 's_ChLcruwr3x85J';
-                let newAttributes = {
-                    "family_name": 'Gonzalez',
-                    "given_name": 'Timothy',
-                    "address": 'Blue Iris Ln'
-                };
-                cognitoUser.completeNewPasswordChallenge(newPassword, newAttributes,  {
-                    onSuccess: function (result) {
-                        console.log(result);
-                    },
-                    onFailure: function(err) {
-                        console.log(err);
-                    }
+
+                $('.login-form').addClass('hide');
+                $('.form-additional-fields').removeClass('hide');
+                $('#additional-fields-button').click(function () {
+
+                    let newPassword = $('#login-new-password').val().trim();
+                    let newAttributes = {
+                        "given_name": $('#login-firstname').val().trim(),
+                        "family_name": $('#login-lastname').val().trim(),
+                        'phone_number': $('#login-phone').val().trim(),
+                        "address": $('#login-address').val().trim()
+                    };
+                    cognitoUser.completeNewPasswordChallenge(
+                        newPassword,
+                        newAttributes,
+                        getAuthCallback(cognitoUser, username, newPassword));
                 });
             },
             mfaRequired: function(codeDeliveryDetails) {
@@ -58,12 +49,12 @@ function LoginController() {
                 cognitoUser.sendMFACode(verificationCode, this);
             },
             mfaSetup: function(challengeName, challengeParameters) {
-                console.log(challengeName);
-                console.log(challengeParameters);
                 cognitoUser.associateSoftwareToken(this);
             },
             associateSecretCode : function(secretCode) {
                 console.log(secretCode);
+                $('.login-form').addClass('hide');
+                $('.form-additional-fields').addClass('hide');
                 let totp = new OTPAuth.TOTP({
                     issuer: 'Primordial Software LLC',
                     label: username,
@@ -79,8 +70,8 @@ function LoginController() {
                     function (err, url) {
                         $('#qr-code-container').append(`<img src="${encodeURI(url)}" />`);
                         setTimeout(function() {
-                                var challengeAnswer = prompt('Please input the TOTP code.' ,'');
-                                cognitoUser.verifySoftwareToken(challengeAnswer, 'My TOTP device', this);
+                                var challengeAnswer = prompt('Scan the QR code with google authenticator and enter the one time code.' ,'');
+                                cognitoUser.verifySoftwareToken(challengeAnswer, 'My TOTP device', getAuthCallback(cognitoUser, username, password));
                             },
                             1000);
                     });
@@ -94,19 +85,29 @@ function LoginController() {
                 $('.mfa-form').removeClass('hide');
                 $('#mfa-button').unbind();
                 $('#mfa-button').click(function () {
-                    cognitoUser.sendMFACode($('#mfaCode').val(), userAuthCallbacks, 'SOFTWARE_TOKEN_MFA')
+                    cognitoUser.sendMFACode($('#mfaCode').val(), getAuthCallback(cognitoUser, username, password), 'SOFTWARE_TOKEN_MFA')
                 });
             }
         };
-        cognitoUser.authenticateUser(authenticationDetails, userAuthCallbacks);
-    };
+    }
+    async function login(username, password) {
+        let authenticationData = {
+            Username : username,
+            Password : password,
+        };
+        let authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+        let cognitoUser = new AmazonCognitoIdentity.CognitoUser({
+            Username : username,
+            Pool : new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData())
+        });
+        cognitoUser.authenticateUser(authenticationDetails, getAuthCallback(cognitoUser, username, password));
+    }
     async function initAsync() {
         $('#sign-in-button').click(async function () {
             await login($('#login-username').val().trim(), $('#login-password').val().trim());
         });
     }
     this.init = function () {
-        dataClient = new DataClient();
         new AccountSettingsController().init();
         initAsync().catch(err => { Util.log(err); });
     };

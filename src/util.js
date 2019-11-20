@@ -2,7 +2,8 @@ const Currency = require('currency.js');
 exports.log = function (error) {
     console.log(error);
     console.log(JSON.stringify(error, 0, 4));
-    $('#debug-console').append('<div>' + error + '</div>');
+    $('#debug-console').append(`<div>${error}</div>`);
+    $('#debug-console').append(`<div>${JSON.stringify(error, 0, 4)}</div>`);
 };
 exports.getParameterByName = function (name) {
     'use strict';

@@ -10,11 +10,11 @@ function CalendarAggregator() {
         let debits = summary.budgetItems
                 .filter(x => x.type === 'expense')
                 .map(x => x.amount)
-                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount));
+                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount), 0);
         let credits =  summary.budgetItems
                 .filter(x => x.type !== 'expense')
                 .map(x => x.amount)
-                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount));
+                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount), 0);
         summary.debits = Currency(debits, {precision: 2}).toString();
         summary.credits = Currency(credits, {precision: 2}).toString();
         summary.net = Currency(credits - debits, {precision: 2}).toString();

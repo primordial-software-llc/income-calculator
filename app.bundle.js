@@ -18792,11 +18792,11 @@ function CalendarAggregator() {
         let debits = summary.budgetItems
                 .filter(x => x.type === 'expense')
                 .map(x => x.amount)
-                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount));
+                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount), 0);
         let credits =  summary.budgetItems
                 .filter(x => x.type !== 'expense')
                 .map(x => x.amount)
-                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount));
+                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount), 0);
         summary.debits = Currency(debits, {precision: 2}).toString();
         summary.credits = Currency(credits, {precision: 2}).toString();
         summary.net = Currency(credits - debits, {precision: 2}).toString();
@@ -19355,10 +19355,8 @@ function HomeController() {
     let dataClient;
     async function refresh() {
         try {
-            let data = dataClient.getBudget();
-            let bankData = dataClient.get('accountBalance');
-            data = await data;
-            bankData = await bankData;
+            let data = await dataClient.getBudget();
+            let bankData = await dataClient.get('accountBalance'); // Synchronous so there are no uncaught promises if authentication fails. Call to budget is fast anyway.
             let viewModel = getViewModel(data, bankData);
             if (Util.obfuscate()) {
                 obfuscate(viewModel);
@@ -19561,11 +19559,17 @@ function DepositController() {
     async function deposit(amount) {
         let dataClient = new DataClient();
         let data = await dataClient.getBudget();
+        data.assets = data.assets || [];
         let cashAsset = data.assets.find(x => x.name.toLowerCase() === "cash");
         if (!cashAsset) {
-            cashAsset = {name: 'Cash', sharePrice: '1', 'shares': '0'};
+            cashAsset = {
+                name: 'Cash',
+                id: '13a8c8ad-399b-a780-9d39-8ed1c47618b8',
+                type: 'cash'
+            };
+            data.assets.push(cashAsset);
         }
-        cashAsset.shares = Util.add(cashAsset.shares, amount);
+        cashAsset.amount = Util.add(cashAsset.amount, amount);
         await dataClient.patch({ assets: data.assets });
         $('#transfer-amount').val('');
         $('#message-container').html(`<div class="alert alert-success" role="alert">
@@ -19750,20 +19754,8 @@ const QRCode = require('qrcode');
 const Util = require('../util');
 function LoginController() {
     'use strict';
-    let dataClient;
-    async function login(username, password) {
-        let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
-        let userData = {
-            Username : username,
-            Pool : userPool
-        };
-        let authenticationData = {
-            Username : username,
-            Password : password,
-        };
-        let authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
-        let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-        let userAuthCallbacks = {
+    function getAuthCallback(cognitoUser, username, password) {
+        return {
             onSuccess: async function (result) {
                 document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
                 document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
@@ -19782,19 +19774,22 @@ function LoginController() {
             newPasswordRequired: function(userAttributes, requiredAttributes) {
                 console.log(userAttributes);
                 console.log(requiredAttributes);
-                let newPassword = 's_ChLcruwr3x85J';
-                let newAttributes = {
-                    "family_name": 'Gonzalez',
-                    "given_name": 'Timothy',
-                    "address": 'Blue Iris Ln'
-                };
-                cognitoUser.completeNewPasswordChallenge(newPassword, newAttributes,  {
-                    onSuccess: function (result) {
-                        console.log(result);
-                    },
-                    onFailure: function(err) {
-                        console.log(err);
-                    }
+
+                $('.login-form').addClass('hide');
+                $('.form-additional-fields').removeClass('hide');
+                $('#additional-fields-button').click(function () {
+
+                    let newPassword = $('#login-new-password').val().trim();
+                    let newAttributes = {
+                        "given_name": $('#login-firstname').val().trim(),
+                        "family_name": $('#login-lastname').val().trim(),
+                        'phone_number': $('#login-phone').val().trim(),
+                        "address": $('#login-address').val().trim()
+                    };
+                    cognitoUser.completeNewPasswordChallenge(
+                        newPassword,
+                        newAttributes,
+                        getAuthCallback(cognitoUser, username, newPassword));
                 });
             },
             mfaRequired: function(codeDeliveryDetails) {
@@ -19802,12 +19797,12 @@ function LoginController() {
                 cognitoUser.sendMFACode(verificationCode, this);
             },
             mfaSetup: function(challengeName, challengeParameters) {
-                console.log(challengeName);
-                console.log(challengeParameters);
                 cognitoUser.associateSoftwareToken(this);
             },
             associateSecretCode : function(secretCode) {
                 console.log(secretCode);
+                $('.login-form').addClass('hide');
+                $('.form-additional-fields').addClass('hide');
                 let totp = new OTPAuth.TOTP({
                     issuer: 'Primordial Software LLC',
                     label: username,
@@ -19823,8 +19818,8 @@ function LoginController() {
                     function (err, url) {
                         $('#qr-code-container').append(`<img src="${encodeURI(url)}" />`);
                         setTimeout(function() {
-                                var challengeAnswer = prompt('Please input the TOTP code.' ,'');
-                                cognitoUser.verifySoftwareToken(challengeAnswer, 'My TOTP device', this);
+                                var challengeAnswer = prompt('Scan the QR code with google authenticator and enter the one time code.' ,'');
+                                cognitoUser.verifySoftwareToken(challengeAnswer, 'My TOTP device', getAuthCallback(cognitoUser, username, password));
                             },
                             1000);
                     });
@@ -19838,19 +19833,29 @@ function LoginController() {
                 $('.mfa-form').removeClass('hide');
                 $('#mfa-button').unbind();
                 $('#mfa-button').click(function () {
-                    cognitoUser.sendMFACode($('#mfaCode').val(), userAuthCallbacks, 'SOFTWARE_TOKEN_MFA')
+                    cognitoUser.sendMFACode($('#mfaCode').val(), getAuthCallback(cognitoUser, username, password), 'SOFTWARE_TOKEN_MFA')
                 });
             }
         };
-        cognitoUser.authenticateUser(authenticationDetails, userAuthCallbacks);
-    };
+    }
+    async function login(username, password) {
+        let authenticationData = {
+            Username : username,
+            Password : password,
+        };
+        let authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+        let cognitoUser = new AmazonCognitoIdentity.CognitoUser({
+            Username : username,
+            Pool : new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData())
+        });
+        cognitoUser.authenticateUser(authenticationDetails, getAuthCallback(cognitoUser, username, password));
+    }
     async function initAsync() {
         $('#sign-in-button').click(async function () {
             await login($('#login-username').val().trim(), $('#login-password').val().trim());
         });
     }
     this.init = function () {
-        dataClient = new DataClient();
         new AccountSettingsController().init();
         initAsync().catch(err => { Util.log(err); });
     };
@@ -20046,38 +20051,52 @@ function DataClient() {
         };
         return await this.sendRequestInner(requestType, requestParams)
     };
-    this.sendRequestInner = async function (requestType, requestParams) {
-        let response;
-        try {
-            response = await fetch(`https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production/${requestType}`, requestParams);
-        } catch (error) {
-            console.log(error);
-            console.log('token is likely invalid causing cors to fail (cors can be fixed for errors in api gateway)');
-            if (!Util.getCookie('idToken') || !Util.getCookie('refreshToken')) {
-                window.location=`${Util.rootUrl()}/pages/login.html${window.location.search}`;
-            }
+    function promiseToRefresh() {
+        return new Promise((resolve, reject) => {
             let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
             let userData = {
                 Username : Util.getUsername(),
                 Pool : userPool
             };
+            console.log('attempting REFRESH 2');
             let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-            cognitoUser.refreshSession( {
-                    getToken: function () {
-                        return Util.getCookie('refreshToken');
-                    }
+            console.log('attempting REFRESH 3');
+            cognitoUser.refreshSession({
+                getToken: function () {
+                    return Util.getCookie('refreshToken');
+                }
             }, function (err, result) {
                 if (err) {
-                    throw err;
+                    reject(err);
                 }
-                document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
-                document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
-                window.location=`${Util.rootUrl()}/pages/balance-sheet.html${window.location.search}`;
+                resolve(result);
             });
-            // Eventually the refresh token will expire and the user will have to login again.
-            // I need to see that happen before I handle that use case.
+        });
+    }
+    this.sendRequestInner = async function (requestType, requestParams) {
+        let response;
+        try {
+            response = await fetch(`https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production/${requestType}`, requestParams);
+        } catch (error) {
+            console.log('An error occurred when fetching. The server response can\'t be read');
+            console.log(error);
         }
-        if (response.status.toString()[0] !== "2") {
+        if (response.status.toString() === '401') {
+            console.log('Failed to authenticate attempting to refresh token');
+            if (!Util.getCookie('idToken') || !Util.getCookie('refreshToken')) {
+                window.location = `${Util.rootUrl()}/pages/login.html`;
+            }
+            try {
+                let refreshResult = await promiseToRefresh();
+                document.cookie = `idToken=${refreshResult.getIdToken().getJwtToken()};Secure;path=/`;
+                document.cookie = `refreshToken=${refreshResult.getRefreshToken().token};Secure;path=/`;
+                window.location.reload();
+            } catch (err) {
+                console.log('error occurred when refreshing');
+                console.log(err);
+                window.location = `${Util.rootUrl()}/pages/login.html`;
+            }
+        } else if (response.status.toString()[0] !== '2') {
             throw {
                 status: response.status,
                 url: response.url,
@@ -20126,7 +20145,8 @@ const Currency = require('currency.js');
 exports.log = function (error) {
     console.log(error);
     console.log(JSON.stringify(error, 0, 4));
-    $('#debug-console').append('<div>' + error + '</div>');
+    $('#debug-console').append(`<div>${error}</div>`);
+    $('#debug-console').append(`<div>${JSON.stringify(error, 0, 4)}</div>`);
 };
 exports.getParameterByName = function (name) {
     'use strict';
@@ -20968,7 +20988,7 @@ function HomeView() {
     }
     this.getEditableTransactionView = function (iteration) {
         let paymentSourceHtml = '';
-        for (paymentSource of data.paymentSources) {
+        for (paymentSource of data.paymentSources || []) {
             paymentSourceHtml += `<option value='${paymentSource}'>${paymentSource}</option>`;
         }
         return `<h4>New ${iteration.charAt(0).toUpperCase()}${iteration.slice(1)} Transaction</h4>

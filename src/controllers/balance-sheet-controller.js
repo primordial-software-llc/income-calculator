@@ -10,10 +10,8 @@ function HomeController() {
     let dataClient;
     async function refresh() {
         try {
-            let data = dataClient.getBudget();
-            let bankData = dataClient.get('accountBalance');
-            data = await data;
-            bankData = await bankData;
+            let data = await dataClient.getBudget();
+            let bankData = await dataClient.get('accountBalance'); // Synchronous so there are no uncaught promises if authentication fails. Call to budget is fast anyway.
             let viewModel = getViewModel(data, bankData);
             if (Util.obfuscate()) {
                 obfuscate(viewModel);

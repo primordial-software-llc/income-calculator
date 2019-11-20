@@ -76,38 +76,52 @@ function DataClient() {
         };
         return await this.sendRequestInner(requestType, requestParams)
     };
-    this.sendRequestInner = async function (requestType, requestParams) {
-        let response;
-        try {
-            response = await fetch(`https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production/${requestType}`, requestParams);
-        } catch (error) {
-            console.log(error);
-            console.log('token is likely invalid causing cors to fail (cors can be fixed for errors in api gateway)');
-            if (!Util.getCookie('idToken') || !Util.getCookie('refreshToken')) {
-                window.location=`${Util.rootUrl()}/pages/login.html${window.location.search}`;
-            }
+    function promiseToRefresh() {
+        return new Promise((resolve, reject) => {
             let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
             let userData = {
                 Username : Util.getUsername(),
                 Pool : userPool
             };
+            console.log('attempting REFRESH 2');
             let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-            cognitoUser.refreshSession( {
-                    getToken: function () {
-                        return Util.getCookie('refreshToken');
-                    }
+            console.log('attempting REFRESH 3');
+            cognitoUser.refreshSession({
+                getToken: function () {
+                    return Util.getCookie('refreshToken');
+                }
             }, function (err, result) {
                 if (err) {
-                    throw err;
+                    reject(err);
                 }
-                document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
-                document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
-                window.location=`${Util.rootUrl()}/pages/balance-sheet.html${window.location.search}`;
+                resolve(result);
             });
-            // Eventually the refresh token will expire and the user will have to login again.
-            // I need to see that happen before I handle that use case.
+        });
+    }
+    this.sendRequestInner = async function (requestType, requestParams) {
+        let response;
+        try {
+            response = await fetch(`https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production/${requestType}`, requestParams);
+        } catch (error) {
+            console.log('An error occurred when fetching. The server response can\'t be read');
+            console.log(error);
         }
-        if (response.status.toString()[0] !== "2") {
+        if (response.status.toString() === '401') {
+            console.log('Failed to authenticate attempting to refresh token');
+            if (!Util.getCookie('idToken') || !Util.getCookie('refreshToken')) {
+                window.location = `${Util.rootUrl()}/pages/login.html`;
+            }
+            try {
+                let refreshResult = await promiseToRefresh();
+                document.cookie = `idToken=${refreshResult.getIdToken().getJwtToken()};Secure;path=/`;
+                document.cookie = `refreshToken=${refreshResult.getRefreshToken().token};Secure;path=/`;
+                window.location.reload();
+            } catch (err) {
+                console.log('error occurred when refreshing');
+                console.log(err);
+                window.location = `${Util.rootUrl()}/pages/login.html`;
+            }
+        } else if (response.status.toString()[0] !== '2') {
             throw {
                 status: response.status,
                 url: response.url,
