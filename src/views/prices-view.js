@@ -7,7 +7,6 @@ exports.getModel = async function () {
             "sharePrice": $(this).find('input.share-price').val().trim(),
         });
     });
-    prices = prices.filter(x => (x || '').length > 0);
     let dataClient = new DataClient();
     let data = await dataClient.getBudget();
     let updateModel = {

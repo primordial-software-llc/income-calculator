@@ -19816,8 +19816,6 @@ function LoginController() {
                     setError('');
                     let issues = getAdditionalFieldValidation();
                     if (issues.length > 0) {
-                        console.log('setting error');
-                        console.log(issues);
                         setError(issues);
                         return;
                     }
@@ -21159,7 +21157,6 @@ exports.getModel = async function () {
             "sharePrice": $(this).find('input.share-price').val().trim(),
         });
     });
-    prices = prices.filter(x => (x || '').length > 0);
     let dataClient = new DataClient();
     let data = await dataClient.getBudget();
     let updateModel = {
