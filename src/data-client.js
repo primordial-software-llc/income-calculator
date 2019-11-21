@@ -106,6 +106,7 @@ function DataClient() {
             console.log('An error occurred when fetching. The server response can\'t be read');
             console.log(error);
         }
+        // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
         if (response.status.toString() === '401') {
             console.log('Failed to authenticate attempting to refresh token');
             if (!Util.getCookie('idToken') || !Util.getCookie('refreshToken')) {

@@ -19754,6 +19754,42 @@ const QRCode = require('qrcode');
 const Util = require('../util');
 function LoginController() {
     'use strict';
+    function setError(errorMessage) {
+        errorMessage = errorMessage || '';
+        if (Array.isArray(errorMessage)) {
+            for (let errorMessageItem of errorMessage) {
+                console.log('looping');
+                console.log(errorMessageItem);
+                $('#errorMessageAlert').append($(`<div>&bull;&nbsp;${errorMessageItem}</div>`));
+            }
+        } else {
+            $('#errorMessageAlert').text(errorMessage);
+        }
+        if (errorMessage.length < 1) {
+            $('#errorMessageAlert').addClass('hide');
+        } else {
+            $('#errorMessageAlert').removeClass('hide');
+        }
+    }
+    function getAdditionalFieldValidation() {
+        let issues = [];
+        if ($('#login-new-password').val().trim().length < 1) {
+            issues.push('New password is required');
+        }
+        if ($('#login-firstname').val().trim().length < 1) {
+            issues.push('New first name is required');
+        }
+        if ($('#login-lastname').val().trim().length < 1) {
+            issues.push('New last name is required');
+        }
+        if ($('#login-phone').val().trim().length < 1) {
+            issues.push('Phone number is required');
+        }
+        if ($('#login-address').val().trim().length < 1) {
+            issues.push('Address is required');
+        }
+        return issues;
+    }
     function getAuthCallback(cognitoUser, username, password) {
         return {
             onSuccess: async function (result) {
@@ -19762,23 +19798,29 @@ function LoginController() {
                 window.location=`${Util.rootUrl()}/pages/balance-sheet.html${window.location.search}`;
             },
             onFailure: function(err) {
-                console.log('failed to authenticate');
-                console.log(err);
                 $('#login-username').prop('disabled', false);
                 $('#login-password').prop('disabled', false);
                 $('#login-username').val('');
                 $('#login-password').val('');
                 $('#mfaCode').val('');
-                alert('failed to authenticate');
+
+                console.log('failed to authenticate');
+                console.log(err);
+
+                setError(err.message || '');
             },
             newPasswordRequired: function(userAttributes, requiredAttributes) {
-                console.log(userAttributes);
-                console.log(requiredAttributes);
-
                 $('.login-form').addClass('hide');
                 $('.form-additional-fields').removeClass('hide');
                 $('#additional-fields-button').click(function () {
-
+                    setError('');
+                    let issues = getAdditionalFieldValidation();
+                    if (issues.length > 0) {
+                        console.log('setting error');
+                        console.log(issues);
+                        setError(issues);
+                        return;
+                    }
                     let newPassword = $('#login-new-password').val().trim();
                     let newAttributes = {
                         "given_name": $('#login-firstname').val().trim(),
@@ -19800,7 +19842,6 @@ function LoginController() {
                 cognitoUser.associateSoftwareToken(this);
             },
             associateSecretCode : function(secretCode) {
-                console.log(secretCode);
                 $('.login-form').addClass('hide');
                 $('.form-additional-fields').addClass('hide');
                 let totp = new OTPAuth.TOTP({
@@ -19812,7 +19853,6 @@ function LoginController() {
                     secret: secretCode
                 });
                 let qrCodeUrlData = totp.toString();
-                console.log(qrCodeUrlData);
                 QRCode.toDataURL(qrCodeUrlData,
                     { errorCorrectionLevel: 'H', mode: 'alphanumeric' },
                     function (err, url) {
@@ -19833,6 +19873,7 @@ function LoginController() {
                 $('.mfa-form').removeClass('hide');
                 $('#mfa-button').unbind();
                 $('#mfa-button').click(function () {
+                    setError('');
                     cognitoUser.sendMFACode($('#mfaCode').val(), getAuthCallback(cognitoUser, username, password), 'SOFTWARE_TOKEN_MFA')
                 });
             }
@@ -19852,6 +19893,7 @@ function LoginController() {
     }
     async function initAsync() {
         $('#sign-in-button').click(async function () {
+            setError('');
             await login($('#login-username').val().trim(), $('#login-password').val().trim());
         });
     }
@@ -20081,6 +20123,7 @@ function DataClient() {
             console.log('An error occurred when fetching. The server response can\'t be read');
             console.log(error);
         }
+        // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
         if (response.status.toString() === '401') {
             console.log('Failed to authenticate attempting to refresh token');
             if (!Util.getCookie('idToken') || !Util.getCookie('refreshToken')) {
