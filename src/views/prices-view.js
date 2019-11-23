@@ -23,26 +23,21 @@ exports.getModel = async function () {
     }
     return updateModel;
 };
-exports.getHeaderView = function () {
-    return $(`<div class="row table-header-row">
+exports.getHeaderView = () =>
+    $(`<div class="row table-header-row">
               <div class="col-xs-6">Asset</div>
               <div class="col-xs-6">Price</div>
           </div>`);
-};
-exports.getView = function (name, sharePrice) {
-    'use strict';
-    let view = $(`<div class="prices-item row transaction-input-view">
-                    <div class="col-xs-6"><input class="input-name name form-control" type="text" value="${name || ''}" /></div>
-                    <div class="col-xs-6">
-                        <div class="input-group">
-                            <div class="input-group-addon ">$</div>
-                            <input class="share-price form-control text-right" type="text" value="${sharePrice || ''}"
-								placeholder="0.00" />
-                        </div>
+exports.getView = (name, sharePrice) =>
+    $(`<div>
+            <div class="prices-item row transaction-input-view">
+                <div class="col-xs-6"><input class="input-name name form-control" type="text" value="${name || ''}" /></div>
+                <div class="col-xs-6">
+                    <div class="input-group">
+                        <div class="input-group-addon ">$</div>
+                        <input class="share-price form-control text-right" type="text" value="${sharePrice || ''}"
+                            placeholder="0.00" />
                     </div>
-                  </div>
-        `);
-    let viewContainer = $('<div></div>');
-    viewContainer.append(view);
-    return viewContainer;
-};
+                </div>
+              </div>
+          </div>`);

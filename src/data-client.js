@@ -43,24 +43,23 @@ function DataClient() {
         let obfuscate = Util.obfuscate();
         if (obfuscate) {
             $('#save').prop('disabled', true);
-            let obfuscationAmount = Util.obfuscationAmount();
             if (data.biWeeklyIncome && data.biWeeklyIncome.amount) {
                 data.biWeeklyIncome.amount = Currency(data.biWeeklyIncome.amount, Util.getCurrencyDefaults())
-                    .multiply(obfuscationAmount).toString();
+                    .multiply(Util.obfuscationAmount()).toString();
             }
             for (let weekly of data.weeklyRecurringExpenses) {
-                weekly.amount = Currency(weekly.amount, Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+                weekly.amount = Currency(weekly.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
             }
             for (let monthly of data.monthlyRecurringExpenses) {
-                monthly.amount = Currency(monthly.amount, Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+                monthly.amount = Currency(monthly.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
             }
             if (data['401k-contribution-for-year']) {
                 data['401k-contribution-for-year'] = Currency(data['401k-contribution-for-year'],
-                    Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+                    Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
             }
             if (data['401k-contribution-per-pay-check']) {
                 data['401k-contribution-per-pay-check'] = Currency(data['401k-contribution-per-pay-check'],
-                    Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+                    Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
             }
         }
         return data;
@@ -83,9 +82,7 @@ function DataClient() {
                 Username : Util.getUsername(),
                 Pool : userPool
             };
-            console.log('attempting REFRESH 2');
             let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-            console.log('attempting REFRESH 3');
             cognitoUser.refreshSession({
                 getToken: function () {
                     return Util.getCookie('refreshToken');
@@ -98,13 +95,16 @@ function DataClient() {
             });
         });
     }
-    this.sendRequestInner = async function (requestType, requestParams) {
+    this.sendRequestInner = async function (requestType, requestParams, isRetryFromRefresh) {
         let response;
         try {
-            response = await fetch(`https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production/${requestType}`, requestParams);
+            $('.loader-group').removeClass('hide');
+            response = await fetch(`${Util.getApiUrl()}${requestType}`, requestParams);
         } catch (error) {
+            $('.loader-group').addClass('hide');
             console.log('An error occurred when fetching. The server response can\'t be read');
             console.log(error);
+            return;
         }
         // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
         if (response.status.toString() === '401') {
@@ -113,23 +113,33 @@ function DataClient() {
                 window.location = `${Util.rootUrl()}/pages/login.html`;
             }
             try {
+                if (isRetryFromRefresh) {
+                    console.log('failed to refresh from token');
+                    window.location = `${Util.rootUrl()}/pages/login.html`;
+                }
                 let refreshResult = await promiseToRefresh();
+                console.log('refresh result');
+                console.log(refreshResult);
                 document.cookie = `idToken=${refreshResult.getIdToken().getJwtToken()};Secure;path=/`;
                 document.cookie = `refreshToken=${refreshResult.getRefreshToken().token};Secure;path=/`;
-                window.location.reload();
+                console.log('retrying request after token refresh');
+                return await this.sendRequestInner(requestType, requestParams, true);
             } catch (err) {
                 console.log('error occurred when refreshing');
                 console.log(err);
                 window.location = `${Util.rootUrl()}/pages/login.html`;
             }
         } else if (response.status.toString()[0] !== '2') {
+            console.log('failed throwing error');
             throw {
                 status: response.status,
                 url: response.url,
                 response: await response.text()
             };
         }
-        return await response.json();
+        let responseJson = await response.json();
+        $('.loader-group').addClass('hide');
+        return responseJson;
     };
 }
 

@@ -4,8 +4,8 @@
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/style.css" media="screen">
     <title>Net Income Calculator</title>
     <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
@@ -19,20 +19,17 @@
 <div class="tab-nav-bar"></div>
 <div class="container">
     <form id="input-form" class="container-fluid form">
-        <h2>Asset Prices</h2>
-        <div id="prices-input-group" class="form-group"></div>
-        <form>
-            <input id="save" type="button" value="Save" class="btn btn-primary" />
-            <div class="form-group">
-                <label for="acceptLicense">
-                    <a target="_blank" href="https://primordial-software.com/LICENSE.txt">
-                        Agree to License
-                    </a>
-                </label>
-                <input type="checkbox" id="acceptLicense">
-                <span class="licenseAgreementDetails"></span>
-            </div>
-        </form>
+        <h2>Transfers</h2>
+        <div class="row table-header-row">
+            <div class="col-xs-2">Date Initiated</div>
+            <div class="col-xs-2">Debit Account</div>
+            <div class="col-xs-2">Credit Type</div>
+            <div class="col-xs-2">Credit Account</div>
+            <div class="col-xs-2">Amount</div>
+            <div class="col-xs-1">Complete</div>
+            <div class="col-xs-1">Cancel</div>
+        </div>
+        <div class="accounts-container"></div>
     </form>
 </div>
 </body>

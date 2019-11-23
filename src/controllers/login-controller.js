@@ -1,5 +1,4 @@
 const AccountSettingsController = require('./account-settings-controller');
-const DataClient = require('../data-client');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const OTPAuth = require('otpauth');
 const QRCode = require('qrcode');
@@ -10,7 +9,6 @@ function LoginController() {
         errorMessage = errorMessage || '';
         if (Array.isArray(errorMessage)) {
             for (let errorMessageItem of errorMessage) {
-                console.log('looping');
                 console.log(errorMessageItem);
                 $('#errorMessageAlert').append($(`<div>&bull;&nbsp;${errorMessageItem}</div>`));
             }
@@ -29,10 +27,10 @@ function LoginController() {
             issues.push('New password is required');
         }
         if ($('#login-firstname').val().trim().length < 1) {
-            issues.push('New first name is required');
+            issues.push('First name is required');
         }
         if ($('#login-lastname').val().trim().length < 1) {
-            issues.push('New last name is required');
+            issues.push('Last name is required');
         }
         if ($('#login-phone').val().trim().length < 1) {
             issues.push('Phone number is required');
@@ -47,7 +45,7 @@ function LoginController() {
             onSuccess: async function (result) {
                 document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
                 document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
-                window.location=`${Util.rootUrl()}/pages/balance-sheet.html${window.location.search}`;
+                window.location=`${Util.rootUrl()}/pages/balance-sheet.html`;
             },
             onFailure: function(err) {
                 $('#login-username').prop('disabled', false);
