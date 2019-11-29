@@ -1,9 +1,15 @@
+const Currency = require('currency.js');
+const DataClient = require('../../data-client');
 const Moment = require('moment/moment');
 const Util = require('../../util');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 function BondViewModel() {
-    this.getViewDescription = () => 'Bond';
-    this.getViewType = () => 'bonds';
+    this.getViewDescription = function() {
+        return 'Bond';
+    };
+    this.getViewType = function() {
+        return 'bond';
+    };
     this.getModel = function (target) {
         return {
             amount: $(target).find('input.amount').val().trim(),
@@ -52,10 +58,10 @@ function BondViewModel() {
             viewContainer,
             'Bonds',
             [
-                new CashViewModel()
+                new CashViewModel(),
+                new BondViewModel(),
             ],
-            bond.id,
-            bond.amount);
+            bond.id);
         return viewContainer;
     };
     this.getView = function (model) {

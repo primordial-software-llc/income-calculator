@@ -8,8 +8,7 @@ function TransferController() {
         viewContainer,
         debitAccountName,
         allowableTransferViewModels,
-        debitId,
-        readOnlyAmount) {
+        debitId) {
         transferButton.find('button').click(function () {
             transferButton.find('button').attr('disabled', true);
             let transferView = $(new TransferView().getView(debitAccountName, allowableTransferViewModels));
@@ -21,7 +20,7 @@ function TransferController() {
                 viewModel = allowableTransferViewModels.find(x => x.getViewType().toLowerCase() === selectedAssetType.toLowerCase());
                 transferView.find('.target-asset-type').empty();
                 if (viewModel) {
-                    newView = viewModel.getView(readOnlyAmount);
+                    newView = viewModel.getView();
                     transferView.find('.target-asset-type').append(viewModel.getHeaderView());
                     transferView.find('.target-asset-type').append(newView);
                 }
@@ -64,6 +63,8 @@ function TransferController() {
                 transferView.remove();
             });
         });
+
+
     }
 }
 

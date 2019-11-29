@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/primordial-software-llc/income-calculator.git#gh-pages"
+    "url": "git+https://github.com/timg456789/income-calculator.git#gh-pages"
   },
   "author": "Timothy Gonzalez",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/primordial-software-llc/income-calculator/issues"
+    "url": "https://github.com/timg456789/income-calculator/issues"
   },
-  "homepage": "https://github.com/primordial-software-llc/income-calculator/tree/gh-pages#readme",
+  "homepage": "https://github.com/timg456789/income-calculator/tree/gh-pages#readme",
   "dependencies": {
     "amazon-cognito-identity-js": "^3.2.0",
     "aws-sdk": "^2.438.0",

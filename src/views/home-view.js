@@ -1,5 +1,6 @@
 const cal = require('../calculators/calendar');
-const Util = require('../util');
+const CalendarCalculator = require('../calendar-calculator');
+const calCalc = new CalendarCalculator();
 function HomeView() {
     let self = this;
     let data;
@@ -28,7 +29,7 @@ function HomeView() {
     }
     function getTransactionModel(target) {
         return {
-            amount: Util.cleanseNumericString($(target).find('.amount').val().trim()),
+            amount: $(target).find('.amount').val().trim(),
             date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
             name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
             type: $(target).find('.transaction-type').val() || $(target).data().txntype,
@@ -83,7 +84,7 @@ function HomeView() {
             <div class="col-xs-4">
                 <div class="input-group">
                     <div class="input-group-addon ">$</div>
-                    <input class="amount form-control text-right" type="text" value="${transaction.amount ? Util.formatShares(transaction.amount) : Util.format(0)}" />
+                    <input class="amount form-control" type="text" value="${transaction.amount ? transaction.amount : ''}" />
                 </div>
             </div>
             <div class="col-xs-3"><span class="date" data-date="${date}">${iteration === 'weekly'
@@ -100,8 +101,8 @@ function HomeView() {
         return view;
     };
     this.setView = function (budget, obfuscate) {
-        'use strict';
         data = budget;
+        'use strict';
         $('#biweekly-input').val(budget.biWeeklyIncome.amount);
         $('#weekly-input-group').empty();
         $('#monthly-input-group').empty();

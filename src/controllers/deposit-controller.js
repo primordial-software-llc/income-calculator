@@ -8,11 +8,11 @@ function DepositController() {
         let dataClient = new DataClient();
         let data = await dataClient.getBudget();
         data.assets = data.assets || [];
-        let cashAsset = data.assets.find(x => (x.name || '').toLowerCase() === "cash");
+        let cashAsset = data.assets.find(x => x.name.toLowerCase() === "cash");
         if (!cashAsset) {
             cashAsset = {
                 name: 'Cash',
-                id: Util.guid(),
+                id: '13a8c8ad-399b-a780-9d39-8ed1c47618b8',
                 type: 'cash'
             };
             data.assets.push(cashAsset);
@@ -24,7 +24,7 @@ function DepositController() {
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <p class="mb-0">Deposit successful. New cash Balance: ${Util.format(Util.getAmount(cashAsset))}</p>
+                <p class="mb-0">Deposit successful. New cash Balance: ${cashAsset.shares}</p>
             </div>`);
     }
     async function initAsync() {

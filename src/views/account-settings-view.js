@@ -1,5 +1,6 @@
-exports.getCommandButtonsContainerView = (obfuscate) =>
-    `<span id="log-out-button" class="command-button" title="log out">
+exports.getCommandButtonsContainerView = function (obfuscate) {
+    return `
+      <span id="log-out-button" class="command-button" title="log out">
           <span class="glyphicon glyphicon glyphicon-log-out" aria-hidden="true"></span>
       </span>
       <span id="view-raw-data-button" class="command-button" title="view raw json data">
@@ -14,9 +15,10 @@ exports.getCommandButtonsContainerView = (obfuscate) =>
       <span id="obfuscate-data" class="command-button" title="${obfuscate ? 'un-' : ''}obfuscate data">
           <span class="glyphicon glyphicon-eye-${obfuscate ? 'open' : 'close'}" aria-hidden="true"></span>
       </span>`;
+};
 
-exports.getAccountSettingsView = () =>
-    `<div class="modal fade" id="account-settings-view" role="dialog">
+exports.getAccountSettingsView = function () {
+    return `<div class="modal fade" id="account-settings-view" role="dialog">
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
@@ -37,9 +39,10 @@ exports.getAccountSettingsView = () =>
           </div>
       </div>
   </div>`;
+};
 
-exports.getRawDataView = () =>
-    `<div class="modal fade" id="raw-data-view" role="dialog">
+exports.getRawDataView = function () {
+    return `<div class="modal fade" id="raw-data-view" role="dialog">
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
@@ -53,4 +56,5 @@ exports.getRawDataView = () =>
               </div>
           </div>
       </div>
-  </div>`;
+  </div>`
+};

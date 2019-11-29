@@ -1,5 +1,6 @@
 const AccountSettingsController = require('./account-settings-controller');
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
+const CashOrStockViewModel = require('../views/balance-sheet/cash-or-stock-view-model');
 const Currency = require('currency.js');
 const DataClient = require('../data-client');
 const LoanViewModel = require('../views/balance-sheet/loan-view-model');
@@ -38,12 +39,17 @@ function HomeController() {
                 Util.obfuscationAmount()
             ).toString();
         }
+        for (let ppe of viewModel.propertyPlantAndEquipment) {
+            ppe.amount = Currency(ppe.amount, Util.getCurrencyDefaults()).multiply(
+                Util.obfuscationAmount()
+            ).toString();
+        }
     }
     function getViewModel(data, bankData) {
         let viewModel = JSON.parse(JSON.stringify(data));
         viewModel.assets = viewModel.assets || [];
         viewModel.balances = viewModel.balances || [];
-        for (let bankAccount of bankData.allAccounts || []) {
+        for (let bankAccount of bankData.allAccounts) {
             for (let account of bankAccount.accounts.filter(x => x.type === 'depository')) {
                 viewModel.assets.push({
                     type: account.type === 'depository' ? 'cash' : '',

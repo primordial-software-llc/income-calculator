@@ -1,6 +1,10 @@
 function ExpenseViewModel() {
-    this.getViewDescription = () => 'Expense';
-    this.getViewType = () => 'expense';
+    this.getViewDescription = function() {
+        return 'Expense';
+    };
+    this.getViewType = function() {
+        return 'expense';
+    };
     this.getModel = function (target) {
         return {
             amount: $(target).find('input.amount').val().trim(),
@@ -22,10 +26,11 @@ function ExpenseViewModel() {
                     </div>
                   </div>`);
     };
-    this.getHeaderView = () =>
-        $(`<div class="row table-header-row">
-               <div class="col-xs-8">Name</div>
-               <div class="col-xs-4">Amount</div>
-           </div>`);
+    this.getHeaderView = function () {
+        return $(`<div class="row table-header-row">
+              <div class="col-xs-8">Name</div>
+              <div class="col-xs-4">Amount</div>
+          </div>`);
+    };
 }
 module.exports = ExpenseViewModel;

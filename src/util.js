@@ -30,12 +30,20 @@ exports.updateQueryStringParameter = function (uri, key, value) {
         return uri + separator + key + "=" + value;
     }
 };
-exports.formatShares = (shares) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 }).format(shares);
-exports.format = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }).format(amount);
-exports.hasAgreedToLicense = function() { // SHOULD REMOVE THIS
+exports.formatShares = function(shares) {
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 }).format(shares);
+};
+exports.format = function(amount) {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }).format(amount);
+};
+exports.hasAgreedToLicense = function() {
     return exports.getParameterByName('agreedToLicense') === 'true';
 };
-exports.rootUrl = () => `${document.location.origin}`;
+exports.rootUrl = function () {
+    return window.location.origin === 'file://'
+        ? 'file:///C:/Users/peon/Desktop/projects/income-calculator'
+        : `${document.location.origin}/income-calculator`;
+};
 exports.guid = function () {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
@@ -50,10 +58,16 @@ exports.getAmount = function (transaction) {
         ? transaction.amount
         : Currency(transaction.sharePrice, exports.getCurrencyDefaults()).multiply(transaction.shares).toString();
 };
-exports.getCurrencyDefaults = () => { return {precision: 3} };
-exports.add = (one, two) => Currency(one, exports.getCurrencyDefaults()).add(two).toString();
-exports.subtract = (one, two) => Currency(one, exports.getCurrencyDefaults()).subtract(two).toString();
-exports.cleanseNumericString = (numericString) => numericString.replace(/[^-0-9.]/g, '');
+exports.getCurrencyDefaults = function() { return {precision: 3} };
+exports.add = function (one, two) {
+    return Currency(one, exports.getCurrencyDefaults()).add(two).toString();
+};
+exports.subtract = function (one, two) {
+    return Currency(one, exports.getCurrencyDefaults()).subtract(two).toString();
+};
+exports.cleanseNumericString = function (numericString) {
+    return numericString.replace(/[^-0-9.]/g, '');
+};
 exports.getCookie = function (cookieNmae) {
     let name = cookieNmae + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -69,8 +83,18 @@ exports.getCookie = function (cookieNmae) {
     }
     return '';
 };
-exports.obfuscate = () => exports.getCookie('obfuscate') === 'true';
-exports.obfuscationAmount = () => Math.random()/10;
+exports.obfuscate = function () {
+    return exports.getCookie('obfuscate') === 'true';
+};
+exports.obfuscationAmount = function () {
+    return .2;
+};
+exports.getPoolData = function () {
+    return {
+        UserPoolId : 'us-east-1_CJmKMk0Fw',
+        ClientId : '1alsnsg84noq81e7f2v5vru7m7'
+    };
+};
 exports.getUsername = function () {
     let idToken = exports.getCookie('idToken');
     if (!idToken) {
@@ -81,21 +105,3 @@ exports.getUsername = function () {
     let parsed = JSON.parse(decodedPayload);
     return parsed.email;
 };
-
-// ENVIRONMENT
-// Test
-//exports.getPoolData = () => {
-//    return {
-//        UserPoolId : 'us-east-1_CJmKMk0Fw',
-//        ClientId : '1alsnsg84noq81e7f2v5vru7m7'
-//    };
-//};
-//exports.getApiUrl = () => 'https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production/';
-// Production
-exports.getPoolData = () => {
-    return {
-        UserPoolId : 'us-east-1_rHS4WOhz6',
-        ClientId : '2js93kg56gbvp0huq66fbh0gap'
-    };
-};
-exports.getApiUrl = () => 'https://4kaupsq274.execute-api.us-east-1.amazonaws.com/production/';
