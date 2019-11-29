@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
     <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/login.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/login-signup.css">
     <title>Net Income Calculator</title>
     <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
@@ -20,32 +20,15 @@
 <div class="tab-nav-bar"></div>
 <div class="container">
     <div id="errorMessageAlert" class="hide alert alert-danger" role="alert"></div>
-    <form class="login-form">
+    <div id="successMessageAlert" class="hide alert alert-success" role="alert"></div>
+    <form class="signup-form">
         <div class="form-group username-group">
-            <label for="login-username">Username</label>
+            <label for="login-username">Email</label>
             <input type="email" class="form-control" id="login-username">
         </div>
         <div class="form-group password-group">
             <label for="login-password">Password</label>
             <input type="password" class="form-control" id="login-password">
-        </div>
-        <button id="sign-in-button" type="button" class="btn btn-primary">Sign In</button>
-        <div class="pull-right">
-            <a href="login-signup.html">Create New Account</a>
-        </div>
-    </form>
-    <form class="mfa-form hide">
-        <div class="form-group sign-in-mfa-code-container">
-            <label for="mfaCode">MFA Code</label>
-            <input type="text" class="form-control" id="mfaCode">
-        </div>
-        <button id="mfa-button" type="button" class="btn btn-primary">Sign In</button>
-    </form>
-    <div id="qr-code-container"></div>
-    <form class="form-additional-fields hide">
-        <div class="form-group password-group">
-            <label for="login-new-password">New Password</label>
-            <input type="password" class="form-control" id="login-new-password">
         </div>
         <div class="form-group username-group">
             <label for="login-firstname">First Name</label>
@@ -60,10 +43,23 @@
             <input placeholder="+15555555" type="email" class="form-control" id="login-phone">
         </div>
         <div class="form-group username-group">
-            <label for="login-address">Address</label>
-            <input type="email" class="form-control" id="login-address">
+            <label for="login-date-of-birth">Date of Birth</label>
+            <input placeholder="MM/DD/YYYY" type="email" class="form-control" id="login-date-of-birth">
         </div>
-        <button id="additional-fields-button" type="button" class="btn btn-primary">Sign In</button>
+        <div class="form-group username-group">
+            <label for="login-address">Address</label>
+            <input placeholder="Country, City, State" type="email" class="form-control" id="login-address">
+        </div>
+        <div class="form-group">
+            <label for="acceptLicense">
+                <a target="_blank" href="https://primordial-software.com/LICENSE.txt">
+                    Agree to License
+                </a>
+            </label>
+            <input type="checkbox" id="acceptLicense">
+            <span class="licenseAgreementDetails"></span>
+        </div>
+        <button id="sign-up-button" type="button" class="btn btn-primary">Sign Up</button>
     </form>
 </div>
 </body>

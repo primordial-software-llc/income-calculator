@@ -34,11 +34,8 @@ function PayDaysController() {
         let data = await dataClient.getBudget();
         $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
         $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
-        $('#acceptLicense').prop('checked', Util.hasAgreedToLicense());
-
         let max401kContribution = 19000;
         $('#max-401k-contribution').text(Util.format(max401kContribution));
-
         let payDates = getPayDates();
         payDates.forEach((paymentDate, index) => {
             $('.pay-days-container').append(getView(index + 1, paymentDate));

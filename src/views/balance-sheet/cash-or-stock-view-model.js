@@ -3,16 +3,9 @@ const Currency = require('currency.js');
 const Util = require('../../util');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 function CashOrStockViewModel() {
-    this.getViewDescription = function() {
-        return 'Stock';
-    };
-    this.getViewType = function() {
-        return 'cash-or-stock';
-    };
-    this.getTotal = function (name, amount) {
-        'use strict';
-        return $(`<div class="subtotal">Total ${name}<span class="pull-right">${Util.format(amount)}</span></div>`);
-    };
+    this.getViewDescription = () => 'Stock';
+    this.getViewType = () => 'cash-or-stock';
+    this.getTotal = (name, amount) => $(`<div class="subtotal">Total ${name}<span class="pull-right">${Util.format(amount)}</span></div>`);
     this.getModel = function (target) {
         return {
             shares: $(target).find('input.shares').val().trim(),
@@ -24,8 +17,8 @@ function CashOrStockViewModel() {
         let allocation = Currency(subtotal, {precision: 4}).divide(total).multiply(100).toString();
         return Currency(allocation, {precision: 2}).toString() + "%";
     };
-    this.getReadOnlyHeaderView = function () {
-        return $(`<div class="row table-header-row">
+    this.getReadOnlyHeaderView = () =>
+        $(`<div class="row table-header-row">
               <div class="col-xs-1">Shares</div>
               <div class="col-xs-1">Share Price</div>
               <div class="col-xs-3">Current Value</div>
@@ -34,25 +27,24 @@ function CashOrStockViewModel() {
               <div class="col-xs-2">Allocation</div>
               <div class="col-xs-1">Liquidate</div>
           </div>`);
-    };
-    this.getReadOnlyView = function (name, total, pending, shares, sharePrice, disable) {
+    this.getReadOnlyView = function (equity, total, pending, disable) {
         'use strict';
-        let amount = Util.getAmount({"sharePrice": sharePrice, "shares": shares});
-        name = name || '';
+        let amount = Util.getAmount({"sharePrice": equity.sharePrice, "shares": equity.shares});
+        equity.name = equity.name || '';
         let allocation = this.getAllocation(total, amount);
-        let accountUrl = `${Util.rootUrl()}/pages/accounts.html${window.location.search}#debit-account-${name.toLowerCase()}`;
         let availableBalanceCalculator = new AvailableBalanceCalculator();
-        let availableBalance = availableBalanceCalculator.getAvailableBalance(name, amount.toString(), pending);
+        let availableBalance = availableBalanceCalculator.getAvailableBalance(
+            equity.name, amount.toString(), pending, equity.type, equity.id);
         let availableBalanceView = availableBalance === amount.toString()
             ? Util.format(amount.toString())
-            : `<a href="${accountUrl}">${Util.format(availableBalance)}</a>`;
+            : `<a href="${`${Util.rootUrl()}/pages/accounts.html`}">${Util.format(availableBalance)}</a>`;
         let view = $(`<div class="asset-item row transaction-input-view">
-                    <div class="col-xs-1 text-right vertical-align amount-description-column">${Util.formatShares(shares)}</div>
-                    <div class="col-xs-1 text-right vertical-align amount-description-column">${Util.format(sharePrice)}</div>
+                    <div class="col-xs-1 text-right vertical-align amount-description-column">${Util.formatShares(equity.shares)}</div>
+                    <div class="col-xs-1 text-right vertical-align amount-description-column">${Util.format(equity.sharePrice)}</div>
                     <div class="col-xs-3 text-right vertical-align amount-description-column">${Util.format(amount)}</div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${availableBalanceView}</div>
                     <div class="col-xs-2 text-center vertical-align amount-description-column asset-name" >
-                        <a target="_blank" href="https://finance.yahoo.com/quote/${name}" title="View Chart">${name}</a>
+                        <a target="_blank" href="https://finance.yahoo.com/quote/${equity.name}" title="View Chart">${equity.name}</a>
                     </div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${allocation.toString()}</div>
                   </div>
@@ -69,8 +61,9 @@ function CashOrStockViewModel() {
         new TransferController().init(
             transferButton,
             viewContainer,
-            name,
-            [new CashViewModel()]);
+            equity.name,
+            [new CashViewModel()],
+            equity.id);
         return viewContainer;
     };
     this.getHeaderView = function () {

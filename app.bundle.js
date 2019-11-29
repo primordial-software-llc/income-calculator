@@ -18718,6 +18718,7 @@ module.exports = Buffer
 },{"isarray":61}],61:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
 },{"dup":29}],62:[function(require,module,exports){
+const AccountsController = require('./controllers/accounts-controller');
 const HomeController = require('./controllers/home-controller');
 const BudgetCalendarController = require('./controllers/budget-calendar-controller');
 const BalanceSheetController = require('./controllers/balance-sheet-controller');
@@ -18725,6 +18726,7 @@ const PayDaysController = require('./controllers/pay-days-controller');
 const DepositController = require('./controllers/deposit-controller');
 const PricesController = require('./controllers/prices-controller');
 const LoginController = require('./controllers/login-controller');
+const LoginSignupController = require('./controllers/login-signup-controller');
 const LinkBankAccountController = require('./controllers/link-bank-account-controller');
 const Nav = require('./nav');
 const AccountSettingsView = require('./views/account-settings-view');
@@ -18735,7 +18737,7 @@ $(document).ready(function () {
     Nav.initNav($('.tab-nav-bar'));
     let controller;
     let pageName = window.location.href.split('/').pop().toLocaleLowerCase();
-    if (pageName.startsWith('index.html')) {
+    if (pageName === '' || pageName.startsWith('index.html')) {
         controller = new HomeController();
     } else if (pageName.startsWith('balance-sheet.html')) {
         controller = new BalanceSheetController();
@@ -18743,43 +18745,61 @@ $(document).ready(function () {
         controller = new PayDaysController();
     } else if (pageName.startsWith('budget-calendar.html')) {
         controller = new BudgetCalendarController();
+    }  else if (pageName.startsWith('accounts.html')) {
+        controller = new AccountsController();
     } else if (pageName.startsWith('deposit.html')) {
         controller = new DepositController();
     } else if (pageName.startsWith('prices.html')) {
         controller = new PricesController();
     } else if (pageName.startsWith('login.html')) {
         controller = new LoginController();
+    } else if (pageName.startsWith('login-signup.html')) {
+        controller = new LoginSignupController();
     } else if (pageName.startsWith('link-bank-account.html')) {
         controller = new LinkBankAccountController();
     }
-
     let obfuscate = Util.obfuscate();
     $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView(obfuscate));
     $('body').append('<div id="page-footer"></div>');
+    $('#page-footer').append(`
+        <hr />
+        <p class="text-center">By browsing and using this site you agree to our <a target="_blank" href="https://primordial-software.com/LICENSE.txt">license</a>
+    `);
     $('#page-footer').append(`<div id="debug-console" class="no-print"></div>`);
     $('#page-footer').append(`<div id="account-settings-container"></div>`).append(AccountSettingsView.getAccountSettingsView());
     $('#page-footer').append(`<div id="raw-data-container"></div>`).append(AccountSettingsView.getRawDataView());
+    $('#page-footer').append(`
+        <div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
+              <div class="modal-dialog">
+                <div class="loader"></div>
+              </div>
+          </div>
+        <div class="loader-group hide modal-backdrop fade in"></div>
+    `);
     controller.init();
 });
 
-},{"./controllers/balance-sheet-controller":73,"./controllers/budget-calendar-controller":75,"./controllers/deposit-controller":76,"./controllers/home-controller":77,"./controllers/link-bank-account-controller":78,"./controllers/login-controller":79,"./controllers/pay-days-controller":80,"./controllers/prices-controller":81,"./nav":83,"./util":84,"./views/account-settings-view":85}],63:[function(require,module,exports){
+},{"./controllers/accounts-controller":73,"./controllers/balance-sheet-controller":74,"./controllers/budget-calendar-controller":76,"./controllers/deposit-controller":77,"./controllers/home-controller":78,"./controllers/link-bank-account-controller":79,"./controllers/login-controller":80,"./controllers/login-signup-controller":81,"./controllers/pay-days-controller":82,"./controllers/prices-controller":83,"./nav":85,"./util":86,"./views/account-settings-view":87}],63:[function(require,module,exports){
 const Currency = require('currency.js');
 const Util = require('../util');
 function AvailableBalanceCalculator() {
-    this.getAvailableBalance = function (accountName, startingBalance, allPendingTransfers) {
+    this.getAvailableBalance = function (accountName, startingBalance, allPendingTransfers, accountType,
+                                         accountId) {
         return (allPendingTransfers || []).filter(x =>
-            x.creditAccount.toLowerCase() === accountName.toLowerCase() ||
-            x.debitAccount.toLowerCase() === accountName.toLowerCase())
-                .reduce((sumTransfer, transfer) => {
-                    sumTransfer.amount = transfer.creditAccount.toLowerCase() === accountName.toLowerCase()
-                        ? sumTransfer.amount.add(Util.getAmount(transfer))
-                        : sumTransfer.amount.subtract(Util.getAmount(transfer));
+            x.creditAccount.toLowerCase() === accountName.toLowerCase() || // No credit id while accounts are typed with free-text
+            x.debitId === accountId
+        ).reduce((sumTransfer, transfer) => {
+                    sumTransfer.amount =
+                        transfer.creditAccount.toLowerCase() === accountName.toLowerCase() &&
+                        (transfer.type || '').toLowerCase() === (accountType || '').toLowerCase()
+                            ? sumTransfer.amount.add(Util.getAmount(transfer))
+                            : sumTransfer.amount.subtract(Util.getAmount(transfer));
                     return sumTransfer;
         }, {amount: Currency(startingBalance, Util.getCurrencyDefaults())}).amount.toString();
     };
 }
 module.exports = AvailableBalanceCalculator;
-},{"../util":84,"currency.js":26}],64:[function(require,module,exports){
+},{"../util":86,"currency.js":26}],64:[function(require,module,exports){
 const CalendarSearch = require('./calendar-search');
 const Currency = require('currency.js');
 const Util = require('../util');
@@ -18837,7 +18857,7 @@ function CalendarAggregator() {
 
 module.exports = CalendarAggregator;
 
-},{"../util":84,"./calendar-search":65,"currency.js":26}],65:[function(require,module,exports){
+},{"../util":86,"./calendar-search":65,"currency.js":26}],65:[function(require,module,exports){
 function CalendarSearch() {
 
     this.find = function (startTime, endTime, transactions) {
@@ -19091,22 +19111,18 @@ function CalendarCalculator() {
         return result;
     };
 
-    this.createByMonth = function (year, month) {
-        return new Date(Date.UTC(year, month));
-    };
+    this.createByMonth = (year, month) => new Date(Date.UTC(year, month));
 
     this.getFirstDayInWeek = function (date) {
-        var dt = new Date(date);
+        let dt = new Date(date);
         dt.setUTCDate(dt.getUTCDate() - dt.getUTCDay());
         return dt;
     };
 
     this.getNextMonth = function (date) {
-
-        var dt = new Date(date);
+        let dt = new Date(date);
         dt.setUTCMonth(dt.getUTCMonth() + 1);
         return dt;
-
     };
 
 }
@@ -19117,7 +19133,6 @@ const cal = require('./calculators/calendar');
 const CalendarCalculator = require('./calendar-calculator');
 const Util = require('./util');
 const calCalc = new CalendarCalculator();
-const Currency = require('currency.js');
 const NetIncomeCalculator = require('./calculators/net-income-calculator');
 const netIncomeCalculator = new NetIncomeCalculator();
 const CalendarAggregator = require('./calculators/calendar-aggregator');
@@ -19259,7 +19274,7 @@ exports.load = function (budgetSettings, start, end) {
     });
 };
 
-},{"./calculators/calendar":66,"./calculators/calendar-aggregator":64,"./calculators/net-income-calculator":67,"./calendar-calculator":70,"./util":84,"currency.js":26}],72:[function(require,module,exports){
+},{"./calculators/calendar":66,"./calculators/calendar-aggregator":64,"./calculators/net-income-calculator":67,"./calendar-calculator":70,"./util":86}],72:[function(require,module,exports){
 const DataClient = require('../data-client');
 const Util = require('../util');
 function AccountSettingsController() {
@@ -19304,7 +19319,7 @@ function AccountSettingsController() {
         $('#log-out-button').click(() => {
             document.cookie = 'idToken=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
             document.cookie = 'refreshToken=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
-            window.location=`${Util.rootUrl()}/pages/login.html${window.location.search}`;
+            window.location=`${Util.rootUrl()}/pages/login.html`;
         });
         $('#view-raw-data-button').click(async () => {
             let data;
@@ -19342,10 +19357,108 @@ function AccountSettingsController() {
 }
 
 module.exports = AccountSettingsController;
-},{"../data-client":82,"../util":84}],73:[function(require,module,exports){
+},{"../data-client":84,"../util":86}],73:[function(require,module,exports){
+const AccountSettingsController = require('./account-settings-controller');
+const AccountsView = require('../views/accounts-view');
+const AvailableBalanceCalculator = require('../calculators/available-balance-calculator');
+const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
+const Currency = require('currency.js');
+const DataClient = require('../data-client');
+const Util = require('../util');
+function AccountsController() {
+    'use strict';
+    let dataClient;
+    async function cancelTransfer(transferId) {
+        try {
+            let data = await dataClient.getBudget();
+            let patch = {};
+            patch.pending = data.pending.filter(x => x.id != transferId);
+            await dataClient.patch(patch);
+            window.location.reload();
+        } catch (error) {
+            Util.log(error);
+        }
+    }
+    async function completeTransfer(transferId) {
+        let data = await dataClient.getBudget();
+        let patch = { assets: data.assets || [] };
+        let credit = data.pending.find(x => x.id === transferId);
+        credit.type = credit.type || '';
+        patch.pending = data.pending.filter(x => x.id !== transferId);
+        let debitAccount = patch.assets.find(x => x.id === credit.debitId);
+        let creditAmount = Util.getAmount(credit);
+        if (debitAccount.shares && debitAccount.sharePrice) {
+            let newDebitAmount = Currency(Util.getAmount(debitAccount), Util.getCurrencyDefaults()).subtract(Util.getAmount(credit)).toString();
+            debitAccount.shares = Currency(newDebitAmount, Util.getCurrencyDefaults()).divide(debitAccount.sharePrice).toString();
+        } else {
+            debitAccount.amount = Currency(debitAccount.amount, Util.getCurrencyDefaults()).subtract(creditAmount).toString();
+        }
+        if (credit.type.toLowerCase() !== 'expense') {
+            let creditAccount = patch.assets.find(asset =>
+                (asset.type || '').toLowerCase() == (credit.type).toLowerCase() &&
+                (asset.name || '').toLowerCase() === credit.creditAccount.toLowerCase());
+            if (!creditAccount) {
+                delete credit.creditAccount;
+                delete credit.debitAccount;
+                delete credit.transferDate;
+                creditAccount = {
+                    name: credit.name,
+                    amount: credit.amount,
+                    sharePrice: credit.sharePrice,
+                    shares: credit.shares,
+                    daysToMaturation: credit.daysToMaturation,
+                    id: credit.id,
+                    issueDate: credit.issueDate,
+                    type: credit.type
+                };
+                patch.assets.push(creditAccount);
+            } else {
+                if (credit.shares && credit.sharePrice) {
+                    creditAccount.shares = Currency(creditAccount.shares, Util.getCurrencyDefaults()).add(credit.shares).toString();
+                } else {
+                    creditAccount.amount = Currency(creditAccount.amount, Util.getCurrencyDefaults()).add(credit.amount).toString();
+                }
+            }
+        }
+        patch.assets = patch.assets.filter(x => Currency(Util.getAmount(x)).intValue > 0);
+        try {
+            await dataClient.patch(patch);
+            window.location.reload();
+        } catch (err) {
+            Util.log(err);
+        }
+    }
+    function setView(data) {
+        for (let transfer of data.pending || []) {
+            let transferView = AccountsView.getTransferView(transfer);
+            transferView.find('.cancel-transfer').click(function () { cancelTransfer(transfer.id) });
+            transferView.find('.complete-transfer').click(function () { completeTransfer(transfer.id) });
+            $('.accounts-container').append(transferView);
+        }
+        return;
+    }
+    async function refresh() {
+        try {
+            let data = await dataClient.getBudget('budget');
+            setView(data);
+            if (location.hash && document.querySelector(location.hash)) {
+                window.scrollTo(0, document.querySelector(location.hash).offsetTop);
+            }
+        } catch (err) {
+            Util.log(err);
+        }
+    }
+    this.init = function () {
+        dataClient = new DataClient();
+        new AccountSettingsController().init(balanceSheetView);
+        refresh();
+    };
+}
+
+module.exports = AccountsController;
+},{"../calculators/available-balance-calculator":63,"../data-client":84,"../util":86,"../views/accounts-view":88,"../views/balance-sheet/balance-sheet-view":89,"./account-settings-controller":72,"currency.js":26}],74:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
-const CashOrStockViewModel = require('../views/balance-sheet/cash-or-stock-view-model');
 const Currency = require('currency.js');
 const DataClient = require('../data-client');
 const LoanViewModel = require('../views/balance-sheet/loan-view-model');
@@ -19384,17 +19497,12 @@ function HomeController() {
                 Util.obfuscationAmount()
             ).toString();
         }
-        for (let ppe of viewModel.propertyPlantAndEquipment) {
-            ppe.amount = Currency(ppe.amount, Util.getCurrencyDefaults()).multiply(
-                Util.obfuscationAmount()
-            ).toString();
-        }
     }
     function getViewModel(data, bankData) {
         let viewModel = JSON.parse(JSON.stringify(data));
         viewModel.assets = viewModel.assets || [];
         viewModel.balances = viewModel.balances || [];
-        for (let bankAccount of bankData.allAccounts) {
+        for (let bankAccount of bankData.allAccounts || []) {
             for (let account of bankAccount.accounts.filter(x => x.type === 'depository')) {
                 viewModel.assets.push({
                     type: account.type === 'depository' ? 'cash' : '',
@@ -19429,7 +19537,7 @@ function HomeController() {
 }
 
 module.exports = HomeController;
-},{"../data-client":82,"../util":84,"../views/balance-sheet/balance-sheet-view":86,"../views/balance-sheet/cash-or-stock-view-model":88,"../views/balance-sheet/loan-view-model":91,"./account-settings-controller":72,"currency.js":26}],74:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../views/balance-sheet/balance-sheet-view":89,"../views/balance-sheet/loan-view-model":94,"./account-settings-controller":72,"currency.js":26}],75:[function(require,module,exports){
 const DataClient = require('../../data-client');
 const Moment = require('moment/moment');
 const TransferView = require('../../views/balance-sheet/transfer-view');
@@ -19440,7 +19548,8 @@ function TransferController() {
         viewContainer,
         debitAccountName,
         allowableTransferViewModels,
-        debitId) {
+        debitId,
+        readOnlyAmount) {
         transferButton.find('button').click(function () {
             transferButton.find('button').attr('disabled', true);
             let transferView = $(new TransferView().getView(debitAccountName, allowableTransferViewModels));
@@ -19452,7 +19561,7 @@ function TransferController() {
                 viewModel = allowableTransferViewModels.find(x => x.getViewType().toLowerCase() === selectedAssetType.toLowerCase());
                 transferView.find('.target-asset-type').empty();
                 if (viewModel) {
-                    newView = viewModel.getView();
+                    newView = viewModel.getView(readOnlyAmount);
                     transferView.find('.target-asset-type').append(viewModel.getHeaderView());
                     transferView.find('.target-asset-type').append(newView);
                 }
@@ -19495,14 +19604,12 @@ function TransferController() {
                 transferView.remove();
             });
         });
-
-
     }
 }
 
 module.exports = TransferController;
 
-},{"../../data-client":82,"../../util":84,"../../views/balance-sheet/transfer-view":93,"moment/moment":31}],75:[function(require,module,exports){
+},{"../../data-client":84,"../../util":86,"../../views/balance-sheet/transfer-view":96,"moment/moment":31}],76:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const CalendarView = require('../calendar-view');
 const DataClient = require('../data-client');
@@ -19549,7 +19656,7 @@ function BudgetCalendarController() {
 }
 
 module.exports = BudgetCalendarController;
-},{"../calendar-view":71,"../data-client":82,"../util":84,"./account-settings-controller":72}],76:[function(require,module,exports){
+},{"../calendar-view":71,"../data-client":84,"../util":86,"./account-settings-controller":72}],77:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const Util = require('../util');
@@ -19560,11 +19667,11 @@ function DepositController() {
         let dataClient = new DataClient();
         let data = await dataClient.getBudget();
         data.assets = data.assets || [];
-        let cashAsset = data.assets.find(x => x.name.toLowerCase() === "cash");
+        let cashAsset = data.assets.find(x => (x.name || '').toLowerCase() === "cash");
         if (!cashAsset) {
             cashAsset = {
                 name: 'Cash',
-                id: '13a8c8ad-399b-a780-9d39-8ed1c47618b8',
+                id: Util.guid(),
                 type: 'cash'
             };
             data.assets.push(cashAsset);
@@ -19576,7 +19683,7 @@ function DepositController() {
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <p class="mb-0">Deposit successful. New cash Balance: ${cashAsset.shares}</p>
+                <p class="mb-0">Deposit successful. New cash Balance: ${Util.format(Util.getAmount(cashAsset))}</p>
             </div>`);
     }
     async function initAsync() {
@@ -19596,7 +19703,7 @@ function DepositController() {
 }
 
 module.exports = DepositController;
-},{"../data-client":82,"../util":84,"./account-settings-controller":72}],77:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"./account-settings-controller":72}],78:[function(require,module,exports){
 const HomeView = require('../views/home-view');
 const DataClient = require('../data-client');
 const AccountSettingsController = require('./account-settings-controller');
@@ -19631,7 +19738,7 @@ function HomeController() {
     };
 }
 module.exports = HomeController;
-},{"../data-client":82,"../util":84,"../views/home-view":94,"./account-settings-controller":72}],78:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../views/home-view":97,"./account-settings-controller":72}],79:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const Util = require('../util');
@@ -19709,7 +19816,7 @@ function LinkBankAccountController() {
                         clientName: 'My App',
                         env: 'development',
                         key: '7e6391ab6cbcc3b212440b5821bfa7',
-                        product: ['auth','transactions'],
+                        product: ['auth','transactions'], // FIX THIS, NOT ALL BANKS SUPPORT AUTH E.G. CREDIT CARD ONLY BANKS.
                         token: result['public_token'],
                         onSuccess: async function(public_token, metadata) {
                             window.alert('updated account access token');
@@ -19745,9 +19852,8 @@ function LinkBankAccountController() {
 }
 
 module.exports = LinkBankAccountController;
-},{"../data-client":82,"../util":84,"./account-settings-controller":72}],79:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"./account-settings-controller":72}],80:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
-const DataClient = require('../data-client');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const OTPAuth = require('otpauth');
 const QRCode = require('qrcode');
@@ -19758,7 +19864,6 @@ function LoginController() {
         errorMessage = errorMessage || '';
         if (Array.isArray(errorMessage)) {
             for (let errorMessageItem of errorMessage) {
-                console.log('looping');
                 console.log(errorMessageItem);
                 $('#errorMessageAlert').append($(`<div>&bull;&nbsp;${errorMessageItem}</div>`));
             }
@@ -19777,10 +19882,10 @@ function LoginController() {
             issues.push('New password is required');
         }
         if ($('#login-firstname').val().trim().length < 1) {
-            issues.push('New first name is required');
+            issues.push('First name is required');
         }
         if ($('#login-lastname').val().trim().length < 1) {
-            issues.push('New last name is required');
+            issues.push('Last name is required');
         }
         if ($('#login-phone').val().trim().length < 1) {
             issues.push('Phone number is required');
@@ -19795,7 +19900,7 @@ function LoginController() {
             onSuccess: async function (result) {
                 document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
                 document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
-                window.location=`${Util.rootUrl()}/pages/balance-sheet.html${window.location.search}`;
+                window.location=`${Util.rootUrl()}/pages/balance-sheet.html`;
             },
             onFailure: function(err) {
                 $('#login-username').prop('disabled', false);
@@ -19902,7 +20007,110 @@ function LoginController() {
 }
 
 module.exports = LoginController;
-},{"../data-client":82,"../util":84,"./account-settings-controller":72,"amazon-cognito-identity-js":17,"otpauth":32,"qrcode":33}],80:[function(require,module,exports){
+},{"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17,"otpauth":32,"qrcode":33}],81:[function(require,module,exports){
+const AccountSettingsController = require('./account-settings-controller');
+const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+const Util = require('../util');
+function LoginSignupController() {
+    'use strict';
+    function setError(errorMessage) {
+        errorMessage = errorMessage || '';
+        if (Array.isArray(errorMessage)) {
+            for (let errorMessageItem of errorMessage) {
+                console.log(errorMessageItem);
+                $('#errorMessageAlert').append($(`<div>&bull;&nbsp;${errorMessageItem}</div>`));
+            }
+        } else {
+            $('#errorMessageAlert').text(errorMessage);
+        }
+        if (errorMessage.length < 1) {
+            $('#errorMessageAlert').addClass('hide');
+        } else {
+            $('#errorMessageAlert').removeClass('hide');
+        }
+    }
+    function getFieldValidation() {
+        let issues = [];
+        if ($('#login-username').val().trim().length < 1) {
+            issues.push('Email is required');
+        }
+        if ($('#login-password').val().trim().length < 1) {
+            issues.push('Password is required');
+        }
+        if ($('#login-firstname').val().trim().length < 1) {
+            issues.push('First name is required');
+        }
+        if ($('#login-lastname').val().trim().length < 1) {
+            issues.push('Last name is required');
+        }
+        if ($('#login-phone').val().trim().length < 1) {
+            issues.push('Phone number is required');
+        }
+        if ($('#login-date-of-birth').val().trim().length < 1) {
+            issues.push('Date of birth is required');
+        }
+        if ($('#login-address').val().trim().length < 1) {
+            issues.push('Address is required');
+        }
+        if (!$('#acceptLicense').is(':checked')) {
+            issues.push('You must agree to the license to proceed');
+        }
+        return issues;
+    }
+    function signupUser() {
+        let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
+        let email = $('#login-username').val().trim();
+        let password = $('#login-password').val().trim();
+        let attributeList = [
+            new AmazonCognitoIdentity.CognitoUserAttribute({
+                Name: 'email', Value: email }),
+            new AmazonCognitoIdentity.CognitoUserAttribute({
+                Name: 'given_name', Value: $('#login-firstname').val().trim() }),
+            new AmazonCognitoIdentity.CognitoUserAttribute({
+                Name: 'family_name', Value: $('#login-lastname').val().trim() }),
+            new AmazonCognitoIdentity.CognitoUserAttribute({
+                Name: 'phone_number', Value: $('#login-phone').val().trim() }),
+            new AmazonCognitoIdentity.CognitoUserAttribute({
+                Name: 'birthdate', Value: $('#login-date-of-birth').val().trim() }),
+            new AmazonCognitoIdentity.CognitoUserAttribute({
+                Name: 'address', Value: $('#login-address').val().trim() })
+        ];
+        userPool.signUp(email, password, attributeList, null, function(
+            error,
+            result
+        ) {
+            if (error) {
+                setError(error.message || JSON.stringify(error));
+                return;
+            }
+            setError('');
+            $('.signup-form').addClass('hide');
+            $('#successMessageAlert').removeClass('hide');
+            $('#successMessageAlert').text(`Your user has successfully been created. ` +
+                                            `Your user name is ${result.user.getUsername()}. ` +
+                                            `A confirmation link has been sent to your email. ` +
+                                            `You need to click the verification link in the email before you can login.`);
+        });
+    }
+    async function initAsync() {
+        $('#sign-up-button').click(async function () {
+            setError('');
+            let validation = getFieldValidation();
+            if (validation.length > 0) {
+                setError(validation);
+                return;
+            }
+            signupUser();
+        });
+    }
+    this.init = function () {
+        new AccountSettingsController().init();
+        initAsync().catch(err => { Util.log(err); });
+    };
+}
+
+module.exports = LoginSignupController;
+},{"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17}],82:[function(require,module,exports){
 const moment = require('moment/moment');
 const cal = require('../calculators/calendar');
 const UtcDay = require('../calculators/utc-day');
@@ -19939,11 +20147,8 @@ function PayDaysController() {
         let data = await dataClient.getBudget();
         $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
         $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
-        $('#acceptLicense').prop('checked', Util.hasAgreedToLicense());
-
         let max401kContribution = 19000;
         $('#max-401k-contribution').text(Util.format(max401kContribution));
-
         let payDates = getPayDates();
         payDates.forEach((paymentDate, index) => {
             $('.pay-days-container').append(getView(index + 1, paymentDate));
@@ -19977,7 +20182,7 @@ function PayDaysController() {
 }
 
 module.exports = PayDaysController;
-},{"../calculators/calendar":66,"../calculators/utc-day":69,"../data-client":82,"../util":84,"../views/pay-days-view":95,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],81:[function(require,module,exports){
+},{"../calculators/calendar":66,"../calculators/utc-day":69,"../data-client":84,"../util":86,"../views/pay-days-view":98,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],83:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const PricesView = require('../views/prices-view');
@@ -20012,7 +20217,7 @@ function PricesController() {
 }
 
 module.exports = PricesController;
-},{"../data-client":82,"../util":84,"../views/prices-view":96,"./account-settings-controller":72}],82:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../views/prices-view":99,"./account-settings-controller":72}],84:[function(require,module,exports){
 const Util = require('./util');
 const Currency = require('currency.js');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
@@ -20058,24 +20263,23 @@ function DataClient() {
         let obfuscate = Util.obfuscate();
         if (obfuscate) {
             $('#save').prop('disabled', true);
-            let obfuscationAmount = Util.obfuscationAmount();
             if (data.biWeeklyIncome && data.biWeeklyIncome.amount) {
                 data.biWeeklyIncome.amount = Currency(data.biWeeklyIncome.amount, Util.getCurrencyDefaults())
-                    .multiply(obfuscationAmount).toString();
+                    .multiply(Util.obfuscationAmount()).toString();
             }
             for (let weekly of data.weeklyRecurringExpenses) {
-                weekly.amount = Currency(weekly.amount, Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+                weekly.amount = Currency(weekly.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
             }
             for (let monthly of data.monthlyRecurringExpenses) {
-                monthly.amount = Currency(monthly.amount, Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+                monthly.amount = Currency(monthly.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
             }
             if (data['401k-contribution-for-year']) {
                 data['401k-contribution-for-year'] = Currency(data['401k-contribution-for-year'],
-                    Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+                    Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
             }
             if (data['401k-contribution-per-pay-check']) {
                 data['401k-contribution-per-pay-check'] = Currency(data['401k-contribution-per-pay-check'],
-                    Util.getCurrencyDefaults()).multiply(obfuscationAmount).toString();
+                    Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
             }
         }
         return data;
@@ -20098,9 +20302,7 @@ function DataClient() {
                 Username : Util.getUsername(),
                 Pool : userPool
             };
-            console.log('attempting REFRESH 2');
             let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-            console.log('attempting REFRESH 3');
             cognitoUser.refreshSession({
                 getToken: function () {
                     return Util.getCookie('refreshToken');
@@ -20113,13 +20315,16 @@ function DataClient() {
             });
         });
     }
-    this.sendRequestInner = async function (requestType, requestParams) {
+    this.sendRequestInner = async function (requestType, requestParams, isRetryFromRefresh) {
         let response;
         try {
-            response = await fetch(`https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production/${requestType}`, requestParams);
+            $('.loader-group').removeClass('hide');
+            response = await fetch(`${Util.getApiUrl()}${requestType}`, requestParams);
         } catch (error) {
+            $('.loader-group').addClass('hide');
             console.log('An error occurred when fetching. The server response can\'t be read');
             console.log(error);
+            return;
         }
         // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
         if (response.status.toString() === '401') {
@@ -20128,60 +20333,73 @@ function DataClient() {
                 window.location = `${Util.rootUrl()}/pages/login.html`;
             }
             try {
+                if (isRetryFromRefresh) {
+                    console.log('failed to refresh from token');
+                    window.location = `${Util.rootUrl()}/pages/login.html`;
+                }
                 let refreshResult = await promiseToRefresh();
+                console.log('refresh result');
+                console.log(refreshResult);
                 document.cookie = `idToken=${refreshResult.getIdToken().getJwtToken()};Secure;path=/`;
                 document.cookie = `refreshToken=${refreshResult.getRefreshToken().token};Secure;path=/`;
-                window.location.reload();
+                console.log('retrying request after token refresh');
+                return await this.sendRequestInner(requestType, requestParams, true);
             } catch (err) {
                 console.log('error occurred when refreshing');
                 console.log(err);
                 window.location = `${Util.rootUrl()}/pages/login.html`;
             }
         } else if (response.status.toString()[0] !== '2') {
+            console.log('failed throwing error');
             throw {
                 status: response.status,
                 url: response.url,
                 response: await response.text()
             };
         }
-        return await response.json();
+        let responseJson = await response.json();
+        $('.loader-group').addClass('hide');
+        return responseJson;
     };
 }
 
 module.exports = DataClient;
 
-},{"./util":84,"amazon-cognito-identity-js":17,"currency.js":26}],83:[function(require,module,exports){
+},{"./util":86,"amazon-cognito-identity-js":17,"currency.js":26}],85:[function(require,module,exports){
 const Util = require('./util');
 exports.initNav = function (target) {
     let root = Util.rootUrl();
     target.append(`<div class="container">
           <div class="container-fluid">
-              <a class="tab-nav-item" onclick="window.location='${root}/index.html${window.location.search}';" href="#" title="Budget">
+              <a class="tab-nav-item" href="${root}/index.html" title="Budget">
                   <span class="ac-gn-link-text">Budget</span>
               </a>
-              <a class="tab-nav-item" onclick="window.location='${root}/pages/budget-calendar.html${window.location.search}';" href="#" title="Budget Calendar">
+              <a class="tab-nav-item" href="${root}/pages/budget-calendar.html" title="Budget Calendar">
                   <span class="ac-gn-link-text">Calendar</span>
               </a>
-              <a class="tab-nav-item" onclick="window.location='${root}/pages/balance-sheet.html${window.location.search}';" href="#" title="Balance Sheet">
+              <a class="tab-nav-item" href="${root}/pages/balance-sheet.html" title="Balance Sheet">
                   <span class="ac-gn-link-text">Balance Sheet</span>
               </a>
-              <a class="tab-nav-item" onclick="window.location='${root}/pages/prices.html${window.location.search}';" href="#" title="Prices">
-                  <span class="ac-gn-link-text">Prices</span>
+              <a class="tab-nav-item" href="${root}/pages/accounts.html" title="Transfers">
+                  <span class="ac-gn-link-text">Transfers</span>
               </a>
-              <a class="tab-nav-item" onclick="window.location='${root}/pages/deposit.html${window.location.search}';" href="#" title="Deposit">
+              <a class="tab-nav-item" href="${root}/pages/deposit.html" title="Deposit">
                   <span class="ac-gn-link-text">Deposit</span>
               </a>
-              <a class="tab-nav-item" onclick="window.location='${root}/pages/pay-days.html${window.location.search}';" href="#" title="Pay Days">
+              <a class="tab-nav-item" href="${root}/pages/prices.html" title="Prices">
+                  <span class="ac-gn-link-text">Prices</span>
+              </a>
+              <a class="tab-nav-item" href="${root}/pages/pay-days.html" title="Pay Days">
                   <span class="ac-gn-link-text">Pay Days</span>
               </a>
-              <a class="tab-nav-item" onclick="window.location='${root}/pages/link-bank-account.html${window.location.search}';" href="#" title="View and Manage Linked Banks">
+              <a class="tab-nav-item" href="${root}/pages/link-bank-account.html" title="View and Manage Linked Banks">
                   <span class="ac-gn-link-text">Banks</span>
               </a>
           </div>
       </div>`);
 };
 
-},{"./util":84}],84:[function(require,module,exports){
+},{"./util":86}],86:[function(require,module,exports){
 const Currency = require('currency.js');
 exports.log = function (error) {
     console.log(error);
@@ -20214,20 +20432,12 @@ exports.updateQueryStringParameter = function (uri, key, value) {
         return uri + separator + key + "=" + value;
     }
 };
-exports.formatShares = function(shares) {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 }).format(shares);
-};
-exports.format = function(amount) {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }).format(amount);
-};
-exports.hasAgreedToLicense = function() {
+exports.formatShares = (shares) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 }).format(shares);
+exports.format = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }).format(amount);
+exports.hasAgreedToLicense = function() { // SHOULD REMOVE THIS
     return exports.getParameterByName('agreedToLicense') === 'true';
 };
-exports.rootUrl = function () {
-    return window.location.origin === 'file://'
-        ? 'file:///C:/Users/peon/Desktop/projects/income-calculator'
-        : `${document.location.origin}/income-calculator`;
-};
+exports.rootUrl = () => `${document.location.origin}`;
 exports.guid = function () {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
@@ -20242,16 +20452,10 @@ exports.getAmount = function (transaction) {
         ? transaction.amount
         : Currency(transaction.sharePrice, exports.getCurrencyDefaults()).multiply(transaction.shares).toString();
 };
-exports.getCurrencyDefaults = function() { return {precision: 3} };
-exports.add = function (one, two) {
-    return Currency(one, exports.getCurrencyDefaults()).add(two).toString();
-};
-exports.subtract = function (one, two) {
-    return Currency(one, exports.getCurrencyDefaults()).subtract(two).toString();
-};
-exports.cleanseNumericString = function (numericString) {
-    return numericString.replace(/[^-0-9.]/g, '');
-};
+exports.getCurrencyDefaults = () => { return {precision: 3} };
+exports.add = (one, two) => Currency(one, exports.getCurrencyDefaults()).add(two).toString();
+exports.subtract = (one, two) => Currency(one, exports.getCurrencyDefaults()).subtract(two).toString();
+exports.cleanseNumericString = (numericString) => numericString.replace(/[^-0-9.]/g, '');
 exports.getCookie = function (cookieNmae) {
     let name = cookieNmae + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -20267,18 +20471,8 @@ exports.getCookie = function (cookieNmae) {
     }
     return '';
 };
-exports.obfuscate = function () {
-    return exports.getCookie('obfuscate') === 'true';
-};
-exports.obfuscationAmount = function () {
-    return .2;
-};
-exports.getPoolData = function () {
-    return {
-        UserPoolId : 'us-east-1_CJmKMk0Fw',
-        ClientId : '1alsnsg84noq81e7f2v5vru7m7'
-    };
-};
+exports.obfuscate = () => exports.getCookie('obfuscate') === 'true';
+exports.obfuscationAmount = () => Math.random()/10;
 exports.getUsername = function () {
     let idToken = exports.getCookie('idToken');
     if (!idToken) {
@@ -20290,10 +20484,26 @@ exports.getUsername = function () {
     return parsed.email;
 };
 
-},{"currency.js":26}],85:[function(require,module,exports){
-exports.getCommandButtonsContainerView = function (obfuscate) {
-    return `
-      <span id="log-out-button" class="command-button" title="log out">
+// ENVIRONMENT
+// Test
+//exports.getPoolData = () => {
+//    return {
+//        UserPoolId : 'us-east-1_CJmKMk0Fw',
+//        ClientId : '1alsnsg84noq81e7f2v5vru7m7'
+//    };
+//};
+//exports.getApiUrl = () => 'https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production/';
+// Production
+exports.getPoolData = () => {
+    return {
+        UserPoolId : 'us-east-1_rHS4WOhz6',
+        ClientId : '2js93kg56gbvp0huq66fbh0gap'
+    };
+};
+exports.getApiUrl = () => 'https://4kaupsq274.execute-api.us-east-1.amazonaws.com/production/';
+},{"currency.js":26}],87:[function(require,module,exports){
+exports.getCommandButtonsContainerView = (obfuscate) =>
+    `<span id="log-out-button" class="command-button" title="log out">
           <span class="glyphicon glyphicon glyphicon-log-out" aria-hidden="true"></span>
       </span>
       <span id="view-raw-data-button" class="command-button" title="view raw json data">
@@ -20308,10 +20518,9 @@ exports.getCommandButtonsContainerView = function (obfuscate) {
       <span id="obfuscate-data" class="command-button" title="${obfuscate ? 'un-' : ''}obfuscate data">
           <span class="glyphicon glyphicon-eye-${obfuscate ? 'open' : 'close'}" aria-hidden="true"></span>
       </span>`;
-};
 
-exports.getAccountSettingsView = function () {
-    return `<div class="modal fade" id="account-settings-view" role="dialog">
+exports.getAccountSettingsView = () =>
+    `<div class="modal fade" id="account-settings-view" role="dialog">
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
@@ -20332,10 +20541,9 @@ exports.getAccountSettingsView = function () {
           </div>
       </div>
   </div>`;
-};
 
-exports.getRawDataView = function () {
-    return `<div class="modal fade" id="raw-data-view" role="dialog">
+exports.getRawDataView = () =>
+    `<div class="modal fade" id="raw-data-view" role="dialog">
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
@@ -20349,9 +20557,33 @@ exports.getRawDataView = function () {
               </div>
           </div>
       </div>
-  </div>`
-};
-},{}],86:[function(require,module,exports){
+  </div>`;
+},{}],88:[function(require,module,exports){
+const Moment = require('moment');
+const Util = require('../util');
+exports.getTransferView = (transfer) =>
+    $(`<div class="row account-row">
+            <div class="col-xs-2 vertical-align amount-description-column">${Moment(transfer.transferDate).format('LL')}</div>
+            <div class="col-xs-2 vertical-align amount-description-column class="capitalize-first">${transfer.debitAccount}</div>
+            <div class="col-xs-2 vertical-align amount-description-column text-right class="capitalize-first"">
+                ${transfer.type}
+            </div>
+            <div class="col-xs-2 vertical-align amount-description-column text-right class="capitalize-first"">
+                ${transfer.creditAccount}
+            </div>
+            <div class="col-xs-2 vertical-align amount-description-column text-right">${Util.format(Util.getAmount(transfer))}</div>
+            <div class="col-xs-1 text-center">
+                <button type="button" class="complete-transfer btn btn-success add-remove-btn-container add-remove-btn" title="Complete transfer">
+                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="col-xs-1 remove-button-container text-center">
+                <button type="button" class="cancel-transfer btn remove add-remove-btn-container add-remove-btn" title="Cancel transfer">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>`);
+},{"../util":86,"moment":31}],89:[function(require,module,exports){
 const LoanViewModel = require('./loan-view-model');
 const CashViewModel = require('./cash-view-model');
 const CashOrStockViewModel = require('./cash-or-stock-view-model');
@@ -20388,69 +20620,69 @@ exports.setView = function (budget, obfuscate) {
     $('.assets-header-container').append(new CashOrStockViewModel().getReadOnlyHeaderView());
     $('.property-plant-and-equipment-header-container').append(new PpeVm().getHeaderView());
     let debtTotal = Currency(0, Util.getCurrencyDefaults());
-    let totalCash = Currency(0, Util.getCurrencyDefaults());
-    let authoritativeCashTotal = Currency(0, Util.getCurrencyDefaults());
-    let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults());
+    let totalDemandDepositsAndCash = Currency(0, Util.getCurrencyDefaults());
+    let totalEquities = Currency(0, Util.getCurrencyDefaults());
+    let totalBonds = Currency(0, Util.getCurrencyDefaults());
+    let totalPropertyPlantAndEquipment = Currency(0, Util.getCurrencyDefaults());
     for (let loan of budget.balances) {
         debtTotal = debtTotal.add(loan.amount);
         let loanView = new LoanViewModel().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
         $('#balance-input-group').append(loanView);
     }
-    for (let asset of budget.assets) {
-        totalNonTangibleAssets = totalNonTangibleAssets.add(Util.getAmount(asset));
-    }
-    totalCash = totalCash.add(authoritativeCashTotal);
-    totalNonTangibleAssets = totalNonTangibleAssets.add(authoritativeCashTotal);
     for (let cashAccount of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'cash')) {
-        totalCash = totalCash.add(cashAccount.amount);
+        totalDemandDepositsAndCash = totalDemandDepositsAndCash.add(cashAccount.amount);
         let view = new CashViewModel().getReadOnlyView(cashAccount, obfuscate);
         $('#cash-input-group').append(view);
     }
-    let totalPropertyPlantAndEquipment = Currency(0, Util.getCurrencyDefaults());
-    for (let tangibleAsset of budget.propertyPlantAndEquipment || []) {
+    for (let tangibleAsset of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'property-plant-and-equipment')) {
         totalPropertyPlantAndEquipment = totalPropertyPlantAndEquipment.add(tangibleAsset.amount);
         $('#property-plant-and-equipment-input-group').append(new PpeVm().getReadOnlyView(tangibleAsset.amount, tangibleAsset.name));
     }
-    let totalEquities = Currency(0, Util.getCurrencyDefaults());
     let equityViewModel = new CashOrStockViewModel();
-    for (let equity of (budget.assets || [])
-            .filter(x => (x.type || '').toLowerCase() !== 'bond' &&
-                         (x.type || '').toLowerCase() !== 'cash')) {
+    for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
         totalEquities = totalEquities.add(Util.getAmount(equity));
-        let view = equityViewModel.getReadOnlyView(
-            equity.name,
-            totalNonTangibleAssets.toString(),
-            budget.pending,
-            equity.shares,
-            equity.sharePrice,
-            obfuscate
-        );
+    }
+    for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
+        let view = equityViewModel.getReadOnlyView(equity, totalEquities.toString(), budget.pending, obfuscate);
         $('#asset-input-group').append(view);
     }
-    let totalBonds = Currency(0, Util.getCurrencyDefaults());
-    for (let bond of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'bond')) {
+    let sortedBonds = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'bond');
+    sortedBonds.sort(function(a, b) {
+        if (a.issueDate && b.issueDate) {
+            let maturityDateA = Moment(a.issueDate).add(a.daysToMaturation, 'days').valueOf();
+            let maturityDateB = Moment(b.issueDate).add(b.daysToMaturation, 'days').valueOf();
+            return maturityDateA - maturityDateB;
+        } else {
+            return 0;
+        }
+    });
+    for (let bond of sortedBonds) {
         totalBonds = totalBonds.add(Currency(bond.amount));
         $('#bond-input-group').append(new BondViewModel().getReadOnlyView(bond, obfuscate));
     }
     $('#loan-total-amount-value').text(`(${Util.format(debtTotal.toString())})`);
     let ppeTotalView = $(`<div class="subtotal">Total Property, Plant and Equipment<span class="pull-right amount">${Util.format(totalPropertyPlantAndEquipment.toString())}</span></div>`);
     $('#property-plant-and-equipment-total-amount').append(ppeTotalView);
-    $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
-            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalCash).toString()}</span></div>`));
     $('#cash-total-amount').append(
-        $(`<div class="subtotal">Total Cash<span class="pull-right amount">${Util.format(totalCash.toString())}</span></div>`)
+        $(`<div class="subtotal">Total Cash<span class="pull-right amount">${Util.format(totalDemandDepositsAndCash.toString())}</span></div>`)
     );
-    $('#cash-and-stocks-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Equities<span class="pull-right amount">
-            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
     $('#cash-and-stocks-total-amount').append(
         $(`<div class="subtotal">Total Equities<span class="pull-right amount">${Util.format(totalEquities.toString())}</span></div>`)
     );
-    $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
     $('#bond-total-amount').append(
         (`<div class="subtotal">Total Bonds<span class="pull-right amount">${Util.format(totalBonds.toString())}</span></div>`)
     );
+    let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults())
+        .add(totalDemandDepositsAndCash)
+        .add(totalEquities)
+        .add(totalBonds);
+    $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
+    $('#cash-and-stocks-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Equities<span class="pull-right amount">
+            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
+    $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
+            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString()}</span></div>`));
     $('#total-tangible-assets').text(Util.format(totalPropertyPlantAndEquipment));
-    $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets));
+    $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets.toString()));
     $('#total-debt').text(`(${Util.format(debtTotal)})`);
     let net = Currency(0, Util.getCurrencyDefaults())
         .subtract(debtTotal)
@@ -20463,26 +20695,19 @@ exports.setView = function (budget, obfuscate) {
     setupToggle('#tree-view-cash-or-stock','#assets-container');
     setupToggle('#tree-view-bonds','#bond-container');
     setupToggle('#tree-view-totals-row','#totals-row');
-
     if (budget.licenseAgreement && budget.licenseAgreement.agreedToLicense) {
         $('#acceptLicense').prop('checked', true);
         $('#acceptLicense').prop('disabled', true);
         $('.licenseAgreementDetails').append(`agreed to license on ${budget.licenseAgreement.agreementDateUtc} from IP ${budget.licenseAgreement.ipAddress}`);
     }
 };
-},{"../../calculators/calendar":66,"../../util":84,"./bond-view-model":87,"./cash-or-stock-view-model":88,"./cash-view-model":89,"./loan-view-model":91,"./property-plant-and-equipment-view-model":92,"currency.js":26,"moment":31}],87:[function(require,module,exports){
-const Currency = require('currency.js');
-const DataClient = require('../../data-client');
+},{"../../calculators/calendar":66,"../../util":86,"./bond-view-model":90,"./cash-or-stock-view-model":91,"./cash-view-model":92,"./loan-view-model":94,"./property-plant-and-equipment-view-model":95,"currency.js":26,"moment":31}],90:[function(require,module,exports){
 const Moment = require('moment/moment');
 const Util = require('../../util');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 function BondViewModel() {
-    this.getViewDescription = function() {
-        return 'Bond';
-    };
-    this.getViewType = function() {
-        return 'bond';
-    };
+    this.getViewDescription = () => 'Bond';
+    this.getViewType = () => 'bonds';
     this.getModel = function (target) {
         return {
             amount: $(target).find('input.amount').val().trim(),
@@ -20531,10 +20756,10 @@ function BondViewModel() {
             viewContainer,
             'Bonds',
             [
-                new CashViewModel(),
-                new BondViewModel(),
+                new CashViewModel()
             ],
-            bond.id);
+            bond.id,
+            bond.amount);
         return viewContainer;
     };
     this.getView = function (model) {
@@ -20563,22 +20788,15 @@ function BondViewModel() {
 }
 
 module.exports = BondViewModel;
-},{"../../controllers/balance-sheet/transfer-controller":74,"../../data-client":82,"../../util":84,"./cash-view-model":89,"currency.js":26,"moment/moment":31}],88:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":92,"moment/moment":31}],91:[function(require,module,exports){
 const AvailableBalanceCalculator = require('../../calculators/available-balance-calculator');
 const Currency = require('currency.js');
 const Util = require('../../util');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 function CashOrStockViewModel() {
-    this.getViewDescription = function() {
-        return 'Stock';
-    };
-    this.getViewType = function() {
-        return 'cash-or-stock';
-    };
-    this.getTotal = function (name, amount) {
-        'use strict';
-        return $(`<div class="subtotal">Total ${name}<span class="pull-right">${Util.format(amount)}</span></div>`);
-    };
+    this.getViewDescription = () => 'Stock';
+    this.getViewType = () => 'cash-or-stock';
+    this.getTotal = (name, amount) => $(`<div class="subtotal">Total ${name}<span class="pull-right">${Util.format(amount)}</span></div>`);
     this.getModel = function (target) {
         return {
             shares: $(target).find('input.shares').val().trim(),
@@ -20590,8 +20808,8 @@ function CashOrStockViewModel() {
         let allocation = Currency(subtotal, {precision: 4}).divide(total).multiply(100).toString();
         return Currency(allocation, {precision: 2}).toString() + "%";
     };
-    this.getReadOnlyHeaderView = function () {
-        return $(`<div class="row table-header-row">
+    this.getReadOnlyHeaderView = () =>
+        $(`<div class="row table-header-row">
               <div class="col-xs-1">Shares</div>
               <div class="col-xs-1">Share Price</div>
               <div class="col-xs-3">Current Value</div>
@@ -20600,25 +20818,24 @@ function CashOrStockViewModel() {
               <div class="col-xs-2">Allocation</div>
               <div class="col-xs-1">Liquidate</div>
           </div>`);
-    };
-    this.getReadOnlyView = function (name, total, pending, shares, sharePrice, disable) {
+    this.getReadOnlyView = function (equity, total, pending, disable) {
         'use strict';
-        let amount = Util.getAmount({"sharePrice": sharePrice, "shares": shares});
-        name = name || '';
+        let amount = Util.getAmount({"sharePrice": equity.sharePrice, "shares": equity.shares});
+        equity.name = equity.name || '';
         let allocation = this.getAllocation(total, amount);
-        let accountUrl = `${Util.rootUrl()}/pages/accounts.html${window.location.search}#debit-account-${name.toLowerCase()}`;
         let availableBalanceCalculator = new AvailableBalanceCalculator();
-        let availableBalance = availableBalanceCalculator.getAvailableBalance(name, amount.toString(), pending);
+        let availableBalance = availableBalanceCalculator.getAvailableBalance(
+            equity.name, amount.toString(), pending, equity.type, equity.id);
         let availableBalanceView = availableBalance === amount.toString()
             ? Util.format(amount.toString())
-            : `<a href="${accountUrl}">${Util.format(availableBalance)}</a>`;
+            : `<a href="${`${Util.rootUrl()}/pages/accounts.html`}">${Util.format(availableBalance)}</a>`;
         let view = $(`<div class="asset-item row transaction-input-view">
-                    <div class="col-xs-1 text-right vertical-align amount-description-column">${Util.formatShares(shares)}</div>
-                    <div class="col-xs-1 text-right vertical-align amount-description-column">${Util.format(sharePrice)}</div>
+                    <div class="col-xs-1 text-right vertical-align amount-description-column">${Util.formatShares(equity.shares)}</div>
+                    <div class="col-xs-1 text-right vertical-align amount-description-column">${Util.format(equity.sharePrice)}</div>
                     <div class="col-xs-3 text-right vertical-align amount-description-column">${Util.format(amount)}</div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${availableBalanceView}</div>
                     <div class="col-xs-2 text-center vertical-align amount-description-column asset-name" >
-                        <a target="_blank" href="https://finance.yahoo.com/quote/${name}" title="View Chart">${name}</a>
+                        <a target="_blank" href="https://finance.yahoo.com/quote/${equity.name}" title="View Chart">${equity.name}</a>
                     </div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${allocation.toString()}</div>
                   </div>
@@ -20635,8 +20852,9 @@ function CashOrStockViewModel() {
         new TransferController().init(
             transferButton,
             viewContainer,
-            name,
-            [new CashViewModel()]);
+            equity.name,
+            [new CashViewModel()],
+            equity.id);
         return viewContainer;
     };
     this.getHeaderView = function () {
@@ -20670,7 +20888,7 @@ function CashOrStockViewModel() {
 
 module.exports = CashOrStockViewModel;
 
-},{"../../calculators/available-balance-calculator":63,"../../controllers/balance-sheet/transfer-controller":74,"../../util":84,"./cash-view-model":89,"currency.js":26}],89:[function(require,module,exports){
+},{"../../calculators/available-balance-calculator":63,"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":92,"currency.js":26}],92:[function(require,module,exports){
 const Util = require('../../util');
 const ExpenseViewModel = require('./expense-view-model');
 const PropertyPlantAndEquipmentViewModel = require('./property-plant-and-equipment-view-model');
@@ -20678,31 +20896,25 @@ const BondViewModel = require('./bond-view-model');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 const CashOrStockViewModel = require('./cash-or-stock-view-model');
 function CashViewModel() {
-    this.getViewDescription = function() {
-        return 'Cash';
-    };
-    this.getViewType = function() {
-        return 'cash';
-    };
+    this.getViewDescription = () => 'Cash';
+    this.getViewType = () => 'cash';
     this.getModel = function (target) {
         return {
             amount: $(target).find('input.amount').val().trim(),
             name: $(target).find('input.name').val().trim()
         };
     };
-    this.getHeaderView = function () {
-        return $(`<div class="row table-header-row">
+    this.getHeaderView = () =>
+        $(`<div class="row table-header-row">
               <div class="col-xs-9">Name</div>
               <div class="col-xs-3">Amount</div>
           </div>`);
-    };
-    this.getReadOnlyHeaderView = function () {
-        return $(`<div class="row table-header-row">
+    this.getReadOnlyHeaderView = () =>
+        $(`<div class="row table-header-row">
               <div class="col-xs-8">Name</div>
               <div class="col-xs-3">Amount</div>
               <div class="col-xs-1">Transfer</div>
           </div>`);
-    };
     this.getReadOnlyView = function (currentAssetAccount, disable) {
         'use strict';
         let icon = currentAssetAccount.isAuthoritative
@@ -20744,34 +20956,31 @@ function CashViewModel() {
         );
         return viewContainer;
     };
-    this.getView = function () {
-        let view = $(`<div class="asset-item row transaction-input-view">
-                    <div class="col-xs-9">
-                        <input class="name form-control text-right" type="text" />
-                    </div>
-                    <div class="col-xs-3">
-                        <div class="input-group">
-                            <div class="input-group-addon ">$</div>
-                            <input class="amount form-control text-right" type="text" placeholder="0.00"/>
-                        </div>
-                    </div>
-                  </div>
-        `);
-        let viewContainer = $('<div></div>');
-        viewContainer.append(view);
-        return viewContainer;
-    };
+    this.getView = (readOnlyAmount) =>
+        $(`<div>
+               <div class="asset-item row transaction-input-view">
+                   <div class="col-xs-9">
+                       <input class="name form-control text-right" type="text" />
+                   </div>
+                   <div class="col-xs-3">
+                       <div class="input-group">
+                           <div class="input-group-addon ">$</div>
+                           <input ${readOnlyAmount ? 'disabled="disabled"' : ''}
+                               class="amount form-control text-right"
+                               type="text"
+                               placeholder="0.00"
+                               value="${readOnlyAmount ? Util.format(readOnlyAmount) : ''}" />
+                       </div>
+                   </div>
+               </div>
+          </div>`);
 }
 module.exports = CashViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":74,"../../util":84,"./bond-view-model":87,"./cash-or-stock-view-model":88,"./expense-view-model":90,"./property-plant-and-equipment-view-model":92}],90:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./bond-view-model":90,"./cash-or-stock-view-model":91,"./expense-view-model":93,"./property-plant-and-equipment-view-model":95}],93:[function(require,module,exports){
 function ExpenseViewModel() {
-    this.getViewDescription = function() {
-        return 'Expense';
-    };
-    this.getViewType = function() {
-        return 'expense';
-    };
+    this.getViewDescription = () => 'Expense';
+    this.getViewType = () => 'expense';
     this.getModel = function (target) {
         return {
             amount: $(target).find('input.amount').val().trim(),
@@ -20793,15 +21002,14 @@ function ExpenseViewModel() {
                     </div>
                   </div>`);
     };
-    this.getHeaderView = function () {
-        return $(`<div class="row table-header-row">
-              <div class="col-xs-8">Name</div>
-              <div class="col-xs-4">Amount</div>
-          </div>`);
-    };
+    this.getHeaderView = () =>
+        $(`<div class="row table-header-row">
+               <div class="col-xs-8">Name</div>
+               <div class="col-xs-4">Amount</div>
+           </div>`);
 }
 module.exports = ExpenseViewModel;
-},{}],91:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 const cal = require('../../calculators/calendar');
 const PayoffDateCalculator = require('../../calculators/payoff-date-calculator');
 const payoffDateCalculator = new PayoffDateCalculator();
@@ -20895,43 +21103,35 @@ function LoanViewModel() {
 }
 
 module.exports = LoanViewModel;
-},{"../../calculators/calendar":66,"../../calculators/payoff-date-calculator":68,"../../util":84,"currency.js":26}],92:[function(require,module,exports){
+},{"../../calculators/calendar":66,"../../calculators/payoff-date-calculator":68,"../../util":86,"currency.js":26}],95:[function(require,module,exports){
 const Util = require('../../util');
 function PropertyPlantAndEquipmentViewModel() {
-    this.getViewDescription = function() {
-        return 'Property plant and equipment';
-    };
-    this.getViewType = function() {
-        return 'property-plant-and-equipment';
-    };
+    this.getViewDescription = () => 'Property plant and equipment';
+    this.getViewType = () => 'property-plant-and-equipment';
     this.getModel = function (target) {
         return {
             amount: $(target).find('input.amount').val().trim(),
             name: $(target).find('input.name').val().trim()
         };
     };
-    this.getHeaderView = function () {
-        return $(`<div class="row table-header-row">
-              <div class="col-xs-9">Name</div>
-              <div class="col-xs-3">Value</div>
-          </div>`);
-    };
-    this.getReadOnlyView = function (amount, name) {
-        let view = $(`
-            <div class="dotted-underline-row row transaction-input-view">
-                    <div class="col-xs-9 vertical-align amount-description-column">
-                        <div class="dotted-underline">${name}</div></div>
-                    <div class="col-xs-3 text-right vertical-align amount-description-column">
-                        <div class="dotted-underline">${Util.format(amount)}</div>
-                    </div>
-            </div>
-        `);
-        let viewContainer = $('<div></div>');
-        viewContainer.append(view);
-        return viewContainer;
-    };
+    this.getHeaderView = () =>
+        $(`<div class="row table-header-row">
+               <div class="col-xs-9">Name</div>
+               <div class="col-xs-3">Value</div>
+           </div>`);
+    this.getReadOnlyView = (amount, name) =>
+        $(`<div>
+                <div class="dotted-underline-row row transaction-input-view">
+                        <div class="col-xs-9 vertical-align amount-description-column">
+                            <div class="dotted-underline">${name}</div></div>
+                        <div class="col-xs-3 text-right vertical-align amount-description-column">
+                            <div class="dotted-underline">${Util.format(amount)}</div>
+                        </div>
+                </div>
+            </div>`);
     this.getView = function () {
-        let view = $(`<div class="asset-item row transaction-input-view">
+        $(`<div>
+                <div class="asset-item row transaction-input-view">
                     <div class="col-xs-9">
                         <input class="name form-control text-right" type="text" />
                     </div>
@@ -20941,16 +21141,13 @@ function PropertyPlantAndEquipmentViewModel() {
                             <input class="amount form-control text-right" type="text" placeholder="0.00"/>
                         </div>
                     </div>
-                  </div>
-        `);
-        let viewContainer = $('<div></div>');
-        viewContainer.append(view);
-        return viewContainer;
+                </div>
+            </div>`);
     };
 }
 module.exports = PropertyPlantAndEquipmentViewModel;
 
-},{"../../util":84}],93:[function(require,module,exports){
+},{"../../util":86}],96:[function(require,module,exports){
 const Moment = require('moment/moment');
 function TransferView() {
     this.getView = function (name, allowableTransferViewModels) {
@@ -20988,10 +21185,9 @@ function TransferView() {
 
 module.exports = TransferView;
 
-},{"moment/moment":31}],94:[function(require,module,exports){
+},{"moment/moment":31}],97:[function(require,module,exports){
 const cal = require('../calculators/calendar');
-const CalendarCalculator = require('../calendar-calculator');
-const calCalc = new CalendarCalculator();
+const Util = require('../util');
 function HomeView() {
     let self = this;
     let data;
@@ -21020,7 +21216,7 @@ function HomeView() {
     }
     function getTransactionModel(target) {
         return {
-            amount: $(target).find('.amount').val().trim(),
+            amount: Util.cleanseNumericString($(target).find('.amount').val().trim()),
             date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
             name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
             type: $(target).find('.transaction-type').val() || $(target).data().txntype,
@@ -21075,7 +21271,7 @@ function HomeView() {
             <div class="col-xs-4">
                 <div class="input-group">
                     <div class="input-group-addon ">$</div>
-                    <input class="amount form-control" type="text" value="${transaction.amount ? transaction.amount : ''}" />
+                    <input class="amount form-control text-right" type="text" value="${transaction.amount ? Util.formatShares(transaction.amount) : Util.format(0)}" />
                 </div>
             </div>
             <div class="col-xs-3"><span class="date" data-date="${date}">${iteration === 'weekly'
@@ -21092,8 +21288,8 @@ function HomeView() {
         return view;
     };
     this.setView = function (budget, obfuscate) {
-        data = budget;
         'use strict';
+        data = budget;
         $('#biweekly-input').val(budget.biWeeklyIncome.amount);
         $('#weekly-input-group').empty();
         $('#monthly-input-group').empty();
@@ -21138,7 +21334,7 @@ function HomeView() {
 }
 module.exports = HomeView;
 
-},{"../calculators/calendar":66,"../calendar-calculator":70}],95:[function(require,module,exports){
+},{"../calculators/calendar":66,"../util":86}],98:[function(require,module,exports){
 const Currency = require('currency.js');
 
 exports.getModel = function () {
@@ -21147,7 +21343,7 @@ exports.getModel = function () {
     model['401k-contribution-per-pay-check'] = Currency($('#401k-contribution-per-pay-check').val().trim()).toString();
     return model;
 };
-},{"currency.js":26}],96:[function(require,module,exports){
+},{"currency.js":26}],99:[function(require,module,exports){
 const DataClient = require('../data-client');
 exports.getModel = async function () {
     let prices = [];
@@ -21173,27 +21369,22 @@ exports.getModel = async function () {
     }
     return updateModel;
 };
-exports.getHeaderView = function () {
-    return $(`<div class="row table-header-row">
+exports.getHeaderView = () =>
+    $(`<div class="row table-header-row">
               <div class="col-xs-6">Asset</div>
               <div class="col-xs-6">Price</div>
           </div>`);
-};
-exports.getView = function (name, sharePrice) {
-    'use strict';
-    let view = $(`<div class="prices-item row transaction-input-view">
-                    <div class="col-xs-6"><input class="input-name name form-control" type="text" value="${name || ''}" /></div>
-                    <div class="col-xs-6">
-                        <div class="input-group">
-                            <div class="input-group-addon ">$</div>
-                            <input class="share-price form-control text-right" type="text" value="${sharePrice || ''}"
-								placeholder="0.00" />
-                        </div>
+exports.getView = (name, sharePrice) =>
+    $(`<div>
+            <div class="prices-item row transaction-input-view">
+                <div class="col-xs-6"><input class="input-name name form-control" type="text" value="${name || ''}" /></div>
+                <div class="col-xs-6">
+                    <div class="input-group">
+                        <div class="input-group-addon ">$</div>
+                        <input class="share-price form-control text-right" type="text" value="${sharePrice || ''}"
+                            placeholder="0.00" />
                     </div>
-                  </div>
-        `);
-    let viewContainer = $('<div></div>');
-    viewContainer.append(view);
-    return viewContainer;
-};
-},{"../data-client":82}]},{},[62]);
+                </div>
+              </div>
+          </div>`);
+},{"../data-client":84}]},{},[62]);

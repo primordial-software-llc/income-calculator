@@ -20,14 +20,14 @@ to guide you to look at what your potential future income and expenses are; howe
 
 ## Budget
 
-![Budget](https://timg456789.github.io/income-calculator/docs/sample-budget.png)
+![Budget](https://primordial-software-llc.github.io/income-calculator/docs/sample-budget.png)
 
 Budget Settings
 
-![Settings](https://timg456789.github.io/income-calculator/docs/sample-budget-settings.png)
+![Settings](https://primordial-software-llc.github.io/income-calculator/docs/sample-budget-settings.png)
 
 Budget Breakdown
-![Detail](https://timg456789.github.io/income-calculator/docs/sample-budget-breakdown.png)
+![Detail](https://primordial-software-llc.github.io/income-calculator/docs/sample-budget-breakdown.png)
 
 Responsible for projecting net income with the following transaction types:
 
@@ -58,7 +58,7 @@ Within [AWS](https://console.aws.amazon.com/console/home), create a new IAM user
 Create a new s3 bucket. Grant the API user create and update privileges to the new bucket. **Leave this bucket for the application. Make backups of the JSON for important budgets.** The application may destroy your budget during storage and/or processing. Existing budgets may no longer load as the application evolves.
 
 ### 3. Setup Budget
-[https://timg456789.github.io/income-calculator/index.html](https://timg456789.github.io/income-calculator/index.html)
+[https://primordial-software-llc.github.io/income-calculator/index.html](https://primordial-software-llc.github.io/income-calculator/index.html)
 
 1. Open the link above, then click the gear icon.
 2. You shall be presented with an Account Settings dialog. In the dialog enter your new AWS credentials: bucket, secret access key id and access key id. You may leave the budget name empty. The budget name may be used to load an existing budget once one has been created. 

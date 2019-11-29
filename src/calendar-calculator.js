@@ -31,22 +31,18 @@ function CalendarCalculator() {
         return result;
     };
 
-    this.createByMonth = function (year, month) {
-        return new Date(Date.UTC(year, month));
-    };
+    this.createByMonth = (year, month) => new Date(Date.UTC(year, month));
 
     this.getFirstDayInWeek = function (date) {
-        var dt = new Date(date);
+        let dt = new Date(date);
         dt.setUTCDate(dt.getUTCDate() - dt.getUTCDay());
         return dt;
     };
 
     this.getNextMonth = function (date) {
-
-        var dt = new Date(date);
+        let dt = new Date(date);
         dt.setUTCMonth(dt.getUTCMonth() + 1);
         return dt;
-
     };
 
 }

@@ -75,7 +75,7 @@ function LinkBankAccountController() {
                         clientName: 'My App',
                         env: 'development',
                         key: '7e6391ab6cbcc3b212440b5821bfa7',
-                        product: ['auth','transactions'],
+                        product: ['auth','transactions'], // FIX THIS, NOT ALL BANKS SUPPORT AUTH E.G. CREDIT CARD ONLY BANKS.
                         token: result['public_token'],
                         onSuccess: async function(public_token, metadata) {
                             window.alert('updated account access token');

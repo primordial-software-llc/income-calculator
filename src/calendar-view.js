@@ -2,7 +2,6 @@ const cal = require('./calculators/calendar');
 const CalendarCalculator = require('./calendar-calculator');
 const Util = require('./util');
 const calCalc = new CalendarCalculator();
-const Currency = require('currency.js');
 const NetIncomeCalculator = require('./calculators/net-income-calculator');
 const netIncomeCalculator = new NetIncomeCalculator();
 const CalendarAggregator = require('./calculators/calendar-aggregator');

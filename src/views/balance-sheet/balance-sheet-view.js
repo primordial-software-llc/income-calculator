@@ -34,69 +34,69 @@ exports.setView = function (budget, obfuscate) {
     $('.assets-header-container').append(new CashOrStockViewModel().getReadOnlyHeaderView());
     $('.property-plant-and-equipment-header-container').append(new PpeVm().getHeaderView());
     let debtTotal = Currency(0, Util.getCurrencyDefaults());
-    let totalCash = Currency(0, Util.getCurrencyDefaults());
-    let authoritativeCashTotal = Currency(0, Util.getCurrencyDefaults());
-    let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults());
+    let totalDemandDepositsAndCash = Currency(0, Util.getCurrencyDefaults());
+    let totalEquities = Currency(0, Util.getCurrencyDefaults());
+    let totalBonds = Currency(0, Util.getCurrencyDefaults());
+    let totalPropertyPlantAndEquipment = Currency(0, Util.getCurrencyDefaults());
     for (let loan of budget.balances) {
         debtTotal = debtTotal.add(loan.amount);
         let loanView = new LoanViewModel().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
         $('#balance-input-group').append(loanView);
     }
-    for (let asset of budget.assets) {
-        totalNonTangibleAssets = totalNonTangibleAssets.add(Util.getAmount(asset));
-    }
-    totalCash = totalCash.add(authoritativeCashTotal);
-    totalNonTangibleAssets = totalNonTangibleAssets.add(authoritativeCashTotal);
     for (let cashAccount of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'cash')) {
-        totalCash = totalCash.add(cashAccount.amount);
+        totalDemandDepositsAndCash = totalDemandDepositsAndCash.add(cashAccount.amount);
         let view = new CashViewModel().getReadOnlyView(cashAccount, obfuscate);
         $('#cash-input-group').append(view);
     }
-    let totalPropertyPlantAndEquipment = Currency(0, Util.getCurrencyDefaults());
-    for (let tangibleAsset of budget.propertyPlantAndEquipment || []) {
+    for (let tangibleAsset of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'property-plant-and-equipment')) {
         totalPropertyPlantAndEquipment = totalPropertyPlantAndEquipment.add(tangibleAsset.amount);
         $('#property-plant-and-equipment-input-group').append(new PpeVm().getReadOnlyView(tangibleAsset.amount, tangibleAsset.name));
     }
-    let totalEquities = Currency(0, Util.getCurrencyDefaults());
     let equityViewModel = new CashOrStockViewModel();
-    for (let equity of (budget.assets || [])
-            .filter(x => (x.type || '').toLowerCase() !== 'bond' &&
-                         (x.type || '').toLowerCase() !== 'cash')) {
+    for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
         totalEquities = totalEquities.add(Util.getAmount(equity));
-        let view = equityViewModel.getReadOnlyView(
-            equity.name,
-            totalNonTangibleAssets.toString(),
-            budget.pending,
-            equity.shares,
-            equity.sharePrice,
-            obfuscate
-        );
+    }
+    for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
+        let view = equityViewModel.getReadOnlyView(equity, totalEquities.toString(), budget.pending, obfuscate);
         $('#asset-input-group').append(view);
     }
-    let totalBonds = Currency(0, Util.getCurrencyDefaults());
-    for (let bond of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'bond')) {
+    let sortedBonds = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'bond');
+    sortedBonds.sort(function(a, b) {
+        if (a.issueDate && b.issueDate) {
+            let maturityDateA = Moment(a.issueDate).add(a.daysToMaturation, 'days').valueOf();
+            let maturityDateB = Moment(b.issueDate).add(b.daysToMaturation, 'days').valueOf();
+            return maturityDateA - maturityDateB;
+        } else {
+            return 0;
+        }
+    });
+    for (let bond of sortedBonds) {
         totalBonds = totalBonds.add(Currency(bond.amount));
         $('#bond-input-group').append(new BondViewModel().getReadOnlyView(bond, obfuscate));
     }
     $('#loan-total-amount-value').text(`(${Util.format(debtTotal.toString())})`);
     let ppeTotalView = $(`<div class="subtotal">Total Property, Plant and Equipment<span class="pull-right amount">${Util.format(totalPropertyPlantAndEquipment.toString())}</span></div>`);
     $('#property-plant-and-equipment-total-amount').append(ppeTotalView);
-    $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
-            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalCash).toString()}</span></div>`));
     $('#cash-total-amount').append(
-        $(`<div class="subtotal">Total Cash<span class="pull-right amount">${Util.format(totalCash.toString())}</span></div>`)
+        $(`<div class="subtotal">Total Cash<span class="pull-right amount">${Util.format(totalDemandDepositsAndCash.toString())}</span></div>`)
     );
-    $('#cash-and-stocks-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Equities<span class="pull-right amount">
-            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
     $('#cash-and-stocks-total-amount').append(
         $(`<div class="subtotal">Total Equities<span class="pull-right amount">${Util.format(totalEquities.toString())}</span></div>`)
     );
-    $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
     $('#bond-total-amount').append(
         (`<div class="subtotal">Total Bonds<span class="pull-right amount">${Util.format(totalBonds.toString())}</span></div>`)
     );
+    let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults())
+        .add(totalDemandDepositsAndCash)
+        .add(totalEquities)
+        .add(totalBonds);
+    $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
+    $('#cash-and-stocks-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Equities<span class="pull-right amount">
+            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
+    $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
+            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString()}</span></div>`));
     $('#total-tangible-assets').text(Util.format(totalPropertyPlantAndEquipment));
-    $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets));
+    $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets.toString()));
     $('#total-debt').text(`(${Util.format(debtTotal)})`);
     let net = Currency(0, Util.getCurrencyDefaults())
         .subtract(debtTotal)
@@ -109,7 +109,6 @@ exports.setView = function (budget, obfuscate) {
     setupToggle('#tree-view-cash-or-stock','#assets-container');
     setupToggle('#tree-view-bonds','#bond-container');
     setupToggle('#tree-view-totals-row','#totals-row');
-
     if (budget.licenseAgreement && budget.licenseAgreement.agreedToLicense) {
         $('#acceptLicense').prop('checked', true);
         $('#acceptLicense').prop('disabled', true);
