@@ -69,26 +69,6 @@ function DataClient() {
         }
         return data;
     };
-    function promiseToRefresh() {
-        return new Promise((resolve, reject) => {
-            let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
-            let userData = {
-                Username : Util.getUsername(),
-                Pool : userPool
-            };
-            let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-            cognitoUser.refreshSession({
-                getToken: function () {
-                    return Util.getCookie('refreshToken'); // NOT GOING TO WORK FOR NOW. Can't acces this cookie from JS
-                }
-            }, function (err, result) {
-                if (err) {
-                    reject(err);
-                }
-                resolve(result);
-            });
-        });
-    }
     this.sendRequestInner = async function (requestType, requestParams, isRetryFromRefresh) {
         let response;
         try {
@@ -111,13 +91,7 @@ function DataClient() {
                     console.log('failed to refresh from token');
                     window.location = `${Util.rootUrl()}/pages/login.html`;
                 }
-                let refreshResult = await promiseToRefresh();
-                console.log('refresh result');
-                console.log(refreshResult);
-                await this.post('unauthenticated/setToken', {
-                    idToken: refreshResult.getIdToken().getJwtToken(),
-                    refreshToken: refreshResult.getRefreshToken().token
-                });
+                await this.post('unauthenticated/refreshToken', {});
                 console.log('retrying request after token refresh');
                 return await this.sendRequestInner(requestType, requestParams, true);
             } catch (err) {

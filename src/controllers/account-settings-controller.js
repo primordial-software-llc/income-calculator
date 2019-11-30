@@ -39,17 +39,20 @@ function AccountSettingsController() {
             $('#account-settings-view-cognito-user').val(Util.getUsername());
             $('#account-settings-view').modal({backdrop: 'static'});
         });
-        $('#log-out-button').click(() => {
-            document.cookie = 'idToken=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
-            document.cookie = 'refreshToken=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
-            window.location=`${Util.rootUrl()}/pages/login.html`;
+        $('#log-out-button').click(async () => {
+            try {
+                await dataClient.post('signout', {});
+                window.location=`${Util.rootUrl()}/pages/login.html`;
+            } catch (error) {
+                Util.log(error);
+            }
         });
         $('#view-raw-data-button').click(async () => {
             let data;
             try {
                 data = await dataClient.getBudget();
-            } catch (err) {
-                Util.log(err);
+            } catch (error) {
+                Util.log(error);
                 return;
             }
             $('#raw-data-view .modal-body').empty();
