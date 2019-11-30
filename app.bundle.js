@@ -19855,6 +19855,7 @@ module.exports = LinkBankAccountController;
 },{"../data-client":84,"../util":86,"./account-settings-controller":72}],80:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+const DataClient = require('../data-client');
 const OTPAuth = require('otpauth');
 const QRCode = require('qrcode');
 const Util = require('../util');
@@ -19898,9 +19899,12 @@ function LoginController() {
     function getAuthCallback(cognitoUser, username, password) {
         return {
             onSuccess: async function (result) {
-                document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
-                document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
-                window.location=`${Util.rootUrl()}/pages/balance-sheet.html`;
+                let dataClient = new DataClient();
+                await dataClient.post('unauthenticated/setToken', {
+                    idToken: result.getIdToken().getJwtToken(),
+                    refreshToken: result.getRefreshToken().token
+                });
+                window.location=`${Util.rootUrl()}`;
             },
             onFailure: function(err) {
                 $('#login-username').prop('disabled', false);
@@ -19938,7 +19942,7 @@ function LoginController() {
                 });
             },
             mfaRequired: function(codeDeliveryDetails) {
-                var verificationCode = prompt('Please input verification code' ,'');
+                let verificationCode = prompt('Please input verification code' ,'');
                 cognitoUser.sendMFACode(verificationCode, this);
             },
             mfaSetup: function(challengeName, challengeParameters) {
@@ -19968,7 +19972,7 @@ function LoginController() {
                     });
             },
             selectMFAType : function(challengeName, challengeParameters) {
-                var mfaType = prompt('Please select the MFA method.', '');
+                let mfaType = prompt('Please select the MFA method.', '');
                 cognitoUser.sendMFASelectionAnswer(mfaType, this);
             },
             totpRequired : function(secretCode) {
@@ -20007,7 +20011,7 @@ function LoginController() {
 }
 
 module.exports = LoginController;
-},{"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17,"otpauth":32,"qrcode":33}],81:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17,"otpauth":32,"qrcode":33}],81:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const Util = require('../util');
@@ -20222,14 +20226,14 @@ const Util = require('./util');
 const Currency = require('currency.js');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 function DataClient() {
+    const FETCH_MODE = 'cors';
+    const FETCH_CREDENTIALS = 'include';
     this.patch = async function (data) {
         let requestParams = {
             method: 'PATCH',
-            mode: 'cors',
-            headers: {
-                'Authorization': Util.getCookie('idToken'),
-                'Content-Type': 'application/json'
-            },
+            mode: FETCH_MODE,
+            credentials: FETCH_CREDENTIALS,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
         return await this.sendRequestInner('budget', requestParams)
@@ -20237,11 +20241,9 @@ function DataClient() {
     this.post = async function (endpoint, data) {
         let requestParams = {
             method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Authorization': Util.getCookie('idToken'),
-                'Content-Type': 'application/json'
-            },
+            mode: FETCH_MODE,
+            credentials: FETCH_CREDENTIALS,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
         return await this.sendRequestInner(endpoint, requestParams)
@@ -20249,14 +20251,21 @@ function DataClient() {
     this.delete = async function (endpoint, data) {
         let requestParams = {
             method: 'DELETE',
-            mode: 'cors',
-            headers: {
-                'Authorization': Util.getCookie('idToken'),
-                'Content-Type': 'application/json'
-            },
+            mode: FETCH_MODE,
+            credentials: FETCH_CREDENTIALS,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
         return await this.sendRequestInner(endpoint, requestParams)
+    };
+    this.get = async function (requestType) {
+        let requestParams = {
+            method: 'GET',
+            mode: FETCH_MODE,
+            credentials: FETCH_CREDENTIALS,
+            headers: { 'Content-Type': 'application/json' }
+        };
+        return await this.sendRequestInner(requestType, requestParams)
     };
     this.getBudget = async function () {
         let data = await this.get('budget');
@@ -20284,17 +20293,6 @@ function DataClient() {
         }
         return data;
     };
-    this.get = async function (requestType) {
-        let requestParams = {
-            method: 'GET',
-            mode: 'cors',
-            headers: {
-                'Authorization': Util.getCookie('idToken'),
-                'Content-Type': 'application/json'
-            }
-        };
-        return await this.sendRequestInner(requestType, requestParams)
-    };
     function promiseToRefresh() {
         return new Promise((resolve, reject) => {
             let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
@@ -20305,7 +20303,7 @@ function DataClient() {
             let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
             cognitoUser.refreshSession({
                 getToken: function () {
-                    return Util.getCookie('refreshToken');
+                    return Util.getCookie('refreshToken'); // NOT GOING TO WORK FOR NOW. Can't acces this cookie from JS
                 }
             }, function (err, result) {
                 if (err) {
@@ -20340,8 +20338,10 @@ function DataClient() {
                 let refreshResult = await promiseToRefresh();
                 console.log('refresh result');
                 console.log(refreshResult);
-                document.cookie = `idToken=${refreshResult.getIdToken().getJwtToken()};Secure;path=/`;
-                document.cookie = `refreshToken=${refreshResult.getRefreshToken().token};Secure;path=/`;
+                await this.post('unauthenticated/setToken', {
+                    idToken: refreshResult.getIdToken().getJwtToken(),
+                    refreshToken: refreshResult.getRefreshToken().token
+                });
                 console.log('retrying request after token refresh');
                 return await this.sendRequestInner(requestType, requestParams, true);
             } catch (err) {
@@ -20350,6 +20350,7 @@ function DataClient() {
                 window.location = `${Util.rootUrl()}/pages/login.html`;
             }
         } else if (response.status.toString()[0] !== '2') {
+            $('.loader-group').addClass('hide');
             console.log('failed throwing error');
             throw {
                 status: response.status,
@@ -20500,7 +20501,7 @@ exports.getPoolData = () => {
         ClientId : '2js93kg56gbvp0huq66fbh0gap'
     };
 };
-exports.getApiUrl = () => 'https://4kaupsq274.execute-api.us-east-1.amazonaws.com/production/';
+exports.getApiUrl = () => 'https://api.primordial-software.com/';
 },{"currency.js":26}],87:[function(require,module,exports){
 exports.getCommandButtonsContainerView = (obfuscate) =>
     `<span id="log-out-button" class="command-button" title="log out">

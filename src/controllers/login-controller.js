@@ -1,5 +1,6 @@
 const AccountSettingsController = require('./account-settings-controller');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+const DataClient = require('../data-client');
 const OTPAuth = require('otpauth');
 const QRCode = require('qrcode');
 const Util = require('../util');
@@ -43,9 +44,12 @@ function LoginController() {
     function getAuthCallback(cognitoUser, username, password) {
         return {
             onSuccess: async function (result) {
-                document.cookie = `idToken=${result.getIdToken().getJwtToken()};Secure;path=/`;
-                document.cookie = `refreshToken=${result.getRefreshToken().token};Secure;path=/`;
-                window.location=`${Util.rootUrl()}/pages/balance-sheet.html`;
+                let dataClient = new DataClient();
+                await dataClient.post('unauthenticated/setToken', {
+                    idToken: result.getIdToken().getJwtToken(),
+                    refreshToken: result.getRefreshToken().token
+                });
+                window.location=`${Util.rootUrl()}`;
             },
             onFailure: function(err) {
                 $('#login-username').prop('disabled', false);
@@ -83,7 +87,7 @@ function LoginController() {
                 });
             },
             mfaRequired: function(codeDeliveryDetails) {
-                var verificationCode = prompt('Please input verification code' ,'');
+                let verificationCode = prompt('Please input verification code' ,'');
                 cognitoUser.sendMFACode(verificationCode, this);
             },
             mfaSetup: function(challengeName, challengeParameters) {
@@ -113,7 +117,7 @@ function LoginController() {
                     });
             },
             selectMFAType : function(challengeName, challengeParameters) {
-                var mfaType = prompt('Please select the MFA method.', '');
+                let mfaType = prompt('Please select the MFA method.', '');
                 cognitoUser.sendMFASelectionAnswer(mfaType, this);
             },
             totpRequired : function(secretCode) {

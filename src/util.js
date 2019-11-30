@@ -98,4 +98,4 @@ exports.getPoolData = () => {
         ClientId : '2js93kg56gbvp0huq66fbh0gap'
     };
 };
-exports.getApiUrl = () => 'https://4kaupsq274.execute-api.us-east-1.amazonaws.com/production/';
+exports.getApiUrl = () => 'https://api.primordial-software.com/';
