@@ -43,7 +43,7 @@ $(document).ready(function () {
     $('body').append('<div id="page-footer"></div>');
     $('#page-footer').append(`
         <hr />
-        <p class="text-center">By browsing and using this site you agree to our <a target="_blank" href="https://primordial-software.com/LICENSE.txt">license</a>
+        <p class="text-center">By browsing and using this site you agree to our <a target="_blank" href="https://www.primordial-software.com/LICENSE.txt">license</a>
     `);
     $('#page-footer').append(`<div id="debug-console" class="no-print"></div>`);
     $('#page-footer').append(`<div id="account-settings-container"></div>`).append(AccountSettingsView.getAccountSettingsView());
