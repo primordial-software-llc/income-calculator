@@ -122,7 +122,7 @@ exports.load = function (budgetSettings, start, end) {
         for (let debitSummary of summary.debitsByPaymentSource) {
             $('.month-heading-totals-values').before(`
             <div class="display-flex row">
-                <div class="col-xs-3 display-flex-valign-bottom dotted-underline">${debitSummary.paymentSource}</div>
+                <div class="col-xs-3 display-flex-valign-bottom dotted-underline">${debitSummary.paymentSource || 'Unspecified'}</div>
                 <div class="col-xs-2 display-flex-valign-bottom dotted-underline text-right">${Util.format(debitSummary.amount)}</div>
                 <div class="col-xs-2">&nbsp;</div>
                 <div class="col-xs-2">&nbsp;</div>
@@ -132,7 +132,7 @@ exports.load = function (budgetSettings, start, end) {
         for (let creditSummary of summary.creditsByPaymentSource) {
             $('.month-heading-totals-values').before(`
             <div class="display-flex row">
-                <div class="col-xs-3 display-flex-valign-bottom dotted-underline">${creditSummary.paymentSource}</div>
+                <div class="col-xs-3 display-flex-valign-bottom dotted-underline">${creditSummary.paymentSource || 'Unspecified'}</div>
                 <div class="col-xs-2 dotted-underline">&nbsp;</div>
                 <div class="col-xs-2 display-flex-valign-bottom dotted-underline text-right">${Util.format(creditSummary.amount)}</div>
                 <div class="col-xs-2">&nbsp;</div>

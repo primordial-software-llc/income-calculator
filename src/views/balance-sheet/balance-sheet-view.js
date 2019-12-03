@@ -23,8 +23,8 @@ function setupToggle(container, detail) {
     });
 }
 function getWeeklyAmount(budget, debtName) {
-    let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName);
-    let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName);
+    let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
+    let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
     return monthlyTxn ? Currency(monthlyTxn.amount, Util.getCurrencyDefaults()).divide(cal.WEEKS_IN_MONTH).toString()
         : weeklyTxn ? weeklyTxn.amount : 0;
 }

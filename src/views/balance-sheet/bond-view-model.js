@@ -3,13 +3,13 @@ const Util = require('../../util');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 function BondViewModel() {
     this.getViewDescription = () => 'Bond';
-    this.getViewType = () => 'bonds';
+    this.getViewType = () => 'bond';
     this.getModel = function (target) {
         return {
             amount: $(target).find('input.amount').val().trim(),
             issueDate: Moment($(target).find('input.issue-date').val().trim(), 'YYYY-MM-DD UTC Z'),
             daysToMaturation: $(target).find('select.type').val().trim(),
-            creditAccount: 'Bonds'
+            creditAccount: 'bond'
         };
     };
     this.getHeaderView = function () {
@@ -50,7 +50,7 @@ function BondViewModel() {
         new TransferController().init(
             liquidateButton,
             viewContainer,
-            'Bonds',
+            'bond',
             [
                 new CashViewModel()
             ],

@@ -32,7 +32,7 @@ function HomeView() {
             date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
             name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
             type: $(target).find('.transaction-type').val() || $(target).data().txntype,
-            paymentSource: $(target).find('.transaction-payment-source').val() || $(target).find('.transaction-payment-source').text()
+            paymentSource: $(target).find('select.transaction-payment-source').val() || $(target).find('span.transaction-payment-source').text()
         };
     }
     this.getEditableTransactionView = function (iteration) {
@@ -65,7 +65,7 @@ function HomeView() {
                 <div class="form-group row">
                   <div class="col-xs-12">
                       <select class="transaction-payment-source form-control">
-                        <option>Payment Method</option>
+                        <option value="">Account</option>
                         ${paymentSourceHtml};
                       </select>
                   </div>

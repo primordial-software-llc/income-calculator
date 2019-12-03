@@ -4,11 +4,13 @@ function AccountSettingsController() {
     'use strict';
     let dataClient;
     let view;
-    async function save(agreedToLicense) {
+    async function save() {
         let data = await view.getModel();
+        /*
+         * This has to get done on account creation.
         data.licenseAgreement = {
             agreedToLicense: agreedToLicense
-        };
+        };*/
         try {
             let response = await dataClient.patch(data);
             window.location.reload();
@@ -19,14 +21,7 @@ function AccountSettingsController() {
     this.init = function (viewIn) {
         view = viewIn;
         dataClient = new DataClient();
-        $('#save').click(function () {
-            if ($('#acceptLicense').is(':checked')) {
-                $('#save').attr('disabled', 'disabled');
-                save(true);
-            } else {
-                alert('You must agree to the license to proceed');
-            }
-        });
+        $('#save').click(save);
         $('#obfuscate-data').click(() => {
             if (Util.obfuscate()) {
                 document.cookie = 'obfuscate=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';

@@ -59,13 +59,13 @@ function LoanViewModel() {
                     <div class="col-xs-2">
                         <div class="input-group">
                             <div class="input-group-addon ">$</div>
-                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount}" />
+                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount || ''}" />
                         </div>
                     </div>
                     <div class="col-xs-3">
                         <div class="input-group">
                             <div class="input-group-addon ">${icon}</div>
-                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="name form-control" type="text" value="${debt.name}" />
+                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="name form-control" type="text" value="${debt.name || ''}" />
                         </div>
                     </div>
                     <div class="col-xs-1"><input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="rate form-control text-right" type="text" value="${debt.rate || 'Unknown'}" /></div>

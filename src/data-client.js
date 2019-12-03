@@ -1,6 +1,5 @@
 const Util = require('./util');
 const Currency = require('currency.js');
-const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 function DataClient() {
     const FETCH_MODE = 'cors';
     const FETCH_CREDENTIALS = 'include';
@@ -14,7 +13,7 @@ function DataClient() {
         };
         return await this.sendRequestInner('budget', requestParams)
     };
-    this.post = async function (endpoint, data) {
+    this.post = async function (endpoint, data, isRetryFromRefresh) {
         let requestParams = {
             method: 'POST',
             mode: FETCH_MODE,
@@ -22,7 +21,7 @@ function DataClient() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
-        return await this.sendRequestInner(endpoint, requestParams)
+        return await this.sendRequestInner(endpoint, requestParams, isRetryFromRefresh)
     };
     this.delete = async function (endpoint, data) {
         let requestParams = {
@@ -83,15 +82,12 @@ function DataClient() {
         // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
         if (response.status.toString() === '401') {
             console.log('Failed to authenticate attempting to refresh token');
-            if (!Util.getCookie('idToken') || !Util.getCookie('refreshToken')) {
-                window.location = `${Util.rootUrl()}/pages/login.html`;
-            }
             try {
                 if (isRetryFromRefresh) {
                     console.log('failed to refresh from token');
                     window.location = `${Util.rootUrl()}/pages/login.html`;
                 }
-                await this.post('unauthenticated/refreshToken', {});
+                await this.post('unauthenticated/refreshToken', {}, true);
                 console.log('retrying request after token refresh');
                 return await this.sendRequestInner(requestType, requestParams, true);
             } catch (err) {
@@ -102,10 +98,11 @@ function DataClient() {
         } else if (response.status.toString()[0] !== '2') {
             $('.loader-group').addClass('hide');
             console.log('failed throwing error');
+            let errorResponse = await response.text();
             throw {
                 status: response.status,
                 url: response.url,
-                response: await response.text()
+                response: errorResponse
             };
         }
         let responseJson = await response.json();

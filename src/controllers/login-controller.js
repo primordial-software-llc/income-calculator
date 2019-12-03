@@ -6,20 +6,28 @@ const QRCode = require('qrcode');
 const Util = require('../util');
 function LoginController() {
     'use strict';
-    function setError(errorMessage) {
-        errorMessage = errorMessage || '';
-        if (Array.isArray(errorMessage)) {
-            for (let errorMessageItem of errorMessage) {
-                console.log(errorMessageItem);
-                $('#errorMessageAlert').append($(`<div>&bull;&nbsp;${errorMessageItem}</div>`));
+    function setMessage(message, messageType, isSingleHtmlMessage) {
+        $('#messageAlert').removeClass('alert-danger');
+        $('#messageAlert').removeClass('alert-info');
+        $('#messageAlert').removeClass('alert-success');
+        $('#messageAlert').addClass(messageType);
+        message = message || '';
+        if (Array.isArray(message)) {
+            for (let messageItem of errorMessage) {
+                console.log(messageItem);
+                $('#messageAlert').append($(`<div>&bull;&nbsp;${messageItem}</div>`));
             }
         } else {
-            $('#errorMessageAlert').text(errorMessage);
+            if (isSingleHtmlMessage) {
+                $('#messageAlert').html(message); // Only use this for static text.
+            } else {
+                $('#messageAlert').text(message);
+            }
         }
-        if (errorMessage.length < 1) {
-            $('#errorMessageAlert').addClass('hide');
+        if (message.length < 1) {
+            $('#messageAlert').addClass('hide');
         } else {
-            $('#errorMessageAlert').removeClass('hide');
+            $('#messageAlert').removeClass('hide');
         }
     }
     function getAdditionalFieldValidation() {
@@ -44,6 +52,7 @@ function LoginController() {
     function getAuthCallback(cognitoUser, username, password) {
         return {
             onSuccess: async function (result) {
+                setMessage('');
                 let dataClient = new DataClient();
                 await dataClient.post('unauthenticated/setToken', {
                     idToken: result.getIdToken().getJwtToken(),
@@ -52,25 +61,23 @@ function LoginController() {
                 window.location=`${Util.rootUrl()}`;
             },
             onFailure: function(err) {
+                setMessage('');
                 $('#login-username').prop('disabled', false);
                 $('#login-password').prop('disabled', false);
                 $('#login-username').val('');
                 $('#login-password').val('');
                 $('#mfaCode').val('');
-
-                console.log('failed to authenticate');
-                console.log(err);
-
-                setError(err.message || '');
+                setMessage(err.message || '', 'alert-danger');
             },
             newPasswordRequired: function(userAttributes, requiredAttributes) {
+                setMessage('');
                 $('.login-form').addClass('hide');
                 $('.form-additional-fields').removeClass('hide');
                 $('#additional-fields-button').click(function () {
-                    setError('');
+                    setMessage('');
                     let issues = getAdditionalFieldValidation();
                     if (issues.length > 0) {
-                        setError(issues);
+                        setMessage(issues, 'alert-danger');
                         return;
                     }
                     let newPassword = $('#login-new-password').val().trim();
@@ -94,6 +101,7 @@ function LoginController() {
                 cognitoUser.associateSoftwareToken(this);
             },
             associateSecretCode : function(secretCode) {
+                setMessage('', 'alert-danger');
                 $('.login-form').addClass('hide');
                 $('.form-additional-fields').addClass('hide');
                 let totp = new OTPAuth.TOTP({
@@ -109,23 +117,20 @@ function LoginController() {
                     { errorCorrectionLevel: 'H', mode: 'alphanumeric' },
                     function (err, url) {
                         $('#qr-code-container').append(`<img src="${encodeURI(url)}" />`);
-                        setTimeout(function() {
-                                var challengeAnswer = prompt('Scan the QR code with google authenticator and enter the one time code.' ,'');
-                                cognitoUser.verifySoftwareToken(challengeAnswer, 'My TOTP device', getAuthCallback(cognitoUser, username, password));
-                            },
-                            1000);
+                        $('.mfa-form').removeClass('hide');
+                        $('#mfa-button').unbind();
+                        setMessage('Scan the QR code with <a target="_blank" href="https://support.google.com/accounts/answer/1066447?co=GENIE.Platform%3DAndroid&hl=en">Google Authenticator</a>, enter the one time password, then sign in.', 'alert-info', true);
+                        $('#mfa-button').click(function () {
+                            cognitoUser.verifySoftwareToken($('#mfaCode').val().trim(), 'TOTP device', getAuthCallback(cognitoUser, username, password));
+                        });
                     });
             },
-            selectMFAType : function(challengeName, challengeParameters) {
-                let mfaType = prompt('Please select the MFA method.', '');
-                cognitoUser.sendMFASelectionAnswer(mfaType, this);
-            },
             totpRequired : function(secretCode) {
+                setMessage('');
                 $('.login-form').addClass('hide');
                 $('.mfa-form').removeClass('hide');
                 $('#mfa-button').unbind();
                 $('#mfa-button').click(function () {
-                    setError('');
                     cognitoUser.sendMFACode($('#mfaCode').val(), getAuthCallback(cognitoUser, username, password), 'SOFTWARE_TOKEN_MFA')
                 });
             }
@@ -145,7 +150,7 @@ function LoginController() {
     }
     async function initAsync() {
         $('#sign-in-button').click(async function () {
-            setError('');
+            setMessage('', 'alert-danger');
             await login($('#login-username').val().trim(), $('#login-password').val().trim());
         });
     }

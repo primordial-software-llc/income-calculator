@@ -78,7 +78,7 @@ function LoginSignupController() {
             $('#successMessageAlert').removeClass('hide');
             $('#successMessageAlert').text(`Your user has successfully been created. ` +
                                             `Your user name is ${result.user.getUsername()}. ` +
-                                            `A confirmation link has been sent to your email. ` +
+                                            `A confirmation link has been sent to your email from noreply@primordial-software.com. ` +
                                             `You need to click the verification link in the email before you can login.`);
         });
     }

@@ -19253,7 +19253,7 @@ exports.load = function (budgetSettings, start, end) {
         for (let debitSummary of summary.debitsByPaymentSource) {
             $('.month-heading-totals-values').before(`
             <div class="display-flex row">
-                <div class="col-xs-3 display-flex-valign-bottom dotted-underline">${debitSummary.paymentSource}</div>
+                <div class="col-xs-3 display-flex-valign-bottom dotted-underline">${debitSummary.paymentSource || 'Unspecified'}</div>
                 <div class="col-xs-2 display-flex-valign-bottom dotted-underline text-right">${Util.format(debitSummary.amount)}</div>
                 <div class="col-xs-2">&nbsp;</div>
                 <div class="col-xs-2">&nbsp;</div>
@@ -19263,7 +19263,7 @@ exports.load = function (budgetSettings, start, end) {
         for (let creditSummary of summary.creditsByPaymentSource) {
             $('.month-heading-totals-values').before(`
             <div class="display-flex row">
-                <div class="col-xs-3 display-flex-valign-bottom dotted-underline">${creditSummary.paymentSource}</div>
+                <div class="col-xs-3 display-flex-valign-bottom dotted-underline">${creditSummary.paymentSource || 'Unspecified'}</div>
                 <div class="col-xs-2 dotted-underline">&nbsp;</div>
                 <div class="col-xs-2 display-flex-valign-bottom dotted-underline text-right">${Util.format(creditSummary.amount)}</div>
                 <div class="col-xs-2">&nbsp;</div>
@@ -19281,11 +19281,13 @@ function AccountSettingsController() {
     'use strict';
     let dataClient;
     let view;
-    async function save(agreedToLicense) {
+    async function save() {
         let data = await view.getModel();
+        /*
+         * This has to get done on account creation.
         data.licenseAgreement = {
             agreedToLicense: agreedToLicense
-        };
+        };*/
         try {
             let response = await dataClient.patch(data);
             window.location.reload();
@@ -19296,14 +19298,7 @@ function AccountSettingsController() {
     this.init = function (viewIn) {
         view = viewIn;
         dataClient = new DataClient();
-        $('#save').click(function () {
-            if ($('#acceptLicense').is(':checked')) {
-                $('#save').attr('disabled', 'disabled');
-                save(true);
-            } else {
-                alert('You must agree to the license to proceed');
-            }
-        });
+        $('#save').click(save);
         $('#obfuscate-data').click(() => {
             if (Util.obfuscate()) {
                 document.cookie = 'obfuscate=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
@@ -19533,7 +19528,13 @@ function HomeController() {
             $('#add-new-balance').prop('disabled', true);
         }
         $('#add-new-balance').click(function () {
-            $('#balance-input-group').append(new LoanViewModel().getView(100, 'new balance', '.035'));
+            $('#balance-input-group').append(new LoanViewModel().getView(
+                {
+                    name: 'New Loan',
+                    rate: '.00',
+                    amount: '0',
+                    type: 'credit'
+                }));
         });
         refresh();
     };
@@ -19864,20 +19865,28 @@ const QRCode = require('qrcode');
 const Util = require('../util');
 function LoginController() {
     'use strict';
-    function setError(errorMessage) {
-        errorMessage = errorMessage || '';
-        if (Array.isArray(errorMessage)) {
-            for (let errorMessageItem of errorMessage) {
-                console.log(errorMessageItem);
-                $('#errorMessageAlert').append($(`<div>&bull;&nbsp;${errorMessageItem}</div>`));
+    function setMessage(message, messageType, isSingleHtmlMessage) {
+        $('#messageAlert').removeClass('alert-danger');
+        $('#messageAlert').removeClass('alert-info');
+        $('#messageAlert').removeClass('alert-success');
+        $('#messageAlert').addClass(messageType);
+        message = message || '';
+        if (Array.isArray(message)) {
+            for (let messageItem of errorMessage) {
+                console.log(messageItem);
+                $('#messageAlert').append($(`<div>&bull;&nbsp;${messageItem}</div>`));
             }
         } else {
-            $('#errorMessageAlert').text(errorMessage);
+            if (isSingleHtmlMessage) {
+                $('#messageAlert').html(message); // Only use this for static text.
+            } else {
+                $('#messageAlert').text(message);
+            }
         }
-        if (errorMessage.length < 1) {
-            $('#errorMessageAlert').addClass('hide');
+        if (message.length < 1) {
+            $('#messageAlert').addClass('hide');
         } else {
-            $('#errorMessageAlert').removeClass('hide');
+            $('#messageAlert').removeClass('hide');
         }
     }
     function getAdditionalFieldValidation() {
@@ -19902,6 +19911,7 @@ function LoginController() {
     function getAuthCallback(cognitoUser, username, password) {
         return {
             onSuccess: async function (result) {
+                setMessage('');
                 let dataClient = new DataClient();
                 await dataClient.post('unauthenticated/setToken', {
                     idToken: result.getIdToken().getJwtToken(),
@@ -19910,25 +19920,23 @@ function LoginController() {
                 window.location=`${Util.rootUrl()}`;
             },
             onFailure: function(err) {
+                setMessage('');
                 $('#login-username').prop('disabled', false);
                 $('#login-password').prop('disabled', false);
                 $('#login-username').val('');
                 $('#login-password').val('');
                 $('#mfaCode').val('');
-
-                console.log('failed to authenticate');
-                console.log(err);
-
-                setError(err.message || '');
+                setMessage(err.message || '', 'alert-danger');
             },
             newPasswordRequired: function(userAttributes, requiredAttributes) {
+                setMessage('');
                 $('.login-form').addClass('hide');
                 $('.form-additional-fields').removeClass('hide');
                 $('#additional-fields-button').click(function () {
-                    setError('');
+                    setMessage('');
                     let issues = getAdditionalFieldValidation();
                     if (issues.length > 0) {
-                        setError(issues);
+                        setMessage(issues, 'alert-danger');
                         return;
                     }
                     let newPassword = $('#login-new-password').val().trim();
@@ -19952,6 +19960,7 @@ function LoginController() {
                 cognitoUser.associateSoftwareToken(this);
             },
             associateSecretCode : function(secretCode) {
+                setMessage('', 'alert-danger');
                 $('.login-form').addClass('hide');
                 $('.form-additional-fields').addClass('hide');
                 let totp = new OTPAuth.TOTP({
@@ -19967,23 +19976,20 @@ function LoginController() {
                     { errorCorrectionLevel: 'H', mode: 'alphanumeric' },
                     function (err, url) {
                         $('#qr-code-container').append(`<img src="${encodeURI(url)}" />`);
-                        setTimeout(function() {
-                                var challengeAnswer = prompt('Scan the QR code with google authenticator and enter the one time code.' ,'');
-                                cognitoUser.verifySoftwareToken(challengeAnswer, 'My TOTP device', getAuthCallback(cognitoUser, username, password));
-                            },
-                            1000);
+                        $('.mfa-form').removeClass('hide');
+                        $('#mfa-button').unbind();
+                        setMessage('Scan the QR code with <a target="_blank" href="https://support.google.com/accounts/answer/1066447?co=GENIE.Platform%3DAndroid&hl=en">Google Authenticator</a>, enter the one time password, then sign in.', 'alert-info', true);
+                        $('#mfa-button').click(function () {
+                            cognitoUser.verifySoftwareToken($('#mfaCode').val().trim(), 'TOTP device', getAuthCallback(cognitoUser, username, password));
+                        });
                     });
             },
-            selectMFAType : function(challengeName, challengeParameters) {
-                let mfaType = prompt('Please select the MFA method.', '');
-                cognitoUser.sendMFASelectionAnswer(mfaType, this);
-            },
             totpRequired : function(secretCode) {
+                setMessage('');
                 $('.login-form').addClass('hide');
                 $('.mfa-form').removeClass('hide');
                 $('#mfa-button').unbind();
                 $('#mfa-button').click(function () {
-                    setError('');
                     cognitoUser.sendMFACode($('#mfaCode').val(), getAuthCallback(cognitoUser, username, password), 'SOFTWARE_TOKEN_MFA')
                 });
             }
@@ -20003,7 +20009,7 @@ function LoginController() {
     }
     async function initAsync() {
         $('#sign-in-button').click(async function () {
-            setError('');
+            setMessage('', 'alert-danger');
             await login($('#login-username').val().trim(), $('#login-password').val().trim());
         });
     }
@@ -20095,7 +20101,7 @@ function LoginSignupController() {
             $('#successMessageAlert').removeClass('hide');
             $('#successMessageAlert').text(`Your user has successfully been created. ` +
                                             `Your user name is ${result.user.getUsername()}. ` +
-                                            `A confirmation link has been sent to your email. ` +
+                                            `A confirmation link has been sent to your email from noreply@primordial-software.com. ` +
                                             `You need to click the verification link in the email before you can login.`);
         });
     }
@@ -20227,7 +20233,6 @@ module.exports = PricesController;
 },{"../data-client":84,"../util":86,"../views/prices-view":99,"./account-settings-controller":72}],84:[function(require,module,exports){
 const Util = require('./util');
 const Currency = require('currency.js');
-const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 function DataClient() {
     const FETCH_MODE = 'cors';
     const FETCH_CREDENTIALS = 'include';
@@ -20241,7 +20246,7 @@ function DataClient() {
         };
         return await this.sendRequestInner('budget', requestParams)
     };
-    this.post = async function (endpoint, data) {
+    this.post = async function (endpoint, data, isRetryFromRefresh) {
         let requestParams = {
             method: 'POST',
             mode: FETCH_MODE,
@@ -20249,7 +20254,7 @@ function DataClient() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
-        return await this.sendRequestInner(endpoint, requestParams)
+        return await this.sendRequestInner(endpoint, requestParams, isRetryFromRefresh)
     };
     this.delete = async function (endpoint, data) {
         let requestParams = {
@@ -20310,15 +20315,12 @@ function DataClient() {
         // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
         if (response.status.toString() === '401') {
             console.log('Failed to authenticate attempting to refresh token');
-            if (!Util.getCookie('idToken') || !Util.getCookie('refreshToken')) {
-                window.location = `${Util.rootUrl()}/pages/login.html`;
-            }
             try {
                 if (isRetryFromRefresh) {
                     console.log('failed to refresh from token');
                     window.location = `${Util.rootUrl()}/pages/login.html`;
                 }
-                await this.post('unauthenticated/refreshToken', {});
+                await this.post('unauthenticated/refreshToken', {}, true);
                 console.log('retrying request after token refresh');
                 return await this.sendRequestInner(requestType, requestParams, true);
             } catch (err) {
@@ -20329,10 +20331,11 @@ function DataClient() {
         } else if (response.status.toString()[0] !== '2') {
             $('.loader-group').addClass('hide');
             console.log('failed throwing error');
+            let errorResponse = await response.text();
             throw {
                 status: response.status,
                 url: response.url,
-                response: await response.text()
+                response: errorResponse
             };
         }
         let responseJson = await response.json();
@@ -20343,7 +20346,7 @@ function DataClient() {
 
 module.exports = DataClient;
 
-},{"./util":86,"amazon-cognito-identity-js":17,"currency.js":26}],85:[function(require,module,exports){
+},{"./util":86,"currency.js":26}],85:[function(require,module,exports){
 const Util = require('./util');
 exports.initNav = function (target) {
     let root = Util.rootUrl();
@@ -20587,8 +20590,8 @@ function setupToggle(container, detail) {
     });
 }
 function getWeeklyAmount(budget, debtName) {
-    let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName);
-    let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName);
+    let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
+    let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
     return monthlyTxn ? Currency(monthlyTxn.amount, Util.getCurrencyDefaults()).divide(cal.WEEKS_IN_MONTH).toString()
         : weeklyTxn ? weeklyTxn.amount : 0;
 }
@@ -20685,13 +20688,13 @@ const Util = require('../../util');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 function BondViewModel() {
     this.getViewDescription = () => 'Bond';
-    this.getViewType = () => 'bonds';
+    this.getViewType = () => 'bond';
     this.getModel = function (target) {
         return {
             amount: $(target).find('input.amount').val().trim(),
             issueDate: Moment($(target).find('input.issue-date').val().trim(), 'YYYY-MM-DD UTC Z'),
             daysToMaturation: $(target).find('select.type').val().trim(),
-            creditAccount: 'Bonds'
+            creditAccount: 'bond'
         };
     };
     this.getHeaderView = function () {
@@ -20732,7 +20735,7 @@ function BondViewModel() {
         new TransferController().init(
             liquidateButton,
             viewContainer,
-            'Bonds',
+            'bond',
             [
                 new CashViewModel()
             ],
@@ -21049,13 +21052,13 @@ function LoanViewModel() {
                     <div class="col-xs-2">
                         <div class="input-group">
                             <div class="input-group-addon ">$</div>
-                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount}" />
+                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount || ''}" />
                         </div>
                     </div>
                     <div class="col-xs-3">
                         <div class="input-group">
                             <div class="input-group-addon ">${icon}</div>
-                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="name form-control" type="text" value="${debt.name}" />
+                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="name form-control" type="text" value="${debt.name || ''}" />
                         </div>
                     </div>
                     <div class="col-xs-1"><input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="rate form-control text-right" type="text" value="${debt.rate || 'Unknown'}" /></div>
@@ -21198,7 +21201,7 @@ function HomeView() {
             date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
             name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
             type: $(target).find('.transaction-type').val() || $(target).data().txntype,
-            paymentSource: $(target).find('.transaction-payment-source').val() || $(target).find('.transaction-payment-source').text()
+            paymentSource: $(target).find('select.transaction-payment-source').val() || $(target).find('span.transaction-payment-source').text()
         };
     }
     this.getEditableTransactionView = function (iteration) {
@@ -21231,7 +21234,7 @@ function HomeView() {
                 <div class="form-group row">
                   <div class="col-xs-12">
                       <select class="transaction-payment-source form-control">
-                        <option>Payment Method</option>
+                        <option value="">Account</option>
                         ${paymentSourceHtml};
                       </select>
                   </div>

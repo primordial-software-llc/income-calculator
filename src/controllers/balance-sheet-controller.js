@@ -71,7 +71,13 @@ function HomeController() {
             $('#add-new-balance').prop('disabled', true);
         }
         $('#add-new-balance').click(function () {
-            $('#balance-input-group').append(new LoanViewModel().getView(100, 'new balance', '.035'));
+            $('#balance-input-group').append(new LoanViewModel().getView(
+                {
+                    name: 'New Loan',
+                    rate: '.00',
+                    amount: '0',
+                    type: 'credit'
+                }));
         });
         refresh();
     };

@@ -19,7 +19,8 @@
 </div>
 <div class="tab-nav-bar"></div>
 <div class="container">
-    <div id="errorMessageAlert" class="hide alert alert-danger" role="alert"></div>
+    <div id="messageAlert" class="hide alert" role="alert"></div>
+    <div id="qr-code-container" class="text-center"></div>
     <form class="login-form">
         <div class="form-group username-group">
             <label for="login-username">Username</label>
@@ -41,7 +42,6 @@
         </div>
         <button id="mfa-button" type="button" class="btn btn-primary">Sign In</button>
     </form>
-    <div id="qr-code-container"></div>
     <form class="form-additional-fields hide">
         <div class="form-group password-group">
             <label for="login-new-password">New Password</label>
