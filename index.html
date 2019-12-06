@@ -23,20 +23,25 @@
           <p>
               Enter your income and expenses, then you will be shown your transactions on a calendar.
           </p>
-          <h3>
-              Biweekly Income
-          </h3>
-          <div id="biweekly-input-group" class="form-group">
-              <div class="input-group">
-                  <div class="input-group-addon">$</div>
-                  <input id="biweekly-input" type="text" class="form-control text-right" value="1" />
-                  <div class="input-group-addon">.00</div>
+          <div class="row group-row">
+              <div class="col-xs-11"><h3>Biweekly</h3></div>
+              <div class="col-xs-1">
+                  <button id="add-new-biweekly" type="button" class="add-new-budget-item btn btn-success pull-right remove-button-container add-remove-btn" title="Add Biweekly Budget Item">
+                      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                  </button>
               </div>
           </div>
+          <div class="new-biweekly-container"></div>
+          <div class="row table-header-row">
+              <div class="col-xs-4">Amount</div>
+              <div class="col-xs-3">Start Date</div>
+              <div class="col-xs-4">Name</div>
+          </div>
+          <div id="biweekly-input-group" class="form-group"></div>
           <div class="row group-row">
               <div class="col-xs-11"><h3>Monthly</h3></div>
               <div class="col-xs-1">
-                  <button id="add-new-monthly" type="button" class="btn btn-success pull-right remove-button-container add-remove-btn" title="Add Monthly Expense">
+                  <button id="add-new-monthly" type="button" class="add-new-budget-item btn btn-success pull-right remove-button-container add-remove-btn" title="Add Monthly Budget Item">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </button>
               </div>
@@ -50,10 +55,10 @@
           <div id="monthly-input-group" class="form-group"></div>
           <div class="row group-row">
               <div class="col-xs-11 vertical-align-container">
-                  <h3 class="">Weekly Expenses</h3>
+                  <h3 class="">Weekly Budget Items</h3>
               </div>
               <div class="col-xs-1 vertical-align-container">
-                  <button id="add-new-weekly" type="button" class="btn btn-success pull-right remove-button-container add-remove-btn" title="Add Weekly Expense">
+                  <button id="add-new-weekly" type="button" class="add-new-budget-item btn btn-success pull-right remove-button-container add-remove-btn" title="Add Weekly Budget Item">
                       <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                   </button>
               </div>

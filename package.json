@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "tape ./test-archive/*.js",
-    "build": "browserify src/app.js -o app.bundle.js"
+    "build": "browserify src/app.js -p esmify -o app.bundle.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,8 @@
     "qrcode": "^1.4.2"
   },
   "devDependencies": {
+    "browser-resolve": "^1.11.3",
+    "esmify": "^2.1.1",
     "tape": "4.5.1"
   }
 }

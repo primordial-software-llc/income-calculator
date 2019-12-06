@@ -1,60 +1,52 @@
 const cal = require('../calculators/calendar');
 const Util = require('../util');
-function HomeView() {
-    let self = this;
-    let data;
-    function getTxInputHtmlMonthly() {
-        let txHtmlInput = '<select class="date form-control"><option>Day of Month</option>';
-        for (let day = 1; day <= cal.SAFE_LAST_DAY_OF_MONTH; day++) {
-            txHtmlInput += `<option
-            value=${new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), day)).toISOString()}>${day}</option>`;
-        }
-        txHtmlInput += '</select>';
-        return txHtmlInput;
+import WeeklyView from './budget/weekly-view';
+import MonthlyView from './budget/monthly-view';
+import BiweeklyView from './budget/biweekly-view';
+function sortByAmount(a,b) {
+    return b.amount - a.amount;
+}
+function getTransactionModel(target) {
+    /*
+        "date": "2015-12-25T00:00:00Z",
+        "type": "income",
+        "amount": 100
+     */
+    return {
+        amount: Util.cleanseNumericString($(target).find('.amount').val().trim()),
+        date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
+        name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
+        type: $(target).find('.transaction-type').val() || $(target).data().txntype,
+        paymentSource: $(target).find('select.transaction-payment-source').val() || $(target).find('span.transaction-payment-source').text()
+    };
+}
+export default class HomeView {
+    constructor() {
+        this.data = {};
     }
-    function getTxInputHtmlWeekly() {
-        let txtHtmlInput = '<select class="date form-control"><option>Day of Week</option>';
-        for (let day = 0; day < 7; day++) {
-            txtHtmlInput += `<option value="${getDateWithDay(day)}">${cal.DAY_NAMES[day]}</option>`;
-        }
-        txtHtmlInput += '</select>';
-        return txtHtmlInput;
-    }
-    function getDateWithDay(day) {
-        let date = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
-        let distance = day - date.getUTCDay();
-        date.setDate(date.getDate() + distance);
-        return date.toISOString();
-    }
-    function getTransactionModel(target) {
-        return {
-            amount: Util.cleanseNumericString($(target).find('.amount').val().trim()),
-            date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
-            name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
-            type: $(target).find('.transaction-type').val() || $(target).data().txntype,
-            paymentSource: $(target).find('select.transaction-payment-source').val() || $(target).find('span.transaction-payment-source').text()
-        };
-    }
-    this.getEditableTransactionView = function (iteration) {
+    getEditableTransactionView(viewType) {
+        let iteration = viewType.iteration;
         let paymentSourceHtml = '';
-        for (paymentSource of data.paymentSources || []) {
+        for (paymentSource of this.data.paymentSources || []) {
             paymentSourceHtml += `<option value='${paymentSource}'>${paymentSource}</option>`;
         }
         return `<h4>New ${iteration.charAt(0).toUpperCase()}${iteration.slice(1)} Transaction</h4>
-                <form class="transferring container-fluid ${iteration}-expense-item new-transaction-view">
-                <div class="form-group row">
-                    <div class="col-xs-6"><input placeholder="Amount" class="amount form-control text-right" type="text" /></div>
+                <form class="transferring container-fluid ${iteration}-budget-item new-transaction-view">
+                <div class="form-group row display-flex">
+                    <div class="col-xs-3 display-flex-valign-center">Amount:</div>
+                    <div class="col-xs-9"><input placeholder="Amount" class="amount form-control text-right" type="text" /></div>
                 </div>
-                <div class="form-group row">
-                    <div class="col-xs-12">
-                        ${iteration === 'weekly' ? getTxInputHtmlWeekly() : getTxInputHtmlMonthly()}
-                    </div>
+                <div class="form-group row display-flex">
+                    <div class="col-xs-3 display-flex-valign-center capitalize">${viewType.dateName}:</div>
+                    <div class="col-xs-9">${new viewType().getTextInputHtml()}</div>
                 </div>
-                <div class="form-group row">
-                  <div class="col-xs-12"><input placeholder="Name" class="name form-control" type="text" /></div>
+                <div class="form-group row display-flex">
+                  <div class="col-xs-3 display-flex-valign-center">Name:</div>
+                  <div class="col-xs-9"><input placeholder="Name" class="name form-control" type="text" /></div>
                 </div>
-                <div class="form-group row">
-                  <div class="col-xs-12">
+                <div class="form-group row display-flex">
+                  <div class="col-xs-3">Income or Expense:</div>
+                  <div class="col-xs-9">
                       <select class="transaction-type form-control">
                         <option>Transaction Type</option>
                         <option value="income">Income</option>
@@ -62,8 +54,9 @@ function HomeView() {
                       </select>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <div class="col-xs-12">
+                <div class="form-group row display-flex">
+                  <div class="col-xs-3">Account:</div>
+                  <div class="col-xs-9">
                       <select class="transaction-payment-source form-control">
                         <option value="">Account</option>
                         ${paymentSourceHtml};
@@ -72,25 +65,23 @@ function HomeView() {
                 </div>
             </form>`;
     };
-    this.getTransactionView = function (transaction, iteration, disable) {
+    getTransactionView(transaction, viewType, disable) {
         let date = transaction.date || '';
         transaction.type = transaction.type || 'expense';
         let paidByHtml = transaction.paymentSource ?
             ` <span class="payment-source-appended-to-name">paid by <span class="transaction-payment-source">${transaction.paymentSource}</span></span>`
             : '';
         let view = $(`
-        <div class="row transaction-input-view ${iteration}-${transaction.type}-item" data-txntype="${transaction.type}">
-            <div class="col-xs-4">
+        <div class="row transaction-input-view ${viewType.iteration}-budget-item budget-${transaction.type}-item display-flex" data-txntype="${transaction.type}">
+            <div class="col-xs-4 display-flex-valign-center">
                 <div class="input-group">
                     <div class="input-group-addon ">$</div>
                     <input class="amount form-control text-right" type="text" value="${transaction.amount ? Util.formatShares(transaction.amount) : Util.format(0)}" />
                 </div>
             </div>
-            <div class="col-xs-3"><span class="date" data-date="${date}">${iteration === 'weekly'
-            ? cal.DAY_NAMES[new Date(date).getUTCDay()]
-            : new Date(date).getUTCDate()}</span></div>
-            <div class="col-xs-4"><span class="name">${transaction.name || ''}</span>${paidByHtml}</div>
-            <div class="col-xs-1 add-remove-btn-container">
+            <div class="col-xs-3 display-flex-valign-center"><span class="date" data-date="${date}">${new viewType().getDateText(date)}</span></div>
+            <div class="col-xs-4 display-flex-valign-center"><span class="name">${transaction.name || ''}</span>${paidByHtml}</div>
+            <div class="col-xs-1 add-remove-btn-container display-flex-valign-center">
                 <button ${disable ? 'disabled="disabled"' : ''} class="btn remove row-remove-button add-remove-btn-container add-remove-btn">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                 </button>
@@ -99,49 +90,45 @@ function HomeView() {
         view.find('.row-remove-button').click(function () { view.remove(); });
         return view;
     };
-    this.setView = function (budget, obfuscate) {
-        'use strict';
-        data = budget;
-        $('#biweekly-input').val(budget.biWeeklyIncome.amount);
-        $('#weekly-input-group').empty();
-        $('#monthly-input-group').empty();
+    setView(budget, obfuscate) {
+        this.data = budget;
+        for (let transaction of budget.biweekly) {
+            $('#biweekly-input-group').append(this.getTransactionView(transaction, BiweeklyView, obfuscate));
+        }
         for (let transaction of budget.weeklyRecurringExpenses) {
-            $('#weekly-input-group').append(self.getTransactionView(transaction, 'weekly', obfuscate));
+            $('#weekly-input-group').append(this.getTransactionView(transaction, WeeklyView, obfuscate));
         }
         for (let transaction of budget.monthlyRecurringExpenses) {
-            $('#monthly-input-group').append(self.getTransactionView(transaction, 'monthly', obfuscate));
+            $('#monthly-input-group').append(this.getTransactionView(transaction, MonthlyView, obfuscate));
         }
-        if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
+        if (this.data.licenseAgreement && this.data.licenseAgreement.agreedToLicense) {
             $('#acceptLicense').prop('checked', true);
             $('#acceptLicense').prop('disabled', true);
-            $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
+            $('.licenseAgreementDetails').append(`agreed to license on ${this.data.licenseAgreement.agreementDateUtc} from IP ${this.data.licenseAgreement.ipAddress}`);
         }
-        if (!obfuscate) {
-            $('#add-new-monthly').prop('disabled', false);
-            $('#add-new-weekly').prop('disabled', false);
-        }
+        $('.add-new-budget-item').prop('disabled', obfuscate);
     };
-    this.getModel = function () {
-        'use strict';
-        let budgetSettings = {};
-        budgetSettings.biWeeklyIncome = {};
-        budgetSettings.biWeeklyIncome.amount = parseInt($('#biweekly-input').val().trim());
-        budgetSettings.biWeeklyIncome.date = new Date(Date.UTC(2015, 11, 25));
-        budgetSettings.monthlyRecurringExpenses = [];
-        $('.monthly-expense-item, .monthly-income-item').each(function () {
+    getModel() {
+        let budgetSettings = {
+            biweekly: [],
+            monthlyRecurringExpenses: [],
+            weeklyRecurringExpenses: []
+        };
+
+        $('.biweekly-budget-item, .monthly-income-item').each(function () {
+            budgetSettings.biweekly.push(getTransactionModel(this));
+        });
+
+        $('.monthly-budget-item').each(function () {
             budgetSettings.monthlyRecurringExpenses.push(getTransactionModel(this));
         });
-        budgetSettings.monthlyRecurringExpenses.sort(function(a,b) {
-            return b.amount - a.amount;
-        });
-        budgetSettings.weeklyRecurringExpenses = [];
-        $('.weekly-expense-item').each(function () {
+        $('.weekly-budget-item').each(function () {
             budgetSettings.weeklyRecurringExpenses.push(getTransactionModel(this));
         });
-        budgetSettings.weeklyRecurringExpenses.sort(function(a,b) {
-            return b.amount - a.amount;
-        });
+
+        budgetSettings.biweekly.sort(sortByAmount);
+        budgetSettings.monthlyRecurringExpenses.sort(sortByAmount);
+        budgetSettings.weeklyRecurringExpenses.sort(sortByAmount);
         return budgetSettings;
     };
 }
-module.exports = HomeView;

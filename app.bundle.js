@@ -1,10 +1,16 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 /*!
  * Copyright 2016 Amazon.com,
  * Inc. or its affiliates. All Rights Reserved.
@@ -23,463 +29,438 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 /** @class */
+
+
 var AuthenticationDetails = function () {
-	/**
-  * Constructs a new AuthenticationDetails object
-  * @param {object=} data Creation options.
-  * @param {string} data.Username User being authenticated.
-  * @param {string} data.Password Plain-text password to authenticate with.
-  * @param {(AttributeArg[])?} data.ValidationData Application extra metadata.
-  * @param {(AttributeArg[])?} data.AuthParamaters Authentication paramaters for custom auth.
-  */
-	function AuthenticationDetails(data) {
-		_classCallCheck(this, AuthenticationDetails);
+  /**
+   * Constructs a new AuthenticationDetails object
+   * @param {object=} data Creation options.
+   * @param {string} data.Username User being authenticated.
+   * @param {string} data.Password Plain-text password to authenticate with.
+   * @param {(AttributeArg[])?} data.ValidationData Application extra metadata.
+   * @param {(AttributeArg[])?} data.AuthParamaters Authentication paramaters for custom auth.
+   */
+  function AuthenticationDetails(data) {
+    _classCallCheck(this, AuthenticationDetails);
 
-		var _ref = data || {},
-		    ValidationData = _ref.ValidationData,
-		    Username = _ref.Username,
-		    Password = _ref.Password,
-		    AuthParameters = _ref.AuthParameters,
-		    ClientMetadata = _ref.ClientMetadata;
+    var _ref = data || {},
+        ValidationData = _ref.ValidationData,
+        Username = _ref.Username,
+        Password = _ref.Password,
+        AuthParameters = _ref.AuthParameters,
+        ClientMetadata = _ref.ClientMetadata;
 
-		this.validationData = ValidationData || {};
-		this.authParameters = AuthParameters || {};
-		this.clientMetadata = ClientMetadata || {};
-		this.username = Username;
-		this.password = Password;
-	}
-
-	/**
-  * @returns {string} the record's username
-  */
-
-
-	AuthenticationDetails.prototype.getUsername = function getUsername() {
-		return this.username;
-	};
-
-	/**
-  * @returns {string} the record's password
-  */
+    this.validationData = ValidationData || {};
+    this.authParameters = AuthParameters || {};
+    this.clientMetadata = ClientMetadata || {};
+    this.username = Username;
+    this.password = Password;
+  }
+  /**
+   * @returns {string} the record's username
+   */
 
 
-	AuthenticationDetails.prototype.getPassword = function getPassword() {
-		return this.password;
-	};
-
-	/**
-  * @returns {Array} the record's validationData
-  */
-
-
-	AuthenticationDetails.prototype.getValidationData = function getValidationData() {
-		return this.validationData;
-	};
-
-	/**
-  * @returns {Array} the record's authParameters
-  */
+  AuthenticationDetails.prototype.getUsername = function getUsername() {
+    return this.username;
+  };
+  /**
+   * @returns {string} the record's password
+   */
 
 
-	AuthenticationDetails.prototype.getAuthParameters = function getAuthParameters() {
-		return this.authParameters;
-	};
+  AuthenticationDetails.prototype.getPassword = function getPassword() {
+    return this.password;
+  };
+  /**
+   * @returns {Array} the record's validationData
+   */
 
-	/**
-  * @returns {ClientMetadata} the clientMetadata for a Lambda trigger
-  */
+
+  AuthenticationDetails.prototype.getValidationData = function getValidationData() {
+    return this.validationData;
+  };
+  /**
+   * @returns {Array} the record's authParameters
+   */
 
 
-	AuthenticationDetails.prototype.getClientMetadata = function getClientMetadata() {
-		return this.clientMetadata;
-	};
+  AuthenticationDetails.prototype.getAuthParameters = function getAuthParameters() {
+    return this.authParameters;
+  };
+  /**
+   * @returns {ClientMetadata} the clientMetadata for a Lambda trigger
+   */
 
-	return AuthenticationDetails;
+
+  AuthenticationDetails.prototype.getClientMetadata = function getClientMetadata() {
+    return this.clientMetadata;
+  };
+
+  return AuthenticationDetails;
 }();
 
-exports.default = AuthenticationDetails;
+var _default = AuthenticationDetails;
+exports.default = _default;
+
 },{}],2:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-var _buffer = require('buffer/');
+var _buffer = require("buffer/");
 
-var _core = require('crypto-js/core');
+var _core = _interopRequireDefault(require("crypto-js/core"));
 
-var _core2 = _interopRequireDefault(_core);
+require("crypto-js/lib-typedarrays");
 
-require('crypto-js/lib-typedarrays');
+var _sha = _interopRequireDefault(require("crypto-js/sha256"));
 
-var _sha = require('crypto-js/sha256');
+var _hmacSha = _interopRequireDefault(require("crypto-js/hmac-sha256"));
 
-var _sha2 = _interopRequireDefault(_sha);
-
-var _hmacSha = require('crypto-js/hmac-sha256');
-
-var _hmacSha2 = _interopRequireDefault(_hmacSha);
-
-var _BigInteger = require('./BigInteger');
-
-var _BigInteger2 = _interopRequireDefault(_BigInteger);
+var _BigInteger = _interopRequireDefault(require("./BigInteger"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
-                                                                                                                                                           * Copyright 2016 Amazon.com,
-                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
-                                                                                                                                                           *
-                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
-                                                                                                                                                           * You may not use this file except in compliance with the
-                                                                                                                                                           * License. A copy of the License is located at
-                                                                                                                                                           *
-                                                                                                                                                           *     http://aws.amazon.com/asl/
-                                                                                                                                                           *
-                                                                                                                                                           * or in the "license" file accompanying this file. This file is
-                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
-                                                                                                                                                           * for the specific language governing permissions and
-                                                                                                                                                           * limitations under the License.
-                                                                                                                                                           */
-
-// necessary for crypto js
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+/*!
+ * Copyright 2016 Amazon.com,
+ * Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Amazon Software License (the "License").
+ * You may not use this file except in compliance with the
+ * License. A copy of the License is located at
+ *
+ *     http://aws.amazon.com/asl/
+ *
+ * or in the "license" file accompanying this file. This file is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, express or implied. See the License
+ * for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 
 var randomBytes = function randomBytes(nBytes) {
-	return _buffer.Buffer.from(_core2.default.lib.WordArray.random(nBytes).toString(), 'hex');
+  return _buffer.Buffer.from(_core.default.lib.WordArray.random(nBytes).toString(), 'hex');
 };
 
 var initN = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1' + '29024E088A67CC74020BBEA63B139B22514A08798E3404DD' + 'EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245' + 'E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' + 'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D' + 'C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F' + '83655D23DCA3AD961C62F356208552BB9ED529077096966D' + '670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' + 'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9' + 'DE2BCBF6955817183995497CEA956AE515D2261898FA0510' + '15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64' + 'ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7' + 'ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B' + 'F12FFA06D98A0864D87602733EC86A64521F2B18177B200C' + 'BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31' + '43DB5BFCE0FD108E4B82D120A93AD2CAFFFFFFFFFFFFFFFF';
-
 var newPasswordRequiredChallengeUserAttributePrefix = 'userAttributes.';
-
 /** @class */
 
 var AuthenticationHelper = function () {
-	/**
-  * Constructs a new AuthenticationHelper object
-  * @param {string} PoolName Cognito user pool name.
-  */
-	function AuthenticationHelper(PoolName) {
-		_classCallCheck(this, AuthenticationHelper);
-
-		this.N = new _BigInteger2.default(initN, 16);
-		this.g = new _BigInteger2.default('2', 16);
-		this.k = new _BigInteger2.default(this.hexHash('00' + this.N.toString(16) + '0' + this.g.toString(16)), 16);
-
-		this.smallAValue = this.generateRandomSmallA();
-		this.getLargeAValue(function () {});
-
-		this.infoBits = _buffer.Buffer.from('Caldera Derived Key', 'utf8');
-
-		this.poolName = PoolName;
-	}
-
-	/**
-  * @returns {BigInteger} small A, a random number
-  */
-
-
-	AuthenticationHelper.prototype.getSmallAValue = function getSmallAValue() {
-		return this.smallAValue;
-	};
-
-	/**
-  * @param {nodeCallback<BigInteger>} callback Called with (err, largeAValue)
-  * @returns {void}
-  */
-
-
-	AuthenticationHelper.prototype.getLargeAValue = function getLargeAValue(callback) {
-		var _this = this;
-
-		if (this.largeAValue) {
-			callback(null, this.largeAValue);
-		} else {
-			this.calculateA(this.smallAValue, function (err, largeAValue) {
-				if (err) {
-					callback(err, null);
-				}
-
-				_this.largeAValue = largeAValue;
-				callback(null, _this.largeAValue);
-			});
-		}
-	};
-
-	/**
-  * helper function to generate a random big integer
-  * @returns {BigInteger} a random value.
-  * @private
-  */
-
-
-	AuthenticationHelper.prototype.generateRandomSmallA = function generateRandomSmallA() {
-		var hexRandom = randomBytes(128).toString('hex');
-
-		var randomBigInt = new _BigInteger2.default(hexRandom, 16);
-		var smallABigInt = randomBigInt.mod(this.N);
-
-		return smallABigInt;
-	};
-
-	/**
-  * helper function to generate a random string
-  * @returns {string} a random value.
-  * @private
-  */
-
-
-	AuthenticationHelper.prototype.generateRandomString = function generateRandomString() {
-		return randomBytes(40).toString('base64');
-	};
-
-	/**
-  * @returns {string} Generated random value included in password hash.
-  */
-
-
-	AuthenticationHelper.prototype.getRandomPassword = function getRandomPassword() {
-		return this.randomPassword;
-	};
-
-	/**
-  * @returns {string} Generated random value included in devices hash.
-  */
-
-
-	AuthenticationHelper.prototype.getSaltDevices = function getSaltDevices() {
-		return this.SaltToHashDevices;
-	};
-
-	/**
-  * @returns {string} Value used to verify devices.
-  */
-
-
-	AuthenticationHelper.prototype.getVerifierDevices = function getVerifierDevices() {
-		return this.verifierDevices;
-	};
-
-	/**
-  * Generate salts and compute verifier.
-  * @param {string} deviceGroupKey Devices to generate verifier for.
-  * @param {string} username User to generate verifier for.
-  * @param {nodeCallback<null>} callback Called with (err, null)
-  * @returns {void}
-  */
-
-
-	AuthenticationHelper.prototype.generateHashDevice = function generateHashDevice(deviceGroupKey, username, callback) {
-		var _this2 = this;
-
-		this.randomPassword = this.generateRandomString();
-		var combinedString = '' + deviceGroupKey + username + ':' + this.randomPassword;
-		var hashedString = this.hash(combinedString);
-
-		var hexRandom = randomBytes(16).toString('hex');
-		this.SaltToHashDevices = this.padHex(new _BigInteger2.default(hexRandom, 16));
-
-		this.g.modPow(new _BigInteger2.default(this.hexHash(this.SaltToHashDevices + hashedString), 16), this.N, function (err, verifierDevicesNotPadded) {
-			if (err) {
-				callback(err, null);
-			}
-
-			_this2.verifierDevices = _this2.padHex(verifierDevicesNotPadded);
-			callback(null, null);
-		});
-	};
-
-	/**
-  * Calculate the client's public value A = g^a%N
-  * with the generated random number a
-  * @param {BigInteger} a Randomly generated small A.
-  * @param {nodeCallback<BigInteger>} callback Called with (err, largeAValue)
-  * @returns {void}
-  * @private
-  */
-
-
-	AuthenticationHelper.prototype.calculateA = function calculateA(a, callback) {
-		var _this3 = this;
-
-		this.g.modPow(a, this.N, function (err, A) {
-			if (err) {
-				callback(err, null);
-			}
-
-			if (A.mod(_this3.N).equals(_BigInteger2.default.ZERO)) {
-				callback(new Error('Illegal paramater. A mod N cannot be 0.'), null);
-			}
-
-			callback(null, A);
-		});
-	};
-
-	/**
-  * Calculate the client's value U which is the hash of A and B
-  * @param {BigInteger} A Large A value.
-  * @param {BigInteger} B Server B value.
-  * @returns {BigInteger} Computed U value.
-  * @private
-  */
-
-
-	AuthenticationHelper.prototype.calculateU = function calculateU(A, B) {
-		this.UHexHash = this.hexHash(this.padHex(A) + this.padHex(B));
-		var finalU = new _BigInteger2.default(this.UHexHash, 16);
-
-		return finalU;
-	};
-
-	/**
-  * Calculate a hash from a bitArray
-  * @param {Buffer} buf Value to hash.
-  * @returns {String} Hex-encoded hash.
-  * @private
-  */
-
-
-	AuthenticationHelper.prototype.hash = function hash(buf) {
-		var str = buf instanceof _buffer.Buffer ? _core2.default.lib.WordArray.create(buf) : buf;
-		var hashHex = (0, _sha2.default)(str).toString();
-
-		return new Array(64 - hashHex.length).join('0') + hashHex;
-	};
-
-	/**
-  * Calculate a hash from a hex string
-  * @param {String} hexStr Value to hash.
-  * @returns {String} Hex-encoded hash.
-  * @private
-  */
-
-
-	AuthenticationHelper.prototype.hexHash = function hexHash(hexStr) {
-		return this.hash(_buffer.Buffer.from(hexStr, 'hex'));
-	};
-
-	/**
-  * Standard hkdf algorithm
-  * @param {Buffer} ikm Input key material.
-  * @param {Buffer} salt Salt value.
-  * @returns {Buffer} Strong key material.
-  * @private
-  */
-
-
-	AuthenticationHelper.prototype.computehkdf = function computehkdf(ikm, salt) {
-		var infoBitsWordArray = _core2.default.lib.WordArray.create(_buffer.Buffer.concat([this.infoBits, _buffer.Buffer.from(String.fromCharCode(1), 'utf8')]));
-		var ikmWordArray = ikm instanceof _buffer.Buffer ? _core2.default.lib.WordArray.create(ikm) : ikm;
-		var saltWordArray = salt instanceof _buffer.Buffer ? _core2.default.lib.WordArray.create(salt) : salt;
-
-		var prk = (0, _hmacSha2.default)(ikmWordArray, saltWordArray);
-		var hmac = (0, _hmacSha2.default)(infoBitsWordArray, prk);
-		return _buffer.Buffer.from(hmac.toString(), 'hex').slice(0, 16);
-	};
-
-	/**
-  * Calculates the final hkdf based on computed S value, and computed U value and the key
-  * @param {String} username Username.
-  * @param {String} password Password.
-  * @param {BigInteger} serverBValue Server B value.
-  * @param {BigInteger} salt Generated salt.
-  * @param {nodeCallback<Buffer>} callback Called with (err, hkdfValue)
-  * @returns {void}
-  */
-
-
-	AuthenticationHelper.prototype.getPasswordAuthenticationKey = function getPasswordAuthenticationKey(username, password, serverBValue, salt, callback) {
-		var _this4 = this;
-
-		if (serverBValue.mod(this.N).equals(_BigInteger2.default.ZERO)) {
-			throw new Error('B cannot be zero.');
-		}
-
-		this.UValue = this.calculateU(this.largeAValue, serverBValue);
-
-		if (this.UValue.equals(_BigInteger2.default.ZERO)) {
-			throw new Error('U cannot be zero.');
-		}
-
-		var usernamePassword = '' + this.poolName + username + ':' + password;
-		var usernamePasswordHash = this.hash(usernamePassword);
-
-		var xValue = new _BigInteger2.default(this.hexHash(this.padHex(salt) + usernamePasswordHash), 16);
-		this.calculateS(xValue, serverBValue, function (err, sValue) {
-			if (err) {
-				callback(err, null);
-			}
-
-			var hkdf = _this4.computehkdf(_buffer.Buffer.from(_this4.padHex(sValue), 'hex'), _buffer.Buffer.from(_this4.padHex(_this4.UValue.toString(16)), 'hex'));
-
-			callback(null, hkdf);
-		});
-	};
-
-	/**
-  * Calculates the S value used in getPasswordAuthenticationKey
-  * @param {BigInteger} xValue Salted password hash value.
-  * @param {BigInteger} serverBValue Server B value.
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	AuthenticationHelper.prototype.calculateS = function calculateS(xValue, serverBValue, callback) {
-		var _this5 = this;
-
-		this.g.modPow(xValue, this.N, function (err, gModPowXN) {
-			if (err) {
-				callback(err, null);
-			}
-
-			var intValue2 = serverBValue.subtract(_this5.k.multiply(gModPowXN));
-			intValue2.modPow(_this5.smallAValue.add(_this5.UValue.multiply(xValue)), _this5.N, function (err2, result) {
-				if (err2) {
-					callback(err2, null);
-				}
-
-				callback(null, result.mod(_this5.N));
-			});
-		});
-	};
-
-	/**
-  * Return constant newPasswordRequiredChallengeUserAttributePrefix
-  * @return {newPasswordRequiredChallengeUserAttributePrefix} constant prefix value
-  */
-
-
-	AuthenticationHelper.prototype.getNewPasswordRequiredChallengeUserAttributePrefix = function getNewPasswordRequiredChallengeUserAttributePrefix() {
-		return newPasswordRequiredChallengeUserAttributePrefix;
-	};
-
-	/**
-  * Converts a BigInteger (or hex string) to hex format padded with zeroes for hashing
-  * @param {BigInteger|String} bigInt Number or string to pad.
-  * @returns {String} Padded hex string.
-  */
-
-
-	AuthenticationHelper.prototype.padHex = function padHex(bigInt) {
-		var hashStr = bigInt.toString(16);
-		if (hashStr.length % 2 === 1) {
-			hashStr = '0' + hashStr;
-		} else if ('89ABCDEFabcdef'.indexOf(hashStr[0]) !== -1) {
-			hashStr = '00' + hashStr;
-		}
-		return hashStr;
-	};
-
-	return AuthenticationHelper;
+  /**
+   * Constructs a new AuthenticationHelper object
+   * @param {string} PoolName Cognito user pool name.
+   */
+  function AuthenticationHelper(PoolName) {
+    _classCallCheck(this, AuthenticationHelper);
+
+    this.N = new _BigInteger.default(initN, 16);
+    this.g = new _BigInteger.default('2', 16);
+    this.k = new _BigInteger.default(this.hexHash('00' + this.N.toString(16) + '0' + this.g.toString(16)), 16);
+    this.smallAValue = this.generateRandomSmallA();
+    this.getLargeAValue(function () {});
+    this.infoBits = _buffer.Buffer.from('Caldera Derived Key', 'utf8');
+    this.poolName = PoolName;
+  }
+  /**
+   * @returns {BigInteger} small A, a random number
+   */
+
+
+  AuthenticationHelper.prototype.getSmallAValue = function getSmallAValue() {
+    return this.smallAValue;
+  };
+  /**
+   * @param {nodeCallback<BigInteger>} callback Called with (err, largeAValue)
+   * @returns {void}
+   */
+
+
+  AuthenticationHelper.prototype.getLargeAValue = function getLargeAValue(callback) {
+    var _this = this;
+
+    if (this.largeAValue) {
+      callback(null, this.largeAValue);
+    } else {
+      this.calculateA(this.smallAValue, function (err, largeAValue) {
+        if (err) {
+          callback(err, null);
+        }
+
+        _this.largeAValue = largeAValue;
+        callback(null, _this.largeAValue);
+      });
+    }
+  };
+  /**
+   * helper function to generate a random big integer
+   * @returns {BigInteger} a random value.
+   * @private
+   */
+
+
+  AuthenticationHelper.prototype.generateRandomSmallA = function generateRandomSmallA() {
+    var hexRandom = randomBytes(128).toString('hex');
+    var randomBigInt = new _BigInteger.default(hexRandom, 16);
+    var smallABigInt = randomBigInt.mod(this.N);
+    return smallABigInt;
+  };
+  /**
+   * helper function to generate a random string
+   * @returns {string} a random value.
+   * @private
+   */
+
+
+  AuthenticationHelper.prototype.generateRandomString = function generateRandomString() {
+    return randomBytes(40).toString('base64');
+  };
+  /**
+   * @returns {string} Generated random value included in password hash.
+   */
+
+
+  AuthenticationHelper.prototype.getRandomPassword = function getRandomPassword() {
+    return this.randomPassword;
+  };
+  /**
+   * @returns {string} Generated random value included in devices hash.
+   */
+
+
+  AuthenticationHelper.prototype.getSaltDevices = function getSaltDevices() {
+    return this.SaltToHashDevices;
+  };
+  /**
+   * @returns {string} Value used to verify devices.
+   */
+
+
+  AuthenticationHelper.prototype.getVerifierDevices = function getVerifierDevices() {
+    return this.verifierDevices;
+  };
+  /**
+   * Generate salts and compute verifier.
+   * @param {string} deviceGroupKey Devices to generate verifier for.
+   * @param {string} username User to generate verifier for.
+   * @param {nodeCallback<null>} callback Called with (err, null)
+   * @returns {void}
+   */
+
+
+  AuthenticationHelper.prototype.generateHashDevice = function generateHashDevice(deviceGroupKey, username, callback) {
+    var _this2 = this;
+
+    this.randomPassword = this.generateRandomString();
+    var combinedString = '' + deviceGroupKey + username + ':' + this.randomPassword;
+    var hashedString = this.hash(combinedString);
+    var hexRandom = randomBytes(16).toString('hex');
+    this.SaltToHashDevices = this.padHex(new _BigInteger.default(hexRandom, 16));
+    this.g.modPow(new _BigInteger.default(this.hexHash(this.SaltToHashDevices + hashedString), 16), this.N, function (err, verifierDevicesNotPadded) {
+      if (err) {
+        callback(err, null);
+      }
+
+      _this2.verifierDevices = _this2.padHex(verifierDevicesNotPadded);
+      callback(null, null);
+    });
+  };
+  /**
+   * Calculate the client's public value A = g^a%N
+   * with the generated random number a
+   * @param {BigInteger} a Randomly generated small A.
+   * @param {nodeCallback<BigInteger>} callback Called with (err, largeAValue)
+   * @returns {void}
+   * @private
+   */
+
+
+  AuthenticationHelper.prototype.calculateA = function calculateA(a, callback) {
+    var _this3 = this;
+
+    this.g.modPow(a, this.N, function (err, A) {
+      if (err) {
+        callback(err, null);
+      }
+
+      if (A.mod(_this3.N).equals(_BigInteger.default.ZERO)) {
+        callback(new Error('Illegal paramater. A mod N cannot be 0.'), null);
+      }
+
+      callback(null, A);
+    });
+  };
+  /**
+   * Calculate the client's value U which is the hash of A and B
+   * @param {BigInteger} A Large A value.
+   * @param {BigInteger} B Server B value.
+   * @returns {BigInteger} Computed U value.
+   * @private
+   */
+
+
+  AuthenticationHelper.prototype.calculateU = function calculateU(A, B) {
+    this.UHexHash = this.hexHash(this.padHex(A) + this.padHex(B));
+    var finalU = new _BigInteger.default(this.UHexHash, 16);
+    return finalU;
+  };
+  /**
+   * Calculate a hash from a bitArray
+   * @param {Buffer} buf Value to hash.
+   * @returns {String} Hex-encoded hash.
+   * @private
+   */
+
+
+  AuthenticationHelper.prototype.hash = function hash(buf) {
+    var str = buf instanceof _buffer.Buffer ? _core.default.lib.WordArray.create(buf) : buf;
+    var hashHex = (0, _sha.default)(str).toString();
+    return new Array(64 - hashHex.length).join('0') + hashHex;
+  };
+  /**
+   * Calculate a hash from a hex string
+   * @param {String} hexStr Value to hash.
+   * @returns {String} Hex-encoded hash.
+   * @private
+   */
+
+
+  AuthenticationHelper.prototype.hexHash = function hexHash(hexStr) {
+    return this.hash(_buffer.Buffer.from(hexStr, 'hex'));
+  };
+  /**
+   * Standard hkdf algorithm
+   * @param {Buffer} ikm Input key material.
+   * @param {Buffer} salt Salt value.
+   * @returns {Buffer} Strong key material.
+   * @private
+   */
+
+
+  AuthenticationHelper.prototype.computehkdf = function computehkdf(ikm, salt) {
+    var infoBitsWordArray = _core.default.lib.WordArray.create(_buffer.Buffer.concat([this.infoBits, _buffer.Buffer.from(String.fromCharCode(1), 'utf8')]));
+
+    var ikmWordArray = ikm instanceof _buffer.Buffer ? _core.default.lib.WordArray.create(ikm) : ikm;
+    var saltWordArray = salt instanceof _buffer.Buffer ? _core.default.lib.WordArray.create(salt) : salt;
+    var prk = (0, _hmacSha.default)(ikmWordArray, saltWordArray);
+    var hmac = (0, _hmacSha.default)(infoBitsWordArray, prk);
+    return _buffer.Buffer.from(hmac.toString(), 'hex').slice(0, 16);
+  };
+  /**
+   * Calculates the final hkdf based on computed S value, and computed U value and the key
+   * @param {String} username Username.
+   * @param {String} password Password.
+   * @param {BigInteger} serverBValue Server B value.
+   * @param {BigInteger} salt Generated salt.
+   * @param {nodeCallback<Buffer>} callback Called with (err, hkdfValue)
+   * @returns {void}
+   */
+
+
+  AuthenticationHelper.prototype.getPasswordAuthenticationKey = function getPasswordAuthenticationKey(username, password, serverBValue, salt, callback) {
+    var _this4 = this;
+
+    if (serverBValue.mod(this.N).equals(_BigInteger.default.ZERO)) {
+      throw new Error('B cannot be zero.');
+    }
+
+    this.UValue = this.calculateU(this.largeAValue, serverBValue);
+
+    if (this.UValue.equals(_BigInteger.default.ZERO)) {
+      throw new Error('U cannot be zero.');
+    }
+
+    var usernamePassword = '' + this.poolName + username + ':' + password;
+    var usernamePasswordHash = this.hash(usernamePassword);
+    var xValue = new _BigInteger.default(this.hexHash(this.padHex(salt) + usernamePasswordHash), 16);
+    this.calculateS(xValue, serverBValue, function (err, sValue) {
+      if (err) {
+        callback(err, null);
+      }
+
+      var hkdf = _this4.computehkdf(_buffer.Buffer.from(_this4.padHex(sValue), 'hex'), _buffer.Buffer.from(_this4.padHex(_this4.UValue.toString(16)), 'hex'));
+
+      callback(null, hkdf);
+    });
+  };
+  /**
+   * Calculates the S value used in getPasswordAuthenticationKey
+   * @param {BigInteger} xValue Salted password hash value.
+   * @param {BigInteger} serverBValue Server B value.
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  AuthenticationHelper.prototype.calculateS = function calculateS(xValue, serverBValue, callback) {
+    var _this5 = this;
+
+    this.g.modPow(xValue, this.N, function (err, gModPowXN) {
+      if (err) {
+        callback(err, null);
+      }
+
+      var intValue2 = serverBValue.subtract(_this5.k.multiply(gModPowXN));
+      intValue2.modPow(_this5.smallAValue.add(_this5.UValue.multiply(xValue)), _this5.N, function (err2, result) {
+        if (err2) {
+          callback(err2, null);
+        }
+
+        callback(null, result.mod(_this5.N));
+      });
+    });
+  };
+  /**
+   * Return constant newPasswordRequiredChallengeUserAttributePrefix
+   * @return {newPasswordRequiredChallengeUserAttributePrefix} constant prefix value
+   */
+
+
+  AuthenticationHelper.prototype.getNewPasswordRequiredChallengeUserAttributePrefix = function getNewPasswordRequiredChallengeUserAttributePrefix() {
+    return newPasswordRequiredChallengeUserAttributePrefix;
+  };
+  /**
+   * Converts a BigInteger (or hex string) to hex format padded with zeroes for hashing
+   * @param {BigInteger|String} bigInt Number or string to pad.
+   * @returns {String} Padded hex string.
+   */
+
+
+  AuthenticationHelper.prototype.padHex = function padHex(bigInt) {
+    var hashStr = bigInt.toString(16);
+
+    if (hashStr.length % 2 === 1) {
+      hashStr = '0' + hashStr;
+    } else if ('89ABCDEFabcdef'.indexOf(hashStr[0]) !== -1) {
+      hashStr = '00' + hashStr;
+    }
+
+    return hashStr;
+  };
+
+  return AuthenticationHelper;
 }();
 
-exports.default = AuthenticationHelper;
-},{"./BigInteger":3,"buffer/":19,"crypto-js/core":20,"crypto-js/hmac-sha256":22,"crypto-js/lib-typedarrays":24,"crypto-js/sha256":25}],3:[function(require,module,exports){
-'use strict';
+var _default = AuthenticationHelper;
+exports.default = _default;
 
-exports.__esModule = true;
+},{"./BigInteger":3,"buffer/":19,"crypto-js/core":20,"crypto-js/hmac-sha256":22,"crypto-js/lib-typedarrays":24,"crypto-js/sha256":25}],3:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 // A small implementation of BigInteger based on http://www-cs-students.stanford.edu/~tjw/jsbn/
 //
 // All public methods have been removed except the following:
@@ -496,9 +477,7 @@ exports.__esModule = true;
 //   multiply
 //   divide
 //   modPow
-
-exports.default = BigInteger;
-
+var _default = BigInteger;
 /*
  * Copyright (c) 2003-2005  Tom Wu
  * All Rights Reserved.
@@ -529,470 +508,543 @@ exports.default = BigInteger;
  * All redistributions must retain an intact copy of this copyright notice
  * and disclaimer.
  */
-
 // (public) Constructor
 
+exports.default = _default;
+
 function BigInteger(a, b) {
-	if (a != null) this.fromString(a, b);
-}
+  if (a != null) this.fromString(a, b);
+} // return new, unset BigInteger
 
-// return new, unset BigInteger
+
 function nbi() {
-	return new BigInteger(null);
-}
+  return new BigInteger(null);
+} // Bits per digit
 
-// Bits per digit
-var dbits;
 
-// JavaScript engine analysis
+var dbits; // JavaScript engine analysis
+
 var canary = 0xdeadbeefcafe;
-var j_lm = (canary & 0xffffff) == 0xefcafe;
-
-// am: Compute w_j += (x*this_i), propagate carries,
+var j_lm = (canary & 0xffffff) == 0xefcafe; // am: Compute w_j += (x*this_i), propagate carries,
 // c is initial carry, returns final carry.
 // c < 3*dvalue, x < 2*dvalue, this_i < dvalue
 // We need to select the fastest one that works in this environment.
-
 // am1: use a single mult and divide to get the high bits,
 // max digit bits should be 26 because
 // max internal value = 2*dvalue^2-2*dvalue (< 2^53)
+
 function am1(i, x, w, j, c, n) {
-	while (--n >= 0) {
-		var v = x * this[i++] + w[j] + c;
-		c = Math.floor(v / 0x4000000);
-		w[j++] = v & 0x3ffffff;
-	}
-	return c;
-}
-// am2 avoids a big mult-and-extract completely.
+  while (--n >= 0) {
+    var v = x * this[i++] + w[j] + c;
+    c = Math.floor(v / 0x4000000);
+    w[j++] = v & 0x3ffffff;
+  }
+
+  return c;
+} // am2 avoids a big mult-and-extract completely.
 // Max digit bits should be <= 30 because we do bitwise ops
 // on values up to 2*hdvalue^2-hdvalue-1 (< 2^31)
+
+
 function am2(i, x, w, j, c, n) {
-	var xl = x & 0x7fff,
-	    xh = x >> 15;
-	while (--n >= 0) {
-		var l = this[i] & 0x7fff;
-		var h = this[i++] >> 15;
-		var m = xh * l + h * xl;
-		l = xl * l + ((m & 0x7fff) << 15) + w[j] + (c & 0x3fffffff);
-		c = (l >>> 30) + (m >>> 15) + xh * h + (c >>> 30);
-		w[j++] = l & 0x3fffffff;
-	}
-	return c;
-}
-// Alternately, set max digit bits to 28 since some
+  var xl = x & 0x7fff,
+      xh = x >> 15;
+
+  while (--n >= 0) {
+    var l = this[i] & 0x7fff;
+    var h = this[i++] >> 15;
+    var m = xh * l + h * xl;
+    l = xl * l + ((m & 0x7fff) << 15) + w[j] + (c & 0x3fffffff);
+    c = (l >>> 30) + (m >>> 15) + xh * h + (c >>> 30);
+    w[j++] = l & 0x3fffffff;
+  }
+
+  return c;
+} // Alternately, set max digit bits to 28 since some
 // browsers slow down when dealing with 32-bit numbers.
+
+
 function am3(i, x, w, j, c, n) {
-	var xl = x & 0x3fff,
-	    xh = x >> 14;
-	while (--n >= 0) {
-		var l = this[i] & 0x3fff;
-		var h = this[i++] >> 14;
-		var m = xh * l + h * xl;
-		l = xl * l + ((m & 0x3fff) << 14) + w[j] + c;
-		c = (l >> 28) + (m >> 14) + xh * h;
-		w[j++] = l & 0xfffffff;
-	}
-	return c;
+  var xl = x & 0x3fff,
+      xh = x >> 14;
+
+  while (--n >= 0) {
+    var l = this[i] & 0x3fff;
+    var h = this[i++] >> 14;
+    var m = xh * l + h * xl;
+    l = xl * l + ((m & 0x3fff) << 14) + w[j] + c;
+    c = (l >> 28) + (m >> 14) + xh * h;
+    w[j++] = l & 0xfffffff;
+  }
+
+  return c;
 }
+
 var inBrowser = typeof navigator !== 'undefined';
+
 if (inBrowser && j_lm && navigator.appName == 'Microsoft Internet Explorer') {
-	BigInteger.prototype.am = am2;
-	dbits = 30;
+  BigInteger.prototype.am = am2;
+  dbits = 30;
 } else if (inBrowser && j_lm && navigator.appName != 'Netscape') {
-	BigInteger.prototype.am = am1;
-	dbits = 26;
+  BigInteger.prototype.am = am1;
+  dbits = 26;
 } else {
-	// Mozilla/Netscape seems to prefer am3
-	BigInteger.prototype.am = am3;
-	dbits = 28;
+  // Mozilla/Netscape seems to prefer am3
+  BigInteger.prototype.am = am3;
+  dbits = 28;
 }
 
 BigInteger.prototype.DB = dbits;
 BigInteger.prototype.DM = (1 << dbits) - 1;
 BigInteger.prototype.DV = 1 << dbits;
-
 var BI_FP = 52;
 BigInteger.prototype.FV = Math.pow(2, BI_FP);
 BigInteger.prototype.F1 = BI_FP - dbits;
-BigInteger.prototype.F2 = 2 * dbits - BI_FP;
+BigInteger.prototype.F2 = 2 * dbits - BI_FP; // Digit conversions
 
-// Digit conversions
 var BI_RM = '0123456789abcdefghijklmnopqrstuvwxyz';
 var BI_RC = new Array();
 var rr, vv;
 rr = '0'.charCodeAt(0);
+
 for (vv = 0; vv <= 9; ++vv) {
-	BI_RC[rr++] = vv;
-}rr = 'a'.charCodeAt(0);
-for (vv = 10; vv < 36; ++vv) {
-	BI_RC[rr++] = vv;
-}rr = 'A'.charCodeAt(0);
-for (vv = 10; vv < 36; ++vv) {
-	BI_RC[rr++] = vv;
-}function int2char(n) {
-	return BI_RM.charAt(n);
+  BI_RC[rr++] = vv;
 }
+
+rr = 'a'.charCodeAt(0);
+
+for (vv = 10; vv < 36; ++vv) {
+  BI_RC[rr++] = vv;
+}
+
+rr = 'A'.charCodeAt(0);
+
+for (vv = 10; vv < 36; ++vv) {
+  BI_RC[rr++] = vv;
+}
+
+function int2char(n) {
+  return BI_RM.charAt(n);
+}
+
 function intAt(s, i) {
-	var c = BI_RC[s.charCodeAt(i)];
-	return c == null ? -1 : c;
-}
+  var c = BI_RC[s.charCodeAt(i)];
+  return c == null ? -1 : c;
+} // (protected) copy this to r
 
-// (protected) copy this to r
+
 function bnpCopyTo(r) {
-	for (var i = this.t - 1; i >= 0; --i) {
-		r[i] = this[i];
-	}r.t = this.t;
-	r.s = this.s;
-}
+  for (var i = this.t - 1; i >= 0; --i) {
+    r[i] = this[i];
+  }
 
-// (protected) set from integer value x, -DV <= x < DV
+  r.t = this.t;
+  r.s = this.s;
+} // (protected) set from integer value x, -DV <= x < DV
+
+
 function bnpFromInt(x) {
-	this.t = 1;
-	this.s = x < 0 ? -1 : 0;
-	if (x > 0) this[0] = x;else if (x < -1) this[0] = x + this.DV;else this.t = 0;
-}
+  this.t = 1;
+  this.s = x < 0 ? -1 : 0;
+  if (x > 0) this[0] = x;else if (x < -1) this[0] = x + this.DV;else this.t = 0;
+} // return bigint initialized to value
 
-// return bigint initialized to value
+
 function nbv(i) {
-	var r = nbi();
+  var r = nbi();
+  r.fromInt(i);
+  return r;
+} // (protected) set from string and radix
 
-	r.fromInt(i);
 
-	return r;
-}
-
-// (protected) set from string and radix
 function bnpFromString(s, b) {
-	var k;
-	if (b == 16) k = 4;else if (b == 8) k = 3;else if (b == 2) k = 1;else if (b == 32) k = 5;else if (b == 4) k = 2;else throw new Error('Only radix 2, 4, 8, 16, 32 are supported');
-	this.t = 0;
-	this.s = 0;
-	var i = s.length,
-	    mi = false,
-	    sh = 0;
-	while (--i >= 0) {
-		var x = intAt(s, i);
-		if (x < 0) {
-			if (s.charAt(i) == '-') mi = true;
-			continue;
-		}
-		mi = false;
-		if (sh == 0) this[this.t++] = x;else if (sh + k > this.DB) {
-			this[this.t - 1] |= (x & (1 << this.DB - sh) - 1) << sh;
-			this[this.t++] = x >> this.DB - sh;
-		} else this[this.t - 1] |= x << sh;
-		sh += k;
-		if (sh >= this.DB) sh -= this.DB;
-	}
-	this.clamp();
-	if (mi) BigInteger.ZERO.subTo(this, this);
-}
+  var k;
+  if (b == 16) k = 4;else if (b == 8) k = 3;else if (b == 2) k = 1;else if (b == 32) k = 5;else if (b == 4) k = 2;else throw new Error('Only radix 2, 4, 8, 16, 32 are supported');
+  this.t = 0;
+  this.s = 0;
+  var i = s.length,
+      mi = false,
+      sh = 0;
 
-// (protected) clamp off excess high words
+  while (--i >= 0) {
+    var x = intAt(s, i);
+
+    if (x < 0) {
+      if (s.charAt(i) == '-') mi = true;
+      continue;
+    }
+
+    mi = false;
+    if (sh == 0) this[this.t++] = x;else if (sh + k > this.DB) {
+      this[this.t - 1] |= (x & (1 << this.DB - sh) - 1) << sh;
+      this[this.t++] = x >> this.DB - sh;
+    } else this[this.t - 1] |= x << sh;
+    sh += k;
+    if (sh >= this.DB) sh -= this.DB;
+  }
+
+  this.clamp();
+  if (mi) BigInteger.ZERO.subTo(this, this);
+} // (protected) clamp off excess high words
+
+
 function bnpClamp() {
-	var c = this.s & this.DM;
-	while (this.t > 0 && this[this.t - 1] == c) {
-		--this.t;
-	}
-}
+  var c = this.s & this.DM;
 
-// (public) return string representation in given radix
+  while (this.t > 0 && this[this.t - 1] == c) {
+    --this.t;
+  }
+} // (public) return string representation in given radix
+
+
 function bnToString(b) {
-	if (this.s < 0) return '-' + this.negate().toString();
-	var k;
-	if (b == 16) k = 4;else if (b == 8) k = 3;else if (b == 2) k = 1;else if (b == 32) k = 5;else if (b == 4) k = 2;else throw new Error('Only radix 2, 4, 8, 16, 32 are supported');
-	var km = (1 << k) - 1,
-	    d,
-	    m = false,
-	    r = '',
-	    i = this.t;
-	var p = this.DB - i * this.DB % k;
-	if (i-- > 0) {
-		if (p < this.DB && (d = this[i] >> p) > 0) {
-			m = true;
-			r = int2char(d);
-		}
-		while (i >= 0) {
-			if (p < k) {
-				d = (this[i] & (1 << p) - 1) << k - p;
-				d |= this[--i] >> (p += this.DB - k);
-			} else {
-				d = this[i] >> (p -= k) & km;
-				if (p <= 0) {
-					p += this.DB;
-					--i;
-				}
-			}
-			if (d > 0) m = true;
-			if (m) r += int2char(d);
-		}
-	}
-	return m ? r : '0';
-}
+  if (this.s < 0) return '-' + this.negate().toString();
+  var k;
+  if (b == 16) k = 4;else if (b == 8) k = 3;else if (b == 2) k = 1;else if (b == 32) k = 5;else if (b == 4) k = 2;else throw new Error('Only radix 2, 4, 8, 16, 32 are supported');
+  var km = (1 << k) - 1,
+      d,
+      m = false,
+      r = '',
+      i = this.t;
+  var p = this.DB - i * this.DB % k;
 
-// (public) -this
+  if (i-- > 0) {
+    if (p < this.DB && (d = this[i] >> p) > 0) {
+      m = true;
+      r = int2char(d);
+    }
+
+    while (i >= 0) {
+      if (p < k) {
+        d = (this[i] & (1 << p) - 1) << k - p;
+        d |= this[--i] >> (p += this.DB - k);
+      } else {
+        d = this[i] >> (p -= k) & km;
+
+        if (p <= 0) {
+          p += this.DB;
+          --i;
+        }
+      }
+
+      if (d > 0) m = true;
+      if (m) r += int2char(d);
+    }
+  }
+
+  return m ? r : '0';
+} // (public) -this
+
+
 function bnNegate() {
-	var r = nbi();
+  var r = nbi();
+  BigInteger.ZERO.subTo(this, r);
+  return r;
+} // (public) |this|
 
-	BigInteger.ZERO.subTo(this, r);
 
-	return r;
-}
-
-// (public) |this|
 function bnAbs() {
-	return this.s < 0 ? this.negate() : this;
-}
+  return this.s < 0 ? this.negate() : this;
+} // (public) return + if this > a, - if this < a, 0 if equal
 
-// (public) return + if this > a, - if this < a, 0 if equal
+
 function bnCompareTo(a) {
-	var r = this.s - a.s;
-	if (r != 0) return r;
-	var i = this.t;
-	r = i - a.t;
-	if (r != 0) return this.s < 0 ? -r : r;
-	while (--i >= 0) {
-		if ((r = this[i] - a[i]) != 0) return r;
-	}return 0;
-}
+  var r = this.s - a.s;
+  if (r != 0) return r;
+  var i = this.t;
+  r = i - a.t;
+  if (r != 0) return this.s < 0 ? -r : r;
 
-// returns bit length of the integer x
+  while (--i >= 0) {
+    if ((r = this[i] - a[i]) != 0) return r;
+  }
+
+  return 0;
+} // returns bit length of the integer x
+
+
 function nbits(x) {
-	var r = 1,
-	    t;
-	if ((t = x >>> 16) != 0) {
-		x = t;
-		r += 16;
-	}
-	if ((t = x >> 8) != 0) {
-		x = t;
-		r += 8;
-	}
-	if ((t = x >> 4) != 0) {
-		x = t;
-		r += 4;
-	}
-	if ((t = x >> 2) != 0) {
-		x = t;
-		r += 2;
-	}
-	if ((t = x >> 1) != 0) {
-		x = t;
-		r += 1;
-	}
-	return r;
-}
+  var r = 1,
+      t;
 
-// (public) return the number of bits in "this"
+  if ((t = x >>> 16) != 0) {
+    x = t;
+    r += 16;
+  }
+
+  if ((t = x >> 8) != 0) {
+    x = t;
+    r += 8;
+  }
+
+  if ((t = x >> 4) != 0) {
+    x = t;
+    r += 4;
+  }
+
+  if ((t = x >> 2) != 0) {
+    x = t;
+    r += 2;
+  }
+
+  if ((t = x >> 1) != 0) {
+    x = t;
+    r += 1;
+  }
+
+  return r;
+} // (public) return the number of bits in "this"
+
+
 function bnBitLength() {
-	if (this.t <= 0) return 0;
-	return this.DB * (this.t - 1) + nbits(this[this.t - 1] ^ this.s & this.DM);
-}
+  if (this.t <= 0) return 0;
+  return this.DB * (this.t - 1) + nbits(this[this.t - 1] ^ this.s & this.DM);
+} // (protected) r = this << n*DB
 
-// (protected) r = this << n*DB
+
 function bnpDLShiftTo(n, r) {
-	var i;
-	for (i = this.t - 1; i >= 0; --i) {
-		r[i + n] = this[i];
-	}for (i = n - 1; i >= 0; --i) {
-		r[i] = 0;
-	}r.t = this.t + n;
-	r.s = this.s;
-}
+  var i;
 
-// (protected) r = this >> n*DB
+  for (i = this.t - 1; i >= 0; --i) {
+    r[i + n] = this[i];
+  }
+
+  for (i = n - 1; i >= 0; --i) {
+    r[i] = 0;
+  }
+
+  r.t = this.t + n;
+  r.s = this.s;
+} // (protected) r = this >> n*DB
+
+
 function bnpDRShiftTo(n, r) {
-	for (var i = n; i < this.t; ++i) {
-		r[i - n] = this[i];
-	}r.t = Math.max(this.t - n, 0);
-	r.s = this.s;
-}
+  for (var i = n; i < this.t; ++i) {
+    r[i - n] = this[i];
+  }
 
-// (protected) r = this << n
+  r.t = Math.max(this.t - n, 0);
+  r.s = this.s;
+} // (protected) r = this << n
+
+
 function bnpLShiftTo(n, r) {
-	var bs = n % this.DB;
-	var cbs = this.DB - bs;
-	var bm = (1 << cbs) - 1;
-	var ds = Math.floor(n / this.DB),
-	    c = this.s << bs & this.DM,
-	    i;
-	for (i = this.t - 1; i >= 0; --i) {
-		r[i + ds + 1] = this[i] >> cbs | c;
-		c = (this[i] & bm) << bs;
-	}
-	for (i = ds - 1; i >= 0; --i) {
-		r[i] = 0;
-	}r[ds] = c;
-	r.t = this.t + ds + 1;
-	r.s = this.s;
-	r.clamp();
-}
+  var bs = n % this.DB;
+  var cbs = this.DB - bs;
+  var bm = (1 << cbs) - 1;
+  var ds = Math.floor(n / this.DB),
+      c = this.s << bs & this.DM,
+      i;
 
-// (protected) r = this >> n
+  for (i = this.t - 1; i >= 0; --i) {
+    r[i + ds + 1] = this[i] >> cbs | c;
+    c = (this[i] & bm) << bs;
+  }
+
+  for (i = ds - 1; i >= 0; --i) {
+    r[i] = 0;
+  }
+
+  r[ds] = c;
+  r.t = this.t + ds + 1;
+  r.s = this.s;
+  r.clamp();
+} // (protected) r = this >> n
+
+
 function bnpRShiftTo(n, r) {
-	r.s = this.s;
-	var ds = Math.floor(n / this.DB);
-	if (ds >= this.t) {
-		r.t = 0;
-		return;
-	}
-	var bs = n % this.DB;
-	var cbs = this.DB - bs;
-	var bm = (1 << bs) - 1;
-	r[0] = this[ds] >> bs;
-	for (var i = ds + 1; i < this.t; ++i) {
-		r[i - ds - 1] |= (this[i] & bm) << cbs;
-		r[i - ds] = this[i] >> bs;
-	}
-	if (bs > 0) r[this.t - ds - 1] |= (this.s & bm) << cbs;
-	r.t = this.t - ds;
-	r.clamp();
-}
+  r.s = this.s;
+  var ds = Math.floor(n / this.DB);
 
-// (protected) r = this - a
+  if (ds >= this.t) {
+    r.t = 0;
+    return;
+  }
+
+  var bs = n % this.DB;
+  var cbs = this.DB - bs;
+  var bm = (1 << bs) - 1;
+  r[0] = this[ds] >> bs;
+
+  for (var i = ds + 1; i < this.t; ++i) {
+    r[i - ds - 1] |= (this[i] & bm) << cbs;
+    r[i - ds] = this[i] >> bs;
+  }
+
+  if (bs > 0) r[this.t - ds - 1] |= (this.s & bm) << cbs;
+  r.t = this.t - ds;
+  r.clamp();
+} // (protected) r = this - a
+
+
 function bnpSubTo(a, r) {
-	var i = 0,
-	    c = 0,
-	    m = Math.min(a.t, this.t);
-	while (i < m) {
-		c += this[i] - a[i];
-		r[i++] = c & this.DM;
-		c >>= this.DB;
-	}
-	if (a.t < this.t) {
-		c -= a.s;
-		while (i < this.t) {
-			c += this[i];
-			r[i++] = c & this.DM;
-			c >>= this.DB;
-		}
-		c += this.s;
-	} else {
-		c += this.s;
-		while (i < a.t) {
-			c -= a[i];
-			r[i++] = c & this.DM;
-			c >>= this.DB;
-		}
-		c -= a.s;
-	}
-	r.s = c < 0 ? -1 : 0;
-	if (c < -1) r[i++] = this.DV + c;else if (c > 0) r[i++] = c;
-	r.t = i;
-	r.clamp();
-}
+  var i = 0,
+      c = 0,
+      m = Math.min(a.t, this.t);
 
-// (protected) r = this * a, r != this,a (HAC 14.12)
+  while (i < m) {
+    c += this[i] - a[i];
+    r[i++] = c & this.DM;
+    c >>= this.DB;
+  }
+
+  if (a.t < this.t) {
+    c -= a.s;
+
+    while (i < this.t) {
+      c += this[i];
+      r[i++] = c & this.DM;
+      c >>= this.DB;
+    }
+
+    c += this.s;
+  } else {
+    c += this.s;
+
+    while (i < a.t) {
+      c -= a[i];
+      r[i++] = c & this.DM;
+      c >>= this.DB;
+    }
+
+    c -= a.s;
+  }
+
+  r.s = c < 0 ? -1 : 0;
+  if (c < -1) r[i++] = this.DV + c;else if (c > 0) r[i++] = c;
+  r.t = i;
+  r.clamp();
+} // (protected) r = this * a, r != this,a (HAC 14.12)
 // "this" should be the larger one if appropriate.
+
+
 function bnpMultiplyTo(a, r) {
-	var x = this.abs(),
-	    y = a.abs();
-	var i = x.t;
-	r.t = i + y.t;
-	while (--i >= 0) {
-		r[i] = 0;
-	}for (i = 0; i < y.t; ++i) {
-		r[i + x.t] = x.am(0, y[i], r, i, 0, x.t);
-	}r.s = 0;
-	r.clamp();
-	if (this.s != a.s) BigInteger.ZERO.subTo(r, r);
-}
+  var x = this.abs(),
+      y = a.abs();
+  var i = x.t;
+  r.t = i + y.t;
 
-// (protected) r = this^2, r != this (HAC 14.16)
+  while (--i >= 0) {
+    r[i] = 0;
+  }
+
+  for (i = 0; i < y.t; ++i) {
+    r[i + x.t] = x.am(0, y[i], r, i, 0, x.t);
+  }
+
+  r.s = 0;
+  r.clamp();
+  if (this.s != a.s) BigInteger.ZERO.subTo(r, r);
+} // (protected) r = this^2, r != this (HAC 14.16)
+
+
 function bnpSquareTo(r) {
-	var x = this.abs();
-	var i = r.t = 2 * x.t;
-	while (--i >= 0) {
-		r[i] = 0;
-	}for (i = 0; i < x.t - 1; ++i) {
-		var c = x.am(i, x[i], r, 2 * i, 0, 1);
-		if ((r[i + x.t] += x.am(i + 1, 2 * x[i], r, 2 * i + 1, c, x.t - i - 1)) >= x.DV) {
-			r[i + x.t] -= x.DV;
-			r[i + x.t + 1] = 1;
-		}
-	}
-	if (r.t > 0) r[r.t - 1] += x.am(i, x[i], r, 2 * i, 0, 1);
-	r.s = 0;
-	r.clamp();
-}
+  var x = this.abs();
+  var i = r.t = 2 * x.t;
 
-// (protected) divide this by m, quotient and remainder to q, r (HAC 14.20)
+  while (--i >= 0) {
+    r[i] = 0;
+  }
+
+  for (i = 0; i < x.t - 1; ++i) {
+    var c = x.am(i, x[i], r, 2 * i, 0, 1);
+
+    if ((r[i + x.t] += x.am(i + 1, 2 * x[i], r, 2 * i + 1, c, x.t - i - 1)) >= x.DV) {
+      r[i + x.t] -= x.DV;
+      r[i + x.t + 1] = 1;
+    }
+  }
+
+  if (r.t > 0) r[r.t - 1] += x.am(i, x[i], r, 2 * i, 0, 1);
+  r.s = 0;
+  r.clamp();
+} // (protected) divide this by m, quotient and remainder to q, r (HAC 14.20)
 // r != q, this != m.  q or r may be null.
+
+
 function bnpDivRemTo(m, q, r) {
-	var pm = m.abs();
-	if (pm.t <= 0) return;
-	var pt = this.abs();
-	if (pt.t < pm.t) {
-		if (q != null) q.fromInt(0);
-		if (r != null) this.copyTo(r);
-		return;
-	}
-	if (r == null) r = nbi();
-	var y = nbi(),
-	    ts = this.s,
-	    ms = m.s;
-	var nsh = this.DB - nbits(pm[pm.t - 1]);
-	// normalize modulus
-	if (nsh > 0) {
-		pm.lShiftTo(nsh, y);
-		pt.lShiftTo(nsh, r);
-	} else {
-		pm.copyTo(y);
-		pt.copyTo(r);
-	}
-	var ys = y.t;
-	var y0 = y[ys - 1];
-	if (y0 == 0) return;
-	var yt = y0 * (1 << this.F1) + (ys > 1 ? y[ys - 2] >> this.F2 : 0);
-	var d1 = this.FV / yt,
-	    d2 = (1 << this.F1) / yt,
-	    e = 1 << this.F2;
-	var i = r.t,
-	    j = i - ys,
-	    t = q == null ? nbi() : q;
-	y.dlShiftTo(j, t);
-	if (r.compareTo(t) >= 0) {
-		r[r.t++] = 1;
-		r.subTo(t, r);
-	}
-	BigInteger.ONE.dlShiftTo(ys, t);
-	t.subTo(y, y);
-	// "negative" y so we can replace sub with am later
-	while (y.t < ys) {
-		y[y.t++] = 0;
-	}while (--j >= 0) {
-		// Estimate quotient digit
-		var qd = r[--i] == y0 ? this.DM : Math.floor(r[i] * d1 + (r[i - 1] + e) * d2);
-		if ((r[i] += y.am(0, qd, r, j, 0, ys)) < qd) {
-			// Try it out
-			y.dlShiftTo(j, t);
-			r.subTo(t, r);
-			while (r[i] < --qd) {
-				r.subTo(t, r);
-			}
-		}
-	}
-	if (q != null) {
-		r.drShiftTo(ys, q);
-		if (ts != ms) BigInteger.ZERO.subTo(q, q);
-	}
-	r.t = ys;
-	r.clamp();
-	if (nsh > 0) r.rShiftTo(nsh, r);
-	// Denormalize remainder
-	if (ts < 0) BigInteger.ZERO.subTo(r, r);
-}
+  var pm = m.abs();
+  if (pm.t <= 0) return;
+  var pt = this.abs();
 
-// (public) this mod a
+  if (pt.t < pm.t) {
+    if (q != null) q.fromInt(0);
+    if (r != null) this.copyTo(r);
+    return;
+  }
+
+  if (r == null) r = nbi();
+  var y = nbi(),
+      ts = this.s,
+      ms = m.s;
+  var nsh = this.DB - nbits(pm[pm.t - 1]); // normalize modulus
+
+  if (nsh > 0) {
+    pm.lShiftTo(nsh, y);
+    pt.lShiftTo(nsh, r);
+  } else {
+    pm.copyTo(y);
+    pt.copyTo(r);
+  }
+
+  var ys = y.t;
+  var y0 = y[ys - 1];
+  if (y0 == 0) return;
+  var yt = y0 * (1 << this.F1) + (ys > 1 ? y[ys - 2] >> this.F2 : 0);
+  var d1 = this.FV / yt,
+      d2 = (1 << this.F1) / yt,
+      e = 1 << this.F2;
+  var i = r.t,
+      j = i - ys,
+      t = q == null ? nbi() : q;
+  y.dlShiftTo(j, t);
+
+  if (r.compareTo(t) >= 0) {
+    r[r.t++] = 1;
+    r.subTo(t, r);
+  }
+
+  BigInteger.ONE.dlShiftTo(ys, t);
+  t.subTo(y, y); // "negative" y so we can replace sub with am later
+
+  while (y.t < ys) {
+    y[y.t++] = 0;
+  }
+
+  while (--j >= 0) {
+    // Estimate quotient digit
+    var qd = r[--i] == y0 ? this.DM : Math.floor(r[i] * d1 + (r[i - 1] + e) * d2);
+
+    if ((r[i] += y.am(0, qd, r, j, 0, ys)) < qd) {
+      // Try it out
+      y.dlShiftTo(j, t);
+      r.subTo(t, r);
+
+      while (r[i] < --qd) {
+        r.subTo(t, r);
+      }
+    }
+  }
+
+  if (q != null) {
+    r.drShiftTo(ys, q);
+    if (ts != ms) BigInteger.ZERO.subTo(q, q);
+  }
+
+  r.t = ys;
+  r.clamp();
+  if (nsh > 0) r.rShiftTo(nsh, r); // Denormalize remainder
+
+  if (ts < 0) BigInteger.ZERO.subTo(r, r);
+} // (public) this mod a
+
+
 function bnMod(a) {
-	var r = nbi();
-	this.abs().divRemTo(a, null, r);
-	if (this.s < 0 && r.compareTo(BigInteger.ZERO) > 0) a.subTo(r, r);
-	return r;
-}
-
-// (protected) return "-1/this % 2^DB"; useful for Mont. reduction
+  var r = nbi();
+  this.abs().divRemTo(a, null, r);
+  if (this.s < 0 && r.compareTo(BigInteger.ZERO) > 0) a.subTo(r, r);
+  return r;
+} // (protected) return "-1/this % 2^DB"; useful for Mont. reduction
 // justification:
 //         xy == 1 (mod m)
 //         xy =  1+km
@@ -1002,249 +1054,257 @@ function bnMod(a) {
 // if y is 1/x mod m, then y(2-xy) is 1/x mod m^2
 // should reduce x and y(2-xy) by m^2 at each step to keep size bounded.
 // JS multiply "overflows" differently from C/C++, so care is needed here.
+
+
 function bnpInvDigit() {
-	if (this.t < 1) return 0;
-	var x = this[0];
-	if ((x & 1) == 0) return 0;
-	var y = x & 3;
-	// y == 1/x mod 2^2
-	y = y * (2 - (x & 0xf) * y) & 0xf;
-	// y == 1/x mod 2^4
-	y = y * (2 - (x & 0xff) * y) & 0xff;
-	// y == 1/x mod 2^8
-	y = y * (2 - ((x & 0xffff) * y & 0xffff)) & 0xffff;
-	// y == 1/x mod 2^16
-	// last step - calculate inverse mod DV directly;
-	// assumes 16 < DB <= 32 and assumes ability to handle 48-bit ints
-	y = y * (2 - x * y % this.DV) % this.DV;
-	// y == 1/x mod 2^dbits
-	// we really want the negative inverse, and -DV < y < DV
-	return y > 0 ? this.DV - y : -y;
+  if (this.t < 1) return 0;
+  var x = this[0];
+  if ((x & 1) == 0) return 0;
+  var y = x & 3; // y == 1/x mod 2^2
+
+  y = y * (2 - (x & 0xf) * y) & 0xf; // y == 1/x mod 2^4
+
+  y = y * (2 - (x & 0xff) * y) & 0xff; // y == 1/x mod 2^8
+
+  y = y * (2 - ((x & 0xffff) * y & 0xffff)) & 0xffff; // y == 1/x mod 2^16
+  // last step - calculate inverse mod DV directly;
+  // assumes 16 < DB <= 32 and assumes ability to handle 48-bit ints
+
+  y = y * (2 - x * y % this.DV) % this.DV; // y == 1/x mod 2^dbits
+  // we really want the negative inverse, and -DV < y < DV
+
+  return y > 0 ? this.DV - y : -y;
 }
 
 function bnEquals(a) {
-	return this.compareTo(a) == 0;
-}
+  return this.compareTo(a) == 0;
+} // (protected) r = this + a
 
-// (protected) r = this + a
+
 function bnpAddTo(a, r) {
-	var i = 0,
-	    c = 0,
-	    m = Math.min(a.t, this.t);
-	while (i < m) {
-		c += this[i] + a[i];
-		r[i++] = c & this.DM;
-		c >>= this.DB;
-	}
-	if (a.t < this.t) {
-		c += a.s;
-		while (i < this.t) {
-			c += this[i];
-			r[i++] = c & this.DM;
-			c >>= this.DB;
-		}
-		c += this.s;
-	} else {
-		c += this.s;
-		while (i < a.t) {
-			c += a[i];
-			r[i++] = c & this.DM;
-			c >>= this.DB;
-		}
-		c += a.s;
-	}
-	r.s = c < 0 ? -1 : 0;
-	if (c > 0) r[i++] = c;else if (c < -1) r[i++] = this.DV + c;
-	r.t = i;
-	r.clamp();
-}
+  var i = 0,
+      c = 0,
+      m = Math.min(a.t, this.t);
 
-// (public) this + a
+  while (i < m) {
+    c += this[i] + a[i];
+    r[i++] = c & this.DM;
+    c >>= this.DB;
+  }
+
+  if (a.t < this.t) {
+    c += a.s;
+
+    while (i < this.t) {
+      c += this[i];
+      r[i++] = c & this.DM;
+      c >>= this.DB;
+    }
+
+    c += this.s;
+  } else {
+    c += this.s;
+
+    while (i < a.t) {
+      c += a[i];
+      r[i++] = c & this.DM;
+      c >>= this.DB;
+    }
+
+    c += a.s;
+  }
+
+  r.s = c < 0 ? -1 : 0;
+  if (c > 0) r[i++] = c;else if (c < -1) r[i++] = this.DV + c;
+  r.t = i;
+  r.clamp();
+} // (public) this + a
+
+
 function bnAdd(a) {
-	var r = nbi();
+  var r = nbi();
+  this.addTo(a, r);
+  return r;
+} // (public) this - a
 
-	this.addTo(a, r);
 
-	return r;
-}
-
-// (public) this - a
 function bnSubtract(a) {
-	var r = nbi();
+  var r = nbi();
+  this.subTo(a, r);
+  return r;
+} // (public) this * a
 
-	this.subTo(a, r);
 
-	return r;
-}
-
-// (public) this * a
 function bnMultiply(a) {
-	var r = nbi();
+  var r = nbi();
+  this.multiplyTo(a, r);
+  return r;
+} // (public) this / a
 
-	this.multiplyTo(a, r);
 
-	return r;
-}
-
-// (public) this / a
 function bnDivide(a) {
-	var r = nbi();
+  var r = nbi();
+  this.divRemTo(a, r, null);
+  return r;
+} // Montgomery reduction
 
-	this.divRemTo(a, r, null);
 
-	return r;
-}
-
-// Montgomery reduction
 function Montgomery(m) {
-	this.m = m;
-	this.mp = m.invDigit();
-	this.mpl = this.mp & 0x7fff;
-	this.mph = this.mp >> 15;
-	this.um = (1 << m.DB - 15) - 1;
-	this.mt2 = 2 * m.t;
-}
+  this.m = m;
+  this.mp = m.invDigit();
+  this.mpl = this.mp & 0x7fff;
+  this.mph = this.mp >> 15;
+  this.um = (1 << m.DB - 15) - 1;
+  this.mt2 = 2 * m.t;
+} // xR mod m
 
-// xR mod m
+
 function montConvert(x) {
-	var r = nbi();
-	x.abs().dlShiftTo(this.m.t, r);
-	r.divRemTo(this.m, null, r);
-	if (x.s < 0 && r.compareTo(BigInteger.ZERO) > 0) this.m.subTo(r, r);
-	return r;
-}
+  var r = nbi();
+  x.abs().dlShiftTo(this.m.t, r);
+  r.divRemTo(this.m, null, r);
+  if (x.s < 0 && r.compareTo(BigInteger.ZERO) > 0) this.m.subTo(r, r);
+  return r;
+} // x/R mod m
 
-// x/R mod m
+
 function montRevert(x) {
-	var r = nbi();
-	x.copyTo(r);
-	this.reduce(r);
-	return r;
-}
+  var r = nbi();
+  x.copyTo(r);
+  this.reduce(r);
+  return r;
+} // x = x/R mod m (HAC 14.32)
 
-// x = x/R mod m (HAC 14.32)
+
 function montReduce(x) {
-	while (x.t <= this.mt2) {
-		// pad x so am has enough room later
-		x[x.t++] = 0;
-	}for (var i = 0; i < this.m.t; ++i) {
-		// faster way of calculating u0 = x[i]*mp mod DV
-		var j = x[i] & 0x7fff;
-		var u0 = j * this.mpl + ((j * this.mph + (x[i] >> 15) * this.mpl & this.um) << 15) & x.DM;
-		// use am to combine the multiply-shift-add into one call
-		j = i + this.m.t;
-		x[j] += this.m.am(0, u0, x, i, 0, this.m.t);
-		// propagate carry
-		while (x[j] >= x.DV) {
-			x[j] -= x.DV;
-			x[++j]++;
-		}
-	}
-	x.clamp();
-	x.drShiftTo(this.m.t, x);
-	if (x.compareTo(this.m) >= 0) x.subTo(this.m, x);
-}
+  while (x.t <= this.mt2) {
+    // pad x so am has enough room later
+    x[x.t++] = 0;
+  }
 
-// r = "x^2/R mod m"; x != r
+  for (var i = 0; i < this.m.t; ++i) {
+    // faster way of calculating u0 = x[i]*mp mod DV
+    var j = x[i] & 0x7fff;
+    var u0 = j * this.mpl + ((j * this.mph + (x[i] >> 15) * this.mpl & this.um) << 15) & x.DM; // use am to combine the multiply-shift-add into one call
+
+    j = i + this.m.t;
+    x[j] += this.m.am(0, u0, x, i, 0, this.m.t); // propagate carry
+
+    while (x[j] >= x.DV) {
+      x[j] -= x.DV;
+      x[++j]++;
+    }
+  }
+
+  x.clamp();
+  x.drShiftTo(this.m.t, x);
+  if (x.compareTo(this.m) >= 0) x.subTo(this.m, x);
+} // r = "x^2/R mod m"; x != r
+
+
 function montSqrTo(x, r) {
-	x.squareTo(r);
+  x.squareTo(r);
+  this.reduce(r);
+} // r = "xy/R mod m"; x,y != r
 
-	this.reduce(r);
-}
 
-// r = "xy/R mod m"; x,y != r
 function montMulTo(x, y, r) {
-	x.multiplyTo(y, r);
-
-	this.reduce(r);
+  x.multiplyTo(y, r);
+  this.reduce(r);
 }
 
 Montgomery.prototype.convert = montConvert;
 Montgomery.prototype.revert = montRevert;
 Montgomery.prototype.reduce = montReduce;
 Montgomery.prototype.mulTo = montMulTo;
-Montgomery.prototype.sqrTo = montSqrTo;
+Montgomery.prototype.sqrTo = montSqrTo; // (public) this^e % m (HAC 14.85)
 
-// (public) this^e % m (HAC 14.85)
 function bnModPow(e, m, callback) {
-	var i = e.bitLength(),
-	    k,
-	    r = nbv(1),
-	    z = new Montgomery(m);
-	if (i <= 0) return r;else if (i < 18) k = 1;else if (i < 48) k = 3;else if (i < 144) k = 4;else if (i < 768) k = 5;else k = 6;
+  var i = e.bitLength(),
+      k,
+      r = nbv(1),
+      z = new Montgomery(m);
+  if (i <= 0) return r;else if (i < 18) k = 1;else if (i < 48) k = 3;else if (i < 144) k = 4;else if (i < 768) k = 5;else k = 6; // precomputation
 
-	// precomputation
-	var g = new Array(),
-	    n = 3,
-	    k1 = k - 1,
-	    km = (1 << k) - 1;
-	g[1] = z.convert(this);
-	if (k > 1) {
-		var g2 = nbi();
-		z.sqrTo(g[1], g2);
-		while (n <= km) {
-			g[n] = nbi();
-			z.mulTo(g2, g[n - 2], g[n]);
-			n += 2;
-		}
-	}
+  var g = new Array(),
+      n = 3,
+      k1 = k - 1,
+      km = (1 << k) - 1;
+  g[1] = z.convert(this);
 
-	var j = e.t - 1,
-	    w,
-	    is1 = true,
-	    r2 = nbi(),
-	    t;
-	i = nbits(e[j]) - 1;
-	while (j >= 0) {
-		if (i >= k1) w = e[j] >> i - k1 & km;else {
-			w = (e[j] & (1 << i + 1) - 1) << k1 - i;
-			if (j > 0) w |= e[j - 1] >> this.DB + i - k1;
-		}
+  if (k > 1) {
+    var g2 = nbi();
+    z.sqrTo(g[1], g2);
 
-		n = k;
-		while ((w & 1) == 0) {
-			w >>= 1;
-			--n;
-		}
-		if ((i -= n) < 0) {
-			i += this.DB;
-			--j;
-		}
-		if (is1) {
-			// ret == 1, don't bother squaring or multiplying it
-			g[w].copyTo(r);
-			is1 = false;
-		} else {
-			while (n > 1) {
-				z.sqrTo(r, r2);
-				z.sqrTo(r2, r);
-				n -= 2;
-			}
-			if (n > 0) z.sqrTo(r, r2);else {
-				t = r;
-				r = r2;
-				r2 = t;
-			}
-			z.mulTo(r2, g[w], r);
-		}
+    while (n <= km) {
+      g[n] = nbi();
+      z.mulTo(g2, g[n - 2], g[n]);
+      n += 2;
+    }
+  }
 
-		while (j >= 0 && (e[j] & 1 << i) == 0) {
-			z.sqrTo(r, r2);
-			t = r;
-			r = r2;
-			r2 = t;
-			if (--i < 0) {
-				i = this.DB - 1;
-				--j;
-			}
-		}
-	}
-	var result = z.revert(r);
-	callback(null, result);
-	return result;
-}
+  var j = e.t - 1,
+      w,
+      is1 = true,
+      r2 = nbi(),
+      t;
+  i = nbits(e[j]) - 1;
 
-// protected
+  while (j >= 0) {
+    if (i >= k1) w = e[j] >> i - k1 & km;else {
+      w = (e[j] & (1 << i + 1) - 1) << k1 - i;
+      if (j > 0) w |= e[j - 1] >> this.DB + i - k1;
+    }
+    n = k;
+
+    while ((w & 1) == 0) {
+      w >>= 1;
+      --n;
+    }
+
+    if ((i -= n) < 0) {
+      i += this.DB;
+      --j;
+    }
+
+    if (is1) {
+      // ret == 1, don't bother squaring or multiplying it
+      g[w].copyTo(r);
+      is1 = false;
+    } else {
+      while (n > 1) {
+        z.sqrTo(r, r2);
+        z.sqrTo(r2, r);
+        n -= 2;
+      }
+
+      if (n > 0) z.sqrTo(r, r2);else {
+        t = r;
+        r = r2;
+        r2 = t;
+      }
+      z.mulTo(r2, g[w], r);
+    }
+
+    while (j >= 0 && (e[j] & 1 << i) == 0) {
+      z.sqrTo(r, r2);
+      t = r;
+      r = r2;
+      r2 = t;
+
+      if (--i < 0) {
+        i = this.DB - 1;
+        --j;
+      }
+    }
+  }
+
+  var result = z.revert(r);
+  callback(null, result);
+  return result;
+} // protected
+
+
 BigInteger.prototype.copyTo = bnpCopyTo;
 BigInteger.prototype.fromInt = bnpFromInt;
 BigInteger.prototype.fromString = bnpFromString;
@@ -1258,9 +1318,8 @@ BigInteger.prototype.multiplyTo = bnpMultiplyTo;
 BigInteger.prototype.squareTo = bnpSquareTo;
 BigInteger.prototype.divRemTo = bnpDivRemTo;
 BigInteger.prototype.invDigit = bnpInvDigit;
-BigInteger.prototype.addTo = bnpAddTo;
+BigInteger.prototype.addTo = bnpAddTo; // public
 
-// public
 BigInteger.prototype.toString = bnToString;
 BigInteger.prototype.negate = bnNegate;
 BigInteger.prototype.abs = bnAbs;
@@ -1272,167 +1331,198 @@ BigInteger.prototype.add = bnAdd;
 BigInteger.prototype.subtract = bnSubtract;
 BigInteger.prototype.multiply = bnMultiply;
 BigInteger.prototype.divide = bnDivide;
-BigInteger.prototype.modPow = bnModPow;
+BigInteger.prototype.modPow = bnModPow; // "constants"
 
-// "constants"
 BigInteger.ZERO = nbv(0);
 BigInteger.ONE = nbv(1);
+
 },{}],4:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-var _UserAgent = require('./UserAgent');
-
-var _UserAgent2 = _interopRequireDefault(_UserAgent);
+var _UserAgent = _interopRequireDefault(require("./UserAgent"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
 /** @class */
 var Client = function () {
-	/**
-  * Constructs a new AWS Cognito Identity Provider client object
-  * @param {string} region AWS region
-  * @param {string} endpoint endpoint
-  */
-	function Client(region, endpoint) {
-		_classCallCheck(this, Client);
+  /**
+   * Constructs a new AWS Cognito Identity Provider client object
+   * @param {string} region AWS region
+   * @param {string} endpoint endpoint
+   */
+  function Client(region, endpoint) {
+    _classCallCheck(this, Client);
 
-		this.endpoint = endpoint || 'https://cognito-idp.' + region + '.amazonaws.com/';
-		this.userAgent = _UserAgent2.default.prototype.userAgent || 'aws-amplify/0.1.x js';
-	}
+    this.endpoint = endpoint || 'https://cognito-idp.' + region + '.amazonaws.com/';
+    this.userAgent = _UserAgent.default.prototype.userAgent || 'aws-amplify/0.1.x js';
+  }
+  /**
+   * Makes an unauthenticated request on AWS Cognito Identity Provider API
+   * using fetch
+   * @param {string} operation API operation
+   * @param {object} params Input parameters
+   * @param {function} callback Callback called when a response is returned
+   * @returns {void}
+   */
 
-	/**
-  * Makes an unauthenticated request on AWS Cognito Identity Provider API
-  * using fetch
-  * @param {string} operation API operation
-  * @param {object} params Input parameters
-  * @param {function} callback Callback called when a response is returned
-  * @returns {void}
-  */
 
+  Client.prototype.request = function request(operation, params, callback) {
+    var headers = {
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.' + operation,
+      'X-Amz-User-Agent': this.userAgent
+    };
+    var options = {
+      headers: headers,
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-cache',
+      body: JSON.stringify(params)
+    };
+    var response = void 0;
+    var responseJsonData = void 0;
+    fetch(this.endpoint, options).then(function (resp) {
+      response = resp;
+      return resp;
+    }, function (err) {
+      // If error happens here, the request failed
+      // if it is TypeError throw network error
+      if (err instanceof TypeError) {
+        throw new Error('Network error');
+      }
 
-	Client.prototype.request = function request(operation, params, callback) {
-		var headers = {
-			'Content-Type': 'application/x-amz-json-1.1',
-			'X-Amz-Target': 'AWSCognitoIdentityProviderService.' + operation,
-			'X-Amz-User-Agent': this.userAgent
-		};
+      throw err;
+    }).then(function (resp) {
+      return resp.json().catch(function () {
+        return {};
+      });
+    }).then(function (data) {
+      // return parsed body stream
+      if (response.ok) return callback(null, data);
+      responseJsonData = data; // Taken from aws-sdk-js/lib/protocol/json.js
+      // eslint-disable-next-line no-underscore-dangle
 
-		var options = {
-			headers: headers,
-			method: 'POST',
-			mode: 'cors',
-			cache: 'no-cache',
-			body: JSON.stringify(params)
-		};
+      var code = (data.__type || data.code).split('#').pop();
+      var error = {
+        code: code,
+        name: code,
+        message: data.message || data.Message || null
+      };
+      return callback(error);
+    }).catch(function (err) {
+      // first check if we have a service error
+      if (response && response.headers && response.headers.get('x-amzn-errortype')) {
+        try {
+          var code = response.headers.get('x-amzn-errortype').split(':')[0];
+          var error = {
+            code: code,
+            name: code,
+            statusCode: response.status,
+            message: response.status ? response.status.toString() : null
+          };
+          return callback(error);
+        } catch (ex) {
+          return callback(err);
+        } // otherwise check if error is Network error
 
-		var response = void 0;
-		var responseJsonData = void 0;
+      } else if (err instanceof Error && err.message === 'Network error') {
+        var _error = {
+          code: 'NetworkError',
+          name: err.name,
+          message: err.message
+        };
+        return callback(_error);
+      } else {
+        return callback(err);
+      }
+    });
+  };
 
-		fetch(this.endpoint, options).then(function (resp) {
-			response = resp;
-			return resp;
-		}, function (err) {
-			// If error happens here, the request failed
-			// if it is TypeError throw network error
-			if (err instanceof TypeError) {
-				throw new Error('Network error');
-			}
-			throw err;
-		}).then(function (resp) {
-			return resp.json().catch(function () {
-				return {};
-			});
-		}).then(function (data) {
-			// return parsed body stream
-			if (response.ok) return callback(null, data);
-			responseJsonData = data;
-
-			// Taken from aws-sdk-js/lib/protocol/json.js
-			// eslint-disable-next-line no-underscore-dangle
-			var code = (data.__type || data.code).split('#').pop();
-			var error = {
-				code: code,
-				name: code,
-				message: data.message || data.Message || null
-			};
-			return callback(error);
-		}).catch(function (err) {
-			// first check if we have a service error
-			if (response && response.headers && response.headers.get('x-amzn-errortype')) {
-				try {
-					var code = response.headers.get('x-amzn-errortype').split(':')[0];
-					var error = {
-						code: code,
-						name: code,
-						statusCode: response.status,
-						message: response.status ? response.status.toString() : null
-					};
-					return callback(error);
-				} catch (ex) {
-					return callback(err);
-				}
-				// otherwise check if error is Network error
-			} else if (err instanceof Error && err.message === 'Network error') {
-				var _error = {
-					code: 'NetworkError',
-					name: err.name,
-					message: err.message
-				};
-				return callback(_error);
-			} else {
-				return callback(err);
-			}
-		});
-	};
-
-	return Client;
+  return Client;
 }();
 
-exports.default = Client;
+var _default = Client;
+exports.default = _default;
+
 },{"./UserAgent":16}],5:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-var _CognitoJwtToken2 = require('./CognitoJwtToken');
-
-var _CognitoJwtToken3 = _interopRequireDefault(_CognitoJwtToken2);
+var _CognitoJwtToken2 = _interopRequireDefault(require("./CognitoJwtToken"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2016 Amazon.com,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Inc. or its affiliates. All Rights Reserved.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Licensed under the Amazon Software License (the "License").
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * You may not use this file except in compliance with the
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * License. A copy of the License is located at
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *     http://aws.amazon.com/asl/
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * or in the "license" file accompanying this file. This file is
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * CONDITIONS OF ANY KIND, express or implied. See the License
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+/*
+ * Copyright 2016 Amazon.com,
+ * Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Amazon Software License (the "License").
+ * You may not use this file except in compliance with the
+ * License. A copy of the License is located at
+ *
+ *     http://aws.amazon.com/asl/
+ *
+ * or in the "license" file accompanying this file. This file is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, express or implied. See the License
+ * for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 /** @class */
 var CognitoAccessToken = function (_CognitoJwtToken) {
   _inherits(CognitoAccessToken, _CognitoJwtToken);
-
   /**
    * Constructs a new CognitoAccessToken object
    * @param {string=} AccessToken The JWT access token.
    */
+
+
   function CognitoAccessToken() {
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
         AccessToken = _ref.AccessToken;
@@ -1443,49 +1533,79 @@ var CognitoAccessToken = function (_CognitoJwtToken) {
   }
 
   return CognitoAccessToken;
-}(_CognitoJwtToken3.default);
+}(_CognitoJwtToken2.default);
 
-exports.default = CognitoAccessToken;
+var _default = CognitoAccessToken;
+exports.default = _default;
+
 },{"./CognitoJwtToken":7}],6:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-var _CognitoJwtToken2 = require('./CognitoJwtToken');
-
-var _CognitoJwtToken3 = _interopRequireDefault(_CognitoJwtToken2);
+var _CognitoJwtToken2 = _interopRequireDefault(require("./CognitoJwtToken"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /*!
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Copyright 2016 Amazon.com,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Inc. or its affiliates. All Rights Reserved.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Licensed under the Amazon Software License (the "License").
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * You may not use this file except in compliance with the
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * License. A copy of the License is located at
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *     http://aws.amazon.com/asl/
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * or in the "license" file accompanying this file. This file is
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * CONDITIONS OF ANY KIND, express or implied. See the License
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * for the specific language governing permissions and
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * limitations under the License.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+/*!
+ * Copyright 2016 Amazon.com,
+ * Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Amazon Software License (the "License").
+ * You may not use this file except in compliance with the
+ * License. A copy of the License is located at
+ *
+ *     http://aws.amazon.com/asl/
+ *
+ * or in the "license" file accompanying this file. This file is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, express or implied. See the License
+ * for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 /** @class */
 var CognitoIdToken = function (_CognitoJwtToken) {
   _inherits(CognitoIdToken, _CognitoJwtToken);
-
   /**
    * Constructs a new CognitoIdToken object
    * @param {string=} IdToken The JWT Id token
    */
+
+
   function CognitoIdToken() {
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
         IdToken = _ref.IdToken;
@@ -1496,99 +1616,115 @@ var CognitoIdToken = function (_CognitoJwtToken) {
   }
 
   return CognitoIdToken;
-}(_CognitoJwtToken3.default);
+}(_CognitoJwtToken2.default);
 
-exports.default = CognitoIdToken;
+var _default = CognitoIdToken;
+exports.default = _default;
+
 },{"./CognitoJwtToken":7}],7:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-var _buffer = require('buffer/');
+var _buffer = require("buffer/");
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
-                                                                                                                                                           * Copyright 2016 Amazon.com,
-                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
-                                                                                                                                                           *
-                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
-                                                                                                                                                           * You may not use this file except in compliance with the
-                                                                                                                                                           * License. A copy of the License is located at
-                                                                                                                                                           *
-                                                                                                                                                           *     http://aws.amazon.com/asl/
-                                                                                                                                                           *
-                                                                                                                                                           * or in the "license" file accompanying this file. This file is
-                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
-                                                                                                                                                           * for the specific language governing permissions and
-                                                                                                                                                           * limitations under the License.
-                                                                                                                                                           */
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+/*!
+ * Copyright 2016 Amazon.com,
+ * Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Amazon Software License (the "License").
+ * You may not use this file except in compliance with the
+ * License. A copy of the License is located at
+ *
+ *     http://aws.amazon.com/asl/
+ *
+ * or in the "license" file accompanying this file. This file is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, express or implied. See the License
+ * for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 /** @class */
 var CognitoJwtToken = function () {
-	/**
-  * Constructs a new CognitoJwtToken object
-  * @param {string=} token The JWT token.
-  */
-	function CognitoJwtToken(token) {
-		_classCallCheck(this, CognitoJwtToken);
-
-		// Assign object
-		this.jwtToken = token || '';
-		this.payload = this.decodePayload();
-	}
-
-	/**
-  * @returns {string} the record's token.
-  */
+  /**
+   * Constructs a new CognitoJwtToken object
+   * @param {string=} token The JWT token.
+   */
+  function CognitoJwtToken(token) {
+    _classCallCheck(this, CognitoJwtToken); // Assign object
 
 
-	CognitoJwtToken.prototype.getJwtToken = function getJwtToken() {
-		return this.jwtToken;
-	};
-
-	/**
-  * @returns {int} the token's expiration (exp member).
-  */
-
-
-	CognitoJwtToken.prototype.getExpiration = function getExpiration() {
-		return this.payload.exp;
-	};
-
-	/**
-  * @returns {int} the token's "issued at" (iat member).
-  */
+    this.jwtToken = token || '';
+    this.payload = this.decodePayload();
+  }
+  /**
+   * @returns {string} the record's token.
+   */
 
 
-	CognitoJwtToken.prototype.getIssuedAt = function getIssuedAt() {
-		return this.payload.iat;
-	};
+  CognitoJwtToken.prototype.getJwtToken = function getJwtToken() {
+    return this.jwtToken;
+  };
+  /**
+   * @returns {int} the token's expiration (exp member).
+   */
 
-	/**
-  * @returns {object} the token's payload.
-  */
+
+  CognitoJwtToken.prototype.getExpiration = function getExpiration() {
+    return this.payload.exp;
+  };
+  /**
+   * @returns {int} the token's "issued at" (iat member).
+   */
 
 
-	CognitoJwtToken.prototype.decodePayload = function decodePayload() {
-		var payload = this.jwtToken.split('.')[1];
-		try {
-			return JSON.parse(_buffer.Buffer.from(payload, 'base64').toString('utf8'));
-		} catch (err) {
-			return {};
-		}
-	};
+  CognitoJwtToken.prototype.getIssuedAt = function getIssuedAt() {
+    return this.payload.iat;
+  };
+  /**
+   * @returns {object} the token's payload.
+   */
 
-	return CognitoJwtToken;
+
+  CognitoJwtToken.prototype.decodePayload = function decodePayload() {
+    var payload = this.jwtToken.split('.')[1];
+
+    try {
+      return JSON.parse(_buffer.Buffer.from(payload, 'base64').toString('utf8'));
+    } catch (err) {
+      return {};
+    }
+  };
+
+  return CognitoJwtToken;
 }();
 
-exports.default = CognitoJwtToken;
+var _default = CognitoJwtToken;
+exports.default = _default;
+
 },{"buffer/":19}],8:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 /*!
  * Copyright 2016 Amazon.com,
  * Inc. or its affiliates. All Rights Reserved.
@@ -1607,6 +1743,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 /** @class */
+
+
 var CognitoRefreshToken = function () {
   /**
    * Constructs a new CognitoRefreshToken object
@@ -1616,12 +1754,11 @@ var CognitoRefreshToken = function () {
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
         RefreshToken = _ref.RefreshToken;
 
-    _classCallCheck(this, CognitoRefreshToken);
+    _classCallCheck(this, CognitoRefreshToken); // Assign object
 
-    // Assign object
+
     this.token = RefreshToken || '';
   }
-
   /**
    * @returns {string} the record's token.
    */
@@ -1634,86 +1771,68 @@ var CognitoRefreshToken = function () {
   return CognitoRefreshToken;
 }();
 
-exports.default = CognitoRefreshToken;
+var _default = CognitoRefreshToken;
+exports.default = _default;
+
 },{}],9:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-var _buffer = require('buffer/');
+var _buffer = require("buffer/");
 
-var _core = require('crypto-js/core');
+var _core = _interopRequireDefault(require("crypto-js/core"));
 
-var _core2 = _interopRequireDefault(_core);
+var _libTypedarrays = _interopRequireDefault(require("crypto-js/lib-typedarrays"));
 
-var _libTypedarrays = require('crypto-js/lib-typedarrays');
+var _encBase = _interopRequireDefault(require("crypto-js/enc-base64"));
 
-var _libTypedarrays2 = _interopRequireDefault(_libTypedarrays);
+var _hmacSha = _interopRequireDefault(require("crypto-js/hmac-sha256"));
 
-var _encBase = require('crypto-js/enc-base64');
+var _BigInteger = _interopRequireDefault(require("./BigInteger"));
 
-var _encBase2 = _interopRequireDefault(_encBase);
+var _AuthenticationHelper = _interopRequireDefault(require("./AuthenticationHelper"));
 
-var _hmacSha = require('crypto-js/hmac-sha256');
+var _CognitoAccessToken = _interopRequireDefault(require("./CognitoAccessToken"));
 
-var _hmacSha2 = _interopRequireDefault(_hmacSha);
+var _CognitoIdToken = _interopRequireDefault(require("./CognitoIdToken"));
 
-var _BigInteger = require('./BigInteger');
+var _CognitoRefreshToken = _interopRequireDefault(require("./CognitoRefreshToken"));
 
-var _BigInteger2 = _interopRequireDefault(_BigInteger);
+var _CognitoUserSession = _interopRequireDefault(require("./CognitoUserSession"));
 
-var _AuthenticationHelper = require('./AuthenticationHelper');
+var _DateHelper = _interopRequireDefault(require("./DateHelper"));
 
-var _AuthenticationHelper2 = _interopRequireDefault(_AuthenticationHelper);
+var _CognitoUserAttribute = _interopRequireDefault(require("./CognitoUserAttribute"));
 
-var _CognitoAccessToken = require('./CognitoAccessToken');
-
-var _CognitoAccessToken2 = _interopRequireDefault(_CognitoAccessToken);
-
-var _CognitoIdToken = require('./CognitoIdToken');
-
-var _CognitoIdToken2 = _interopRequireDefault(_CognitoIdToken);
-
-var _CognitoRefreshToken = require('./CognitoRefreshToken');
-
-var _CognitoRefreshToken2 = _interopRequireDefault(_CognitoRefreshToken);
-
-var _CognitoUserSession = require('./CognitoUserSession');
-
-var _CognitoUserSession2 = _interopRequireDefault(_CognitoUserSession);
-
-var _DateHelper = require('./DateHelper');
-
-var _DateHelper2 = _interopRequireDefault(_DateHelper);
-
-var _CognitoUserAttribute = require('./CognitoUserAttribute');
-
-var _CognitoUserAttribute2 = _interopRequireDefault(_CognitoUserAttribute);
-
-var _StorageHelper = require('./StorageHelper');
-
-var _StorageHelper2 = _interopRequireDefault(_StorageHelper);
+var _StorageHelper = _interopRequireDefault(require("./StorageHelper"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
-                                                                                                                                                           * Copyright 2016 Amazon.com,
-                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
-                                                                                                                                                           *
-                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
-                                                                                                                                                           * You may not use this file except in compliance with the
-                                                                                                                                                           * License. A copy of the License is located at
-                                                                                                                                                           *
-                                                                                                                                                           *     http://aws.amazon.com/asl/
-                                                                                                                                                           *
-                                                                                                                                                           * or in the "license" file accompanying this file. This file is
-                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
-                                                                                                                                                           * for the specific language governing permissions and
-                                                                                                                                                           * limitations under the License.
-                                                                                                                                                           */
-
-// necessary for crypto js
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+/*!
+ * Copyright 2016 Amazon.com,
+ * Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Amazon Software License (the "License").
+ * You may not use this file except in compliance with the
+ * License. A copy of the License is located at
+ *
+ *     http://aws.amazon.com/asl/
+ *
+ * or in the "license" file accompanying this file. This file is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, express or implied. See the License
+ * for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 
 /**
@@ -1757,1835 +1876,1864 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /** @class */
 var CognitoUser = function () {
-	/**
-  * Constructs a new CognitoUser object
-  * @param {object} data Creation options
-  * @param {string} data.Username The user's username.
-  * @param {CognitoUserPool} data.Pool Pool containing the user.
-  * @param {object} data.Storage Optional storage object.
-  */
-	function CognitoUser(data) {
-		_classCallCheck(this, CognitoUser);
-
-		if (data == null || data.Username == null || data.Pool == null) {
-			throw new Error('Username and pool information are required.');
-		}
-
-		this.username = data.Username || '';
-		this.pool = data.Pool;
-		this.Session = null;
-
-		this.client = data.Pool.client;
-
-		this.signInUserSession = null;
-		this.authenticationFlowType = 'USER_SRP_AUTH';
-
-		this.storage = data.Storage || new _StorageHelper2.default().getStorage();
-
-		this.keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId();
-		this.userDataKey = this.keyPrefix + '.' + this.username + '.userData';
-	}
-
-	/**
-  * Sets the session for this user
-  * @param {CognitoUserSession} signInUserSession the session
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.setSignInUserSession = function setSignInUserSession(signInUserSession) {
-		this.clearCachedUserData();
-		this.signInUserSession = signInUserSession;
-		this.cacheTokens();
-	};
-
-	/**
-  * @returns {CognitoUserSession} the current session for this user
-  */
-
-
-	CognitoUser.prototype.getSignInUserSession = function getSignInUserSession() {
-		return this.signInUserSession;
-	};
-
-	/**
-  * @returns {string} the user's username
-  */
-
-
-	CognitoUser.prototype.getUsername = function getUsername() {
-		return this.username;
-	};
-
-	/**
-  * @returns {String} the authentication flow type
-  */
-
-
-	CognitoUser.prototype.getAuthenticationFlowType = function getAuthenticationFlowType() {
-		return this.authenticationFlowType;
-	};
-
-	/**
-  * sets authentication flow type
-  * @param {string} authenticationFlowType New value.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.setAuthenticationFlowType = function setAuthenticationFlowType(authenticationFlowType) {
-		this.authenticationFlowType = authenticationFlowType;
-	};
-
-	/**
-  * This is used for authenticating the user through the custom authentication flow.
-  * @param {AuthenticationDetails} authDetails Contains the authentication data
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {customChallenge} callback.customChallenge Custom challenge
-  *        response required to continue.
-  * @param {authSuccess} callback.onSuccess Called on success with the new session.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.initiateAuth = function initiateAuth(authDetails, callback) {
-		var _this = this;
-
-		var authParameters = authDetails.getAuthParameters();
-		authParameters.USERNAME = this.username;
-
-		var clientMetaData = Object.keys(authDetails.getValidationData()).length !== 0 ? authDetails.getValidationData() : authDetails.getClientMetadata();
-
-		var jsonReq = {
-			AuthFlow: 'CUSTOM_AUTH',
-			ClientId: this.pool.getClientId(),
-			AuthParameters: authParameters,
-			ClientMetadata: clientMetaData
-		};
-		if (this.getUserContextData()) {
-			jsonReq.UserContextData = this.getUserContextData();
-		}
-
-		this.client.request('InitiateAuth', jsonReq, function (err, data) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			var challengeName = data.ChallengeName;
-			var challengeParameters = data.ChallengeParameters;
-
-			if (challengeName === 'CUSTOM_CHALLENGE') {
-				_this.Session = data.Session;
-				return callback.customChallenge(challengeParameters);
-			}
-			_this.signInUserSession = _this.getCognitoUserSession(data.AuthenticationResult);
-			_this.cacheTokens();
-			return callback.onSuccess(_this.signInUserSession);
-		});
-	};
-
-	/**
-  * This is used for authenticating the user.
-  * stuff
-  * @param {AuthenticationDetails} authDetails Contains the authentication data
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {newPasswordRequired} callback.newPasswordRequired new
-  *        password and any required attributes are required to continue
-  * @param {mfaRequired} callback.mfaRequired MFA code
-  *        required to continue.
-  * @param {customChallenge} callback.customChallenge Custom challenge
-  *        response required to continue.
-  * @param {authSuccess} callback.onSuccess Called on success with the new session.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.authenticateUser = function authenticateUser(authDetails, callback) {
-		if (this.authenticationFlowType === 'USER_PASSWORD_AUTH') {
-			return this.authenticateUserPlainUsernamePassword(authDetails, callback);
-		} else if (this.authenticationFlowType === 'USER_SRP_AUTH' || this.authenticationFlowType === 'CUSTOM_AUTH') {
-			return this.authenticateUserDefaultAuth(authDetails, callback);
-		}
-		return callback.onFailure(new Error('Authentication flow type is invalid.'));
-	};
-
-	/**
-  * PRIVATE ONLY: This is an internal only method and should not
-  * be directly called by the consumers.
-  * It calls the AuthenticationHelper for SRP related
-  * stuff
-  * @param {AuthenticationDetails} authDetails Contains the authentication data
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {newPasswordRequired} callback.newPasswordRequired new
-  *        password and any required attributes are required to continue
-  * @param {mfaRequired} callback.mfaRequired MFA code
-  *        required to continue.
-  * @param {customChallenge} callback.customChallenge Custom challenge
-  *        response required to continue.
-  * @param {authSuccess} callback.onSuccess Called on success with the new session.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.authenticateUserDefaultAuth = function authenticateUserDefaultAuth(authDetails, callback) {
-		var _this2 = this;
-
-		var authenticationHelper = new _AuthenticationHelper2.default(this.pool.getUserPoolId().split('_')[1]);
-		var dateHelper = new _DateHelper2.default();
-
-		var serverBValue = void 0;
-		var salt = void 0;
-		var authParameters = {};
-
-		if (this.deviceKey != null) {
-			authParameters.DEVICE_KEY = this.deviceKey;
-		}
-
-		authParameters.USERNAME = this.username;
-		authenticationHelper.getLargeAValue(function (errOnAValue, aValue) {
-			// getLargeAValue callback start
-			if (errOnAValue) {
-				callback.onFailure(errOnAValue);
-			}
-
-			authParameters.SRP_A = aValue.toString(16);
-
-			if (_this2.authenticationFlowType === 'CUSTOM_AUTH') {
-				authParameters.CHALLENGE_NAME = 'SRP_A';
-			}
-
-			var clientMetaData = Object.keys(authDetails.getValidationData()).length !== 0 ? authDetails.getValidationData() : authDetails.getClientMetadata();
-
-			var jsonReq = {
-				AuthFlow: _this2.authenticationFlowType,
-				ClientId: _this2.pool.getClientId(),
-				AuthParameters: authParameters,
-				ClientMetadata: clientMetaData
-			};
-			if (_this2.getUserContextData(_this2.username)) {
-				jsonReq.UserContextData = _this2.getUserContextData(_this2.username);
-			}
-
-			_this2.client.request('InitiateAuth', jsonReq, function (err, data) {
-				if (err) {
-					return callback.onFailure(err);
-				}
-
-				var challengeParameters = data.ChallengeParameters;
-
-				_this2.username = challengeParameters.USER_ID_FOR_SRP;
-				serverBValue = new _BigInteger2.default(challengeParameters.SRP_B, 16);
-				salt = new _BigInteger2.default(challengeParameters.SALT, 16);
-				_this2.getCachedDeviceKeyAndPassword();
-
-				authenticationHelper.getPasswordAuthenticationKey(_this2.username, authDetails.getPassword(), serverBValue, salt, function (errOnHkdf, hkdf) {
-					// getPasswordAuthenticationKey callback start
-					if (errOnHkdf) {
-						callback.onFailure(errOnHkdf);
-					}
-
-					var dateNow = dateHelper.getNowString();
-
-					var message = _core2.default.lib.WordArray.create(_buffer.Buffer.concat([_buffer.Buffer.from(_this2.pool.getUserPoolId().split('_')[1], 'utf8'), _buffer.Buffer.from(_this2.username, 'utf8'), _buffer.Buffer.from(challengeParameters.SECRET_BLOCK, 'base64'), _buffer.Buffer.from(dateNow, 'utf8')]));
-					var key = _core2.default.lib.WordArray.create(hkdf);
-					var signatureString = _encBase2.default.stringify((0, _hmacSha2.default)(message, key));
-
-					var challengeResponses = {};
-
-					challengeResponses.USERNAME = _this2.username;
-					challengeResponses.PASSWORD_CLAIM_SECRET_BLOCK = challengeParameters.SECRET_BLOCK;
-					challengeResponses.TIMESTAMP = dateNow;
-					challengeResponses.PASSWORD_CLAIM_SIGNATURE = signatureString;
-
-					if (_this2.deviceKey != null) {
-						challengeResponses.DEVICE_KEY = _this2.deviceKey;
-					}
-
-					var respondToAuthChallenge = function respondToAuthChallenge(challenge, challengeCallback) {
-						return _this2.client.request('RespondToAuthChallenge', challenge, function (errChallenge, dataChallenge) {
-							if (errChallenge && errChallenge.code === 'ResourceNotFoundException' && errChallenge.message.toLowerCase().indexOf('device') !== -1) {
-								challengeResponses.DEVICE_KEY = null;
-								_this2.deviceKey = null;
-								_this2.randomPassword = null;
-								_this2.deviceGroupKey = null;
-								_this2.clearCachedDeviceKeyAndPassword();
-								return respondToAuthChallenge(challenge, challengeCallback);
-							}
-							return challengeCallback(errChallenge, dataChallenge);
-						});
-					};
-
-					var jsonReqResp = {
-						ChallengeName: 'PASSWORD_VERIFIER',
-						ClientId: _this2.pool.getClientId(),
-						ChallengeResponses: challengeResponses,
-						Session: data.Session,
-						ClientMetadata: clientMetaData
-					};
-					if (_this2.getUserContextData()) {
-						jsonReqResp.UserContextData = _this2.getUserContextData();
-					}
-					respondToAuthChallenge(jsonReqResp, function (errAuthenticate, dataAuthenticate) {
-						if (errAuthenticate) {
-							return callback.onFailure(errAuthenticate);
-						}
-
-						return _this2.authenticateUserInternal(dataAuthenticate, authenticationHelper, callback);
-					});
-					return undefined;
-					// getPasswordAuthenticationKey callback end
-				});
-				return undefined;
-			});
-			// getLargeAValue callback end
-		});
-	};
-
-	/**
-  * PRIVATE ONLY: This is an internal only method and should not
-  * be directly called by the consumers.
-  * @param {AuthenticationDetails} authDetails Contains the authentication data.
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {mfaRequired} callback.mfaRequired MFA code
-  *        required to continue.
-  * @param {authSuccess} callback.onSuccess Called on success with the new session.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.authenticateUserPlainUsernamePassword = function authenticateUserPlainUsernamePassword(authDetails, callback) {
-		var _this3 = this;
-
-		var authParameters = {};
-		authParameters.USERNAME = this.username;
-		authParameters.PASSWORD = authDetails.getPassword();
-		if (!authParameters.PASSWORD) {
-			callback.onFailure(new Error('PASSWORD parameter is required'));
-			return;
-		}
-		var authenticationHelper = new _AuthenticationHelper2.default(this.pool.getUserPoolId().split('_')[1]);
-		this.getCachedDeviceKeyAndPassword();
-		if (this.deviceKey != null) {
-			authParameters.DEVICE_KEY = this.deviceKey;
-		}
-
-		var clientMetaData = Object.keys(authDetails.getValidationData()).length !== 0 ? authDetails.getValidationData() : authDetails.getClientMetadata();
-
-		var jsonReq = {
-			AuthFlow: 'USER_PASSWORD_AUTH',
-			ClientId: this.pool.getClientId(),
-			AuthParameters: authParameters,
-			ClientMetadata: clientMetaData
-		};
-		if (this.getUserContextData(this.username)) {
-			jsonReq.UserContextData = this.getUserContextData(this.username);
-		}
-		// USER_PASSWORD_AUTH happens in a single round-trip: client sends userName and password,
-		// Cognito UserPools verifies password and returns tokens.
-		this.client.request('InitiateAuth', jsonReq, function (err, authResult) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			return _this3.authenticateUserInternal(authResult, authenticationHelper, callback);
-		});
-	};
-
-	/**
-  * PRIVATE ONLY: This is an internal only method and should not
-  * be directly called by the consumers.
-  * @param {object} dataAuthenticate authentication data
-  * @param {object} authenticationHelper helper created
-  * @param {callback} callback passed on from caller
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.authenticateUserInternal = function authenticateUserInternal(dataAuthenticate, authenticationHelper, callback) {
-		var _this4 = this;
-
-		var challengeName = dataAuthenticate.ChallengeName;
-		var challengeParameters = dataAuthenticate.ChallengeParameters;
-
-		if (challengeName === 'SMS_MFA') {
-			this.Session = dataAuthenticate.Session;
-			return callback.mfaRequired(challengeName, challengeParameters);
-		}
-
-		if (challengeName === 'SELECT_MFA_TYPE') {
-			this.Session = dataAuthenticate.Session;
-			return callback.selectMFAType(challengeName, challengeParameters);
-		}
-
-		if (challengeName === 'MFA_SETUP') {
-			this.Session = dataAuthenticate.Session;
-			return callback.mfaSetup(challengeName, challengeParameters);
-		}
-
-		if (challengeName === 'SOFTWARE_TOKEN_MFA') {
-			this.Session = dataAuthenticate.Session;
-			return callback.totpRequired(challengeName, challengeParameters);
-		}
-
-		if (challengeName === 'CUSTOM_CHALLENGE') {
-			this.Session = dataAuthenticate.Session;
-			return callback.customChallenge(challengeParameters);
-		}
-
-		if (challengeName === 'NEW_PASSWORD_REQUIRED') {
-			this.Session = dataAuthenticate.Session;
-
-			var userAttributes = null;
-			var rawRequiredAttributes = null;
-			var requiredAttributes = [];
-			var userAttributesPrefix = authenticationHelper.getNewPasswordRequiredChallengeUserAttributePrefix();
-
-			if (challengeParameters) {
-				userAttributes = JSON.parse(dataAuthenticate.ChallengeParameters.userAttributes);
-				rawRequiredAttributes = JSON.parse(dataAuthenticate.ChallengeParameters.requiredAttributes);
-			}
-
-			if (rawRequiredAttributes) {
-				for (var i = 0; i < rawRequiredAttributes.length; i++) {
-					requiredAttributes[i] = rawRequiredAttributes[i].substr(userAttributesPrefix.length);
-				}
-			}
-			return callback.newPasswordRequired(userAttributes, requiredAttributes);
-		}
-
-		if (challengeName === 'DEVICE_SRP_AUTH') {
-			this.getDeviceResponse(callback);
-			return undefined;
-		}
-
-		this.signInUserSession = this.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
-		this.challengeName = challengeName;
-		this.cacheTokens();
-
-		var newDeviceMetadata = dataAuthenticate.AuthenticationResult.NewDeviceMetadata;
-		if (newDeviceMetadata == null) {
-			return callback.onSuccess(this.signInUserSession);
-		}
-
-		authenticationHelper.generateHashDevice(dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey, dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey, function (errGenHash) {
-			if (errGenHash) {
-				return callback.onFailure(errGenHash);
-			}
-
-			var deviceSecretVerifierConfig = {
-				Salt: _buffer.Buffer.from(authenticationHelper.getSaltDevices(), 'hex').toString('base64'),
-				PasswordVerifier: _buffer.Buffer.from(authenticationHelper.getVerifierDevices(), 'hex').toString('base64')
-			};
-
-			_this4.verifierDevices = deviceSecretVerifierConfig.PasswordVerifier;
-			_this4.deviceGroupKey = newDeviceMetadata.DeviceGroupKey;
-			_this4.randomPassword = authenticationHelper.getRandomPassword();
-
-			_this4.client.request('ConfirmDevice', {
-				DeviceKey: newDeviceMetadata.DeviceKey,
-				AccessToken: _this4.signInUserSession.getAccessToken().getJwtToken(),
-				DeviceSecretVerifierConfig: deviceSecretVerifierConfig,
-				DeviceName: navigator.userAgent
-			}, function (errConfirm, dataConfirm) {
-				if (errConfirm) {
-					return callback.onFailure(errConfirm);
-				}
-
-				_this4.deviceKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey;
-				_this4.cacheDeviceKeyAndPassword();
-				if (dataConfirm.UserConfirmationNecessary === true) {
-					return callback.onSuccess(_this4.signInUserSession, dataConfirm.UserConfirmationNecessary);
-				}
-				return callback.onSuccess(_this4.signInUserSession);
-			});
-			return undefined;
-		});
-		return undefined;
-	};
-
-	/**
-  * This method is user to complete the NEW_PASSWORD_REQUIRED challenge.
-  * Pass the new password with any new user attributes to be updated.
-  * User attribute keys must be of format userAttributes.<attribute_name>.
-  * @param {string} newPassword new password for this user
-  * @param {object} requiredAttributeData map with values for all required attributes
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {mfaRequired} callback.mfaRequired MFA code required to continue.
-  * @param {customChallenge} callback.customChallenge Custom challenge
-  *         response required to continue.
-  * @param {authSuccess} callback.onSuccess Called on success with the new session.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.completeNewPasswordChallenge = function completeNewPasswordChallenge(newPassword, requiredAttributeData, callback, clientMetadata) {
-		var _this5 = this;
-
-		if (!newPassword) {
-			return callback.onFailure(new Error('New password is required.'));
-		}
-		var authenticationHelper = new _AuthenticationHelper2.default(this.pool.getUserPoolId().split('_')[1]);
-		var userAttributesPrefix = authenticationHelper.getNewPasswordRequiredChallengeUserAttributePrefix();
-
-		var finalUserAttributes = {};
-		if (requiredAttributeData) {
-			Object.keys(requiredAttributeData).forEach(function (key) {
-				finalUserAttributes[userAttributesPrefix + key] = requiredAttributeData[key];
-			});
-		}
-
-		finalUserAttributes.NEW_PASSWORD = newPassword;
-		finalUserAttributes.USERNAME = this.username;
-		var jsonReq = {
-			ChallengeName: 'NEW_PASSWORD_REQUIRED',
-			ClientId: this.pool.getClientId(),
-			ChallengeResponses: finalUserAttributes,
-			Session: this.Session,
-			ClientMetadata: clientMetadata
-		};
-		if (this.getUserContextData()) {
-			jsonReq.UserContextData = this.getUserContextData();
-		}
-
-		this.client.request('RespondToAuthChallenge', jsonReq, function (errAuthenticate, dataAuthenticate) {
-			if (errAuthenticate) {
-				return callback.onFailure(errAuthenticate);
-			}
-			return _this5.authenticateUserInternal(dataAuthenticate, authenticationHelper, callback);
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used to get a session using device authentication. It is called at the end of user
-  * authentication
-  *
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {authSuccess} callback.onSuccess Called on success with the new session.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  * @private
-  */
-
-
-	CognitoUser.prototype.getDeviceResponse = function getDeviceResponse(callback, clientMetadata) {
-		var _this6 = this;
-
-		var authenticationHelper = new _AuthenticationHelper2.default(this.deviceGroupKey);
-		var dateHelper = new _DateHelper2.default();
-
-		var authParameters = {};
-
-		authParameters.USERNAME = this.username;
-		authParameters.DEVICE_KEY = this.deviceKey;
-		authenticationHelper.getLargeAValue(function (errAValue, aValue) {
-			// getLargeAValue callback start
-			if (errAValue) {
-				callback.onFailure(errAValue);
-			}
-
-			authParameters.SRP_A = aValue.toString(16);
-
-			var jsonReq = {
-				ChallengeName: 'DEVICE_SRP_AUTH',
-				ClientId: _this6.pool.getClientId(),
-				ChallengeResponses: authParameters,
-				ClientMetadata: clientMetadata
-			};
-			if (_this6.getUserContextData()) {
-				jsonReq.UserContextData = _this6.getUserContextData();
-			}
-			_this6.client.request('RespondToAuthChallenge', jsonReq, function (err, data) {
-				if (err) {
-					return callback.onFailure(err);
-				}
-
-				var challengeParameters = data.ChallengeParameters;
-
-				var serverBValue = new _BigInteger2.default(challengeParameters.SRP_B, 16);
-				var salt = new _BigInteger2.default(challengeParameters.SALT, 16);
-
-				authenticationHelper.getPasswordAuthenticationKey(_this6.deviceKey, _this6.randomPassword, serverBValue, salt, function (errHkdf, hkdf) {
-					// getPasswordAuthenticationKey callback start
-					if (errHkdf) {
-						return callback.onFailure(errHkdf);
-					}
-
-					var dateNow = dateHelper.getNowString();
-
-					var message = _core2.default.lib.WordArray.create(_buffer.Buffer.concat([_buffer.Buffer.from(_this6.deviceGroupKey, 'utf8'), _buffer.Buffer.from(_this6.deviceKey, 'utf8'), _buffer.Buffer.from(challengeParameters.SECRET_BLOCK, 'base64'), _buffer.Buffer.from(dateNow, 'utf8')]));
-					var key = _core2.default.lib.WordArray.create(hkdf);
-					var signatureString = _encBase2.default.stringify((0, _hmacSha2.default)(message, key));
-
-					var challengeResponses = {};
-
-					challengeResponses.USERNAME = _this6.username;
-					challengeResponses.PASSWORD_CLAIM_SECRET_BLOCK = challengeParameters.SECRET_BLOCK;
-					challengeResponses.TIMESTAMP = dateNow;
-					challengeResponses.PASSWORD_CLAIM_SIGNATURE = signatureString;
-					challengeResponses.DEVICE_KEY = _this6.deviceKey;
-
-					var jsonReqResp = {
-						ChallengeName: 'DEVICE_PASSWORD_VERIFIER',
-						ClientId: _this6.pool.getClientId(),
-						ChallengeResponses: challengeResponses,
-						Session: data.Session
-					};
-					if (_this6.getUserContextData()) {
-						jsonReqResp.UserContextData = _this6.getUserContextData();
-					}
-
-					_this6.client.request('RespondToAuthChallenge', jsonReqResp, function (errAuthenticate, dataAuthenticate) {
-						if (errAuthenticate) {
-							return callback.onFailure(errAuthenticate);
-						}
-
-						_this6.signInUserSession = _this6.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
-						_this6.cacheTokens();
-
-						return callback.onSuccess(_this6.signInUserSession);
-					});
-					return undefined;
-					// getPasswordAuthenticationKey callback end
-				});
-				return undefined;
-			});
-			// getLargeAValue callback end
-		});
-	};
-
-	/**
-  * This is used for a certain user to confirm the registration by using a confirmation code
-  * @param {string} confirmationCode Code entered by user.
-  * @param {bool} forceAliasCreation Allow migrating from an existing email / phone number.
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.confirmRegistration = function confirmRegistration(confirmationCode, forceAliasCreation, callback, clientMetadata) {
-		var jsonReq = {
-			ClientId: this.pool.getClientId(),
-			ConfirmationCode: confirmationCode,
-			Username: this.username,
-			ForceAliasCreation: forceAliasCreation,
-			ClientMetadata: clientMetadata
-		};
-		if (this.getUserContextData()) {
-			jsonReq.UserContextData = this.getUserContextData();
-		}
-		this.client.request('ConfirmSignUp', jsonReq, function (err) {
-			if (err) {
-				return callback(err, null);
-			}
-			return callback(null, 'SUCCESS');
-		});
-	};
-
-	/**
-  * This is used by the user once he has the responses to a custom challenge
-  * @param {string} answerChallenge The custom challenge answer.
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {customChallenge} callback.customChallenge
-  *    Custom challenge response required to continue.
-  * @param {authSuccess} callback.onSuccess Called on success with the new session.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.sendCustomChallengeAnswer = function sendCustomChallengeAnswer(answerChallenge, callback, clientMetadata) {
-		var _this7 = this;
-
-		var challengeResponses = {};
-		challengeResponses.USERNAME = this.username;
-		challengeResponses.ANSWER = answerChallenge;
-
-		var authenticationHelper = new _AuthenticationHelper2.default(this.pool.getUserPoolId().split('_')[1]);
-		this.getCachedDeviceKeyAndPassword();
-		if (this.deviceKey != null) {
-			challengeResponses.DEVICE_KEY = this.deviceKey;
-		}
-
-		var jsonReq = {
-			ChallengeName: 'CUSTOM_CHALLENGE',
-			ChallengeResponses: challengeResponses,
-			ClientId: this.pool.getClientId(),
-			Session: this.Session,
-			ClientMetadata: clientMetadata
-		};
-		if (this.getUserContextData()) {
-			jsonReq.UserContextData = this.getUserContextData();
-		}
-		this.client.request('RespondToAuthChallenge', jsonReq, function (err, data) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-
-			return _this7.authenticateUserInternal(data, authenticationHelper, callback);
-		});
-	};
-
-	/**
-  * This is used by the user once he has an MFA code
-  * @param {string} confirmationCode The MFA code entered by the user.
-  * @param {object} callback Result callback map.
-  * @param {string} mfaType The mfa we are replying to.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {authSuccess} callback.onSuccess Called on success with the new session.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.sendMFACode = function sendMFACode(confirmationCode, callback, mfaType, clientMetadata) {
-		var _this8 = this;
-
-		var challengeResponses = {};
-		challengeResponses.USERNAME = this.username;
-		challengeResponses.SMS_MFA_CODE = confirmationCode;
-		var mfaTypeSelection = mfaType || 'SMS_MFA';
-		if (mfaTypeSelection === 'SOFTWARE_TOKEN_MFA') {
-			challengeResponses.SOFTWARE_TOKEN_MFA_CODE = confirmationCode;
-		}
-
-		if (this.deviceKey != null) {
-			challengeResponses.DEVICE_KEY = this.deviceKey;
-		}
-
-		var jsonReq = {
-			ChallengeName: mfaTypeSelection,
-			ChallengeResponses: challengeResponses,
-			ClientId: this.pool.getClientId(),
-			Session: this.Session,
-			ClientMetadata: clientMetadata
-		};
-		if (this.getUserContextData()) {
-			jsonReq.UserContextData = this.getUserContextData();
-		}
-
-		this.client.request('RespondToAuthChallenge', jsonReq, function (err, dataAuthenticate) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-
-			var challengeName = dataAuthenticate.ChallengeName;
-
-			if (challengeName === 'DEVICE_SRP_AUTH') {
-				_this8.getDeviceResponse(callback);
-				return undefined;
-			}
-
-			_this8.signInUserSession = _this8.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
-			_this8.cacheTokens();
-
-			if (dataAuthenticate.AuthenticationResult.NewDeviceMetadata == null) {
-				return callback.onSuccess(_this8.signInUserSession);
-			}
-
-			var authenticationHelper = new _AuthenticationHelper2.default(_this8.pool.getUserPoolId().split('_')[1]);
-			authenticationHelper.generateHashDevice(dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey, dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey, function (errGenHash) {
-				if (errGenHash) {
-					return callback.onFailure(errGenHash);
-				}
-
-				var deviceSecretVerifierConfig = {
-					Salt: _buffer.Buffer.from(authenticationHelper.getSaltDevices(), 'hex').toString('base64'),
-					PasswordVerifier: _buffer.Buffer.from(authenticationHelper.getVerifierDevices(), 'hex').toString('base64')
-				};
-
-				_this8.verifierDevices = deviceSecretVerifierConfig.PasswordVerifier;
-				_this8.deviceGroupKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey;
-				_this8.randomPassword = authenticationHelper.getRandomPassword();
-
-				_this8.client.request('ConfirmDevice', {
-					DeviceKey: dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey,
-					AccessToken: _this8.signInUserSession.getAccessToken().getJwtToken(),
-					DeviceSecretVerifierConfig: deviceSecretVerifierConfig,
-					DeviceName: navigator.userAgent
-				}, function (errConfirm, dataConfirm) {
-					if (errConfirm) {
-						return callback.onFailure(errConfirm);
-					}
-
-					_this8.deviceKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey;
-					_this8.cacheDeviceKeyAndPassword();
-					if (dataConfirm.UserConfirmationNecessary === true) {
-						return callback.onSuccess(_this8.signInUserSession, dataConfirm.UserConfirmationNecessary);
-					}
-					return callback.onSuccess(_this8.signInUserSession);
-				});
-				return undefined;
-			});
-			return undefined;
-		});
-	};
-
-	/**
-  * This is used by an authenticated user to change the current password
-  * @param {string} oldUserPassword The current password.
-  * @param {string} newUserPassword The requested new password.
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.changePassword = function changePassword(oldUserPassword, newUserPassword, callback, clientMetadata) {
-		if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-			return callback(new Error('User is not authenticated'), null);
-		}
-
-		this.client.request('ChangePassword', {
-			PreviousPassword: oldUserPassword,
-			ProposedPassword: newUserPassword,
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-			ClientMetadata: clientMetadata
-		}, function (err) {
-			if (err) {
-				return callback(err, null);
-			}
-			return callback(null, 'SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used by an authenticated user to enable MFA for itself
-  * @deprecated
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.enableMFA = function enableMFA(callback) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback(new Error('User is not authenticated'), null);
-		}
-
-		var mfaOptions = [];
-		var mfaEnabled = {
-			DeliveryMedium: 'SMS',
-			AttributeName: 'phone_number'
-		};
-		mfaOptions.push(mfaEnabled);
-
-		this.client.request('SetUserSettings', {
-			MFAOptions: mfaOptions,
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-		}, function (err) {
-			if (err) {
-				return callback(err, null);
-			}
-			return callback(null, 'SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used by an authenticated user to enable MFA for itself
-  * @param {IMfaSettings} smsMfaSettings the sms mfa settings
-  * @param {IMFASettings} softwareTokenMfaSettings the software token mfa settings
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.setUserMfaPreference = function setUserMfaPreference(smsMfaSettings, softwareTokenMfaSettings, callback) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback(new Error('User is not authenticated'), null);
-		}
-
-		this.client.request('SetUserMFAPreference', {
-			SMSMfaSettings: smsMfaSettings,
-			SoftwareTokenMfaSettings: softwareTokenMfaSettings,
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-		}, function (err) {
-			if (err) {
-				return callback(err, null);
-			}
-			return callback(null, 'SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used by an authenticated user to disable MFA for itself
-  * @deprecated
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.disableMFA = function disableMFA(callback) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback(new Error('User is not authenticated'), null);
-		}
-
-		var mfaOptions = [];
-
-		this.client.request('SetUserSettings', {
-			MFAOptions: mfaOptions,
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-		}, function (err) {
-			if (err) {
-				return callback(err, null);
-			}
-			return callback(null, 'SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used by an authenticated user to delete itself
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.deleteUser = function deleteUser(callback, clientMetadata) {
-		var _this9 = this;
-
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback(new Error('User is not authenticated'), null);
-		}
-
-		this.client.request('DeleteUser', {
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-			ClientMetadata: clientMetadata
-		}, function (err) {
-			if (err) {
-				return callback(err, null);
-			}
-			_this9.clearCachedUser();
-			return callback(null, 'SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * @typedef {CognitoUserAttribute | { Name:string, Value:string }} AttributeArg
-  */
-	/**
-  * This is used by an authenticated user to change a list of attributes
-  * @param {AttributeArg[]} attributes A list of the new user attributes.
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.updateAttributes = function updateAttributes(attributes, callback, clientMetadata) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback(new Error('User is not authenticated'), null);
-		}
-
-		this.client.request('UpdateUserAttributes', {
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-			UserAttributes: attributes,
-			ClientMetadata: clientMetadata
-		}, function (err) {
-			if (err) {
-				return callback(err, null);
-			}
-			return callback(null, 'SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used by an authenticated user to get a list of attributes
-  * @param {nodeCallback<CognitoUserAttribute[]>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.getUserAttributes = function getUserAttributes(callback) {
-		if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-			return callback(new Error('User is not authenticated'), null);
-		}
-
-		this.client.request('GetUser', {
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-		}, function (err, userData) {
-			if (err) {
-				return callback(err, null);
-			}
-
-			var attributeList = [];
-
-			for (var i = 0; i < userData.UserAttributes.length; i++) {
-				var attribute = {
-					Name: userData.UserAttributes[i].Name,
-					Value: userData.UserAttributes[i].Value
-				};
-				var userAttribute = new _CognitoUserAttribute2.default(attribute);
-				attributeList.push(userAttribute);
-			}
-
-			return callback(null, attributeList);
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used by an authenticated user to get the MFAOptions
-  * @param {nodeCallback<MFAOptions>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.getMFAOptions = function getMFAOptions(callback) {
-		if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-			return callback(new Error('User is not authenticated'), null);
-		}
-
-		this.client.request('GetUser', {
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-		}, function (err, userData) {
-			if (err) {
-				return callback(err, null);
-			}
-
-			return callback(null, userData.MFAOptions);
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used by an authenticated users to get the userData
-  * @param {nodeCallback<UserData>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.getUserData = function getUserData(callback, params) {
-		var _this10 = this;
-
-		if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-			this.clearCachedUserData();
-			return callback(new Error('User is not authenticated'), null);
-		}
-
-		var bypassCache = params ? params.bypassCache : false;
-
-		var userData = this.storage.getItem(this.userDataKey);
-		// get the cached user data
-
-		if (!userData || bypassCache) {
-			this.client.request('GetUser', {
-				AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-			}, function (err, latestUserData) {
-				if (err) {
-					return callback(err, null);
-				}
-				_this10.cacheUserData(latestUserData);
-				var refresh = _this10.signInUserSession.getRefreshToken();
-				if (refresh && refresh.getToken()) {
-					_this10.refreshSession(refresh, function (refreshError, data) {
-						if (refreshError) {
-							return callback(refreshError, null);
-						}
-						return callback(null, latestUserData);
-					});
-				} else {
-					return callback(null, latestUserData);
-				}
-			});
-		} else {
-			try {
-				return callback(null, JSON.parse(userData));
-			} catch (err) {
-				this.clearCachedUserData();
-				return callback(err, null);
-			}
-		}
-		return undefined;
-	};
-
-	/**
-  * This is used by an authenticated user to delete a list of attributes
-  * @param {string[]} attributeList Names of the attributes to delete.
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.deleteAttributes = function deleteAttributes(attributeList, callback) {
-		if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-			return callback(new Error('User is not authenticated'), null);
-		}
-
-		this.client.request('DeleteUserAttributes', {
-			UserAttributeNames: attributeList,
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-		}, function (err) {
-			if (err) {
-				return callback(err, null);
-			}
-			return callback(null, 'SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used by a user to resend a confirmation code
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.resendConfirmationCode = function resendConfirmationCode(callback, clientMetadata) {
-		var jsonReq = {
-			ClientId: this.pool.getClientId(),
-			Username: this.username,
-			ClientMetadata: clientMetadata
-		};
-
-		this.client.request('ResendConfirmationCode', jsonReq, function (err, result) {
-			if (err) {
-				return callback(err, null);
-			}
-			return callback(null, result);
-		});
-	};
-
-	/**
-  * This is used to get a session, either from the session object
-  * or from  the local storage, or by using a refresh token
-  *
-  * @param {nodeCallback<CognitoUserSession>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.getSession = function getSession(callback) {
-		if (this.username == null) {
-			return callback(new Error('Username is null. Cannot retrieve a new session'), null);
-		}
-
-		if (this.signInUserSession != null && this.signInUserSession.isValid()) {
-			return callback(null, this.signInUserSession);
-		}
-
-		var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId() + '.' + this.username;
-		var idTokenKey = keyPrefix + '.idToken';
-		var accessTokenKey = keyPrefix + '.accessToken';
-		var refreshTokenKey = keyPrefix + '.refreshToken';
-		var clockDriftKey = keyPrefix + '.clockDrift';
-
-		if (this.storage.getItem(idTokenKey)) {
-			var idToken = new _CognitoIdToken2.default({
-				IdToken: this.storage.getItem(idTokenKey)
-			});
-			var accessToken = new _CognitoAccessToken2.default({
-				AccessToken: this.storage.getItem(accessTokenKey)
-			});
-			var refreshToken = new _CognitoRefreshToken2.default({
-				RefreshToken: this.storage.getItem(refreshTokenKey)
-			});
-			var clockDrift = parseInt(this.storage.getItem(clockDriftKey), 0) || 0;
-
-			var sessionData = {
-				IdToken: idToken,
-				AccessToken: accessToken,
-				RefreshToken: refreshToken,
-				ClockDrift: clockDrift
-			};
-			var cachedSession = new _CognitoUserSession2.default(sessionData);
-			if (cachedSession.isValid()) {
-				this.signInUserSession = cachedSession;
-				return callback(null, this.signInUserSession);
-			}
-
-			if (!refreshToken.getToken()) {
-				return callback(new Error('Cannot retrieve a new session. Please authenticate.'), null);
-			}
-
-			this.refreshSession(refreshToken, callback);
-		} else {
-			callback(new Error('Local storage is missing an ID Token, Please authenticate'), null);
-		}
-
-		return undefined;
-	};
-
-	/**
-  * This uses the refreshToken to retrieve a new session
-  * @param {CognitoRefreshToken} refreshToken A previous session's refresh token.
-  * @param {nodeCallback<CognitoUserSession>} callback Called on success or error.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.refreshSession = function refreshSession(refreshToken, callback, clientMetadata) {
-		var _this11 = this;
-
-		var authParameters = {};
-		authParameters.REFRESH_TOKEN = refreshToken.getToken();
-		var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId();
-		var lastUserKey = keyPrefix + '.LastAuthUser';
-
-		if (this.storage.getItem(lastUserKey)) {
-			this.username = this.storage.getItem(lastUserKey);
-			var deviceKeyKey = keyPrefix + '.' + this.username + '.deviceKey';
-			this.deviceKey = this.storage.getItem(deviceKeyKey);
-			authParameters.DEVICE_KEY = this.deviceKey;
-		}
-
-		var jsonReq = {
-			ClientId: this.pool.getClientId(),
-			AuthFlow: 'REFRESH_TOKEN_AUTH',
-			AuthParameters: authParameters,
-			ClientMetadata: clientMetadata
-		};
-		if (this.getUserContextData()) {
-			jsonReq.UserContextData = this.getUserContextData();
-		}
-		this.client.request('InitiateAuth', jsonReq, function (err, authResult) {
-			if (err) {
-				if (err.code === 'NotAuthorizedException') {
-					_this11.clearCachedUser();
-				}
-				return callback(err, null);
-			}
-			if (authResult) {
-				var authenticationResult = authResult.AuthenticationResult;
-				if (!Object.prototype.hasOwnProperty.call(authenticationResult, 'RefreshToken')) {
-					authenticationResult.RefreshToken = refreshToken.getToken();
-				}
-				_this11.signInUserSession = _this11.getCognitoUserSession(authenticationResult);
-				_this11.cacheTokens();
-				return callback(null, _this11.signInUserSession);
-			}
-			return undefined;
-		});
-	};
-
-	/**
-  * This is used to save the session tokens to local storage
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.cacheTokens = function cacheTokens() {
-		var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId();
-		var idTokenKey = keyPrefix + '.' + this.username + '.idToken';
-		var accessTokenKey = keyPrefix + '.' + this.username + '.accessToken';
-		var refreshTokenKey = keyPrefix + '.' + this.username + '.refreshToken';
-		var clockDriftKey = keyPrefix + '.' + this.username + '.clockDrift';
-		var lastUserKey = keyPrefix + '.LastAuthUser';
-
-		this.storage.setItem(idTokenKey, this.signInUserSession.getIdToken().getJwtToken());
-		this.storage.setItem(accessTokenKey, this.signInUserSession.getAccessToken().getJwtToken());
-		this.storage.setItem(refreshTokenKey, this.signInUserSession.getRefreshToken().getToken());
-		this.storage.setItem(clockDriftKey, '' + this.signInUserSession.getClockDrift());
-		this.storage.setItem(lastUserKey, this.username);
-	};
-
-	/**
-  * This is to cache user data
-  */
-
-
-	CognitoUser.prototype.cacheUserData = function cacheUserData(userData) {
-		this.storage.setItem(this.userDataKey, JSON.stringify(userData));
-	};
-
-	/**
-  * This is to remove cached user data
-  */
-
-
-	CognitoUser.prototype.clearCachedUserData = function clearCachedUserData() {
-		this.storage.removeItem(this.userDataKey);
-	};
-
-	CognitoUser.prototype.clearCachedUser = function clearCachedUser() {
-		this.clearCachedTokens();
-		this.clearCachedUserData();
-	};
-
-	/**
-  * This is used to cache the device key and device group and device password
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.cacheDeviceKeyAndPassword = function cacheDeviceKeyAndPassword() {
-		var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId() + '.' + this.username;
-		var deviceKeyKey = keyPrefix + '.deviceKey';
-		var randomPasswordKey = keyPrefix + '.randomPasswordKey';
-		var deviceGroupKeyKey = keyPrefix + '.deviceGroupKey';
-
-		this.storage.setItem(deviceKeyKey, this.deviceKey);
-		this.storage.setItem(randomPasswordKey, this.randomPassword);
-		this.storage.setItem(deviceGroupKeyKey, this.deviceGroupKey);
-	};
-
-	/**
-  * This is used to get current device key and device group and device password
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.getCachedDeviceKeyAndPassword = function getCachedDeviceKeyAndPassword() {
-		var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId() + '.' + this.username;
-		var deviceKeyKey = keyPrefix + '.deviceKey';
-		var randomPasswordKey = keyPrefix + '.randomPasswordKey';
-		var deviceGroupKeyKey = keyPrefix + '.deviceGroupKey';
-
-		if (this.storage.getItem(deviceKeyKey)) {
-			this.deviceKey = this.storage.getItem(deviceKeyKey);
-			this.randomPassword = this.storage.getItem(randomPasswordKey);
-			this.deviceGroupKey = this.storage.getItem(deviceGroupKeyKey);
-		}
-	};
-
-	/**
-  * This is used to clear the device key info from local storage
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.clearCachedDeviceKeyAndPassword = function clearCachedDeviceKeyAndPassword() {
-		var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId() + '.' + this.username;
-		var deviceKeyKey = keyPrefix + '.deviceKey';
-		var randomPasswordKey = keyPrefix + '.randomPasswordKey';
-		var deviceGroupKeyKey = keyPrefix + '.deviceGroupKey';
-
-		this.storage.removeItem(deviceKeyKey);
-		this.storage.removeItem(randomPasswordKey);
-		this.storage.removeItem(deviceGroupKeyKey);
-	};
-
-	/**
-  * This is used to clear the session tokens from local storage
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.clearCachedTokens = function clearCachedTokens() {
-		var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId();
-		var idTokenKey = keyPrefix + '.' + this.username + '.idToken';
-		var accessTokenKey = keyPrefix + '.' + this.username + '.accessToken';
-		var refreshTokenKey = keyPrefix + '.' + this.username + '.refreshToken';
-		var lastUserKey = keyPrefix + '.LastAuthUser';
-		var clockDriftKey = keyPrefix + '.' + this.username + '.clockDrift';
-
-		this.storage.removeItem(idTokenKey);
-		this.storage.removeItem(accessTokenKey);
-		this.storage.removeItem(refreshTokenKey);
-		this.storage.removeItem(lastUserKey);
-		this.storage.removeItem(clockDriftKey);
-	};
-
-	/**
-  * This is used to build a user session from tokens retrieved in the authentication result
-  * @param {object} authResult Successful auth response from server.
-  * @returns {CognitoUserSession} The new user session.
-  * @private
-  */
-
-
-	CognitoUser.prototype.getCognitoUserSession = function getCognitoUserSession(authResult) {
-		var idToken = new _CognitoIdToken2.default(authResult);
-		var accessToken = new _CognitoAccessToken2.default(authResult);
-		var refreshToken = new _CognitoRefreshToken2.default(authResult);
-
-		var sessionData = {
-			IdToken: idToken,
-			AccessToken: accessToken,
-			RefreshToken: refreshToken
-		};
-
-		return new _CognitoUserSession2.default(sessionData);
-	};
-
-	/**
-  * This is used to initiate a forgot password request
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {inputVerificationCode?} callback.inputVerificationCode
-  *    Optional callback raised instead of onSuccess with response data.
-  * @param {onSuccess} callback.onSuccess Called on success.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.forgotPassword = function forgotPassword(callback, clientMetadata) {
-		var jsonReq = {
-			ClientId: this.pool.getClientId(),
-			Username: this.username,
-			ClientMetadata: clientMetadata
-		};
-		if (this.getUserContextData()) {
-			jsonReq.UserContextData = this.getUserContextData();
-		}
-		this.client.request('ForgotPassword', jsonReq, function (err, data) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			if (typeof callback.inputVerificationCode === 'function') {
-				return callback.inputVerificationCode(data);
-			}
-			return callback.onSuccess(data);
-		});
-	};
-
-	/**
-  * This is used to confirm a new password using a confirmationCode
-  * @param {string} confirmationCode Code entered by user.
-  * @param {string} newPassword Confirm new password.
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {onSuccess<void>} callback.onSuccess Called on success.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.confirmPassword = function confirmPassword(confirmationCode, newPassword, callback, clientMetadata) {
-		var jsonReq = {
-			ClientId: this.pool.getClientId(),
-			Username: this.username,
-			ConfirmationCode: confirmationCode,
-			Password: newPassword,
-			ClientMetadata: clientMetadata
-		};
-		if (this.getUserContextData()) {
-			jsonReq.UserContextData = this.getUserContextData();
-		}
-		this.client.request('ConfirmForgotPassword', jsonReq, function (err) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			return callback.onSuccess();
-		});
-	};
-
-	/**
-  * This is used to initiate an attribute confirmation request
-  * @param {string} attributeName User attribute that needs confirmation.
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {inputVerificationCode} callback.inputVerificationCode Called on success.
-  * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.getAttributeVerificationCode = function getAttributeVerificationCode(attributeName, callback, clientMetadata) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback.onFailure(new Error('User is not authenticated'));
-		}
-
-		this.client.request('GetUserAttributeVerificationCode', {
-			AttributeName: attributeName,
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-			ClientMetadata: clientMetadata
-		}, function (err, data) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			if (typeof callback.inputVerificationCode === 'function') {
-				return callback.inputVerificationCode(data);
-			}
-			return callback.onSuccess();
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used to confirm an attribute using a confirmation code
-  * @param {string} attributeName Attribute being confirmed.
-  * @param {string} confirmationCode Code entered by user.
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {onSuccess<string>} callback.onSuccess Called on success.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.verifyAttribute = function verifyAttribute(attributeName, confirmationCode, callback) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback.onFailure(new Error('User is not authenticated'));
-		}
-
-		this.client.request('VerifyUserAttribute', {
-			AttributeName: attributeName,
-			Code: confirmationCode,
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-		}, function (err) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			return callback.onSuccess('SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used to get the device information using the current device key
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {onSuccess<*>} callback.onSuccess Called on success with device data.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.getDevice = function getDevice(callback) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback.onFailure(new Error('User is not authenticated'));
-		}
-
-		this.client.request('GetDevice', {
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-			DeviceKey: this.deviceKey
-		}, function (err, data) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			return callback.onSuccess(data);
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used to forget a specific device
-  * @param {string} deviceKey Device key.
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {onSuccess<string>} callback.onSuccess Called on success.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.forgetSpecificDevice = function forgetSpecificDevice(deviceKey, callback) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback.onFailure(new Error('User is not authenticated'));
-		}
-
-		this.client.request('ForgetDevice', {
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-			DeviceKey: deviceKey
-		}, function (err) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			return callback.onSuccess('SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used to forget the current device
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {onSuccess<string>} callback.onSuccess Called on success.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.forgetDevice = function forgetDevice(callback) {
-		var _this12 = this;
-
-		this.forgetSpecificDevice(this.deviceKey, {
-			onFailure: callback.onFailure,
-			onSuccess: function onSuccess(result) {
-				_this12.deviceKey = null;
-				_this12.deviceGroupKey = null;
-				_this12.randomPassword = null;
-				_this12.clearCachedDeviceKeyAndPassword();
-				return callback.onSuccess(result);
-			}
-		});
-	};
-
-	/**
-  * This is used to set the device status as remembered
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {onSuccess<string>} callback.onSuccess Called on success.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.setDeviceStatusRemembered = function setDeviceStatusRemembered(callback) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback.onFailure(new Error('User is not authenticated'));
-		}
-
-		this.client.request('UpdateDeviceStatus', {
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-			DeviceKey: this.deviceKey,
-			DeviceRememberedStatus: 'remembered'
-		}, function (err) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			return callback.onSuccess('SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used to set the device status as not remembered
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {onSuccess<string>} callback.onSuccess Called on success.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.setDeviceStatusNotRemembered = function setDeviceStatusNotRemembered(callback) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback.onFailure(new Error('User is not authenticated'));
-		}
-
-		this.client.request('UpdateDeviceStatus', {
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-			DeviceKey: this.deviceKey,
-			DeviceRememberedStatus: 'not_remembered'
-		}, function (err) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			return callback.onSuccess('SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used to list all devices for a user
-  *
-  * @param {int} limit the number of devices returned in a call
-  * @param {string} paginationToken the pagination token in case any was returned before
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {onSuccess<*>} callback.onSuccess Called on success with device list.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.listDevices = function listDevices(limit, paginationToken, callback) {
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback.onFailure(new Error('User is not authenticated'));
-		}
-
-		this.client.request('ListDevices', {
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-			Limit: limit,
-			PaginationToken: paginationToken
-		}, function (err, data) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			return callback.onSuccess(data);
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used to globally revoke all tokens issued to a user
-  * @param {object} callback Result callback map.
-  * @param {onFailure} callback.onFailure Called on any error.
-  * @param {onSuccess<string>} callback.onSuccess Called on success.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.globalSignOut = function globalSignOut(callback) {
-		var _this13 = this;
-
-		if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
-			return callback.onFailure(new Error('User is not authenticated'));
-		}
-
-		this.client.request('GlobalSignOut', {
-			AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-		}, function (err) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			_this13.clearCachedUser();
-			return callback.onSuccess('SUCCESS');
-		});
-		return undefined;
-	};
-
-	/**
-  * This is used for the user to signOut of the application and clear the cached tokens.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.signOut = function signOut() {
-		this.signInUserSession = null;
-		this.clearCachedUser();
-	};
-
-	/**
-  * This is used by a user trying to select a given MFA
-  * @param {string} answerChallenge the mfa the user wants
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.sendMFASelectionAnswer = function sendMFASelectionAnswer(answerChallenge, callback) {
-		var _this14 = this;
-
-		var challengeResponses = {};
-		challengeResponses.USERNAME = this.username;
-		challengeResponses.ANSWER = answerChallenge;
-
-		var jsonReq = {
-			ChallengeName: 'SELECT_MFA_TYPE',
-			ChallengeResponses: challengeResponses,
-			ClientId: this.pool.getClientId(),
-			Session: this.Session
-		};
-		if (this.getUserContextData()) {
-			jsonReq.UserContextData = this.getUserContextData();
-		}
-		this.client.request('RespondToAuthChallenge', jsonReq, function (err, data) {
-			if (err) {
-				return callback.onFailure(err);
-			}
-			_this14.Session = data.Session;
-			if (answerChallenge === 'SMS_MFA') {
-				return callback.mfaRequired(data.challengeName, data.challengeParameters);
-			}
-			if (answerChallenge === 'SOFTWARE_TOKEN_MFA') {
-				return callback.totpRequired(data.challengeName, data.challengeParameters);
-			}
-			return undefined;
-		});
-	};
-
-	/**
-  * This returns the user context data for advanced security feature.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.getUserContextData = function getUserContextData() {
-		var pool = this.pool;
-		return pool.getUserContextData(this.username);
-	};
-
-	/**
-  * This is used by an authenticated or a user trying to authenticate to associate a TOTP MFA
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.associateSoftwareToken = function associateSoftwareToken(callback) {
-		var _this15 = this;
-
-		if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-			this.client.request('AssociateSoftwareToken', {
-				Session: this.Session
-			}, function (err, data) {
-				if (err) {
-					return callback.onFailure(err);
-				}
-				_this15.Session = data.Session;
-				return callback.associateSecretCode(data.SecretCode);
-			});
-		} else {
-			this.client.request('AssociateSoftwareToken', {
-				AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
-			}, function (err, data) {
-				if (err) {
-					return callback.onFailure(err);
-				}
-				return callback.associateSecretCode(data.SecretCode);
-			});
-		}
-	};
-
-	/**
-  * This is used by an authenticated or a user trying to authenticate to verify a TOTP MFA
-  * @param {string} totpCode The MFA code entered by the user.
-  * @param {string} friendlyDeviceName The device name we are assigning to the device.
-  * @param {nodeCallback<string>} callback Called on success or error.
-  * @returns {void}
-  */
-
-
-	CognitoUser.prototype.verifySoftwareToken = function verifySoftwareToken(totpCode, friendlyDeviceName, callback) {
-		var _this16 = this;
-
-		if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
-			this.client.request('VerifySoftwareToken', {
-				Session: this.Session,
-				UserCode: totpCode,
-				FriendlyDeviceName: friendlyDeviceName
-			}, function (err, data) {
-				if (err) {
-					return callback.onFailure(err);
-				}
-				_this16.Session = data.Session;
-				var challengeResponses = {};
-				challengeResponses.USERNAME = _this16.username;
-				var jsonReq = {
-					ChallengeName: 'MFA_SETUP',
-					ClientId: _this16.pool.getClientId(),
-					ChallengeResponses: challengeResponses,
-					Session: _this16.Session
-				};
-				if (_this16.getUserContextData()) {
-					jsonReq.UserContextData = _this16.getUserContextData();
-				}
-				_this16.client.request('RespondToAuthChallenge', jsonReq, function (errRespond, dataRespond) {
-					if (errRespond) {
-						return callback.onFailure(errRespond);
-					}
-					_this16.signInUserSession = _this16.getCognitoUserSession(dataRespond.AuthenticationResult);
-					_this16.cacheTokens();
-					return callback.onSuccess(_this16.signInUserSession);
-				});
-				return undefined;
-			});
-		} else {
-			this.client.request('VerifySoftwareToken', {
-				AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
-				UserCode: totpCode,
-				FriendlyDeviceName: friendlyDeviceName
-			}, function (err, data) {
-				if (err) {
-					return callback.onFailure(err);
-				}
-				return callback.onSuccess(data);
-			});
-		}
-	};
-
-	return CognitoUser;
+  /**
+   * Constructs a new CognitoUser object
+   * @param {object} data Creation options
+   * @param {string} data.Username The user's username.
+   * @param {CognitoUserPool} data.Pool Pool containing the user.
+   * @param {object} data.Storage Optional storage object.
+   */
+  function CognitoUser(data) {
+    _classCallCheck(this, CognitoUser);
+
+    if (data == null || data.Username == null || data.Pool == null) {
+      throw new Error('Username and pool information are required.');
+    }
+
+    this.username = data.Username || '';
+    this.pool = data.Pool;
+    this.Session = null;
+    this.client = data.Pool.client;
+    this.signInUserSession = null;
+    this.authenticationFlowType = 'USER_SRP_AUTH';
+    this.storage = data.Storage || new _StorageHelper.default().getStorage();
+    this.keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId();
+    this.userDataKey = this.keyPrefix + '.' + this.username + '.userData';
+  }
+  /**
+   * Sets the session for this user
+   * @param {CognitoUserSession} signInUserSession the session
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.setSignInUserSession = function setSignInUserSession(signInUserSession) {
+    this.clearCachedUserData();
+    this.signInUserSession = signInUserSession;
+    this.cacheTokens();
+  };
+  /**
+   * @returns {CognitoUserSession} the current session for this user
+   */
+
+
+  CognitoUser.prototype.getSignInUserSession = function getSignInUserSession() {
+    return this.signInUserSession;
+  };
+  /**
+   * @returns {string} the user's username
+   */
+
+
+  CognitoUser.prototype.getUsername = function getUsername() {
+    return this.username;
+  };
+  /**
+   * @returns {String} the authentication flow type
+   */
+
+
+  CognitoUser.prototype.getAuthenticationFlowType = function getAuthenticationFlowType() {
+    return this.authenticationFlowType;
+  };
+  /**
+   * sets authentication flow type
+   * @param {string} authenticationFlowType New value.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.setAuthenticationFlowType = function setAuthenticationFlowType(authenticationFlowType) {
+    this.authenticationFlowType = authenticationFlowType;
+  };
+  /**
+   * This is used for authenticating the user through the custom authentication flow.
+   * @param {AuthenticationDetails} authDetails Contains the authentication data
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {customChallenge} callback.customChallenge Custom challenge
+   *        response required to continue.
+   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.initiateAuth = function initiateAuth(authDetails, callback) {
+    var _this = this;
+
+    var authParameters = authDetails.getAuthParameters();
+    authParameters.USERNAME = this.username;
+    var clientMetaData = Object.keys(authDetails.getValidationData()).length !== 0 ? authDetails.getValidationData() : authDetails.getClientMetadata();
+    var jsonReq = {
+      AuthFlow: 'CUSTOM_AUTH',
+      ClientId: this.pool.getClientId(),
+      AuthParameters: authParameters,
+      ClientMetadata: clientMetaData
+    };
+
+    if (this.getUserContextData()) {
+      jsonReq.UserContextData = this.getUserContextData();
+    }
+
+    this.client.request('InitiateAuth', jsonReq, function (err, data) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      var challengeName = data.ChallengeName;
+      var challengeParameters = data.ChallengeParameters;
+
+      if (challengeName === 'CUSTOM_CHALLENGE') {
+        _this.Session = data.Session;
+        return callback.customChallenge(challengeParameters);
+      }
+
+      _this.signInUserSession = _this.getCognitoUserSession(data.AuthenticationResult);
+
+      _this.cacheTokens();
+
+      return callback.onSuccess(_this.signInUserSession);
+    });
+  };
+  /**
+   * This is used for authenticating the user.
+   * stuff
+   * @param {AuthenticationDetails} authDetails Contains the authentication data
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {newPasswordRequired} callback.newPasswordRequired new
+   *        password and any required attributes are required to continue
+   * @param {mfaRequired} callback.mfaRequired MFA code
+   *        required to continue.
+   * @param {customChallenge} callback.customChallenge Custom challenge
+   *        response required to continue.
+   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.authenticateUser = function authenticateUser(authDetails, callback) {
+    if (this.authenticationFlowType === 'USER_PASSWORD_AUTH') {
+      return this.authenticateUserPlainUsernamePassword(authDetails, callback);
+    } else if (this.authenticationFlowType === 'USER_SRP_AUTH' || this.authenticationFlowType === 'CUSTOM_AUTH') {
+      return this.authenticateUserDefaultAuth(authDetails, callback);
+    }
+
+    return callback.onFailure(new Error('Authentication flow type is invalid.'));
+  };
+  /**
+   * PRIVATE ONLY: This is an internal only method and should not
+   * be directly called by the consumers.
+   * It calls the AuthenticationHelper for SRP related
+   * stuff
+   * @param {AuthenticationDetails} authDetails Contains the authentication data
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {newPasswordRequired} callback.newPasswordRequired new
+   *        password and any required attributes are required to continue
+   * @param {mfaRequired} callback.mfaRequired MFA code
+   *        required to continue.
+   * @param {customChallenge} callback.customChallenge Custom challenge
+   *        response required to continue.
+   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.authenticateUserDefaultAuth = function authenticateUserDefaultAuth(authDetails, callback) {
+    var _this2 = this;
+
+    var authenticationHelper = new _AuthenticationHelper.default(this.pool.getUserPoolId().split('_')[1]);
+    var dateHelper = new _DateHelper.default();
+    var serverBValue = void 0;
+    var salt = void 0;
+    var authParameters = {};
+
+    if (this.deviceKey != null) {
+      authParameters.DEVICE_KEY = this.deviceKey;
+    }
+
+    authParameters.USERNAME = this.username;
+    authenticationHelper.getLargeAValue(function (errOnAValue, aValue) {
+      // getLargeAValue callback start
+      if (errOnAValue) {
+        callback.onFailure(errOnAValue);
+      }
+
+      authParameters.SRP_A = aValue.toString(16);
+
+      if (_this2.authenticationFlowType === 'CUSTOM_AUTH') {
+        authParameters.CHALLENGE_NAME = 'SRP_A';
+      }
+
+      var clientMetaData = Object.keys(authDetails.getValidationData()).length !== 0 ? authDetails.getValidationData() : authDetails.getClientMetadata();
+      var jsonReq = {
+        AuthFlow: _this2.authenticationFlowType,
+        ClientId: _this2.pool.getClientId(),
+        AuthParameters: authParameters,
+        ClientMetadata: clientMetaData
+      };
+
+      if (_this2.getUserContextData(_this2.username)) {
+        jsonReq.UserContextData = _this2.getUserContextData(_this2.username);
+      }
+
+      _this2.client.request('InitiateAuth', jsonReq, function (err, data) {
+        if (err) {
+          return callback.onFailure(err);
+        }
+
+        var challengeParameters = data.ChallengeParameters;
+        _this2.username = challengeParameters.USER_ID_FOR_SRP;
+        serverBValue = new _BigInteger.default(challengeParameters.SRP_B, 16);
+        salt = new _BigInteger.default(challengeParameters.SALT, 16);
+
+        _this2.getCachedDeviceKeyAndPassword();
+
+        authenticationHelper.getPasswordAuthenticationKey(_this2.username, authDetails.getPassword(), serverBValue, salt, function (errOnHkdf, hkdf) {
+          // getPasswordAuthenticationKey callback start
+          if (errOnHkdf) {
+            callback.onFailure(errOnHkdf);
+          }
+
+          var dateNow = dateHelper.getNowString();
+
+          var message = _core.default.lib.WordArray.create(_buffer.Buffer.concat([_buffer.Buffer.from(_this2.pool.getUserPoolId().split('_')[1], 'utf8'), _buffer.Buffer.from(_this2.username, 'utf8'), _buffer.Buffer.from(challengeParameters.SECRET_BLOCK, 'base64'), _buffer.Buffer.from(dateNow, 'utf8')]));
+
+          var key = _core.default.lib.WordArray.create(hkdf);
+
+          var signatureString = _encBase.default.stringify((0, _hmacSha.default)(message, key));
+
+          var challengeResponses = {};
+          challengeResponses.USERNAME = _this2.username;
+          challengeResponses.PASSWORD_CLAIM_SECRET_BLOCK = challengeParameters.SECRET_BLOCK;
+          challengeResponses.TIMESTAMP = dateNow;
+          challengeResponses.PASSWORD_CLAIM_SIGNATURE = signatureString;
+
+          if (_this2.deviceKey != null) {
+            challengeResponses.DEVICE_KEY = _this2.deviceKey;
+          }
+
+          var respondToAuthChallenge = function respondToAuthChallenge(challenge, challengeCallback) {
+            return _this2.client.request('RespondToAuthChallenge', challenge, function (errChallenge, dataChallenge) {
+              if (errChallenge && errChallenge.code === 'ResourceNotFoundException' && errChallenge.message.toLowerCase().indexOf('device') !== -1) {
+                challengeResponses.DEVICE_KEY = null;
+                _this2.deviceKey = null;
+                _this2.randomPassword = null;
+                _this2.deviceGroupKey = null;
+
+                _this2.clearCachedDeviceKeyAndPassword();
+
+                return respondToAuthChallenge(challenge, challengeCallback);
+              }
+
+              return challengeCallback(errChallenge, dataChallenge);
+            });
+          };
+
+          var jsonReqResp = {
+            ChallengeName: 'PASSWORD_VERIFIER',
+            ClientId: _this2.pool.getClientId(),
+            ChallengeResponses: challengeResponses,
+            Session: data.Session,
+            ClientMetadata: clientMetaData
+          };
+
+          if (_this2.getUserContextData()) {
+            jsonReqResp.UserContextData = _this2.getUserContextData();
+          }
+
+          respondToAuthChallenge(jsonReqResp, function (errAuthenticate, dataAuthenticate) {
+            if (errAuthenticate) {
+              return callback.onFailure(errAuthenticate);
+            }
+
+            return _this2.authenticateUserInternal(dataAuthenticate, authenticationHelper, callback);
+          });
+          return undefined; // getPasswordAuthenticationKey callback end
+        });
+        return undefined;
+      }); // getLargeAValue callback end
+
+    });
+  };
+  /**
+   * PRIVATE ONLY: This is an internal only method and should not
+   * be directly called by the consumers.
+   * @param {AuthenticationDetails} authDetails Contains the authentication data.
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {mfaRequired} callback.mfaRequired MFA code
+   *        required to continue.
+   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.authenticateUserPlainUsernamePassword = function authenticateUserPlainUsernamePassword(authDetails, callback) {
+    var _this3 = this;
+
+    var authParameters = {};
+    authParameters.USERNAME = this.username;
+    authParameters.PASSWORD = authDetails.getPassword();
+
+    if (!authParameters.PASSWORD) {
+      callback.onFailure(new Error('PASSWORD parameter is required'));
+      return;
+    }
+
+    var authenticationHelper = new _AuthenticationHelper.default(this.pool.getUserPoolId().split('_')[1]);
+    this.getCachedDeviceKeyAndPassword();
+
+    if (this.deviceKey != null) {
+      authParameters.DEVICE_KEY = this.deviceKey;
+    }
+
+    var clientMetaData = Object.keys(authDetails.getValidationData()).length !== 0 ? authDetails.getValidationData() : authDetails.getClientMetadata();
+    var jsonReq = {
+      AuthFlow: 'USER_PASSWORD_AUTH',
+      ClientId: this.pool.getClientId(),
+      AuthParameters: authParameters,
+      ClientMetadata: clientMetaData
+    };
+
+    if (this.getUserContextData(this.username)) {
+      jsonReq.UserContextData = this.getUserContextData(this.username);
+    } // USER_PASSWORD_AUTH happens in a single round-trip: client sends userName and password,
+    // Cognito UserPools verifies password and returns tokens.
+
+
+    this.client.request('InitiateAuth', jsonReq, function (err, authResult) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      return _this3.authenticateUserInternal(authResult, authenticationHelper, callback);
+    });
+  };
+  /**
+   * PRIVATE ONLY: This is an internal only method and should not
+   * be directly called by the consumers.
+   * @param {object} dataAuthenticate authentication data
+   * @param {object} authenticationHelper helper created
+   * @param {callback} callback passed on from caller
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.authenticateUserInternal = function authenticateUserInternal(dataAuthenticate, authenticationHelper, callback) {
+    var _this4 = this;
+
+    var challengeName = dataAuthenticate.ChallengeName;
+    var challengeParameters = dataAuthenticate.ChallengeParameters;
+
+    if (challengeName === 'SMS_MFA') {
+      this.Session = dataAuthenticate.Session;
+      return callback.mfaRequired(challengeName, challengeParameters);
+    }
+
+    if (challengeName === 'SELECT_MFA_TYPE') {
+      this.Session = dataAuthenticate.Session;
+      return callback.selectMFAType(challengeName, challengeParameters);
+    }
+
+    if (challengeName === 'MFA_SETUP') {
+      this.Session = dataAuthenticate.Session;
+      return callback.mfaSetup(challengeName, challengeParameters);
+    }
+
+    if (challengeName === 'SOFTWARE_TOKEN_MFA') {
+      this.Session = dataAuthenticate.Session;
+      return callback.totpRequired(challengeName, challengeParameters);
+    }
+
+    if (challengeName === 'CUSTOM_CHALLENGE') {
+      this.Session = dataAuthenticate.Session;
+      return callback.customChallenge(challengeParameters);
+    }
+
+    if (challengeName === 'NEW_PASSWORD_REQUIRED') {
+      this.Session = dataAuthenticate.Session;
+      var userAttributes = null;
+      var rawRequiredAttributes = null;
+      var requiredAttributes = [];
+      var userAttributesPrefix = authenticationHelper.getNewPasswordRequiredChallengeUserAttributePrefix();
+
+      if (challengeParameters) {
+        userAttributes = JSON.parse(dataAuthenticate.ChallengeParameters.userAttributes);
+        rawRequiredAttributes = JSON.parse(dataAuthenticate.ChallengeParameters.requiredAttributes);
+      }
+
+      if (rawRequiredAttributes) {
+        for (var i = 0; i < rawRequiredAttributes.length; i++) {
+          requiredAttributes[i] = rawRequiredAttributes[i].substr(userAttributesPrefix.length);
+        }
+      }
+
+      return callback.newPasswordRequired(userAttributes, requiredAttributes);
+    }
+
+    if (challengeName === 'DEVICE_SRP_AUTH') {
+      this.getDeviceResponse(callback);
+      return undefined;
+    }
+
+    this.signInUserSession = this.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
+    this.challengeName = challengeName;
+    this.cacheTokens();
+    var newDeviceMetadata = dataAuthenticate.AuthenticationResult.NewDeviceMetadata;
+
+    if (newDeviceMetadata == null) {
+      return callback.onSuccess(this.signInUserSession);
+    }
+
+    authenticationHelper.generateHashDevice(dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey, dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey, function (errGenHash) {
+      if (errGenHash) {
+        return callback.onFailure(errGenHash);
+      }
+
+      var deviceSecretVerifierConfig = {
+        Salt: _buffer.Buffer.from(authenticationHelper.getSaltDevices(), 'hex').toString('base64'),
+        PasswordVerifier: _buffer.Buffer.from(authenticationHelper.getVerifierDevices(), 'hex').toString('base64')
+      };
+      _this4.verifierDevices = deviceSecretVerifierConfig.PasswordVerifier;
+      _this4.deviceGroupKey = newDeviceMetadata.DeviceGroupKey;
+      _this4.randomPassword = authenticationHelper.getRandomPassword();
+
+      _this4.client.request('ConfirmDevice', {
+        DeviceKey: newDeviceMetadata.DeviceKey,
+        AccessToken: _this4.signInUserSession.getAccessToken().getJwtToken(),
+        DeviceSecretVerifierConfig: deviceSecretVerifierConfig,
+        DeviceName: navigator.userAgent
+      }, function (errConfirm, dataConfirm) {
+        if (errConfirm) {
+          return callback.onFailure(errConfirm);
+        }
+
+        _this4.deviceKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey;
+
+        _this4.cacheDeviceKeyAndPassword();
+
+        if (dataConfirm.UserConfirmationNecessary === true) {
+          return callback.onSuccess(_this4.signInUserSession, dataConfirm.UserConfirmationNecessary);
+        }
+
+        return callback.onSuccess(_this4.signInUserSession);
+      });
+
+      return undefined;
+    });
+    return undefined;
+  };
+  /**
+   * This method is user to complete the NEW_PASSWORD_REQUIRED challenge.
+   * Pass the new password with any new user attributes to be updated.
+   * User attribute keys must be of format userAttributes.<attribute_name>.
+   * @param {string} newPassword new password for this user
+   * @param {object} requiredAttributeData map with values for all required attributes
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {mfaRequired} callback.mfaRequired MFA code required to continue.
+   * @param {customChallenge} callback.customChallenge Custom challenge
+   *         response required to continue.
+   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.completeNewPasswordChallenge = function completeNewPasswordChallenge(newPassword, requiredAttributeData, callback, clientMetadata) {
+    var _this5 = this;
+
+    if (!newPassword) {
+      return callback.onFailure(new Error('New password is required.'));
+    }
+
+    var authenticationHelper = new _AuthenticationHelper.default(this.pool.getUserPoolId().split('_')[1]);
+    var userAttributesPrefix = authenticationHelper.getNewPasswordRequiredChallengeUserAttributePrefix();
+    var finalUserAttributes = {};
+
+    if (requiredAttributeData) {
+      Object.keys(requiredAttributeData).forEach(function (key) {
+        finalUserAttributes[userAttributesPrefix + key] = requiredAttributeData[key];
+      });
+    }
+
+    finalUserAttributes.NEW_PASSWORD = newPassword;
+    finalUserAttributes.USERNAME = this.username;
+    var jsonReq = {
+      ChallengeName: 'NEW_PASSWORD_REQUIRED',
+      ClientId: this.pool.getClientId(),
+      ChallengeResponses: finalUserAttributes,
+      Session: this.Session,
+      ClientMetadata: clientMetadata
+    };
+
+    if (this.getUserContextData()) {
+      jsonReq.UserContextData = this.getUserContextData();
+    }
+
+    this.client.request('RespondToAuthChallenge', jsonReq, function (errAuthenticate, dataAuthenticate) {
+      if (errAuthenticate) {
+        return callback.onFailure(errAuthenticate);
+      }
+
+      return _this5.authenticateUserInternal(dataAuthenticate, authenticationHelper, callback);
+    });
+    return undefined;
+  };
+  /**
+   * This is used to get a session using device authentication. It is called at the end of user
+   * authentication
+   *
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   * @private
+   */
+
+
+  CognitoUser.prototype.getDeviceResponse = function getDeviceResponse(callback, clientMetadata) {
+    var _this6 = this;
+
+    var authenticationHelper = new _AuthenticationHelper.default(this.deviceGroupKey);
+    var dateHelper = new _DateHelper.default();
+    var authParameters = {};
+    authParameters.USERNAME = this.username;
+    authParameters.DEVICE_KEY = this.deviceKey;
+    authenticationHelper.getLargeAValue(function (errAValue, aValue) {
+      // getLargeAValue callback start
+      if (errAValue) {
+        callback.onFailure(errAValue);
+      }
+
+      authParameters.SRP_A = aValue.toString(16);
+      var jsonReq = {
+        ChallengeName: 'DEVICE_SRP_AUTH',
+        ClientId: _this6.pool.getClientId(),
+        ChallengeResponses: authParameters,
+        ClientMetadata: clientMetadata
+      };
+
+      if (_this6.getUserContextData()) {
+        jsonReq.UserContextData = _this6.getUserContextData();
+      }
+
+      _this6.client.request('RespondToAuthChallenge', jsonReq, function (err, data) {
+        if (err) {
+          return callback.onFailure(err);
+        }
+
+        var challengeParameters = data.ChallengeParameters;
+        var serverBValue = new _BigInteger.default(challengeParameters.SRP_B, 16);
+        var salt = new _BigInteger.default(challengeParameters.SALT, 16);
+        authenticationHelper.getPasswordAuthenticationKey(_this6.deviceKey, _this6.randomPassword, serverBValue, salt, function (errHkdf, hkdf) {
+          // getPasswordAuthenticationKey callback start
+          if (errHkdf) {
+            return callback.onFailure(errHkdf);
+          }
+
+          var dateNow = dateHelper.getNowString();
+
+          var message = _core.default.lib.WordArray.create(_buffer.Buffer.concat([_buffer.Buffer.from(_this6.deviceGroupKey, 'utf8'), _buffer.Buffer.from(_this6.deviceKey, 'utf8'), _buffer.Buffer.from(challengeParameters.SECRET_BLOCK, 'base64'), _buffer.Buffer.from(dateNow, 'utf8')]));
+
+          var key = _core.default.lib.WordArray.create(hkdf);
+
+          var signatureString = _encBase.default.stringify((0, _hmacSha.default)(message, key));
+
+          var challengeResponses = {};
+          challengeResponses.USERNAME = _this6.username;
+          challengeResponses.PASSWORD_CLAIM_SECRET_BLOCK = challengeParameters.SECRET_BLOCK;
+          challengeResponses.TIMESTAMP = dateNow;
+          challengeResponses.PASSWORD_CLAIM_SIGNATURE = signatureString;
+          challengeResponses.DEVICE_KEY = _this6.deviceKey;
+          var jsonReqResp = {
+            ChallengeName: 'DEVICE_PASSWORD_VERIFIER',
+            ClientId: _this6.pool.getClientId(),
+            ChallengeResponses: challengeResponses,
+            Session: data.Session
+          };
+
+          if (_this6.getUserContextData()) {
+            jsonReqResp.UserContextData = _this6.getUserContextData();
+          }
+
+          _this6.client.request('RespondToAuthChallenge', jsonReqResp, function (errAuthenticate, dataAuthenticate) {
+            if (errAuthenticate) {
+              return callback.onFailure(errAuthenticate);
+            }
+
+            _this6.signInUserSession = _this6.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
+
+            _this6.cacheTokens();
+
+            return callback.onSuccess(_this6.signInUserSession);
+          });
+
+          return undefined; // getPasswordAuthenticationKey callback end
+        });
+        return undefined;
+      }); // getLargeAValue callback end
+
+    });
+  };
+  /**
+   * This is used for a certain user to confirm the registration by using a confirmation code
+   * @param {string} confirmationCode Code entered by user.
+   * @param {bool} forceAliasCreation Allow migrating from an existing email / phone number.
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.confirmRegistration = function confirmRegistration(confirmationCode, forceAliasCreation, callback, clientMetadata) {
+    var jsonReq = {
+      ClientId: this.pool.getClientId(),
+      ConfirmationCode: confirmationCode,
+      Username: this.username,
+      ForceAliasCreation: forceAliasCreation,
+      ClientMetadata: clientMetadata
+    };
+
+    if (this.getUserContextData()) {
+      jsonReq.UserContextData = this.getUserContextData();
+    }
+
+    this.client.request('ConfirmSignUp', jsonReq, function (err) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      return callback(null, 'SUCCESS');
+    });
+  };
+  /**
+   * This is used by the user once he has the responses to a custom challenge
+   * @param {string} answerChallenge The custom challenge answer.
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {customChallenge} callback.customChallenge
+   *    Custom challenge response required to continue.
+   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.sendCustomChallengeAnswer = function sendCustomChallengeAnswer(answerChallenge, callback, clientMetadata) {
+    var _this7 = this;
+
+    var challengeResponses = {};
+    challengeResponses.USERNAME = this.username;
+    challengeResponses.ANSWER = answerChallenge;
+    var authenticationHelper = new _AuthenticationHelper.default(this.pool.getUserPoolId().split('_')[1]);
+    this.getCachedDeviceKeyAndPassword();
+
+    if (this.deviceKey != null) {
+      challengeResponses.DEVICE_KEY = this.deviceKey;
+    }
+
+    var jsonReq = {
+      ChallengeName: 'CUSTOM_CHALLENGE',
+      ChallengeResponses: challengeResponses,
+      ClientId: this.pool.getClientId(),
+      Session: this.Session,
+      ClientMetadata: clientMetadata
+    };
+
+    if (this.getUserContextData()) {
+      jsonReq.UserContextData = this.getUserContextData();
+    }
+
+    this.client.request('RespondToAuthChallenge', jsonReq, function (err, data) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      return _this7.authenticateUserInternal(data, authenticationHelper, callback);
+    });
+  };
+  /**
+   * This is used by the user once he has an MFA code
+   * @param {string} confirmationCode The MFA code entered by the user.
+   * @param {object} callback Result callback map.
+   * @param {string} mfaType The mfa we are replying to.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {authSuccess} callback.onSuccess Called on success with the new session.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.sendMFACode = function sendMFACode(confirmationCode, callback, mfaType, clientMetadata) {
+    var _this8 = this;
+
+    var challengeResponses = {};
+    challengeResponses.USERNAME = this.username;
+    challengeResponses.SMS_MFA_CODE = confirmationCode;
+    var mfaTypeSelection = mfaType || 'SMS_MFA';
+
+    if (mfaTypeSelection === 'SOFTWARE_TOKEN_MFA') {
+      challengeResponses.SOFTWARE_TOKEN_MFA_CODE = confirmationCode;
+    }
+
+    if (this.deviceKey != null) {
+      challengeResponses.DEVICE_KEY = this.deviceKey;
+    }
+
+    var jsonReq = {
+      ChallengeName: mfaTypeSelection,
+      ChallengeResponses: challengeResponses,
+      ClientId: this.pool.getClientId(),
+      Session: this.Session,
+      ClientMetadata: clientMetadata
+    };
+
+    if (this.getUserContextData()) {
+      jsonReq.UserContextData = this.getUserContextData();
+    }
+
+    this.client.request('RespondToAuthChallenge', jsonReq, function (err, dataAuthenticate) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      var challengeName = dataAuthenticate.ChallengeName;
+
+      if (challengeName === 'DEVICE_SRP_AUTH') {
+        _this8.getDeviceResponse(callback);
+
+        return undefined;
+      }
+
+      _this8.signInUserSession = _this8.getCognitoUserSession(dataAuthenticate.AuthenticationResult);
+
+      _this8.cacheTokens();
+
+      if (dataAuthenticate.AuthenticationResult.NewDeviceMetadata == null) {
+        return callback.onSuccess(_this8.signInUserSession);
+      }
+
+      var authenticationHelper = new _AuthenticationHelper.default(_this8.pool.getUserPoolId().split('_')[1]);
+      authenticationHelper.generateHashDevice(dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey, dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey, function (errGenHash) {
+        if (errGenHash) {
+          return callback.onFailure(errGenHash);
+        }
+
+        var deviceSecretVerifierConfig = {
+          Salt: _buffer.Buffer.from(authenticationHelper.getSaltDevices(), 'hex').toString('base64'),
+          PasswordVerifier: _buffer.Buffer.from(authenticationHelper.getVerifierDevices(), 'hex').toString('base64')
+        };
+        _this8.verifierDevices = deviceSecretVerifierConfig.PasswordVerifier;
+        _this8.deviceGroupKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceGroupKey;
+        _this8.randomPassword = authenticationHelper.getRandomPassword();
+
+        _this8.client.request('ConfirmDevice', {
+          DeviceKey: dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey,
+          AccessToken: _this8.signInUserSession.getAccessToken().getJwtToken(),
+          DeviceSecretVerifierConfig: deviceSecretVerifierConfig,
+          DeviceName: navigator.userAgent
+        }, function (errConfirm, dataConfirm) {
+          if (errConfirm) {
+            return callback.onFailure(errConfirm);
+          }
+
+          _this8.deviceKey = dataAuthenticate.AuthenticationResult.NewDeviceMetadata.DeviceKey;
+
+          _this8.cacheDeviceKeyAndPassword();
+
+          if (dataConfirm.UserConfirmationNecessary === true) {
+            return callback.onSuccess(_this8.signInUserSession, dataConfirm.UserConfirmationNecessary);
+          }
+
+          return callback.onSuccess(_this8.signInUserSession);
+        });
+
+        return undefined;
+      });
+      return undefined;
+    });
+  };
+  /**
+   * This is used by an authenticated user to change the current password
+   * @param {string} oldUserPassword The current password.
+   * @param {string} newUserPassword The requested new password.
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.changePassword = function changePassword(oldUserPassword, newUserPassword, callback, clientMetadata) {
+    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+      return callback(new Error('User is not authenticated'), null);
+    }
+
+    this.client.request('ChangePassword', {
+      PreviousPassword: oldUserPassword,
+      ProposedPassword: newUserPassword,
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+      ClientMetadata: clientMetadata
+    }, function (err) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      return callback(null, 'SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used by an authenticated user to enable MFA for itself
+   * @deprecated
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.enableMFA = function enableMFA(callback) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback(new Error('User is not authenticated'), null);
+    }
+
+    var mfaOptions = [];
+    var mfaEnabled = {
+      DeliveryMedium: 'SMS',
+      AttributeName: 'phone_number'
+    };
+    mfaOptions.push(mfaEnabled);
+    this.client.request('SetUserSettings', {
+      MFAOptions: mfaOptions,
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+    }, function (err) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      return callback(null, 'SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used by an authenticated user to enable MFA for itself
+   * @param {IMfaSettings} smsMfaSettings the sms mfa settings
+   * @param {IMFASettings} softwareTokenMfaSettings the software token mfa settings
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.setUserMfaPreference = function setUserMfaPreference(smsMfaSettings, softwareTokenMfaSettings, callback) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback(new Error('User is not authenticated'), null);
+    }
+
+    this.client.request('SetUserMFAPreference', {
+      SMSMfaSettings: smsMfaSettings,
+      SoftwareTokenMfaSettings: softwareTokenMfaSettings,
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+    }, function (err) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      return callback(null, 'SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used by an authenticated user to disable MFA for itself
+   * @deprecated
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.disableMFA = function disableMFA(callback) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback(new Error('User is not authenticated'), null);
+    }
+
+    var mfaOptions = [];
+    this.client.request('SetUserSettings', {
+      MFAOptions: mfaOptions,
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+    }, function (err) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      return callback(null, 'SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used by an authenticated user to delete itself
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.deleteUser = function deleteUser(callback, clientMetadata) {
+    var _this9 = this;
+
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback(new Error('User is not authenticated'), null);
+    }
+
+    this.client.request('DeleteUser', {
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+      ClientMetadata: clientMetadata
+    }, function (err) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      _this9.clearCachedUser();
+
+      return callback(null, 'SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * @typedef {CognitoUserAttribute | { Name:string, Value:string }} AttributeArg
+   */
+
+  /**
+   * This is used by an authenticated user to change a list of attributes
+   * @param {AttributeArg[]} attributes A list of the new user attributes.
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.updateAttributes = function updateAttributes(attributes, callback, clientMetadata) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback(new Error('User is not authenticated'), null);
+    }
+
+    this.client.request('UpdateUserAttributes', {
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+      UserAttributes: attributes,
+      ClientMetadata: clientMetadata
+    }, function (err) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      return callback(null, 'SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used by an authenticated user to get a list of attributes
+   * @param {nodeCallback<CognitoUserAttribute[]>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.getUserAttributes = function getUserAttributes(callback) {
+    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+      return callback(new Error('User is not authenticated'), null);
+    }
+
+    this.client.request('GetUser', {
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+    }, function (err, userData) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      var attributeList = [];
+
+      for (var i = 0; i < userData.UserAttributes.length; i++) {
+        var attribute = {
+          Name: userData.UserAttributes[i].Name,
+          Value: userData.UserAttributes[i].Value
+        };
+        var userAttribute = new _CognitoUserAttribute.default(attribute);
+        attributeList.push(userAttribute);
+      }
+
+      return callback(null, attributeList);
+    });
+    return undefined;
+  };
+  /**
+   * This is used by an authenticated user to get the MFAOptions
+   * @param {nodeCallback<MFAOptions>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.getMFAOptions = function getMFAOptions(callback) {
+    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+      return callback(new Error('User is not authenticated'), null);
+    }
+
+    this.client.request('GetUser', {
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+    }, function (err, userData) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      return callback(null, userData.MFAOptions);
+    });
+    return undefined;
+  };
+  /**
+   * This is used by an authenticated users to get the userData
+   * @param {nodeCallback<UserData>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.getUserData = function getUserData(callback, params) {
+    var _this10 = this;
+
+    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+      this.clearCachedUserData();
+      return callback(new Error('User is not authenticated'), null);
+    }
+
+    var bypassCache = params ? params.bypassCache : false;
+    var userData = this.storage.getItem(this.userDataKey); // get the cached user data
+
+    if (!userData || bypassCache) {
+      this.client.request('GetUser', {
+        AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+      }, function (err, latestUserData) {
+        if (err) {
+          return callback(err, null);
+        }
+
+        _this10.cacheUserData(latestUserData);
+
+        var refresh = _this10.signInUserSession.getRefreshToken();
+
+        if (refresh && refresh.getToken()) {
+          _this10.refreshSession(refresh, function (refreshError, data) {
+            if (refreshError) {
+              return callback(refreshError, null);
+            }
+
+            return callback(null, latestUserData);
+          });
+        } else {
+          return callback(null, latestUserData);
+        }
+      });
+    } else {
+      try {
+        return callback(null, JSON.parse(userData));
+      } catch (err) {
+        this.clearCachedUserData();
+        return callback(err, null);
+      }
+    }
+
+    return undefined;
+  };
+  /**
+   * This is used by an authenticated user to delete a list of attributes
+   * @param {string[]} attributeList Names of the attributes to delete.
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.deleteAttributes = function deleteAttributes(attributeList, callback) {
+    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+      return callback(new Error('User is not authenticated'), null);
+    }
+
+    this.client.request('DeleteUserAttributes', {
+      UserAttributeNames: attributeList,
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+    }, function (err) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      return callback(null, 'SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used by a user to resend a confirmation code
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.resendConfirmationCode = function resendConfirmationCode(callback, clientMetadata) {
+    var jsonReq = {
+      ClientId: this.pool.getClientId(),
+      Username: this.username,
+      ClientMetadata: clientMetadata
+    };
+    this.client.request('ResendConfirmationCode', jsonReq, function (err, result) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      return callback(null, result);
+    });
+  };
+  /**
+   * This is used to get a session, either from the session object
+   * or from  the local storage, or by using a refresh token
+   *
+   * @param {nodeCallback<CognitoUserSession>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.getSession = function getSession(callback) {
+    if (this.username == null) {
+      return callback(new Error('Username is null. Cannot retrieve a new session'), null);
+    }
+
+    if (this.signInUserSession != null && this.signInUserSession.isValid()) {
+      return callback(null, this.signInUserSession);
+    }
+
+    var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId() + '.' + this.username;
+    var idTokenKey = keyPrefix + '.idToken';
+    var accessTokenKey = keyPrefix + '.accessToken';
+    var refreshTokenKey = keyPrefix + '.refreshToken';
+    var clockDriftKey = keyPrefix + '.clockDrift';
+
+    if (this.storage.getItem(idTokenKey)) {
+      var idToken = new _CognitoIdToken.default({
+        IdToken: this.storage.getItem(idTokenKey)
+      });
+      var accessToken = new _CognitoAccessToken.default({
+        AccessToken: this.storage.getItem(accessTokenKey)
+      });
+      var refreshToken = new _CognitoRefreshToken.default({
+        RefreshToken: this.storage.getItem(refreshTokenKey)
+      });
+      var clockDrift = parseInt(this.storage.getItem(clockDriftKey), 0) || 0;
+      var sessionData = {
+        IdToken: idToken,
+        AccessToken: accessToken,
+        RefreshToken: refreshToken,
+        ClockDrift: clockDrift
+      };
+      var cachedSession = new _CognitoUserSession.default(sessionData);
+
+      if (cachedSession.isValid()) {
+        this.signInUserSession = cachedSession;
+        return callback(null, this.signInUserSession);
+      }
+
+      if (!refreshToken.getToken()) {
+        return callback(new Error('Cannot retrieve a new session. Please authenticate.'), null);
+      }
+
+      this.refreshSession(refreshToken, callback);
+    } else {
+      callback(new Error('Local storage is missing an ID Token, Please authenticate'), null);
+    }
+
+    return undefined;
+  };
+  /**
+   * This uses the refreshToken to retrieve a new session
+   * @param {CognitoRefreshToken} refreshToken A previous session's refresh token.
+   * @param {nodeCallback<CognitoUserSession>} callback Called on success or error.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.refreshSession = function refreshSession(refreshToken, callback, clientMetadata) {
+    var _this11 = this;
+
+    var authParameters = {};
+    authParameters.REFRESH_TOKEN = refreshToken.getToken();
+    var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId();
+    var lastUserKey = keyPrefix + '.LastAuthUser';
+
+    if (this.storage.getItem(lastUserKey)) {
+      this.username = this.storage.getItem(lastUserKey);
+      var deviceKeyKey = keyPrefix + '.' + this.username + '.deviceKey';
+      this.deviceKey = this.storage.getItem(deviceKeyKey);
+      authParameters.DEVICE_KEY = this.deviceKey;
+    }
+
+    var jsonReq = {
+      ClientId: this.pool.getClientId(),
+      AuthFlow: 'REFRESH_TOKEN_AUTH',
+      AuthParameters: authParameters,
+      ClientMetadata: clientMetadata
+    };
+
+    if (this.getUserContextData()) {
+      jsonReq.UserContextData = this.getUserContextData();
+    }
+
+    this.client.request('InitiateAuth', jsonReq, function (err, authResult) {
+      if (err) {
+        if (err.code === 'NotAuthorizedException') {
+          _this11.clearCachedUser();
+        }
+
+        return callback(err, null);
+      }
+
+      if (authResult) {
+        var authenticationResult = authResult.AuthenticationResult;
+
+        if (!Object.prototype.hasOwnProperty.call(authenticationResult, 'RefreshToken')) {
+          authenticationResult.RefreshToken = refreshToken.getToken();
+        }
+
+        _this11.signInUserSession = _this11.getCognitoUserSession(authenticationResult);
+
+        _this11.cacheTokens();
+
+        return callback(null, _this11.signInUserSession);
+      }
+
+      return undefined;
+    });
+  };
+  /**
+   * This is used to save the session tokens to local storage
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.cacheTokens = function cacheTokens() {
+    var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId();
+    var idTokenKey = keyPrefix + '.' + this.username + '.idToken';
+    var accessTokenKey = keyPrefix + '.' + this.username + '.accessToken';
+    var refreshTokenKey = keyPrefix + '.' + this.username + '.refreshToken';
+    var clockDriftKey = keyPrefix + '.' + this.username + '.clockDrift';
+    var lastUserKey = keyPrefix + '.LastAuthUser';
+    this.storage.setItem(idTokenKey, this.signInUserSession.getIdToken().getJwtToken());
+    this.storage.setItem(accessTokenKey, this.signInUserSession.getAccessToken().getJwtToken());
+    this.storage.setItem(refreshTokenKey, this.signInUserSession.getRefreshToken().getToken());
+    this.storage.setItem(clockDriftKey, '' + this.signInUserSession.getClockDrift());
+    this.storage.setItem(lastUserKey, this.username);
+  };
+  /**
+   * This is to cache user data
+   */
+
+
+  CognitoUser.prototype.cacheUserData = function cacheUserData(userData) {
+    this.storage.setItem(this.userDataKey, JSON.stringify(userData));
+  };
+  /**
+   * This is to remove cached user data
+   */
+
+
+  CognitoUser.prototype.clearCachedUserData = function clearCachedUserData() {
+    this.storage.removeItem(this.userDataKey);
+  };
+
+  CognitoUser.prototype.clearCachedUser = function clearCachedUser() {
+    this.clearCachedTokens();
+    this.clearCachedUserData();
+  };
+  /**
+   * This is used to cache the device key and device group and device password
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.cacheDeviceKeyAndPassword = function cacheDeviceKeyAndPassword() {
+    var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId() + '.' + this.username;
+    var deviceKeyKey = keyPrefix + '.deviceKey';
+    var randomPasswordKey = keyPrefix + '.randomPasswordKey';
+    var deviceGroupKeyKey = keyPrefix + '.deviceGroupKey';
+    this.storage.setItem(deviceKeyKey, this.deviceKey);
+    this.storage.setItem(randomPasswordKey, this.randomPassword);
+    this.storage.setItem(deviceGroupKeyKey, this.deviceGroupKey);
+  };
+  /**
+   * This is used to get current device key and device group and device password
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.getCachedDeviceKeyAndPassword = function getCachedDeviceKeyAndPassword() {
+    var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId() + '.' + this.username;
+    var deviceKeyKey = keyPrefix + '.deviceKey';
+    var randomPasswordKey = keyPrefix + '.randomPasswordKey';
+    var deviceGroupKeyKey = keyPrefix + '.deviceGroupKey';
+
+    if (this.storage.getItem(deviceKeyKey)) {
+      this.deviceKey = this.storage.getItem(deviceKeyKey);
+      this.randomPassword = this.storage.getItem(randomPasswordKey);
+      this.deviceGroupKey = this.storage.getItem(deviceGroupKeyKey);
+    }
+  };
+  /**
+   * This is used to clear the device key info from local storage
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.clearCachedDeviceKeyAndPassword = function clearCachedDeviceKeyAndPassword() {
+    var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId() + '.' + this.username;
+    var deviceKeyKey = keyPrefix + '.deviceKey';
+    var randomPasswordKey = keyPrefix + '.randomPasswordKey';
+    var deviceGroupKeyKey = keyPrefix + '.deviceGroupKey';
+    this.storage.removeItem(deviceKeyKey);
+    this.storage.removeItem(randomPasswordKey);
+    this.storage.removeItem(deviceGroupKeyKey);
+  };
+  /**
+   * This is used to clear the session tokens from local storage
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.clearCachedTokens = function clearCachedTokens() {
+    var keyPrefix = 'CognitoIdentityServiceProvider.' + this.pool.getClientId();
+    var idTokenKey = keyPrefix + '.' + this.username + '.idToken';
+    var accessTokenKey = keyPrefix + '.' + this.username + '.accessToken';
+    var refreshTokenKey = keyPrefix + '.' + this.username + '.refreshToken';
+    var lastUserKey = keyPrefix + '.LastAuthUser';
+    var clockDriftKey = keyPrefix + '.' + this.username + '.clockDrift';
+    this.storage.removeItem(idTokenKey);
+    this.storage.removeItem(accessTokenKey);
+    this.storage.removeItem(refreshTokenKey);
+    this.storage.removeItem(lastUserKey);
+    this.storage.removeItem(clockDriftKey);
+  };
+  /**
+   * This is used to build a user session from tokens retrieved in the authentication result
+   * @param {object} authResult Successful auth response from server.
+   * @returns {CognitoUserSession} The new user session.
+   * @private
+   */
+
+
+  CognitoUser.prototype.getCognitoUserSession = function getCognitoUserSession(authResult) {
+    var idToken = new _CognitoIdToken.default(authResult);
+    var accessToken = new _CognitoAccessToken.default(authResult);
+    var refreshToken = new _CognitoRefreshToken.default(authResult);
+    var sessionData = {
+      IdToken: idToken,
+      AccessToken: accessToken,
+      RefreshToken: refreshToken
+    };
+    return new _CognitoUserSession.default(sessionData);
+  };
+  /**
+   * This is used to initiate a forgot password request
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {inputVerificationCode?} callback.inputVerificationCode
+   *    Optional callback raised instead of onSuccess with response data.
+   * @param {onSuccess} callback.onSuccess Called on success.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.forgotPassword = function forgotPassword(callback, clientMetadata) {
+    var jsonReq = {
+      ClientId: this.pool.getClientId(),
+      Username: this.username,
+      ClientMetadata: clientMetadata
+    };
+
+    if (this.getUserContextData()) {
+      jsonReq.UserContextData = this.getUserContextData();
+    }
+
+    this.client.request('ForgotPassword', jsonReq, function (err, data) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      if (typeof callback.inputVerificationCode === 'function') {
+        return callback.inputVerificationCode(data);
+      }
+
+      return callback.onSuccess(data);
+    });
+  };
+  /**
+   * This is used to confirm a new password using a confirmationCode
+   * @param {string} confirmationCode Code entered by user.
+   * @param {string} newPassword Confirm new password.
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {onSuccess<void>} callback.onSuccess Called on success.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.confirmPassword = function confirmPassword(confirmationCode, newPassword, callback, clientMetadata) {
+    var jsonReq = {
+      ClientId: this.pool.getClientId(),
+      Username: this.username,
+      ConfirmationCode: confirmationCode,
+      Password: newPassword,
+      ClientMetadata: clientMetadata
+    };
+
+    if (this.getUserContextData()) {
+      jsonReq.UserContextData = this.getUserContextData();
+    }
+
+    this.client.request('ConfirmForgotPassword', jsonReq, function (err) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      return callback.onSuccess();
+    });
+  };
+  /**
+   * This is used to initiate an attribute confirmation request
+   * @param {string} attributeName User attribute that needs confirmation.
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {inputVerificationCode} callback.inputVerificationCode Called on success.
+   * @param {ClientMetadata} clientMetadata object which is passed from client to Cognito Lambda trigger
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.getAttributeVerificationCode = function getAttributeVerificationCode(attributeName, callback, clientMetadata) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback.onFailure(new Error('User is not authenticated'));
+    }
+
+    this.client.request('GetUserAttributeVerificationCode', {
+      AttributeName: attributeName,
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+      ClientMetadata: clientMetadata
+    }, function (err, data) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      if (typeof callback.inputVerificationCode === 'function') {
+        return callback.inputVerificationCode(data);
+      }
+
+      return callback.onSuccess();
+    });
+    return undefined;
+  };
+  /**
+   * This is used to confirm an attribute using a confirmation code
+   * @param {string} attributeName Attribute being confirmed.
+   * @param {string} confirmationCode Code entered by user.
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {onSuccess<string>} callback.onSuccess Called on success.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.verifyAttribute = function verifyAttribute(attributeName, confirmationCode, callback) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback.onFailure(new Error('User is not authenticated'));
+    }
+
+    this.client.request('VerifyUserAttribute', {
+      AttributeName: attributeName,
+      Code: confirmationCode,
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+    }, function (err) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      return callback.onSuccess('SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used to get the device information using the current device key
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {onSuccess<*>} callback.onSuccess Called on success with device data.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.getDevice = function getDevice(callback) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback.onFailure(new Error('User is not authenticated'));
+    }
+
+    this.client.request('GetDevice', {
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+      DeviceKey: this.deviceKey
+    }, function (err, data) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      return callback.onSuccess(data);
+    });
+    return undefined;
+  };
+  /**
+   * This is used to forget a specific device
+   * @param {string} deviceKey Device key.
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {onSuccess<string>} callback.onSuccess Called on success.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.forgetSpecificDevice = function forgetSpecificDevice(deviceKey, callback) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback.onFailure(new Error('User is not authenticated'));
+    }
+
+    this.client.request('ForgetDevice', {
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+      DeviceKey: deviceKey
+    }, function (err) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      return callback.onSuccess('SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used to forget the current device
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {onSuccess<string>} callback.onSuccess Called on success.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.forgetDevice = function forgetDevice(callback) {
+    var _this12 = this;
+
+    this.forgetSpecificDevice(this.deviceKey, {
+      onFailure: callback.onFailure,
+      onSuccess: function onSuccess(result) {
+        _this12.deviceKey = null;
+        _this12.deviceGroupKey = null;
+        _this12.randomPassword = null;
+
+        _this12.clearCachedDeviceKeyAndPassword();
+
+        return callback.onSuccess(result);
+      }
+    });
+  };
+  /**
+   * This is used to set the device status as remembered
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {onSuccess<string>} callback.onSuccess Called on success.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.setDeviceStatusRemembered = function setDeviceStatusRemembered(callback) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback.onFailure(new Error('User is not authenticated'));
+    }
+
+    this.client.request('UpdateDeviceStatus', {
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+      DeviceKey: this.deviceKey,
+      DeviceRememberedStatus: 'remembered'
+    }, function (err) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      return callback.onSuccess('SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used to set the device status as not remembered
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {onSuccess<string>} callback.onSuccess Called on success.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.setDeviceStatusNotRemembered = function setDeviceStatusNotRemembered(callback) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback.onFailure(new Error('User is not authenticated'));
+    }
+
+    this.client.request('UpdateDeviceStatus', {
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+      DeviceKey: this.deviceKey,
+      DeviceRememberedStatus: 'not_remembered'
+    }, function (err) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      return callback.onSuccess('SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used to list all devices for a user
+   *
+   * @param {int} limit the number of devices returned in a call
+   * @param {string} paginationToken the pagination token in case any was returned before
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {onSuccess<*>} callback.onSuccess Called on success with device list.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.listDevices = function listDevices(limit, paginationToken, callback) {
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback.onFailure(new Error('User is not authenticated'));
+    }
+
+    this.client.request('ListDevices', {
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+      Limit: limit,
+      PaginationToken: paginationToken
+    }, function (err, data) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      return callback.onSuccess(data);
+    });
+    return undefined;
+  };
+  /**
+   * This is used to globally revoke all tokens issued to a user
+   * @param {object} callback Result callback map.
+   * @param {onFailure} callback.onFailure Called on any error.
+   * @param {onSuccess<string>} callback.onSuccess Called on success.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.globalSignOut = function globalSignOut(callback) {
+    var _this13 = this;
+
+    if (this.signInUserSession == null || !this.signInUserSession.isValid()) {
+      return callback.onFailure(new Error('User is not authenticated'));
+    }
+
+    this.client.request('GlobalSignOut', {
+      AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+    }, function (err) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      _this13.clearCachedUser();
+
+      return callback.onSuccess('SUCCESS');
+    });
+    return undefined;
+  };
+  /**
+   * This is used for the user to signOut of the application and clear the cached tokens.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.signOut = function signOut() {
+    this.signInUserSession = null;
+    this.clearCachedUser();
+  };
+  /**
+   * This is used by a user trying to select a given MFA
+   * @param {string} answerChallenge the mfa the user wants
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.sendMFASelectionAnswer = function sendMFASelectionAnswer(answerChallenge, callback) {
+    var _this14 = this;
+
+    var challengeResponses = {};
+    challengeResponses.USERNAME = this.username;
+    challengeResponses.ANSWER = answerChallenge;
+    var jsonReq = {
+      ChallengeName: 'SELECT_MFA_TYPE',
+      ChallengeResponses: challengeResponses,
+      ClientId: this.pool.getClientId(),
+      Session: this.Session
+    };
+
+    if (this.getUserContextData()) {
+      jsonReq.UserContextData = this.getUserContextData();
+    }
+
+    this.client.request('RespondToAuthChallenge', jsonReq, function (err, data) {
+      if (err) {
+        return callback.onFailure(err);
+      }
+
+      _this14.Session = data.Session;
+
+      if (answerChallenge === 'SMS_MFA') {
+        return callback.mfaRequired(data.challengeName, data.challengeParameters);
+      }
+
+      if (answerChallenge === 'SOFTWARE_TOKEN_MFA') {
+        return callback.totpRequired(data.challengeName, data.challengeParameters);
+      }
+
+      return undefined;
+    });
+  };
+  /**
+   * This returns the user context data for advanced security feature.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.getUserContextData = function getUserContextData() {
+    var pool = this.pool;
+    return pool.getUserContextData(this.username);
+  };
+  /**
+   * This is used by an authenticated or a user trying to authenticate to associate a TOTP MFA
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.associateSoftwareToken = function associateSoftwareToken(callback) {
+    var _this15 = this;
+
+    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+      this.client.request('AssociateSoftwareToken', {
+        Session: this.Session
+      }, function (err, data) {
+        if (err) {
+          return callback.onFailure(err);
+        }
+
+        _this15.Session = data.Session;
+        return callback.associateSecretCode(data.SecretCode);
+      });
+    } else {
+      this.client.request('AssociateSoftwareToken', {
+        AccessToken: this.signInUserSession.getAccessToken().getJwtToken()
+      }, function (err, data) {
+        if (err) {
+          return callback.onFailure(err);
+        }
+
+        return callback.associateSecretCode(data.SecretCode);
+      });
+    }
+  };
+  /**
+   * This is used by an authenticated or a user trying to authenticate to verify a TOTP MFA
+   * @param {string} totpCode The MFA code entered by the user.
+   * @param {string} friendlyDeviceName The device name we are assigning to the device.
+   * @param {nodeCallback<string>} callback Called on success or error.
+   * @returns {void}
+   */
+
+
+  CognitoUser.prototype.verifySoftwareToken = function verifySoftwareToken(totpCode, friendlyDeviceName, callback) {
+    var _this16 = this;
+
+    if (!(this.signInUserSession != null && this.signInUserSession.isValid())) {
+      this.client.request('VerifySoftwareToken', {
+        Session: this.Session,
+        UserCode: totpCode,
+        FriendlyDeviceName: friendlyDeviceName
+      }, function (err, data) {
+        if (err) {
+          return callback.onFailure(err);
+        }
+
+        _this16.Session = data.Session;
+        var challengeResponses = {};
+        challengeResponses.USERNAME = _this16.username;
+        var jsonReq = {
+          ChallengeName: 'MFA_SETUP',
+          ClientId: _this16.pool.getClientId(),
+          ChallengeResponses: challengeResponses,
+          Session: _this16.Session
+        };
+
+        if (_this16.getUserContextData()) {
+          jsonReq.UserContextData = _this16.getUserContextData();
+        }
+
+        _this16.client.request('RespondToAuthChallenge', jsonReq, function (errRespond, dataRespond) {
+          if (errRespond) {
+            return callback.onFailure(errRespond);
+          }
+
+          _this16.signInUserSession = _this16.getCognitoUserSession(dataRespond.AuthenticationResult);
+
+          _this16.cacheTokens();
+
+          return callback.onSuccess(_this16.signInUserSession);
+        });
+
+        return undefined;
+      });
+    } else {
+      this.client.request('VerifySoftwareToken', {
+        AccessToken: this.signInUserSession.getAccessToken().getJwtToken(),
+        UserCode: totpCode,
+        FriendlyDeviceName: friendlyDeviceName
+      }, function (err, data) {
+        if (err) {
+          return callback.onFailure(err);
+        }
+
+        return callback.onSuccess(data);
+      });
+    }
+  };
+
+  return CognitoUser;
 }();
 
-exports.default = CognitoUser;
+var _default = CognitoUser;
+exports.default = _default;
+
 },{"./AuthenticationHelper":2,"./BigInteger":3,"./CognitoAccessToken":5,"./CognitoIdToken":6,"./CognitoRefreshToken":8,"./CognitoUserAttribute":10,"./CognitoUserSession":12,"./DateHelper":14,"./StorageHelper":15,"buffer/":19,"crypto-js/core":20,"crypto-js/enc-base64":21,"crypto-js/hmac-sha256":22,"crypto-js/lib-typedarrays":24}],10:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 /*!
  * Copyright 2016 Amazon.com,
  * Inc. or its affiliates. All Rights Reserved.
@@ -3604,306 +3752,313 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 /** @class */
+
+
 var CognitoUserAttribute = function () {
-	/**
-  * Constructs a new CognitoUserAttribute object
-  * @param {string=} Name The record's name
-  * @param {string=} Value The record's value
-  */
-	function CognitoUserAttribute() {
-		var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-		    Name = _ref.Name,
-		    Value = _ref.Value;
+  /**
+   * Constructs a new CognitoUserAttribute object
+   * @param {string=} Name The record's name
+   * @param {string=} Value The record's value
+   */
+  function CognitoUserAttribute() {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        Name = _ref.Name,
+        Value = _ref.Value;
 
-		_classCallCheck(this, CognitoUserAttribute);
+    _classCallCheck(this, CognitoUserAttribute);
 
-		this.Name = Name || '';
-		this.Value = Value || '';
-	}
-
-	/**
-  * @returns {string} the record's value.
-  */
-
-
-	CognitoUserAttribute.prototype.getValue = function getValue() {
-		return this.Value;
-	};
-
-	/**
-  * Sets the record's value.
-  * @param {string} value The new value.
-  * @returns {CognitoUserAttribute} The record for method chaining.
-  */
+    this.Name = Name || '';
+    this.Value = Value || '';
+  }
+  /**
+   * @returns {string} the record's value.
+   */
 
 
-	CognitoUserAttribute.prototype.setValue = function setValue(value) {
-		this.Value = value;
-		return this;
-	};
-
-	/**
-  * @returns {string} the record's name.
-  */
-
-
-	CognitoUserAttribute.prototype.getName = function getName() {
-		return this.Name;
-	};
-
-	/**
-  * Sets the record's name
-  * @param {string} name The new name.
-  * @returns {CognitoUserAttribute} The record for method chaining.
-  */
+  CognitoUserAttribute.prototype.getValue = function getValue() {
+    return this.Value;
+  };
+  /**
+   * Sets the record's value.
+   * @param {string} value The new value.
+   * @returns {CognitoUserAttribute} The record for method chaining.
+   */
 
 
-	CognitoUserAttribute.prototype.setName = function setName(name) {
-		this.Name = name;
-		return this;
-	};
-
-	/**
-  * @returns {string} a string representation of the record.
-  */
-
-
-	CognitoUserAttribute.prototype.toString = function toString() {
-		return JSON.stringify(this);
-	};
-
-	/**
-  * @returns {object} a flat object representing the record.
-  */
+  CognitoUserAttribute.prototype.setValue = function setValue(value) {
+    this.Value = value;
+    return this;
+  };
+  /**
+   * @returns {string} the record's name.
+   */
 
 
-	CognitoUserAttribute.prototype.toJSON = function toJSON() {
-		return {
-			Name: this.Name,
-			Value: this.Value
-		};
-	};
+  CognitoUserAttribute.prototype.getName = function getName() {
+    return this.Name;
+  };
+  /**
+   * Sets the record's name
+   * @param {string} name The new name.
+   * @returns {CognitoUserAttribute} The record for method chaining.
+   */
 
-	return CognitoUserAttribute;
+
+  CognitoUserAttribute.prototype.setName = function setName(name) {
+    this.Name = name;
+    return this;
+  };
+  /**
+   * @returns {string} a string representation of the record.
+   */
+
+
+  CognitoUserAttribute.prototype.toString = function toString() {
+    return JSON.stringify(this);
+  };
+  /**
+   * @returns {object} a flat object representing the record.
+   */
+
+
+  CognitoUserAttribute.prototype.toJSON = function toJSON() {
+    return {
+      Name: this.Name,
+      Value: this.Value
+    };
+  };
+
+  return CognitoUserAttribute;
 }();
 
-exports.default = CognitoUserAttribute;
+var _default = CognitoUserAttribute;
+exports.default = _default;
+
 },{}],11:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-var _Client = require('./Client');
+var _Client = _interopRequireDefault(require("./Client"));
 
-var _Client2 = _interopRequireDefault(_Client);
+var _CognitoUser = _interopRequireDefault(require("./CognitoUser"));
 
-var _CognitoUser = require('./CognitoUser');
-
-var _CognitoUser2 = _interopRequireDefault(_CognitoUser);
-
-var _StorageHelper = require('./StorageHelper');
-
-var _StorageHelper2 = _interopRequireDefault(_StorageHelper);
+var _StorageHelper = _interopRequireDefault(require("./StorageHelper"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /*!
-                                                                                                                                                           * Copyright 2016 Amazon.com,
-                                                                                                                                                           * Inc. or its affiliates. All Rights Reserved.
-                                                                                                                                                           *
-                                                                                                                                                           * Licensed under the Amazon Software License (the "License").
-                                                                                                                                                           * You may not use this file except in compliance with the
-                                                                                                                                                           * License. A copy of the License is located at
-                                                                                                                                                           *
-                                                                                                                                                           *     http://aws.amazon.com/asl/
-                                                                                                                                                           *
-                                                                                                                                                           * or in the "license" file accompanying this file. This file is
-                                                                                                                                                           * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-                                                                                                                                                           * CONDITIONS OF ANY KIND, express or implied. See the License
-                                                                                                                                                           * for the specific language governing permissions and
-                                                                                                                                                           * limitations under the License.
-                                                                                                                                                           */
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+/*!
+ * Copyright 2016 Amazon.com,
+ * Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Amazon Software License (the "License").
+ * You may not use this file except in compliance with the
+ * License. A copy of the License is located at
+ *
+ *     http://aws.amazon.com/asl/
+ *
+ * or in the "license" file accompanying this file. This file is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, express or implied. See the License
+ * for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 
 /** @class */
 var CognitoUserPool = function () {
-	/**
-  * Constructs a new CognitoUserPool object
-  * @param {object} data Creation options.
-  * @param {string} data.UserPoolId Cognito user pool id.
-  * @param {string} data.ClientId User pool application client id.
-  * @param {object} data.Storage Optional storage object.
-  * @param {boolean} data.AdvancedSecurityDataCollectionFlag Optional:
-  *        boolean flag indicating if the data collection is enabled
-  *        to support cognito advanced security features. By default, this
-  *        flag is set to true.
-  */
-	function CognitoUserPool(data) {
-		_classCallCheck(this, CognitoUserPool);
-
-		var _ref = data || {},
-		    UserPoolId = _ref.UserPoolId,
-		    ClientId = _ref.ClientId,
-		    endpoint = _ref.endpoint,
-		    AdvancedSecurityDataCollectionFlag = _ref.AdvancedSecurityDataCollectionFlag;
-
-		if (!UserPoolId || !ClientId) {
-			throw new Error('Both UserPoolId and ClientId are required.');
-		}
-		if (!/^[\w-]+_.+$/.test(UserPoolId)) {
-			throw new Error('Invalid UserPoolId format.');
-		}
-		var region = UserPoolId.split('_')[0];
-
-		this.userPoolId = UserPoolId;
-		this.clientId = ClientId;
-
-		this.client = new _Client2.default(region, endpoint);
-
-		/**
-   * By default, AdvancedSecurityDataCollectionFlag is set to true,
-   * if no input value is provided.
+  /**
+   * Constructs a new CognitoUserPool object
+   * @param {object} data Creation options.
+   * @param {string} data.UserPoolId Cognito user pool id.
+   * @param {string} data.ClientId User pool application client id.
+   * @param {object} data.Storage Optional storage object.
+   * @param {boolean} data.AdvancedSecurityDataCollectionFlag Optional:
+   *        boolean flag indicating if the data collection is enabled
+   *        to support cognito advanced security features. By default, this
+   *        flag is set to true.
    */
-		this.advancedSecurityDataCollectionFlag = AdvancedSecurityDataCollectionFlag !== false;
+  function CognitoUserPool(data) {
+    _classCallCheck(this, CognitoUserPool);
 
-		this.storage = data.Storage || new _StorageHelper2.default().getStorage();
-	}
+    var _ref = data || {},
+        UserPoolId = _ref.UserPoolId,
+        ClientId = _ref.ClientId,
+        endpoint = _ref.endpoint,
+        AdvancedSecurityDataCollectionFlag = _ref.AdvancedSecurityDataCollectionFlag;
 
-	/**
-  * @returns {string} the user pool id
-  */
+    if (!UserPoolId || !ClientId) {
+      throw new Error('Both UserPoolId and ClientId are required.');
+    }
 
+    if (!/^[\w-]+_.+$/.test(UserPoolId)) {
+      throw new Error('Invalid UserPoolId format.');
+    }
 
-	CognitoUserPool.prototype.getUserPoolId = function getUserPoolId() {
-		return this.userPoolId;
-	};
+    var region = UserPoolId.split('_')[0];
+    this.userPoolId = UserPoolId;
+    this.clientId = ClientId;
+    this.client = new _Client.default(region, endpoint);
+    /**
+     * By default, AdvancedSecurityDataCollectionFlag is set to true,
+     * if no input value is provided.
+     */
 
-	/**
-  * @returns {string} the client id
-  */
-
-
-	CognitoUserPool.prototype.getClientId = function getClientId() {
-		return this.clientId;
-	};
-
-	/**
-  * @typedef {object} SignUpResult
-  * @property {CognitoUser} user New user.
-  * @property {bool} userConfirmed If the user is already confirmed.
-  */
-	/**
-  * method for signing up a user
-  * @param {string} username User's username.
-  * @param {string} password Plain-text initial password entered by user.
-  * @param {(AttributeArg[])=} userAttributes New user attributes.
-  * @param {(AttributeArg[])=} validationData Application metadata.
-  * @param {(AttributeArg[])=} clientMetadata Client metadata.
-  * @param {nodeCallback<SignUpResult>} callback Called on error or with the new user.
-  * @returns {void}
-  */
+    this.advancedSecurityDataCollectionFlag = AdvancedSecurityDataCollectionFlag !== false;
+    this.storage = data.Storage || new _StorageHelper.default().getStorage();
+  }
+  /**
+   * @returns {string} the user pool id
+   */
 
 
-	CognitoUserPool.prototype.signUp = function signUp(username, password, userAttributes, validationData, callback, clientMetadata) {
-		var _this = this;
-
-		var jsonReq = {
-			ClientId: this.clientId,
-			Username: username,
-			Password: password,
-			UserAttributes: userAttributes,
-			ValidationData: validationData,
-			ClientMetadata: clientMetadata
-		};
-		if (this.getUserContextData(username)) {
-			jsonReq.UserContextData = this.getUserContextData(username);
-		}
-		this.client.request('SignUp', jsonReq, function (err, data) {
-			if (err) {
-				return callback(err, null);
-			}
-
-			var cognitoUser = {
-				Username: username,
-				Pool: _this,
-				Storage: _this.storage
-			};
-
-			var returnData = {
-				user: new _CognitoUser2.default(cognitoUser),
-				userConfirmed: data.UserConfirmed,
-				userSub: data.UserSub,
-				codeDeliveryDetails: data.CodeDeliveryDetails
-			};
-
-			return callback(null, returnData);
-		});
-	};
-
-	/**
-  * method for getting the current user of the application from the local storage
-  *
-  * @returns {CognitoUser} the user retrieved from storage
-  */
+  CognitoUserPool.prototype.getUserPoolId = function getUserPoolId() {
+    return this.userPoolId;
+  };
+  /**
+   * @returns {string} the client id
+   */
 
 
-	CognitoUserPool.prototype.getCurrentUser = function getCurrentUser() {
-		var lastUserKey = 'CognitoIdentityServiceProvider.' + this.clientId + '.LastAuthUser';
+  CognitoUserPool.prototype.getClientId = function getClientId() {
+    return this.clientId;
+  };
+  /**
+   * @typedef {object} SignUpResult
+   * @property {CognitoUser} user New user.
+   * @property {bool} userConfirmed If the user is already confirmed.
+   */
 
-		var lastAuthUser = this.storage.getItem(lastUserKey);
-		if (lastAuthUser) {
-			var cognitoUser = {
-				Username: lastAuthUser,
-				Pool: this,
-				Storage: this.storage
-			};
-
-			return new _CognitoUser2.default(cognitoUser);
-		}
-
-		return null;
-	};
-
-	/**
-  * This method returns the encoded data string used for cognito advanced security feature.
-  * This would be generated only when developer has included the JS used for collecting the
-  * data on their client. Please refer to documentation to know more about using AdvancedSecurity
-  * features
-  * @param {string} username the username for the context data
-  * @returns {string} the user context data
-  **/
+  /**
+   * method for signing up a user
+   * @param {string} username User's username.
+   * @param {string} password Plain-text initial password entered by user.
+   * @param {(AttributeArg[])=} userAttributes New user attributes.
+   * @param {(AttributeArg[])=} validationData Application metadata.
+   * @param {(AttributeArg[])=} clientMetadata Client metadata.
+   * @param {nodeCallback<SignUpResult>} callback Called on error or with the new user.
+   * @returns {void}
+   */
 
 
-	CognitoUserPool.prototype.getUserContextData = function getUserContextData(username) {
-		if (typeof AmazonCognitoAdvancedSecurityData === 'undefined') {
-			return undefined;
-		}
-		/* eslint-disable */
-		var amazonCognitoAdvancedSecurityDataConst = AmazonCognitoAdvancedSecurityData;
-		/* eslint-enable */
+  CognitoUserPool.prototype.signUp = function signUp(username, password, userAttributes, validationData, callback, clientMetadata) {
+    var _this = this;
 
-		if (this.advancedSecurityDataCollectionFlag) {
-			var advancedSecurityData = amazonCognitoAdvancedSecurityDataConst.getData(username, this.userPoolId, this.clientId);
-			if (advancedSecurityData) {
-				var userContextData = {
-					EncodedData: advancedSecurityData
-				};
-				return userContextData;
-			}
-		}
-		return {};
-	};
+    var jsonReq = {
+      ClientId: this.clientId,
+      Username: username,
+      Password: password,
+      UserAttributes: userAttributes,
+      ValidationData: validationData,
+      ClientMetadata: clientMetadata
+    };
 
-	return CognitoUserPool;
+    if (this.getUserContextData(username)) {
+      jsonReq.UserContextData = this.getUserContextData(username);
+    }
+
+    this.client.request('SignUp', jsonReq, function (err, data) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      var cognitoUser = {
+        Username: username,
+        Pool: _this,
+        Storage: _this.storage
+      };
+      var returnData = {
+        user: new _CognitoUser.default(cognitoUser),
+        userConfirmed: data.UserConfirmed,
+        userSub: data.UserSub,
+        codeDeliveryDetails: data.CodeDeliveryDetails
+      };
+      return callback(null, returnData);
+    });
+  };
+  /**
+   * method for getting the current user of the application from the local storage
+   *
+   * @returns {CognitoUser} the user retrieved from storage
+   */
+
+
+  CognitoUserPool.prototype.getCurrentUser = function getCurrentUser() {
+    var lastUserKey = 'CognitoIdentityServiceProvider.' + this.clientId + '.LastAuthUser';
+    var lastAuthUser = this.storage.getItem(lastUserKey);
+
+    if (lastAuthUser) {
+      var cognitoUser = {
+        Username: lastAuthUser,
+        Pool: this,
+        Storage: this.storage
+      };
+      return new _CognitoUser.default(cognitoUser);
+    }
+
+    return null;
+  };
+  /**
+   * This method returns the encoded data string used for cognito advanced security feature.
+   * This would be generated only when developer has included the JS used for collecting the
+   * data on their client. Please refer to documentation to know more about using AdvancedSecurity
+   * features
+   * @param {string} username the username for the context data
+   * @returns {string} the user context data
+   **/
+
+
+  CognitoUserPool.prototype.getUserContextData = function getUserContextData(username) {
+    if (typeof AmazonCognitoAdvancedSecurityData === 'undefined') {
+      return undefined;
+    }
+    /* eslint-disable */
+
+
+    var amazonCognitoAdvancedSecurityDataConst = AmazonCognitoAdvancedSecurityData;
+    /* eslint-enable */
+
+    if (this.advancedSecurityDataCollectionFlag) {
+      var advancedSecurityData = amazonCognitoAdvancedSecurityDataConst.getData(username, this.userPoolId, this.clientId);
+
+      if (advancedSecurityData) {
+        var userContextData = {
+          EncodedData: advancedSecurityData
+        };
+        return userContextData;
+      }
+    }
+
+    return {};
+  };
+
+  return CognitoUserPool;
 }();
 
-exports.default = CognitoUserPool;
+var _default = CognitoUserPool;
+exports.default = _default;
+
 },{"./Client":4,"./CognitoUser":9,"./StorageHelper":15}],12:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 /*!
  * Copyright 2016 Amazon.com,
  * Inc. or its affiliates. All Rights Reserved.
@@ -3922,218 +4077,230 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 /** @class */
+
+
 var CognitoUserSession = function () {
-	/**
-  * Constructs a new CognitoUserSession object
-  * @param {CognitoIdToken} IdToken The session's Id token.
-  * @param {CognitoRefreshToken=} RefreshToken The session's refresh token.
-  * @param {CognitoAccessToken} AccessToken The session's access token.
-  * @param {int} ClockDrift The saved computer's clock drift or undefined to force calculation.
-  */
-	function CognitoUserSession() {
-		var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-		    IdToken = _ref.IdToken,
-		    RefreshToken = _ref.RefreshToken,
-		    AccessToken = _ref.AccessToken,
-		    ClockDrift = _ref.ClockDrift;
+  /**
+   * Constructs a new CognitoUserSession object
+   * @param {CognitoIdToken} IdToken The session's Id token.
+   * @param {CognitoRefreshToken=} RefreshToken The session's refresh token.
+   * @param {CognitoAccessToken} AccessToken The session's access token.
+   * @param {int} ClockDrift The saved computer's clock drift or undefined to force calculation.
+   */
+  function CognitoUserSession() {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        IdToken = _ref.IdToken,
+        RefreshToken = _ref.RefreshToken,
+        AccessToken = _ref.AccessToken,
+        ClockDrift = _ref.ClockDrift;
 
-		_classCallCheck(this, CognitoUserSession);
+    _classCallCheck(this, CognitoUserSession);
 
-		if (AccessToken == null || IdToken == null) {
-			throw new Error('Id token and Access Token must be present.');
-		}
+    if (AccessToken == null || IdToken == null) {
+      throw new Error('Id token and Access Token must be present.');
+    }
 
-		this.idToken = IdToken;
-		this.refreshToken = RefreshToken;
-		this.accessToken = AccessToken;
-		this.clockDrift = ClockDrift === undefined ? this.calculateClockDrift() : ClockDrift;
-	}
-
-	/**
-  * @returns {CognitoIdToken} the session's Id token
-  */
-
-
-	CognitoUserSession.prototype.getIdToken = function getIdToken() {
-		return this.idToken;
-	};
-
-	/**
-  * @returns {CognitoRefreshToken} the session's refresh token
-  */
+    this.idToken = IdToken;
+    this.refreshToken = RefreshToken;
+    this.accessToken = AccessToken;
+    this.clockDrift = ClockDrift === undefined ? this.calculateClockDrift() : ClockDrift;
+  }
+  /**
+   * @returns {CognitoIdToken} the session's Id token
+   */
 
 
-	CognitoUserSession.prototype.getRefreshToken = function getRefreshToken() {
-		return this.refreshToken;
-	};
-
-	/**
-  * @returns {CognitoAccessToken} the session's access token
-  */
-
-
-	CognitoUserSession.prototype.getAccessToken = function getAccessToken() {
-		return this.accessToken;
-	};
-
-	/**
-  * @returns {int} the session's clock drift
-  */
+  CognitoUserSession.prototype.getIdToken = function getIdToken() {
+    return this.idToken;
+  };
+  /**
+   * @returns {CognitoRefreshToken} the session's refresh token
+   */
 
 
-	CognitoUserSession.prototype.getClockDrift = function getClockDrift() {
-		return this.clockDrift;
-	};
-
-	/**
-  * @returns {int} the computer's clock drift
-  */
-
-
-	CognitoUserSession.prototype.calculateClockDrift = function calculateClockDrift() {
-		var now = Math.floor(new Date() / 1000);
-		var iat = Math.min(this.accessToken.getIssuedAt(), this.idToken.getIssuedAt());
-
-		return now - iat;
-	};
-
-	/**
-  * Checks to see if the session is still valid based on session expiry information found
-  * in tokens and the current time (adjusted with clock drift)
-  * @returns {boolean} if the session is still valid
-  */
+  CognitoUserSession.prototype.getRefreshToken = function getRefreshToken() {
+    return this.refreshToken;
+  };
+  /**
+   * @returns {CognitoAccessToken} the session's access token
+   */
 
 
-	CognitoUserSession.prototype.isValid = function isValid() {
-		var now = Math.floor(new Date() / 1000);
-		var adjusted = now - this.clockDrift;
+  CognitoUserSession.prototype.getAccessToken = function getAccessToken() {
+    return this.accessToken;
+  };
+  /**
+   * @returns {int} the session's clock drift
+   */
 
-		return adjusted < this.accessToken.getExpiration() && adjusted < this.idToken.getExpiration();
-	};
 
-	return CognitoUserSession;
+  CognitoUserSession.prototype.getClockDrift = function getClockDrift() {
+    return this.clockDrift;
+  };
+  /**
+   * @returns {int} the computer's clock drift
+   */
+
+
+  CognitoUserSession.prototype.calculateClockDrift = function calculateClockDrift() {
+    var now = Math.floor(new Date() / 1000);
+    var iat = Math.min(this.accessToken.getIssuedAt(), this.idToken.getIssuedAt());
+    return now - iat;
+  };
+  /**
+   * Checks to see if the session is still valid based on session expiry information found
+   * in tokens and the current time (adjusted with clock drift)
+   * @returns {boolean} if the session is still valid
+   */
+
+
+  CognitoUserSession.prototype.isValid = function isValid() {
+    var now = Math.floor(new Date() / 1000);
+    var adjusted = now - this.clockDrift;
+    return adjusted < this.accessToken.getExpiration() && adjusted < this.idToken.getExpiration();
+  };
+
+  return CognitoUserSession;
 }();
 
-exports.default = CognitoUserSession;
+var _default = CognitoUserSession;
+exports.default = _default;
+
 },{}],13:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-var _jsCookie = require('js-cookie');
+var Cookies = _interopRequireWildcard(require("js-cookie"));
 
-var Cookies = _interopRequireWildcard(_jsCookie);
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
 /** @class */
 var CookieStorage = function () {
-	/**
-  * Constructs a new CookieStorage object
-  * @param {object} data Creation options.
-  * @param {string} data.domain Cookies domain (mandatory).
-  * @param {string} data.path Cookies path (default: '/')
-  * @param {integer} data.expires Cookie expiration (in days, default: 365)
-  * @param {boolean} data.secure Cookie secure flag (default: true)
-  */
-	function CookieStorage(data) {
-		_classCallCheck(this, CookieStorage);
+  /**
+   * Constructs a new CookieStorage object
+   * @param {object} data Creation options.
+   * @param {string} data.domain Cookies domain (mandatory).
+   * @param {string} data.path Cookies path (default: '/')
+   * @param {integer} data.expires Cookie expiration (in days, default: 365)
+   * @param {boolean} data.secure Cookie secure flag (default: true)
+   */
+  function CookieStorage(data) {
+    _classCallCheck(this, CookieStorage);
 
-		if (data.domain) {
-			this.domain = data.domain;
-		} else {
-			throw new Error('The domain of cookieStorage can not be undefined.');
-		}
-		if (data.path) {
-			this.path = data.path;
-		} else {
-			this.path = '/';
-		}
-		if (Object.prototype.hasOwnProperty.call(data, 'expires')) {
-			this.expires = data.expires;
-		} else {
-			this.expires = 365;
-		}
-		if (Object.prototype.hasOwnProperty.call(data, 'secure')) {
-			this.secure = data.secure;
-		} else {
-			this.secure = true;
-		}
-	}
+    if (data.domain) {
+      this.domain = data.domain;
+    } else {
+      throw new Error('The domain of cookieStorage can not be undefined.');
+    }
 
-	/**
-  * This is used to set a specific item in storage
-  * @param {string} key - the key for the item
-  * @param {object} value - the value
-  * @returns {string} value that was set
-  */
+    if (data.path) {
+      this.path = data.path;
+    } else {
+      this.path = '/';
+    }
 
+    if (Object.prototype.hasOwnProperty.call(data, 'expires')) {
+      this.expires = data.expires;
+    } else {
+      this.expires = 365;
+    }
 
-	CookieStorage.prototype.setItem = function setItem(key, value) {
-		Cookies.set(key, value, {
-			path: this.path,
-			expires: this.expires,
-			domain: this.domain,
-			secure: this.secure
-		});
-		return Cookies.get(key);
-	};
-
-	/**
-  * This is used to get a specific key from storage
-  * @param {string} key - the key for the item
-  * This is used to clear the storage
-  * @returns {string} the data item
-  */
+    if (Object.prototype.hasOwnProperty.call(data, 'secure')) {
+      this.secure = data.secure;
+    } else {
+      this.secure = true;
+    }
+  }
+  /**
+   * This is used to set a specific item in storage
+   * @param {string} key - the key for the item
+   * @param {object} value - the value
+   * @returns {string} value that was set
+   */
 
 
-	CookieStorage.prototype.getItem = function getItem(key) {
-		return Cookies.get(key);
-	};
-
-	/**
-  * This is used to remove an item from storage
-  * @param {string} key - the key being set
-  * @returns {string} value - value that was deleted
-  */
-
-
-	CookieStorage.prototype.removeItem = function removeItem(key) {
-		return Cookies.remove(key, {
-			path: this.path,
-			domain: this.domain,
-			secure: this.secure
-		});
-	};
-
-	/**
-  * This is used to clear the storage
-  * @returns {string} nothing
-  */
+  CookieStorage.prototype.setItem = function setItem(key, value) {
+    Cookies.set(key, value, {
+      path: this.path,
+      expires: this.expires,
+      domain: this.domain,
+      secure: this.secure
+    });
+    return Cookies.get(key);
+  };
+  /**
+   * This is used to get a specific key from storage
+   * @param {string} key - the key for the item
+   * This is used to clear the storage
+   * @returns {string} the data item
+   */
 
 
-	CookieStorage.prototype.clear = function clear() {
-		var cookies = Cookies.get();
-		var index = void 0;
-		for (index = 0; index < cookies.length; ++index) {
-			Cookies.remove(cookies[index]);
-		}
-		return {};
-	};
+  CookieStorage.prototype.getItem = function getItem(key) {
+    return Cookies.get(key);
+  };
+  /**
+   * This is used to remove an item from storage
+   * @param {string} key - the key being set
+   * @returns {string} value - value that was deleted
+   */
 
-	return CookieStorage;
+
+  CookieStorage.prototype.removeItem = function removeItem(key) {
+    return Cookies.remove(key, {
+      path: this.path,
+      domain: this.domain,
+      secure: this.secure
+    });
+  };
+  /**
+   * This is used to clear the storage
+   * @returns {string} nothing
+   */
+
+
+  CookieStorage.prototype.clear = function clear() {
+    var cookies = Cookies.get();
+    var index = void 0;
+
+    for (index = 0; index < cookies.length; ++index) {
+      Cookies.remove(cookies[index]);
+    }
+
+    return {};
+  };
+
+  return CookieStorage;
 }();
 
-exports.default = CookieStorage;
+var _default = CookieStorage;
+exports.default = _default;
+
 },{"js-cookie":30}],14:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 /*!
  * Copyright 2016 Amazon.com,
  * Inc. or its affiliates. All Rights Reserved.
@@ -4150,61 +4317,69 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * for the specific language governing permissions and
  * limitations under the License.
  */
+
 
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 var weekNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
 /** @class */
 
 var DateHelper = function () {
-	function DateHelper() {
-		_classCallCheck(this, DateHelper);
-	}
+  function DateHelper() {
+    _classCallCheck(this, DateHelper);
+  }
+  /**
+   * @returns {string} The current time in "ddd MMM D HH:mm:ss UTC YYYY" format.
+   */
 
-	/**
-  * @returns {string} The current time in "ddd MMM D HH:mm:ss UTC YYYY" format.
-  */
-	DateHelper.prototype.getNowString = function getNowString() {
-		var now = new Date();
 
-		var weekDay = weekNames[now.getUTCDay()];
-		var month = monthNames[now.getUTCMonth()];
-		var day = now.getUTCDate();
+  DateHelper.prototype.getNowString = function getNowString() {
+    var now = new Date();
+    var weekDay = weekNames[now.getUTCDay()];
+    var month = monthNames[now.getUTCMonth()];
+    var day = now.getUTCDate();
+    var hours = now.getUTCHours();
 
-		var hours = now.getUTCHours();
-		if (hours < 10) {
-			hours = '0' + hours;
-		}
+    if (hours < 10) {
+      hours = '0' + hours;
+    }
 
-		var minutes = now.getUTCMinutes();
-		if (minutes < 10) {
-			minutes = '0' + minutes;
-		}
+    var minutes = now.getUTCMinutes();
 
-		var seconds = now.getUTCSeconds();
-		if (seconds < 10) {
-			seconds = '0' + seconds;
-		}
+    if (minutes < 10) {
+      minutes = '0' + minutes;
+    }
 
-		var year = now.getUTCFullYear();
+    var seconds = now.getUTCSeconds();
 
-		// ddd MMM D HH:mm:ss UTC YYYY
-		var dateNow = weekDay + ' ' + month + ' ' + day + ' ' + hours + ':' + minutes + ':' + seconds + ' UTC ' + year;
+    if (seconds < 10) {
+      seconds = '0' + seconds;
+    }
 
-		return dateNow;
-	};
+    var year = now.getUTCFullYear(); // ddd MMM D HH:mm:ss UTC YYYY
 
-	return DateHelper;
+    var dateNow = weekDay + ' ' + month + ' ' + day + ' ' + hours + ':' + minutes + ':' + seconds + ' UTC ' + year;
+    return dateNow;
+  };
+
+  return DateHelper;
 }();
 
-exports.default = DateHelper;
+var _default = DateHelper;
+exports.default = _default;
+
 },{}],15:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 /*!
  * Copyright 2016 Amazon.com,
  * Inc. or its affiliates. All Rights Reserved.
@@ -4222,213 +4397,209 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * limitations under the License.
  */
 
-var dataMemory = {};
 
+var dataMemory = {};
 /** @class */
 
 var MemoryStorage = function () {
-	function MemoryStorage() {
-		_classCallCheck(this, MemoryStorage);
-	}
-
-	/**
-  * This is used to set a specific item in storage
-  * @param {string} key - the key for the item
-  * @param {object} value - the value
-  * @returns {string} value that was set
-  */
-	MemoryStorage.setItem = function setItem(key, value) {
-		dataMemory[key] = value;
-		return dataMemory[key];
-	};
-
-	/**
-  * This is used to get a specific key from storage
-  * @param {string} key - the key for the item
-  * This is used to clear the storage
-  * @returns {string} the data item
-  */
+  function MemoryStorage() {
+    _classCallCheck(this, MemoryStorage);
+  }
+  /**
+   * This is used to set a specific item in storage
+   * @param {string} key - the key for the item
+   * @param {object} value - the value
+   * @returns {string} value that was set
+   */
 
 
-	MemoryStorage.getItem = function getItem(key) {
-		return Object.prototype.hasOwnProperty.call(dataMemory, key) ? dataMemory[key] : undefined;
-	};
-
-	/**
-  * This is used to remove an item from storage
-  * @param {string} key - the key being set
-  * @returns {string} value - value that was deleted
-  */
-
-
-	MemoryStorage.removeItem = function removeItem(key) {
-		return delete dataMemory[key];
-	};
-
-	/**
-  * This is used to clear the storage
-  * @returns {string} nothing
-  */
+  MemoryStorage.setItem = function setItem(key, value) {
+    dataMemory[key] = value;
+    return dataMemory[key];
+  };
+  /**
+   * This is used to get a specific key from storage
+   * @param {string} key - the key for the item
+   * This is used to clear the storage
+   * @returns {string} the data item
+   */
 
 
-	MemoryStorage.clear = function clear() {
-		dataMemory = {};
-		return dataMemory;
-	};
+  MemoryStorage.getItem = function getItem(key) {
+    return Object.prototype.hasOwnProperty.call(dataMemory, key) ? dataMemory[key] : undefined;
+  };
+  /**
+   * This is used to remove an item from storage
+   * @param {string} key - the key being set
+   * @returns {string} value - value that was deleted
+   */
 
-	return MemoryStorage;
+
+  MemoryStorage.removeItem = function removeItem(key) {
+    return delete dataMemory[key];
+  };
+  /**
+   * This is used to clear the storage
+   * @returns {string} nothing
+   */
+
+
+  MemoryStorage.clear = function clear() {
+    dataMemory = {};
+    return dataMemory;
+  };
+
+  return MemoryStorage;
 }();
-
 /** @class */
 
 
 var StorageHelper = function () {
-	/**
-  * This is used to get a storage object
-  * @returns {object} the storage
-  */
-	function StorageHelper() {
-		_classCallCheck(this, StorageHelper);
+  /**
+   * This is used to get a storage object
+   * @returns {object} the storage
+   */
+  function StorageHelper() {
+    _classCallCheck(this, StorageHelper);
 
-		try {
-			this.storageWindow = window.localStorage;
-			this.storageWindow.setItem('aws.cognito.test-ls', 1);
-			this.storageWindow.removeItem('aws.cognito.test-ls');
-		} catch (exception) {
-			this.storageWindow = MemoryStorage;
-		}
-	}
+    try {
+      this.storageWindow = window.localStorage;
+      this.storageWindow.setItem('aws.cognito.test-ls', 1);
+      this.storageWindow.removeItem('aws.cognito.test-ls');
+    } catch (exception) {
+      this.storageWindow = MemoryStorage;
+    }
+  }
+  /**
+   * This is used to return the storage
+   * @returns {object} the storage
+   */
 
-	/**
-  * This is used to return the storage
-  * @returns {object} the storage
-  */
 
+  StorageHelper.prototype.getStorage = function getStorage() {
+    return this.storageWindow;
+  };
 
-	StorageHelper.prototype.getStorage = function getStorage() {
-		return this.storageWindow;
-	};
-
-	return StorageHelper;
+  return StorageHelper;
 }();
 
-exports.default = StorageHelper;
+var _default = StorageHelper;
+exports.default = _default;
+
 },{}],16:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 // class for defining the amzn user-agent
-exports.default = UserAgent;
-// constructor
+var _default = UserAgent; // constructor
 
-function UserAgent() {}
-// public
+exports.default = _default;
+
+function UserAgent() {} // public
+
+
 UserAgent.prototype.userAgent = 'aws-amplify/0.1.x js';
+
 },{}],17:[function(require,module,exports){
-'use strict';
+"use strict";
 
-exports.__esModule = true;
-
-var _AuthenticationDetails = require('./AuthenticationDetails');
-
-Object.defineProperty(exports, 'AuthenticationDetails', {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "AuthenticationDetails", {
   enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_AuthenticationDetails).default;
+  get: function () {
+    return _AuthenticationDetails.default;
+  }
+});
+Object.defineProperty(exports, "AuthenticationHelper", {
+  enumerable: true,
+  get: function () {
+    return _AuthenticationHelper.default;
+  }
+});
+Object.defineProperty(exports, "CognitoAccessToken", {
+  enumerable: true,
+  get: function () {
+    return _CognitoAccessToken.default;
+  }
+});
+Object.defineProperty(exports, "CognitoIdToken", {
+  enumerable: true,
+  get: function () {
+    return _CognitoIdToken.default;
+  }
+});
+Object.defineProperty(exports, "CognitoRefreshToken", {
+  enumerable: true,
+  get: function () {
+    return _CognitoRefreshToken.default;
+  }
+});
+Object.defineProperty(exports, "CognitoUser", {
+  enumerable: true,
+  get: function () {
+    return _CognitoUser.default;
+  }
+});
+Object.defineProperty(exports, "CognitoUserAttribute", {
+  enumerable: true,
+  get: function () {
+    return _CognitoUserAttribute.default;
+  }
+});
+Object.defineProperty(exports, "CognitoUserPool", {
+  enumerable: true,
+  get: function () {
+    return _CognitoUserPool.default;
+  }
+});
+Object.defineProperty(exports, "CognitoUserSession", {
+  enumerable: true,
+  get: function () {
+    return _CognitoUserSession.default;
+  }
+});
+Object.defineProperty(exports, "CookieStorage", {
+  enumerable: true,
+  get: function () {
+    return _CookieStorage.default;
+  }
+});
+Object.defineProperty(exports, "DateHelper", {
+  enumerable: true,
+  get: function () {
+    return _DateHelper.default;
   }
 });
 
-var _AuthenticationHelper = require('./AuthenticationHelper');
+var _AuthenticationDetails = _interopRequireDefault(require("./AuthenticationDetails"));
 
-Object.defineProperty(exports, 'AuthenticationHelper', {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_AuthenticationHelper).default;
-  }
-});
+var _AuthenticationHelper = _interopRequireDefault(require("./AuthenticationHelper"));
 
-var _CognitoAccessToken = require('./CognitoAccessToken');
+var _CognitoAccessToken = _interopRequireDefault(require("./CognitoAccessToken"));
 
-Object.defineProperty(exports, 'CognitoAccessToken', {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_CognitoAccessToken).default;
-  }
-});
+var _CognitoIdToken = _interopRequireDefault(require("./CognitoIdToken"));
 
-var _CognitoIdToken = require('./CognitoIdToken');
+var _CognitoRefreshToken = _interopRequireDefault(require("./CognitoRefreshToken"));
 
-Object.defineProperty(exports, 'CognitoIdToken', {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_CognitoIdToken).default;
-  }
-});
+var _CognitoUser = _interopRequireDefault(require("./CognitoUser"));
 
-var _CognitoRefreshToken = require('./CognitoRefreshToken');
+var _CognitoUserAttribute = _interopRequireDefault(require("./CognitoUserAttribute"));
 
-Object.defineProperty(exports, 'CognitoRefreshToken', {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_CognitoRefreshToken).default;
-  }
-});
+var _CognitoUserPool = _interopRequireDefault(require("./CognitoUserPool"));
 
-var _CognitoUser = require('./CognitoUser');
+var _CognitoUserSession = _interopRequireDefault(require("./CognitoUserSession"));
 
-Object.defineProperty(exports, 'CognitoUser', {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_CognitoUser).default;
-  }
-});
+var _CookieStorage = _interopRequireDefault(require("./CookieStorage"));
 
-var _CognitoUserAttribute = require('./CognitoUserAttribute');
-
-Object.defineProperty(exports, 'CognitoUserAttribute', {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_CognitoUserAttribute).default;
-  }
-});
-
-var _CognitoUserPool = require('./CognitoUserPool');
-
-Object.defineProperty(exports, 'CognitoUserPool', {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_CognitoUserPool).default;
-  }
-});
-
-var _CognitoUserSession = require('./CognitoUserSession');
-
-Object.defineProperty(exports, 'CognitoUserSession', {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_CognitoUserSession).default;
-  }
-});
-
-var _CookieStorage = require('./CookieStorage');
-
-Object.defineProperty(exports, 'CookieStorage', {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_CookieStorage).default;
-  }
-});
-
-var _DateHelper = require('./DateHelper');
-
-Object.defineProperty(exports, 'DateHelper', {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_DateHelper).default;
-  }
-});
+var _DateHelper = _interopRequireDefault(require("./DateHelper"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 },{"./AuthenticationDetails":1,"./AuthenticationHelper":2,"./CognitoAccessToken":5,"./CognitoIdToken":6,"./CognitoRefreshToken":8,"./CognitoUser":9,"./CognitoUserAttribute":10,"./CognitoUserPool":11,"./CognitoUserSession":12,"./CookieStorage":13,"./DateHelper":14}],18:[function(require,module,exports){
 'use strict'
 
@@ -12756,2764 +12927,3060 @@ module.exports = Array.isArray || function (arr) {
 })));
 
 },{}],32:[function(require,module,exports){
+"use strict";
+
 /*! otpauth v5.0.3 | (c) Héctor Molinero Fernández <hector@molinero.dev> | https://github.com/hectorm/otpauth | MIT */
 (function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["OTPAuth"] = factory();
-	else
-		root["OTPAuth"] = factory();
-})(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+  if (typeof exports === 'object' && typeof module === 'object') module.exports = factory();else if (typeof define === 'function' && define.amd) define([], factory);else if (typeof exports === 'object') exports["OTPAuth"] = factory();else root["OTPAuth"] = factory();
+})(void 0, function () {
+  return (
+    /******/
+    function (modules) {
+      // webpackBootstrap
 
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return Utils; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return InternalUtils; });
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+      /******/
+      // The module cache
 
-/**
- * An object containing some utilities.
- * @type {Object}
- */
-var Utils = {
-  /**
-   * UInt conversion.
-   * @type {Object}
-   */
-  uint: {
-    /**
-     * Converts an ArrayBuffer to an integer.
-     * @param {ArrayBuffer} buf ArrayBuffer.
-     * @returns {number} Integer.
-     */
-    fromBuf: function fromBuf(buf) {
-      var arr = new Uint8Array(buf);
-      var num = 0;
+      /******/
+      var installedModules = {};
+      /******/
 
-      for (var i = 0; i < arr.length; i++) {
-        if (arr[i] !== 0) {
-          num *= 256;
-          num += arr[i];
+      /******/
+      // The require function
+
+      /******/
+
+      function __webpack_require__(moduleId) {
+        /******/
+
+        /******/
+        // Check if module is in cache
+
+        /******/
+        if (installedModules[moduleId]) {
+          /******/
+          return installedModules[moduleId].exports;
+          /******/
         }
+        /******/
+        // Create a new module (and put it into the cache)
+
+        /******/
+
+
+        var module = installedModules[moduleId] = {
+          /******/
+          i: moduleId,
+
+          /******/
+          l: false,
+
+          /******/
+          exports: {}
+          /******/
+
+        };
+        /******/
+
+        /******/
+        // Execute the module function
+
+        /******/
+
+        modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+        /******/
+
+        /******/
+        // Flag the module as loaded
+
+        /******/
+
+        module.l = true;
+        /******/
+
+        /******/
+        // Return the exports of the module
+
+        /******/
+
+        return module.exports;
+        /******/
       }
+      /******/
 
-      return num;
-    },
+      /******/
 
-    /**
-     * Converts an integer to an ArrayBuffer.
-     * @param {number} num Integer.
-     * @returns {ArrayBuffer} ArrayBuffer.
-     */
-    toBuf: function toBuf(num) {
-      var buf = new ArrayBuffer(8);
-      var arr = new Uint8Array(buf);
-      var acc = num;
+      /******/
+      // expose the modules object (__webpack_modules__)
 
-      for (var i = 7; i >= 0; i--) {
-        if (acc === 0) break;
-        arr[i] = acc & 255;
-        acc -= arr[i];
-        acc /= 256;
-      }
+      /******/
 
-      return buf;
-    }
-  },
 
-  /**
-   * Raw string conversion.
-   * @type {Object}
-   */
-  raw: {
-    /**
-     * Converts an ArrayBuffer to a string.
-     * @param {ArrayBuffer} buf ArrayBuffer.
-     * @returns {string} String.
-     */
-    fromBuf: function fromBuf(buf) {
-      var arr = new Uint8Array(buf);
-      var str = '';
+      __webpack_require__.m = modules;
+      /******/
 
-      for (var i = 0; i < arr.length; i++) {
-        str += String.fromCharCode(arr[i]);
-      }
+      /******/
+      // expose the module cache
 
-      return str;
-    },
+      /******/
 
-    /**
-     * Converts a string to an ArrayBuffer.
-     * @param {string} str String.
-     * @returns {ArrayBuffer} ArrayBuffer.
-     */
-    toBuf: function toBuf(str) {
-      var buf = new ArrayBuffer(str.length);
-      var arr = new Uint8Array(buf);
+      __webpack_require__.c = installedModules;
+      /******/
 
-      for (var i = 0; i < str.length; i++) {
-        arr[i] = str.charCodeAt(i);
-      }
+      /******/
+      // define getter function for harmony exports
 
-      return buf;
-    }
-  },
+      /******/
 
-  /**
-   * Base32 string conversion.
-   * @type {Object}
-   */
-  b32: {
-    /**
-     * RFC 4648 base32 alphabet without pad.
-     * @type {string}
-     */
-    alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
-
-    /**
-     * Converts an ArrayBuffer to a base32 string (RFC 4648)
-     * (https://github.com/LinusU/base32-encode).
-     * @param {ArrayBuffer} buf ArrayBuffer.
-     * @returns {string} Base32 string.
-     */
-    fromBuf: function fromBuf(buf) {
-      var arr = new Uint8Array(buf);
-      var bits = 0;
-      var value = 0;
-      var str = '';
-
-      for (var i = 0; i < arr.length; i++) {
-        value = value << 8 | arr[i];
-        bits += 8;
-
-        while (bits >= 5) {
-          str += Utils.b32.alphabet[value >>> bits - 5 & 31];
-          bits -= 5;
+      __webpack_require__.d = function (exports, name, getter) {
+        /******/
+        if (!__webpack_require__.o(exports, name)) {
+          /******/
+          Object.defineProperty(exports, name, {
+            enumerable: true,
+            get: getter
+          });
+          /******/
         }
-      }
+        /******/
 
-      if (bits > 0) {
-        str += Utils.b32.alphabet[value << 5 - bits & 31];
-      }
-
-      return str;
-    },
-
-    /**
-     * Converts a base32 string to an ArrayBuffer (RFC 4648)
-     * (https://github.com/LinusU/base32-decode).
-     * @param {string} str Base32 string.
-     * @returns {ArrayBuffer} ArrayBuffer.
-     */
-    toBuf: function toBuf(str) {
-      // Canonicalize to all upper case and remove padding if it exists.
-      str = str.toUpperCase().replace(/=+$/, '');
-      var buf = new ArrayBuffer(str.length * 5 / 8 | 0);
-      var arr = new Uint8Array(buf);
-      var bits = 0;
-      var value = 0;
-      var index = 0;
-
-      for (var i = 0; i < str.length; i++) {
-        var idx = Utils.b32.alphabet.indexOf(str[i]);
-        if (idx === -1) throw new TypeError("Invalid character found: ".concat(str[i]));
-        value = value << 5 | idx;
-        bits += 5;
-
-        if (bits >= 8) {
-          arr[index++] = value >>> bits - 8 & 255;
-          bits -= 8;
-        }
-      }
-
-      return buf;
-    }
-  },
-
-  /**
-   * Hexadecimal string conversion.
-   * @type {Object}
-   */
-  hex: {
-    /**
-     * Converts an ArrayBuffer to a hexadecimal string.
-     * @param {ArrayBuffer} buf ArrayBuffer.
-     * @returns {string} Hexadecimal string.
-     */
-    fromBuf: function fromBuf(buf) {
-      var arr = new Uint8Array(buf);
-      var str = '';
-
-      for (var i = 0; i < arr.length; i++) {
-        var hex = arr[i].toString(16);
-        str += hex.length === 2 ? hex : "0".concat(hex);
-      }
-
-      return str.toUpperCase();
-    },
-
-    /**
-     * Converts a hexadecimal string to an ArrayBuffer.
-     * @param {string} str Hexadecimal string.
-     * @returns {ArrayBuffer} ArrayBuffer.
-     */
-    toBuf: function toBuf(str) {
-      var buf = new ArrayBuffer(str.length / 2);
-      var arr = new Uint8Array(buf);
-
-      for (var i = 0, j = 0; i < arr.length; i += 1, j += 2) {
-        arr[i] = parseInt(str.substr(j, 2), 16);
-      }
-
-      return buf;
-    }
-  },
-
-  /**
-   * Pads a number with leading zeros.
-   * @param {number|string} num Number.
-   * @param {number} digits Digits.
-   * @returns {string} Padded number.
-   */
-  pad: function pad(num, digits) {
-    var prefix = '';
-    var repeat = digits - String(num).length;
-
-    while (repeat-- > 0) {
-      prefix += '0';
-    }
-
-    return "".concat(prefix).concat(num);
-  }
-};
-/**
- * An object containing some utilities (for internal use only).
- * @private
- * @type {Object}
- */
-
-var InternalUtils = {
-  /**
-   * "globalThis" ponyfill
-   * (https://mathiasbynens.be/notes/globalthis).
-   * @type {Object}
-   */
-  get globalThis() {
-    var _globalThis;
-    /* eslint-disable no-extend-native, no-undef */
-
-
-    if ((typeof globalThis === "undefined" ? "undefined" : _typeof(globalThis)) === 'object') {
-      _globalThis = globalThis;
-    } else {
-      Object.defineProperty(Object.prototype, '__magicalGlobalThis__', {
-        get: function get() {
-          return this;
-        },
-        configurable: true
-      });
-
-      try {
-        _globalThis = __magicalGlobalThis__;
-      } finally {
-        delete Object.prototype.__magicalGlobalThis__;
-      }
-    }
-    /* eslint-enable */
-
-
-    Object.defineProperty(this, 'globalThis', {
-      enumerable: true,
-      value: _globalThis
-    });
-    return this.globalThis;
-  },
-
-  /**
-   * "console" ponyfill.
-   * @type {Object}
-   */
-  get console() {
-    var _console;
-
-    if (_typeof(InternalUtils.globalThis.console) === 'object') {
-      _console = InternalUtils.globalThis.console;
-    } else {
-      _console = {};
-      var properties = ['memory'];
-      var methods = ['assert', 'clear', 'count', 'countReset', 'debug', 'error', 'info', 'log', 'table', 'trace', 'warn', 'dir', 'dirxml', 'group', 'groupCollapsed', 'groupEnd', 'time', 'timeLog', 'timeEnd', 'exception', 'timeStamp', 'profile', 'profileEnd'];
-
-      for (var _i = 0, _methods = methods; _i < _methods.length; _i++) {
-        var method = _methods[_i];
-
-        _console[method] = function () {};
-      }
-
-      for (var _i2 = 0, _properties = properties; _i2 < _properties.length; _i2++) {
-        var property = _properties[_i2];
-        _console[property] = {};
-      }
-    }
-
-    Object.defineProperty(this, 'console', {
-      enumerable: true,
-      value: _console
-    });
-    return this.console;
-  },
-
-  /**
-   * Detect if running in "Node.js".
-   * @type {boolean}
-   */
-  get isNode() {
-    var _isNode = Object.prototype.toString.call(InternalUtils.globalThis.process) === '[object process]';
-
-    Object.defineProperty(this, 'isNode', {
-      enumerable: true,
-      value: _isNode
-    });
-    return this.isNode;
-  },
-
-  /**
-   * Dynamically import "Node.js" modules.
-   * (`eval` is used to prevent bundlers from including the module,
-   * e.g., [webpack/webpack#8826](https://github.com/webpack/webpack/issues/8826))
-   * @param {string} name Name.
-   * @returns {Object} Module.
-   */
-  // eslint-disable-next-line no-eval
-  nodeRequire: function nodeRequire(name) {
-    return eval('require')(name);
-  }
-};
-
-/***/ }),
-/* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-
-// EXTERNAL MODULE: ./src/utils.js
-var utils = __webpack_require__(0);
-
-// CONCATENATED MODULE: /tmp/sjcl-91145TTX2bF4YW4e.js
-/** @fileOverview Javascript cryptography implementation.
- *
- * Crush to remove comments, shorten variable names and
- * generally reduce transmission size.
- *
- * @author Emily Stark
- * @author Mike Hamburg
- * @author Dan Boneh
- */
-
-/*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
-
-/*global document, window, escape, unescape, module, require, Uint32Array */
-
-/**
- * The Stanford Javascript Crypto Library, top-level namespace.
- * @namespace
- */
-
-var sjcl = {
-  /**
-   * Symmetric ciphers.
-   * @namespace
-   */
-  cipher: {},
-
-  /**
-   * Hash functions.  Right now only SHA256 is implemented.
-   * @namespace
-   */
-  hash: {},
-
-  /**
-   * Key exchange functions.  Right now only SRP is implemented.
-   * @namespace
-   */
-  keyexchange: {},
-
-  /**
-   * Cipher modes of operation.
-   * @namespace
-   */
-  mode: {},
-
-  /**
-   * Miscellaneous.  HMAC and PBKDF2.
-   * @namespace
-   */
-  misc: {},
-
-  /**
-   * Bit array encoders and decoders.
-   * @namespace
-   *
-   * @description
-   * The members of this namespace are functions which translate between
-   * SJCL's bitArrays and other objects (usually strings).  Because it
-   * isn't always clear which direction is encoding and which is decoding,
-   * the method names are "fromBits" and "toBits".
-   */
-  codec: {},
-
-  /**
-   * Exceptions.
-   * @namespace
-   */
-  exception: {
-    /**
-     * Ciphertext is corrupt.
-     * @constructor
-     */
-    corrupt: function (message) {
-      this.toString = function () {
-        return "CORRUPT: " + this.message;
       };
+      /******/
 
-      this.message = message;
-    },
+      /******/
+      // define __esModule on exports
 
-    /**
-     * Invalid parameter.
-     * @constructor
-     */
-    invalid: function (message) {
-      this.toString = function () {
-        return "INVALID: " + this.message;
+      /******/
+
+
+      __webpack_require__.r = function (exports) {
+        /******/
+        if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+          /******/
+          Object.defineProperty(exports, Symbol.toStringTag, {
+            value: 'Module'
+          });
+          /******/
+        }
+        /******/
+
+
+        Object.defineProperty(exports, '__esModule', {
+          value: true
+        });
+        /******/
       };
+      /******/
 
-      this.message = message;
-    },
+      /******/
+      // create a fake namespace object
 
-    /**
-     * Bug or missing feature in SJCL.
-     * @constructor
-     */
-    bug: function (message) {
-      this.toString = function () {
-        return "BUG: " + this.message;
+      /******/
+      // mode & 1: value is a module id, require it
+
+      /******/
+      // mode & 2: merge all properties of value into the ns
+
+      /******/
+      // mode & 4: return value when already ns object
+
+      /******/
+      // mode & 8|1: behave like require
+
+      /******/
+
+
+      __webpack_require__.t = function (value, mode) {
+        /******/
+        if (mode & 1) value = __webpack_require__(value);
+        /******/
+
+        if (mode & 8) return value;
+        /******/
+
+        if (mode & 4 && typeof value === 'object' && value && value.__esModule) return value;
+        /******/
+
+        var ns = Object.create(null);
+        /******/
+
+        __webpack_require__.r(ns);
+        /******/
+
+
+        Object.defineProperty(ns, 'default', {
+          enumerable: true,
+          value: value
+        });
+        /******/
+
+        if (mode & 2 && typeof value != 'string') for (var key in value) __webpack_require__.d(ns, key, function (key) {
+          return value[key];
+        }.bind(null, key));
+        /******/
+
+        return ns;
+        /******/
       };
+      /******/
 
-      this.message = message;
-    },
+      /******/
+      // getDefaultExport function for compatibility with non-harmony modules
 
-    /**
-     * Something isn't ready.
-     * @constructor
-     */
-    notReady: function (message) {
-      this.toString = function () {
-        return "NOT READY: " + this.message;
+      /******/
+
+
+      __webpack_require__.n = function (module) {
+        /******/
+        var getter = module && module.__esModule ?
+        /******/
+        function getDefault() {
+          return module['default'];
+        } :
+        /******/
+        function getModuleExports() {
+          return module;
+        };
+        /******/
+
+        __webpack_require__.d(getter, 'a', getter);
+        /******/
+
+
+        return getter;
+        /******/
       };
+      /******/
 
-      this.message = message;
-    }
-  }
-};
-/** @fileOverview Arrays of bits, encoded as arrays of Numbers.
- *
- * @author Emily Stark
- * @author Mike Hamburg
- * @author Dan Boneh
- */
+      /******/
+      // Object.prototype.hasOwnProperty.call
 
-/**
- * Arrays of bits, encoded as arrays of Numbers.
- * @namespace
- * @description
- * <p>
- * These objects are the currency accepted by SJCL's crypto functions.
- * </p>
- *
- * <p>
- * Most of our crypto primitives operate on arrays of 4-byte words internally,
- * but many of them can take arguments that are not a multiple of 4 bytes.
- * This library encodes arrays of bits (whose size need not be a multiple of 8
- * bits) as arrays of 32-bit words.  The bits are packed, big-endian, into an
- * array of words, 32 bits at a time.  Since the words are double-precision
- * floating point numbers, they fit some extra data.  We use this (in a private,
- * possibly-changing manner) to encode the number of bits actually  present
- * in the last word of the array.
- * </p>
- *
- * <p>
- * Because bitwise ops clear this out-of-band data, these arrays can be passed
- * to ciphers like AES which want arrays of words.
- * </p>
- */
+      /******/
 
-sjcl.bitArray = {
-  /**
-   * Array slices in units of bits.
-   * @param {bitArray} a The array to slice.
-   * @param {Number} bstart The offset to the start of the slice, in bits.
-   * @param {Number} bend The offset to the end of the slice, in bits.  If this is undefined,
-   * slice until the end of the array.
-   * @return {bitArray} The requested slice.
-   */
-  bitSlice: function (a, bstart, bend) {
-    a = sjcl.bitArray._shiftRight(a.slice(bstart / 32), 32 - (bstart & 31)).slice(1);
-    return bend === undefined ? a : sjcl.bitArray.clamp(a, bend - bstart);
-  },
 
-  /**
-   * Extract a number packed into a bit array.
-   * @param {bitArray} a The array to slice.
-   * @param {Number} bstart The offset to the start of the slice, in bits.
-   * @param {Number} blength The length of the number to extract.
-   * @return {Number} The requested slice.
-   */
-  extract: function (a, bstart, blength) {
-    // FIXME: this Math.floor is not necessary at all, but for some reason
-    // seems to suppress a bug in the Chromium JIT.
-    var x,
-        sh = Math.floor(-bstart - blength & 31);
+      __webpack_require__.o = function (object, property) {
+        return Object.prototype.hasOwnProperty.call(object, property);
+      };
+      /******/
 
-    if ((bstart + blength - 1 ^ bstart) & -32) {
-      // it crosses a boundary
-      x = a[bstart / 32 | 0] << 32 - sh ^ a[bstart / 32 + 1 | 0] >>> sh;
-    } else {
-      // within a single word
-      x = a[bstart / 32 | 0] >>> sh;
-    }
+      /******/
+      // __webpack_public_path__
 
-    return x & (1 << blength) - 1;
-  },
+      /******/
 
-  /**
-   * Concatenate two bit arrays.
-   * @param {bitArray} a1 The first array.
-   * @param {bitArray} a2 The second array.
-   * @return {bitArray} The concatenation of a1 and a2.
-   */
-  concat: function (a1, a2) {
-    if (a1.length === 0 || a2.length === 0) {
-      return a1.concat(a2);
-    }
 
-    var last = a1[a1.length - 1],
-        shift = sjcl.bitArray.getPartial(last);
+      __webpack_require__.p = "";
+      /******/
 
-    if (shift === 32) {
-      return a1.concat(a2);
-    } else {
-      return sjcl.bitArray._shiftRight(a2, shift, last | 0, a1.slice(0, a1.length - 1));
-    }
-  },
+      /******/
 
-  /**
-   * Find the length of an array of bits.
-   * @param {bitArray} a The array.
-   * @return {Number} The length of a, in bits.
-   */
-  bitLength: function (a) {
-    var l = a.length,
-        x;
+      /******/
+      // Load entry module and return exports
 
-    if (l === 0) {
-      return 0;
-    }
+      /******/
 
-    x = a[l - 1];
-    return (l - 1) * 32 + sjcl.bitArray.getPartial(x);
-  },
+      return __webpack_require__(__webpack_require__.s = 1);
+      /******/
+    }(
+    /************************************************************************/
 
-  /**
-   * Truncate an array.
-   * @param {bitArray} a The array.
-   * @param {Number} len The length to truncate to, in bits.
-   * @return {bitArray} A new array, truncated to len bits.
-   */
-  clamp: function (a, len) {
-    if (a.length * 32 < len) {
-      return a;
-    }
+    /******/
+    [
+    /* 0 */
 
-    a = a.slice(0, Math.ceil(len / 32));
-    var l = a.length;
-    len = len & 31;
+    /***/
+    function (module, __webpack_exports__, __webpack_require__) {
+      "use strict";
+      /* harmony export (binding) */
 
-    if (l > 0 && len) {
-      a[l - 1] = sjcl.bitArray.partial(len, a[l - 1] & 0x80000000 >> len - 1, 1);
-    }
-
-    return a;
-  },
-
-  /**
-   * Make a partial word for a bit array.
-   * @param {Number} len The number of bits in the word.
-   * @param {Number} x The bits.
-   * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
-   * @return {Number} The partial word.
-   */
-  partial: function (len, x, _end) {
-    if (len === 32) {
-      return x;
-    }
-
-    return (_end ? x | 0 : x << 32 - len) + len * 0x10000000000;
-  },
-
-  /**
-   * Get the number of bits used by a partial word.
-   * @param {Number} x The partial word.
-   * @return {Number} The number of bits used by the partial word.
-   */
-  getPartial: function (x) {
-    return Math.round(x / 0x10000000000) || 32;
-  },
-
-  /**
-   * Compare two arrays for equality in a predictable amount of time.
-   * @param {bitArray} a The first array.
-   * @param {bitArray} b The second array.
-   * @return {boolean} true if a == b; false otherwise.
-   */
-  equal: function (a, b) {
-    if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
-      return false;
-    }
-
-    var x = 0,
-        i;
-
-    for (i = 0; i < a.length; i++) {
-      x |= a[i] ^ b[i];
-    }
-
-    return x === 0;
-  },
-
-  /** Shift an array right.
-   * @param {bitArray} a The array to shift.
-   * @param {Number} shift The number of bits to shift.
-   * @param {Number} [carry=0] A byte to carry in
-   * @param {bitArray} [out=[]] An array to prepend to the output.
-   * @private
-   */
-  _shiftRight: function (a, shift, carry, out) {
-    var i,
-        last2 = 0,
-        shift2;
-
-    if (out === undefined) {
-      out = [];
-    }
-
-    for (; shift >= 32; shift -= 32) {
-      out.push(carry);
-      carry = 0;
-    }
-
-    if (shift === 0) {
-      return out.concat(a);
-    }
-
-    for (i = 0; i < a.length; i++) {
-      out.push(carry | a[i] >>> shift);
-      carry = a[i] << 32 - shift;
-    }
-
-    last2 = a.length ? a[a.length - 1] : 0;
-    shift2 = sjcl.bitArray.getPartial(last2);
-    out.push(sjcl.bitArray.partial(shift + shift2 & 31, shift + shift2 > 32 ? carry : out.pop(), 1));
-    return out;
-  },
-
-  /** xor a block of 4 words together.
-   * @private
-   */
-  _xor4: function (x, y) {
-    return [x[0] ^ y[0], x[1] ^ y[1], x[2] ^ y[2], x[3] ^ y[3]];
-  },
-
-  /** byteswap a word array inplace.
-   * (does not handle partial words)
-   * @param {sjcl.bitArray} a word array
-   * @return {sjcl.bitArray} byteswapped array
-   */
-  byteswapM: function (a) {
-    var i,
-        v,
-        m = 0xff00;
-
-    for (i = 0; i < a.length; ++i) {
-      v = a[i];
-      a[i] = v >>> 24 | v >>> 8 & m | (v & m) << 8 | v << 24;
-    }
-
-    return a;
-  }
-};
-/** @fileOverview Bit array codec implementations.
- *
- * @author Marco Munizaga
- */
-//patch arraybuffers if they don't exist
-
-if (typeof ArrayBuffer === 'undefined') {
-  (function (globals) {
-    "use strict";
-
-    globals.ArrayBuffer = function () {};
-
-    globals.DataView = function () {};
-  })(undefined);
-}
-/**
- * ArrayBuffer
- * @namespace
- */
-
-
-sjcl.codec.arrayBuffer = {
-  /** Convert from a bitArray to an ArrayBuffer. 
-   * Will default to 8byte padding if padding is undefined*/
-  fromBits: function (arr, padding, padding_count) {
-    var out, i, ol, tmp, smallest;
-    padding = padding == undefined ? true : padding;
-    padding_count = padding_count || 8;
-
-    if (arr.length === 0) {
-      return new ArrayBuffer(0);
-    }
-
-    ol = sjcl.bitArray.bitLength(arr) / 8; //check to make sure the bitLength is divisible by 8, if it isn't 
-    //we can't do anything since arraybuffers work with bytes, not bits
-
-    if (sjcl.bitArray.bitLength(arr) % 8 !== 0) {
-      throw new sjcl.exception.invalid("Invalid bit size, must be divisble by 8 to fit in an arraybuffer correctly");
-    }
-
-    if (padding && ol % padding_count !== 0) {
-      ol += padding_count - ol % padding_count;
-    } //padded temp for easy copying
-
-
-    tmp = new DataView(new ArrayBuffer(arr.length * 4));
-
-    for (i = 0; i < arr.length; i++) {
-      tmp.setUint32(i * 4, arr[i] << 32); //get rid of the higher bits
-    } //now copy the final message if we are not going to 0 pad
-
-
-    out = new DataView(new ArrayBuffer(ol)); //save a step when the tmp and out bytelength are ===
-
-    if (out.byteLength === tmp.byteLength) {
-      return tmp.buffer;
-    }
-
-    smallest = tmp.byteLength < out.byteLength ? tmp.byteLength : out.byteLength;
-
-    for (i = 0; i < smallest; i++) {
-      out.setUint8(i, tmp.getUint8(i));
-    }
-
-    return out.buffer;
-  },
-
-  /** Convert from an ArrayBuffer to a bitArray. */
-  toBits: function (buffer) {
-    var i,
-        out = [],
-        len,
-        inView,
-        tmp;
-
-    if (buffer.byteLength === 0) {
-      return [];
-    }
-
-    inView = new DataView(buffer);
-    len = inView.byteLength - inView.byteLength % 4;
-
-    for (var i = 0; i < len; i += 4) {
-      out.push(inView.getUint32(i));
-    }
-
-    if (inView.byteLength % 4 != 0) {
-      tmp = new DataView(new ArrayBuffer(4));
-
-      for (var i = 0, l = inView.byteLength % 4; i < l; i++) {
-        //we want the data to the right, because partial slices off the starting bits
-        tmp.setUint8(i + 4 - l, inView.getUint8(len + i)); // big-endian, 
-      }
-
-      out.push(sjcl.bitArray.partial(inView.byteLength % 4 * 8, tmp.getUint32(0)));
-    }
-
-    return out;
-  },
-
-  /** Prints a hex output of the buffer contents, akin to hexdump **/
-  hexDumpBuffer: function (buffer) {
-    var stringBufferView = new DataView(buffer);
-    var string = '';
-
-    var pad = function (n, width) {
-      n = n + '';
-      return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
-    };
-
-    for (var i = 0; i < stringBufferView.byteLength; i += 2) {
-      if (i % 16 == 0) string += '\n' + i.toString(16) + '\t';
-      string += pad(stringBufferView.getUint16(i).toString(16), 4) + ' ';
-    }
-
-    if (typeof console === undefined) {
-      console = console || {
-        log: function () {}
-      }; //fix for IE
-    }
-
-    console.log(string.toUpperCase());
-  }
-};
-/** @fileOverview Javascript SHA-1 implementation.
- *
- * Based on the implementation in RFC 3174, method 1, and on the SJCL
- * SHA-256 implementation.
- *
- * @author Quinn Slack
- */
-
-/**
- * Context for a SHA-1 operation in progress.
- * @constructor
- */
-
-sjcl.hash.sha1 = function (hash) {
-  if (hash) {
-    this._h = hash._h.slice(0);
-    this._buffer = hash._buffer.slice(0);
-    this._length = hash._length;
-  } else {
-    this.reset();
-  }
-};
-/**
- * Hash a string or an array of words.
- * @static
- * @param {bitArray|String} data the data to hash.
- * @return {bitArray} The hash value, an array of 5 big-endian words.
- */
-
-
-sjcl.hash.sha1.hash = function (data) {
-  return new sjcl.hash.sha1().update(data).finalize();
-};
-
-sjcl.hash.sha1.prototype = {
-  /**
-   * The hash's block size, in bits.
-   * @constant
-   */
-  blockSize: 512,
-
-  /**
-   * Reset the hash state.
-   * @return this
-   */
-  reset: function () {
-    this._h = this._init.slice(0);
-    this._buffer = [];
-    this._length = 0;
-    return this;
-  },
-
-  /**
-   * Input several words to the hash.
-   * @param {bitArray|String} data the data to hash.
-   * @return this
-   */
-  update: function (data) {
-    if (typeof data === "string") {
-      data = sjcl.codec.utf8String.toBits(data);
-    }
-
-    var i,
-        b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
-        ol = this._length,
-        nl = this._length = ol + sjcl.bitArray.bitLength(data);
-
-    if (nl > 9007199254740991) {
-      throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
-    }
-
-    if (typeof Uint32Array !== 'undefined') {
-      var c = new Uint32Array(b);
-      var j = 0;
-
-      for (i = this.blockSize + ol - (this.blockSize + ol & this.blockSize - 1); i <= nl; i += this.blockSize) {
-        this._block(c.subarray(16 * j, 16 * (j + 1)));
-
-        j += 1;
-      }
-
-      b.splice(0, 16 * j);
-    } else {
-      for (i = this.blockSize + ol - (this.blockSize + ol & this.blockSize - 1); i <= nl; i += this.blockSize) {
-        this._block(b.splice(0, 16));
-      }
-    }
-
-    return this;
-  },
-
-  /**
-   * Complete hashing and output the hash value.
-   * @return {bitArray} The hash value, an array of 5 big-endian words. TODO
-   */
-  finalize: function () {
-    var i,
-        b = this._buffer,
-        h = this._h; // Round out and push the buffer
-
-    b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]); // Round out the buffer to a multiple of 16 words, less the 2 length words.
-
-    for (i = b.length + 2; i & 15; i++) {
-      b.push(0);
-    } // append the length
-
-
-    b.push(Math.floor(this._length / 0x100000000));
-    b.push(this._length | 0);
-
-    while (b.length) {
-      this._block(b.splice(0, 16));
-    }
-
-    this.reset();
-    return h;
-  },
-
-  /**
-   * The SHA-1 initialization vector.
-   * @private
-   */
-  _init: [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0],
-
-  /**
-   * The SHA-1 hash key.
-   * @private
-   */
-  _key: [0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6],
-
-  /**
-   * The SHA-1 logical functions f(0), f(1), ..., f(79).
-   * @private
-   */
-  _f: function (t, b, c, d) {
-    if (t <= 19) {
-      return b & c | ~b & d;
-    } else if (t <= 39) {
-      return b ^ c ^ d;
-    } else if (t <= 59) {
-      return b & c | b & d | c & d;
-    } else if (t <= 79) {
-      return b ^ c ^ d;
-    }
-  },
-
-  /**
-   * Circular left-shift operator.
-   * @private
-   */
-  _S: function (n, x) {
-    return x << n | x >>> 32 - n;
-  },
-
-  /**
-   * Perform one cycle of SHA-1.
-   * @param {Uint32Array|bitArray} words one block of words.
-   * @private
-   */
-  _block: function (words) {
-    var t,
-        tmp,
-        a,
-        b,
-        c,
-        d,
-        e,
-        h = this._h;
-    var w;
-
-    if (typeof Uint32Array !== 'undefined') {
-      // When words is passed to _block, it has 16 elements. SHA1 _block
-      // function extends words with new elements (at the end there are 80 elements). 
-      // The problem is that if we use Uint32Array instead of Array, 
-      // the length of Uint32Array cannot be changed. Thus, we replace words with a 
-      // normal Array here.
-      w = Array(80); // do not use Uint32Array here as the instantiation is slower
-
-      for (var j = 0; j < 16; j++) {
-        w[j] = words[j];
-      }
-    } else {
-      w = words;
-    }
-
-    a = h[0];
-    b = h[1];
-    c = h[2];
-    d = h[3];
-    e = h[4];
-
-    for (t = 0; t <= 79; t++) {
-      if (t >= 16) {
-        w[t] = this._S(1, w[t - 3] ^ w[t - 8] ^ w[t - 14] ^ w[t - 16]);
-      }
-
-      tmp = this._S(5, a) + this._f(t, b, c, d) + e + w[t] + this._key[Math.floor(t / 20)] | 0;
-      e = d;
-      d = c;
-      c = this._S(30, b);
-      b = a;
-      a = tmp;
-    }
-
-    h[0] = h[0] + a | 0;
-    h[1] = h[1] + b | 0;
-    h[2] = h[2] + c | 0;
-    h[3] = h[3] + d | 0;
-    h[4] = h[4] + e | 0;
-  }
-};
-/** @fileOverview Javascript SHA-256 implementation.
- *
- * An older version of this implementation is available in the public
- * domain, but this one is (c) Emily Stark, Mike Hamburg, Dan Boneh,
- * Stanford University 2008-2010 and BSD-licensed for liability
- * reasons.
- *
- * Special thanks to Aldo Cortesi for pointing out several bugs in
- * this code.
- *
- * @author Emily Stark
- * @author Mike Hamburg
- * @author Dan Boneh
- */
-
-/**
- * Context for a SHA-256 operation in progress.
- * @constructor
- */
-
-sjcl.hash.sha256 = function (hash) {
-  if (!this._key[0]) {
-    this._precompute();
-  }
-
-  if (hash) {
-    this._h = hash._h.slice(0);
-    this._buffer = hash._buffer.slice(0);
-    this._length = hash._length;
-  } else {
-    this.reset();
-  }
-};
-/**
- * Hash a string or an array of words.
- * @static
- * @param {bitArray|String} data the data to hash.
- * @return {bitArray} The hash value, an array of 16 big-endian words.
- */
-
-
-sjcl.hash.sha256.hash = function (data) {
-  return new sjcl.hash.sha256().update(data).finalize();
-};
-
-sjcl.hash.sha256.prototype = {
-  /**
-   * The hash's block size, in bits.
-   * @constant
-   */
-  blockSize: 512,
-
-  /**
-   * Reset the hash state.
-   * @return this
-   */
-  reset: function () {
-    this._h = this._init.slice(0);
-    this._buffer = [];
-    this._length = 0;
-    return this;
-  },
-
-  /**
-   * Input several words to the hash.
-   * @param {bitArray|String} data the data to hash.
-   * @return this
-   */
-  update: function (data) {
-    if (typeof data === "string") {
-      data = sjcl.codec.utf8String.toBits(data);
-    }
-
-    var i,
-        b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
-        ol = this._length,
-        nl = this._length = ol + sjcl.bitArray.bitLength(data);
-
-    if (nl > 9007199254740991) {
-      throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
-    }
-
-    if (typeof Uint32Array !== 'undefined') {
-      var c = new Uint32Array(b);
-      var j = 0;
-
-      for (i = 512 + ol - (512 + ol & 511); i <= nl; i += 512) {
-        this._block(c.subarray(16 * j, 16 * (j + 1)));
-
-        j += 1;
-      }
-
-      b.splice(0, 16 * j);
-    } else {
-      for (i = 512 + ol - (512 + ol & 511); i <= nl; i += 512) {
-        this._block(b.splice(0, 16));
-      }
-    }
-
-    return this;
-  },
-
-  /**
-   * Complete hashing and output the hash value.
-   * @return {bitArray} The hash value, an array of 8 big-endian words.
-   */
-  finalize: function () {
-    var i,
-        b = this._buffer,
-        h = this._h; // Round out and push the buffer
-
-    b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]); // Round out the buffer to a multiple of 16 words, less the 2 length words.
-
-    for (i = b.length + 2; i & 15; i++) {
-      b.push(0);
-    } // append the length
-
-
-    b.push(Math.floor(this._length / 0x100000000));
-    b.push(this._length | 0);
-
-    while (b.length) {
-      this._block(b.splice(0, 16));
-    }
-
-    this.reset();
-    return h;
-  },
-
-  /**
-   * The SHA-256 initialization vector, to be precomputed.
-   * @private
-   */
-  _init: [],
-
-  /*
-  _init:[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19],
-  */
-
-  /**
-   * The SHA-256 hash key, to be precomputed.
-   * @private
-   */
-  _key: [],
-
-  /*
-  _key:
-    [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-     0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-     0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-     0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-     0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-     0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
-  */
-
-  /**
-   * Function to precompute _init and _key.
-   * @private
-   */
-  _precompute: function () {
-    var i = 0,
-        prime = 2,
-        factor,
-        isPrime;
-
-    function frac(x) {
-      return (x - Math.floor(x)) * 0x100000000 | 0;
-    }
-
-    for (; i < 64; prime++) {
-      isPrime = true;
-
-      for (factor = 2; factor * factor <= prime; factor++) {
-        if (prime % factor === 0) {
-          isPrime = false;
-          break;
-        }
-      }
-
-      if (isPrime) {
-        if (i < 8) {
-          this._init[i] = frac(Math.pow(prime, 1 / 2));
-        }
-
-        this._key[i] = frac(Math.pow(prime, 1 / 3));
-        i++;
-      }
-    }
-  },
-
-  /**
-   * Perform one cycle of SHA-256.
-   * @param {Uint32Array|bitArray} w one block of words.
-   * @private
-   */
-  _block: function (w) {
-    var i,
-        tmp,
-        a,
-        b,
-        h = this._h,
-        k = this._key,
-        h0 = h[0],
-        h1 = h[1],
-        h2 = h[2],
-        h3 = h[3],
-        h4 = h[4],
-        h5 = h[5],
-        h6 = h[6],
-        h7 = h[7];
-    /* Rationale for placement of |0 :
-     * If a value can overflow is original 32 bits by a factor of more than a few
-     * million (2^23 ish), there is a possibility that it might overflow the
-     * 53-bit mantissa and lose precision.
-     *
-     * To avoid this, we clamp back to 32 bits by |'ing with 0 on any value that
-     * propagates around the loop, and on the hash state h[].  I don't believe
-     * that the clamps on h4 and on h0 are strictly necessary, but it's close
-     * (for h4 anyway), and better safe than sorry.
-     *
-     * The clamps on h[] are necessary for the output to be correct even in the
-     * common case and for short inputs.
-     */
-
-    for (i = 0; i < 64; i++) {
-      // load up the input word for this round
-      if (i < 16) {
-        tmp = w[i];
-      } else {
-        a = w[i + 1 & 15];
-        b = w[i + 14 & 15];
-        tmp = w[i & 15] = (a >>> 7 ^ a >>> 18 ^ a >>> 3 ^ a << 25 ^ a << 14) + (b >>> 17 ^ b >>> 19 ^ b >>> 10 ^ b << 15 ^ b << 13) + w[i & 15] + w[i + 9 & 15] | 0;
-      }
-
-      tmp = tmp + h7 + (h4 >>> 6 ^ h4 >>> 11 ^ h4 >>> 25 ^ h4 << 26 ^ h4 << 21 ^ h4 << 7) + (h6 ^ h4 & (h5 ^ h6)) + k[i]; // | 0;
-      // shift register
-
-      h7 = h6;
-      h6 = h5;
-      h5 = h4;
-      h4 = h3 + tmp | 0;
-      h3 = h2;
-      h2 = h1;
-      h1 = h0;
-      h0 = tmp + (h1 & h2 ^ h3 & (h1 ^ h2)) + (h1 >>> 2 ^ h1 >>> 13 ^ h1 >>> 22 ^ h1 << 30 ^ h1 << 19 ^ h1 << 10) | 0;
-    }
-
-    h[0] = h[0] + h0 | 0;
-    h[1] = h[1] + h1 | 0;
-    h[2] = h[2] + h2 | 0;
-    h[3] = h[3] + h3 | 0;
-    h[4] = h[4] + h4 | 0;
-    h[5] = h[5] + h5 | 0;
-    h[6] = h[6] + h6 | 0;
-    h[7] = h[7] + h7 | 0;
-  }
-};
-/** @fileOverview Javascript SHA-512 implementation.
- *
- * This implementation was written for CryptoJS by Jeff Mott and adapted for
- * SJCL by Stefan Thomas.
- *
- * CryptoJS (c) 2009–2012 by Jeff Mott. All rights reserved.
- * Released with New BSD License
- *
- * @author Emily Stark
- * @author Mike Hamburg
- * @author Dan Boneh
- * @author Jeff Mott
- * @author Stefan Thomas
- */
-
-/**
- * Context for a SHA-512 operation in progress.
- * @constructor
- */
-
-sjcl.hash.sha512 = function (hash) {
-  if (!this._key[0]) {
-    this._precompute();
-  }
-
-  if (hash) {
-    this._h = hash._h.slice(0);
-    this._buffer = hash._buffer.slice(0);
-    this._length = hash._length;
-  } else {
-    this.reset();
-  }
-};
-/**
- * Hash a string or an array of words.
- * @static
- * @param {bitArray|String} data the data to hash.
- * @return {bitArray} The hash value, an array of 16 big-endian words.
- */
-
-
-sjcl.hash.sha512.hash = function (data) {
-  return new sjcl.hash.sha512().update(data).finalize();
-};
-
-sjcl.hash.sha512.prototype = {
-  /**
-   * The hash's block size, in bits.
-   * @constant
-   */
-  blockSize: 1024,
-
-  /**
-   * Reset the hash state.
-   * @return this
-   */
-  reset: function () {
-    this._h = this._init.slice(0);
-    this._buffer = [];
-    this._length = 0;
-    return this;
-  },
-
-  /**
-   * Input several words to the hash.
-   * @param {bitArray|String} data the data to hash.
-   * @return this
-   */
-  update: function (data) {
-    if (typeof data === "string") {
-      data = sjcl.codec.utf8String.toBits(data);
-    }
-
-    var i,
-        b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
-        ol = this._length,
-        nl = this._length = ol + sjcl.bitArray.bitLength(data);
-
-    if (nl > 9007199254740991) {
-      throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
-    }
-
-    if (typeof Uint32Array !== 'undefined') {
-      var c = new Uint32Array(b);
-      var j = 0;
-
-      for (i = 1024 + ol - (1024 + ol & 1023); i <= nl; i += 1024) {
-        this._block(c.subarray(32 * j, 32 * (j + 1)));
-
-        j += 1;
-      }
-
-      b.splice(0, 32 * j);
-    } else {
-      for (i = 1024 + ol - (1024 + ol & 1023); i <= nl; i += 1024) {
-        this._block(b.splice(0, 32));
-      }
-    }
-
-    return this;
-  },
-
-  /**
-   * Complete hashing and output the hash value.
-   * @return {bitArray} The hash value, an array of 16 big-endian words.
-   */
-  finalize: function () {
-    var i,
-        b = this._buffer,
-        h = this._h; // Round out and push the buffer
-
-    b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]); // Round out the buffer to a multiple of 32 words, less the 4 length words.
-
-    for (i = b.length + 4; i & 31; i++) {
-      b.push(0);
-    } // append the length
-
-
-    b.push(0);
-    b.push(0);
-    b.push(Math.floor(this._length / 0x100000000));
-    b.push(this._length | 0);
-
-    while (b.length) {
-      this._block(b.splice(0, 32));
-    }
-
-    this.reset();
-    return h;
-  },
-
-  /**
-   * The SHA-512 initialization vector, to be precomputed.
-   * @private
-   */
-  _init: [],
-
-  /**
-   * Least significant 24 bits of SHA512 initialization values.
-   *
-   * Javascript only has 53 bits of precision, so we compute the 40 most
-   * significant bits and add the remaining 24 bits as constants.
-   *
-   * @private
-   */
-  _initr: [0xbcc908, 0xcaa73b, 0x94f82b, 0x1d36f1, 0xe682d1, 0x3e6c1f, 0x41bd6b, 0x7e2179],
-
-  /*
-  _init:
-  [0x6a09e667, 0xf3bcc908, 0xbb67ae85, 0x84caa73b, 0x3c6ef372, 0xfe94f82b, 0xa54ff53a, 0x5f1d36f1,
-   0x510e527f, 0xade682d1, 0x9b05688c, 0x2b3e6c1f, 0x1f83d9ab, 0xfb41bd6b, 0x5be0cd19, 0x137e2179],
-  */
-
-  /**
-   * The SHA-512 hash key, to be precomputed.
-   * @private
-   */
-  _key: [],
-
-  /**
-   * Least significant 24 bits of SHA512 key values.
-   * @private
-   */
-  _keyr: [0x28ae22, 0xef65cd, 0x4d3b2f, 0x89dbbc, 0x48b538, 0x05d019, 0x194f9b, 0x6d8118, 0x030242, 0x706fbe, 0xe4b28c, 0xffb4e2, 0x7b896f, 0x1696b1, 0xc71235, 0x692694, 0xf14ad2, 0x4f25e3, 0x8cd5b5, 0xac9c65, 0x2b0275, 0xa6e483, 0x41fbd4, 0x1153b5, 0x66dfab, 0xb43210, 0xfb213f, 0xef0ee4, 0xa88fc2, 0x0aa725, 0x03826f, 0x0e6e70, 0xd22ffc, 0x26c926, 0xc42aed, 0x95b3df, 0xaf63de, 0x77b2a8, 0xedaee6, 0x82353b, 0xf10364, 0x423001, 0xf89791, 0x54be30, 0xef5218, 0x65a910, 0x71202a, 0xbbd1b8, 0xd2d0c8, 0x41ab53, 0x8eeb99, 0x9b48a8, 0xc95a63, 0x418acb, 0x63e373, 0xb2b8a3, 0xefb2fc, 0x172f60, 0xf0ab72, 0x6439ec, 0x631e28, 0x82bde9, 0xc67915, 0x72532b, 0x26619c, 0xc0c207, 0xe0eb1e, 0x6ed178, 0x176fba, 0xc898a6, 0xf90dae, 0x1c471b, 0x047d84, 0xc72493, 0xc9bebc, 0x100d4c, 0x3e42b6, 0x657e2a, 0xd6faec, 0x475817],
-
-  /*
-  _key:
-  [0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd, 0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
-   0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019, 0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
-   0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe, 0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
-   0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1, 0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
-   0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3, 0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
-   0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483, 0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
-   0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210, 0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
-   0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725, 0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
-   0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926, 0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
-   0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8, 0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
-   0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001, 0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
-   0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910, 0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
-   0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53, 0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
-   0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb, 0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
-   0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60, 0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
-   0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9, 0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
-   0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207, 0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
-   0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6, 0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
-   0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493, 0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
-   0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a, 0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817],
-  */
-
-  /**
-   * Function to precompute _init and _key.
-   * @private
-   */
-  _precompute: function () {
-    // XXX: This code is for precomputing the SHA256 constants, change for
-    //      SHA512 and re-enable.
-    var i = 0,
-        prime = 2,
-        factor,
-        isPrime;
-
-    function frac(x) {
-      return (x - Math.floor(x)) * 0x100000000 | 0;
-    }
-
-    function frac2(x) {
-      return (x - Math.floor(x)) * 0x10000000000 & 0xff;
-    }
-
-    for (; i < 80; prime++) {
-      isPrime = true;
-
-      for (factor = 2; factor * factor <= prime; factor++) {
-        if (prime % factor === 0) {
-          isPrime = false;
-          break;
-        }
-      }
-
-      if (isPrime) {
-        if (i < 8) {
-          this._init[i * 2] = frac(Math.pow(prime, 1 / 2));
-          this._init[i * 2 + 1] = frac2(Math.pow(prime, 1 / 2)) << 24 | this._initr[i];
-        }
-
-        this._key[i * 2] = frac(Math.pow(prime, 1 / 3));
-        this._key[i * 2 + 1] = frac2(Math.pow(prime, 1 / 3)) << 24 | this._keyr[i];
-        i++;
-      }
-    }
-  },
-
-  /**
-   * Perform one cycle of SHA-512.
-   * @param {Uint32Array|bitArray} words one block of words.
-   * @private
-   */
-  _block: function (words) {
-    var i,
-        wrh,
-        wrl,
-        h = this._h,
-        k = this._key,
-        h0h = h[0],
-        h0l = h[1],
-        h1h = h[2],
-        h1l = h[3],
-        h2h = h[4],
-        h2l = h[5],
-        h3h = h[6],
-        h3l = h[7],
-        h4h = h[8],
-        h4l = h[9],
-        h5h = h[10],
-        h5l = h[11],
-        h6h = h[12],
-        h6l = h[13],
-        h7h = h[14],
-        h7l = h[15];
-    var w;
-
-    if (typeof Uint32Array !== 'undefined') {
-      // When words is passed to _block, it has 32 elements. SHA512 _block
-      // function extends words with new elements (at the end there are 160 elements). 
-      // The problem is that if we use Uint32Array instead of Array, 
-      // the length of Uint32Array cannot be changed. Thus, we replace words with a 
-      // normal Array here.
-      w = Array(160); // do not use Uint32Array here as the instantiation is slower
-
-      for (var j = 0; j < 32; j++) {
-        w[j] = words[j];
-      }
-    } else {
-      w = words;
-    } // Working variables
-
-
-    var ah = h0h,
-        al = h0l,
-        bh = h1h,
-        bl = h1l,
-        ch = h2h,
-        cl = h2l,
-        dh = h3h,
-        dl = h3l,
-        eh = h4h,
-        el = h4l,
-        fh = h5h,
-        fl = h5l,
-        gh = h6h,
-        gl = h6l,
-        hh = h7h,
-        hl = h7l;
-
-    for (i = 0; i < 80; i++) {
-      // load up the input word for this round
-      if (i < 16) {
-        wrh = w[i * 2];
-        wrl = w[i * 2 + 1];
-      } else {
-        // Gamma0
-        var gamma0xh = w[(i - 15) * 2];
-        var gamma0xl = w[(i - 15) * 2 + 1];
-        var gamma0h = (gamma0xl << 31 | gamma0xh >>> 1) ^ (gamma0xl << 24 | gamma0xh >>> 8) ^ gamma0xh >>> 7;
-        var gamma0l = (gamma0xh << 31 | gamma0xl >>> 1) ^ (gamma0xh << 24 | gamma0xl >>> 8) ^ (gamma0xh << 25 | gamma0xl >>> 7); // Gamma1
-
-        var gamma1xh = w[(i - 2) * 2];
-        var gamma1xl = w[(i - 2) * 2 + 1];
-        var gamma1h = (gamma1xl << 13 | gamma1xh >>> 19) ^ (gamma1xh << 3 | gamma1xl >>> 29) ^ gamma1xh >>> 6;
-        var gamma1l = (gamma1xh << 13 | gamma1xl >>> 19) ^ (gamma1xl << 3 | gamma1xh >>> 29) ^ (gamma1xh << 26 | gamma1xl >>> 6); // Shortcuts
-
-        var wr7h = w[(i - 7) * 2];
-        var wr7l = w[(i - 7) * 2 + 1];
-        var wr16h = w[(i - 16) * 2];
-        var wr16l = w[(i - 16) * 2 + 1]; // W(round) = gamma0 + W(round - 7) + gamma1 + W(round - 16)
-
-        wrl = gamma0l + wr7l;
-        wrh = gamma0h + wr7h + (wrl >>> 0 < gamma0l >>> 0 ? 1 : 0);
-        wrl += gamma1l;
-        wrh += gamma1h + (wrl >>> 0 < gamma1l >>> 0 ? 1 : 0);
-        wrl += wr16l;
-        wrh += wr16h + (wrl >>> 0 < wr16l >>> 0 ? 1 : 0);
-      }
-
-      w[i * 2] = wrh |= 0;
-      w[i * 2 + 1] = wrl |= 0; // Ch
-
-      var chh = eh & fh ^ ~eh & gh;
-      var chl = el & fl ^ ~el & gl; // Maj
-
-      var majh = ah & bh ^ ah & ch ^ bh & ch;
-      var majl = al & bl ^ al & cl ^ bl & cl; // Sigma0
-
-      var sigma0h = (al << 4 | ah >>> 28) ^ (ah << 30 | al >>> 2) ^ (ah << 25 | al >>> 7);
-      var sigma0l = (ah << 4 | al >>> 28) ^ (al << 30 | ah >>> 2) ^ (al << 25 | ah >>> 7); // Sigma1
-
-      var sigma1h = (el << 18 | eh >>> 14) ^ (el << 14 | eh >>> 18) ^ (eh << 23 | el >>> 9);
-      var sigma1l = (eh << 18 | el >>> 14) ^ (eh << 14 | el >>> 18) ^ (el << 23 | eh >>> 9); // K(round)
-
-      var krh = k[i * 2];
-      var krl = k[i * 2 + 1]; // t1 = h + sigma1 + ch + K(round) + W(round)
-
-      var t1l = hl + sigma1l;
-      var t1h = hh + sigma1h + (t1l >>> 0 < hl >>> 0 ? 1 : 0);
-      t1l += chl;
-      t1h += chh + (t1l >>> 0 < chl >>> 0 ? 1 : 0);
-      t1l += krl;
-      t1h += krh + (t1l >>> 0 < krl >>> 0 ? 1 : 0);
-      t1l = t1l + wrl | 0; // FF32..FF34 perf issue https://bugzilla.mozilla.org/show_bug.cgi?id=1054972
-
-      t1h += wrh + (t1l >>> 0 < wrl >>> 0 ? 1 : 0); // t2 = sigma0 + maj
-
-      var t2l = sigma0l + majl;
-      var t2h = sigma0h + majh + (t2l >>> 0 < sigma0l >>> 0 ? 1 : 0); // Update working variables
-
-      hh = gh;
-      hl = gl;
-      gh = fh;
-      gl = fl;
-      fh = eh;
-      fl = el;
-      el = dl + t1l | 0;
-      eh = dh + t1h + (el >>> 0 < dl >>> 0 ? 1 : 0) | 0;
-      dh = ch;
-      dl = cl;
-      ch = bh;
-      cl = bl;
-      bh = ah;
-      bl = al;
-      al = t1l + t2l | 0;
-      ah = t1h + t2h + (al >>> 0 < t1l >>> 0 ? 1 : 0) | 0;
-    } // Intermediate hash
-
-
-    h0l = h[1] = h0l + al | 0;
-    h[0] = h0h + ah + (h0l >>> 0 < al >>> 0 ? 1 : 0) | 0;
-    h1l = h[3] = h1l + bl | 0;
-    h[2] = h1h + bh + (h1l >>> 0 < bl >>> 0 ? 1 : 0) | 0;
-    h2l = h[5] = h2l + cl | 0;
-    h[4] = h2h + ch + (h2l >>> 0 < cl >>> 0 ? 1 : 0) | 0;
-    h3l = h[7] = h3l + dl | 0;
-    h[6] = h3h + dh + (h3l >>> 0 < dl >>> 0 ? 1 : 0) | 0;
-    h4l = h[9] = h4l + el | 0;
-    h[8] = h4h + eh + (h4l >>> 0 < el >>> 0 ? 1 : 0) | 0;
-    h5l = h[11] = h5l + fl | 0;
-    h[10] = h5h + fh + (h5l >>> 0 < fl >>> 0 ? 1 : 0) | 0;
-    h6l = h[13] = h6l + gl | 0;
-    h[12] = h6h + gh + (h6l >>> 0 < gl >>> 0 ? 1 : 0) | 0;
-    h7l = h[15] = h7l + hl | 0;
-    h[14] = h7h + hh + (h7l >>> 0 < hl >>> 0 ? 1 : 0) | 0;
-  }
-};
-/** @fileOverview HMAC implementation.
- *
- * @author Emily Stark
- * @author Mike Hamburg
- * @author Dan Boneh
- */
-
-/** HMAC with the specified hash function.
- * @constructor
- * @param {bitArray} key the key for HMAC.
- * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
- */
-
-sjcl.misc.hmac = function (key, Hash) {
-  this._hash = Hash = Hash || sjcl.hash.sha256;
-  var exKey = [[], []],
-      i,
-      bs = Hash.prototype.blockSize / 32;
-  this._baseHash = [new Hash(), new Hash()];
-
-  if (key.length > bs) {
-    key = Hash.hash(key);
-  }
-
-  for (i = 0; i < bs; i++) {
-    exKey[0][i] = key[i] ^ 0x36363636;
-    exKey[1][i] = key[i] ^ 0x5C5C5C5C;
-  }
-
-  this._baseHash[0].update(exKey[0]);
-
-  this._baseHash[1].update(exKey[1]);
-
-  this._resultHash = new Hash(this._baseHash[0]);
-};
-/** HMAC with the specified hash function.  Also called encrypt since it's a prf.
- * @param {bitArray|String} data The data to mac.
- */
-
-
-sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
-  if (!this._updated) {
-    this.update(data);
-    return this.digest(data);
-  } else {
-    throw new sjcl.exception.invalid("encrypt on already updated hmac called!");
-  }
-};
-
-sjcl.misc.hmac.prototype.reset = function () {
-  this._resultHash = new this._hash(this._baseHash[0]);
-  this._updated = false;
-};
-
-sjcl.misc.hmac.prototype.update = function (data) {
-  this._updated = true;
-
-  this._resultHash.update(data);
-};
-
-sjcl.misc.hmac.prototype.digest = function () {
-  var w = this._resultHash.finalize(),
-      result = new this._hash(this._baseHash[1]).update(w).finalize();
-
-  this.reset();
-  return result;
-};
-
-;
-/* harmony default export */ var sjcl_91145TTX2bF4YW4e = (sjcl);
-// CONCATENATED MODULE: ./src/crypto.js
-// eslint-disable-next-line import/no-extraneous-dependencies
- // SJCL is included during compilation.
-
-
-var randomBytes;
-var crypto_hmacDigest;
-
-if (utils["a" /* InternalUtils */].isNode) {
-  var NodeBuffer = utils["a" /* InternalUtils */].globalThis.Buffer;
-  var NodeCrypto = utils["a" /* InternalUtils */].nodeRequire('crypto');
-  var nodeBufferFromArrayBuffer;
-
-  if (typeof NodeBuffer.from === 'function') {
-    nodeBufferFromArrayBuffer = NodeBuffer.from;
-  } else {
-    // Node.js < 5.10.0
-    nodeBufferFromArrayBuffer = function nodeBufferFromArrayBuffer(arrayBuffer) {
-      var nodeBuffer = new NodeBuffer(arrayBuffer.byteLength);
-      var uint8Array = new Uint8Array(arrayBuffer);
-
-      for (var i = 0; i < uint8Array.length; i++) {
-        nodeBuffer[i] = uint8Array[i];
-      }
-
-      return nodeBuffer;
-    };
-  }
-
-  var nodeBufferToArrayBuffer;
-
-  if (NodeBuffer.prototype instanceof Uint8Array) {
-    nodeBufferToArrayBuffer = function nodeBufferToArrayBuffer(nodeBuffer) {
-      return nodeBuffer.buffer;
-    };
-  } else {
-    // Node.js < 4.0.0
-    nodeBufferToArrayBuffer = function nodeBufferToArrayBuffer(nodeBuffer) {
-      var uint8Array = new Uint8Array(nodeBuffer.length);
-
-      for (var i = 0; i < uint8Array.length; i++) {
-        uint8Array[i] = nodeBuffer[i];
-      }
-
-      return uint8Array.buffer;
-    };
-  }
-
-  randomBytes = function randomBytes(size) {
-    var bytes = NodeCrypto.randomBytes(size);
-    return nodeBufferToArrayBuffer(bytes);
-  };
-
-  crypto_hmacDigest = function hmacDigest(algorithm, key, message) {
-    var hmac = NodeCrypto.createHmac(algorithm, nodeBufferFromArrayBuffer(key));
-    hmac.update(nodeBufferFromArrayBuffer(message));
-    return nodeBufferToArrayBuffer(hmac.digest());
-  };
-} else {
-  var BrowserCrypto = utils["a" /* InternalUtils */].globalThis.crypto || utils["a" /* InternalUtils */].globalThis.msCrypto;
-  var getRandomValues;
-
-  if (typeof BrowserCrypto !== 'undefined' && typeof BrowserCrypto.getRandomValues === 'function') {
-    getRandomValues = function getRandomValues(array) {
-      BrowserCrypto.getRandomValues(array);
-    };
-  } else {
-    utils["a" /* InternalUtils */].console.warn('Cryptography API not available, falling back to \'Math.random\'...');
-
-    getRandomValues = function getRandomValues(array) {
-      for (var i = 0; i < array.length; i++) {
-        array[i] = Math.floor(Math.random() * 256);
-      }
-    };
-  }
-
-  randomBytes = function randomBytes(size) {
-    var bytes = new Uint8Array(size);
-    getRandomValues(bytes);
-    return bytes.buffer;
-  };
-
-  crypto_hmacDigest = function hmacDigest(algorithm, key, message) {
-    var hash = sjcl_91145TTX2bF4YW4e.hash[algorithm.toLowerCase()];
-
-    if (typeof hash === 'undefined') {
-      throw new TypeError('Unknown hash function');
-    } // eslint-disable-next-line new-cap
-
-
-    var hmac = new sjcl_91145TTX2bF4YW4e.misc.hmac(sjcl_91145TTX2bF4YW4e.codec.arrayBuffer.toBits(key), hash);
-    hmac.update(sjcl_91145TTX2bF4YW4e.codec.arrayBuffer.toBits(message));
-    return sjcl_91145TTX2bF4YW4e.codec.arrayBuffer.fromBits(hmac.digest(), false);
-  };
-}
-/**
- * An object containing some cryptography functions with dirty workarounds for Node.js and browsers.
- * @private
- * @type {Object}
- */
-
-
-var Crypto = {
-  /**
-   * Returns random bytes.
-   * @param {number} size Size.
-   * @returns {ArrayBuffer} Random bytes.
-   */
-  randomBytes: randomBytes,
-
-  /**
-   * Calculates an HMAC digest.
-   * In Node.js, the command `openssl list -digest-algorithms` displays the available digest algorithms.
-   * @param {string} algorithm Algorithm.
-   * @param {ArrayBuffer} key Key.
-   * @param {ArrayBuffer} message Message.
-   * @returns {ArrayBuffer} Digest.
-   */
-  hmacDigest: crypto_hmacDigest
-};
-// CONCATENATED MODULE: ./src/secret.js
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-
-
-/**
- * Secret key object.
- * @param {Object} [config] Configuration options.
- * @param {ArrayBuffer} [config.buffer=Crypto.randomBytes] Secret key.
- * @param {number} [config.size=20] Number of random bytes to generate, ignored if 'buffer' is provided.
- */
-
-var secret_Secret =
-/*#__PURE__*/
-function () {
-  function Secret() {
-    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        buffer = _ref.buffer,
-        _ref$size = _ref.size,
-        size = _ref$size === void 0 ? 20 : _ref$size;
-
-    _classCallCheck(this, Secret);
-
-    /**
-     * Secret key.
-     * @type {ArrayBuffer}
-     */
-    this.buffer = typeof buffer === 'undefined' ? Crypto.randomBytes(size) : buffer;
-  }
-  /**
-   * Converts a raw string to a Secret object.
-   * @param {string} str Raw string.
-   * @returns {Secret} Secret object.
-   */
-
-
-  _createClass(Secret, [{
-    key: "raw",
-
-    /**
-     * String representation of secret key.
-     * @type {string}
-     */
-    get: function get() {
-      Object.defineProperty(this, 'raw', {
-        enumerable: true,
-        configurable: true,
-        writable: true,
-        value: utils["b" /* Utils */].raw.fromBuf(this.buffer)
+      __webpack_require__.d(__webpack_exports__, "b", function () {
+        return Utils;
       });
-      return this.raw;
-    }
-    /**
-     * Base32 representation of secret key.
-     * @type {string}
-     */
+      /* harmony export (binding) */
 
-  }, {
-    key: "b32",
-    get: function get() {
-      Object.defineProperty(this, 'b32', {
-        enumerable: true,
-        configurable: true,
-        writable: true,
-        value: utils["b" /* Utils */].b32.fromBuf(this.buffer)
+
+      __webpack_require__.d(__webpack_exports__, "a", function () {
+        return InternalUtils;
       });
-      return this.b32;
-    }
-    /**
-     * Hexadecimal representation of secret key.
-     * @type {string}
-     */
 
-  }, {
-    key: "hex",
-    get: function get() {
-      Object.defineProperty(this, 'hex', {
-        enumerable: true,
-        configurable: true,
-        writable: true,
-        value: utils["b" /* Utils */].hex.fromBuf(this.buffer)
-      });
-      return this.hex;
-    }
-  }], [{
-    key: "fromRaw",
-    value: function fromRaw(str) {
-      return new Secret({
-        buffer: utils["b" /* Utils */].raw.toBuf(str)
-      });
-    }
-    /**
-     * Converts a base32 string to a Secret object.
-     * @param {string} str Base32 string.
-     * @returns {Secret} Secret object.
-     */
-
-  }, {
-    key: "fromB32",
-    value: function fromB32(str) {
-      return new Secret({
-        buffer: utils["b" /* Utils */].b32.toBuf(str)
-      });
-    }
-    /**
-     * Converts a hexadecimal string to a Secret object.
-     * @param {string} str Hexadecimal string.
-     * @returns {Secret} Secret object.
-     */
-
-  }, {
-    key: "fromHex",
-    value: function fromHex(str) {
-      return new Secret({
-        buffer: utils["b" /* Utils */].hex.toBuf(str)
-      });
-    }
-  }]);
-
-  return Secret;
-}();
-// CONCATENATED MODULE: ./src/uri.js
-function uri_classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function uri_defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function uri_createClass(Constructor, protoProps, staticProps) { if (protoProps) uri_defineProperties(Constructor.prototype, protoProps); if (staticProps) uri_defineProperties(Constructor, staticProps); return Constructor; }
-
-
- // eslint-disable-next-line import/no-cycle
-
-
-/**
- * Valid key URI parameters.
- * @private
- * @type {Array}
- */
-
-var OTPURI_PARAMS = ['issuer', 'secret', 'algorithm', 'digits', 'counter', 'period'];
-/**
- * Key URI regex.
- *   otpauth://TYPE/[ISSUER:]LABEL?PARAMETERS
- * @private
- * @type {RegExp}
- */
-
-var OTPURI_REGEX = new RegExp("^otpauth:\\/\\/([ht]otp)\\/(.+)\\?((?:&?(?:".concat(OTPURI_PARAMS.join('|'), ")=[^&]+)+)$"), 'i');
-/**
- * RFC 4648 base32 alphabet with pad.
- * @private
- * @type {string}
- */
-
-var SECRET_REGEX = /^[2-7A-Z]+=*$/i;
-/**
- * Regex for supported algorithms.
- * @private
- * @type {RegExp}
- */
-
-var ALGORITHM_REGEX = /^SHA(?:1|256|512)$/i;
-/**
- * Integer regex.
- * @private
- * @type {RegExp}
- */
-
-var INTEGER_REGEX = /^[+-]?\d+$/;
-/**
- * Positive integer regex.
- * @private
- * @type {RegExp}
- */
-
-var POSITIVE_INTEGER_REGEX = /^\+?[1-9]\d*$/;
-/**
- * HOTP/TOTP object/string conversion
- * (https://github.com/google/google-authenticator/wiki/Key-Uri-Format).
- */
-
-var uri_URI =
-/*#__PURE__*/
-function () {
-  function URI() {
-    uri_classCallCheck(this, URI);
-  }
-
-  uri_createClass(URI, null, [{
-    key: "parse",
-
-    /**
-     * Parses a Google Authenticator key URI and returns an HOTP/TOTP object.
-     * @param {string} uri Google Authenticator Key URI.
-     * @returns {HOTP|TOTP} HOTP/TOTP object.
-     */
-    value: function parse(uri) {
-      var uriGroups;
-
-      try {
-        uriGroups = uri.match(OTPURI_REGEX);
-      } catch (error) {
-        /* Handled below */
-      }
-
-      if (!Array.isArray(uriGroups)) {
-        throw new URIError('Invalid URI format');
-      } // Extract URI groups.
-
-
-      var uriType = uriGroups[1].toLowerCase();
-      var uriLabel = uriGroups[2].split(/:(.+)/, 2).map(decodeURIComponent);
-      var uriParams = uriGroups[3].split('&').reduce(function (acc, cur) {
-        var pairArr = cur.split(/=(.+)/, 2).map(decodeURIComponent);
-        var pairKey = pairArr[0].toLowerCase();
-        var pairVal = pairArr[1];
-        var pairAcc = acc;
-        pairAcc[pairKey] = pairVal;
-        return pairAcc;
-      }, {}); // 'OTP' will be instantiated with 'config' argument.
-
-      var OTP;
-      var config = {};
-
-      if (uriType === 'hotp') {
-        OTP = otp_HOTP; // Counter: required
-
-        if (typeof uriParams.counter !== 'undefined' && INTEGER_REGEX.test(uriParams.counter)) {
-          config.counter = parseInt(uriParams.counter, 10);
+      function _typeof(obj) {
+        if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+          _typeof = function _typeof(obj) {
+            return typeof obj;
+          };
         } else {
-          throw new TypeError('Missing or invalid \'counter\' parameter');
+          _typeof = function _typeof(obj) {
+            return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+          };
         }
-      } else if (uriType === 'totp') {
-        OTP = otp_TOTP; // Period: optional
 
-        if (typeof uriParams.period !== 'undefined') {
-          if (POSITIVE_INTEGER_REGEX.test(uriParams.period)) {
-            config.period = parseInt(uriParams.period, 10);
+        return _typeof(obj);
+      }
+      /**
+       * An object containing some utilities.
+       * @type {Object}
+       */
+
+
+      var Utils = {
+        /**
+         * UInt conversion.
+         * @type {Object}
+         */
+        uint: {
+          /**
+           * Converts an ArrayBuffer to an integer.
+           * @param {ArrayBuffer} buf ArrayBuffer.
+           * @returns {number} Integer.
+           */
+          fromBuf: function fromBuf(buf) {
+            var arr = new Uint8Array(buf);
+            var num = 0;
+
+            for (var i = 0; i < arr.length; i++) {
+              if (arr[i] !== 0) {
+                num *= 256;
+                num += arr[i];
+              }
+            }
+
+            return num;
+          },
+
+          /**
+           * Converts an integer to an ArrayBuffer.
+           * @param {number} num Integer.
+           * @returns {ArrayBuffer} ArrayBuffer.
+           */
+          toBuf: function toBuf(num) {
+            var buf = new ArrayBuffer(8);
+            var arr = new Uint8Array(buf);
+            var acc = num;
+
+            for (var i = 7; i >= 0; i--) {
+              if (acc === 0) break;
+              arr[i] = acc & 255;
+              acc -= arr[i];
+              acc /= 256;
+            }
+
+            return buf;
+          }
+        },
+
+        /**
+         * Raw string conversion.
+         * @type {Object}
+         */
+        raw: {
+          /**
+           * Converts an ArrayBuffer to a string.
+           * @param {ArrayBuffer} buf ArrayBuffer.
+           * @returns {string} String.
+           */
+          fromBuf: function fromBuf(buf) {
+            var arr = new Uint8Array(buf);
+            var str = '';
+
+            for (var i = 0; i < arr.length; i++) {
+              str += String.fromCharCode(arr[i]);
+            }
+
+            return str;
+          },
+
+          /**
+           * Converts a string to an ArrayBuffer.
+           * @param {string} str String.
+           * @returns {ArrayBuffer} ArrayBuffer.
+           */
+          toBuf: function toBuf(str) {
+            var buf = new ArrayBuffer(str.length);
+            var arr = new Uint8Array(buf);
+
+            for (var i = 0; i < str.length; i++) {
+              arr[i] = str.charCodeAt(i);
+            }
+
+            return buf;
+          }
+        },
+
+        /**
+         * Base32 string conversion.
+         * @type {Object}
+         */
+        b32: {
+          /**
+           * RFC 4648 base32 alphabet without pad.
+           * @type {string}
+           */
+          alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',
+
+          /**
+           * Converts an ArrayBuffer to a base32 string (RFC 4648)
+           * (https://github.com/LinusU/base32-encode).
+           * @param {ArrayBuffer} buf ArrayBuffer.
+           * @returns {string} Base32 string.
+           */
+          fromBuf: function fromBuf(buf) {
+            var arr = new Uint8Array(buf);
+            var bits = 0;
+            var value = 0;
+            var str = '';
+
+            for (var i = 0; i < arr.length; i++) {
+              value = value << 8 | arr[i];
+              bits += 8;
+
+              while (bits >= 5) {
+                str += Utils.b32.alphabet[value >>> bits - 5 & 31];
+                bits -= 5;
+              }
+            }
+
+            if (bits > 0) {
+              str += Utils.b32.alphabet[value << 5 - bits & 31];
+            }
+
+            return str;
+          },
+
+          /**
+           * Converts a base32 string to an ArrayBuffer (RFC 4648)
+           * (https://github.com/LinusU/base32-decode).
+           * @param {string} str Base32 string.
+           * @returns {ArrayBuffer} ArrayBuffer.
+           */
+          toBuf: function toBuf(str) {
+            // Canonicalize to all upper case and remove padding if it exists.
+            str = str.toUpperCase().replace(/=+$/, '');
+            var buf = new ArrayBuffer(str.length * 5 / 8 | 0);
+            var arr = new Uint8Array(buf);
+            var bits = 0;
+            var value = 0;
+            var index = 0;
+
+            for (var i = 0; i < str.length; i++) {
+              var idx = Utils.b32.alphabet.indexOf(str[i]);
+              if (idx === -1) throw new TypeError("Invalid character found: ".concat(str[i]));
+              value = value << 5 | idx;
+              bits += 5;
+
+              if (bits >= 8) {
+                arr[index++] = value >>> bits - 8 & 255;
+                bits -= 8;
+              }
+            }
+
+            return buf;
+          }
+        },
+
+        /**
+         * Hexadecimal string conversion.
+         * @type {Object}
+         */
+        hex: {
+          /**
+           * Converts an ArrayBuffer to a hexadecimal string.
+           * @param {ArrayBuffer} buf ArrayBuffer.
+           * @returns {string} Hexadecimal string.
+           */
+          fromBuf: function fromBuf(buf) {
+            var arr = new Uint8Array(buf);
+            var str = '';
+
+            for (var i = 0; i < arr.length; i++) {
+              var hex = arr[i].toString(16);
+              str += hex.length === 2 ? hex : "0".concat(hex);
+            }
+
+            return str.toUpperCase();
+          },
+
+          /**
+           * Converts a hexadecimal string to an ArrayBuffer.
+           * @param {string} str Hexadecimal string.
+           * @returns {ArrayBuffer} ArrayBuffer.
+           */
+          toBuf: function toBuf(str) {
+            var buf = new ArrayBuffer(str.length / 2);
+            var arr = new Uint8Array(buf);
+
+            for (var i = 0, j = 0; i < arr.length; i += 1, j += 2) {
+              arr[i] = parseInt(str.substr(j, 2), 16);
+            }
+
+            return buf;
+          }
+        },
+
+        /**
+         * Pads a number with leading zeros.
+         * @param {number|string} num Number.
+         * @param {number} digits Digits.
+         * @returns {string} Padded number.
+         */
+        pad: function pad(num, digits) {
+          var prefix = '';
+          var repeat = digits - String(num).length;
+
+          while (repeat-- > 0) {
+            prefix += '0';
+          }
+
+          return "".concat(prefix).concat(num);
+        }
+      };
+      /**
+       * An object containing some utilities (for internal use only).
+       * @private
+       * @type {Object}
+       */
+
+      var InternalUtils = {
+        /**
+         * "globalThis" ponyfill
+         * (https://mathiasbynens.be/notes/globalthis).
+         * @type {Object}
+         */
+        get globalThis() {
+          var _globalThis;
+          /* eslint-disable no-extend-native, no-undef */
+
+
+          if ((typeof globalThis === "undefined" ? "undefined" : _typeof(globalThis)) === 'object') {
+            _globalThis = globalThis;
           } else {
-            throw new TypeError('Invalid \'period\' parameter');
+            Object.defineProperty(Object.prototype, '__magicalGlobalThis__', {
+              get: function get() {
+                return this;
+              },
+              configurable: true
+            });
+
+            try {
+              _globalThis = __magicalGlobalThis__;
+            } finally {
+              delete Object.prototype.__magicalGlobalThis__;
+            }
+          }
+          /* eslint-enable */
+
+
+          Object.defineProperty(this, 'globalThis', {
+            enumerable: true,
+            value: _globalThis
+          });
+          return this.globalThis;
+        },
+
+        /**
+         * "console" ponyfill.
+         * @type {Object}
+         */
+        get console() {
+          var _console;
+
+          if (_typeof(InternalUtils.globalThis.console) === 'object') {
+            _console = InternalUtils.globalThis.console;
+          } else {
+            _console = {};
+            var properties = ['memory'];
+            var methods = ['assert', 'clear', 'count', 'countReset', 'debug', 'error', 'info', 'log', 'table', 'trace', 'warn', 'dir', 'dirxml', 'group', 'groupCollapsed', 'groupEnd', 'time', 'timeLog', 'timeEnd', 'exception', 'timeStamp', 'profile', 'profileEnd'];
+
+            for (var _i = 0, _methods = methods; _i < _methods.length; _i++) {
+              var method = _methods[_i];
+
+              _console[method] = function () {};
+            }
+
+            for (var _i2 = 0, _properties = properties; _i2 < _properties.length; _i2++) {
+              var property = _properties[_i2];
+              _console[property] = {};
+            }
+          }
+
+          Object.defineProperty(this, 'console', {
+            enumerable: true,
+            value: _console
+          });
+          return this.console;
+        },
+
+        /**
+         * Detect if running in "Node.js".
+         * @type {boolean}
+         */
+        get isNode() {
+          var _isNode = Object.prototype.toString.call(InternalUtils.globalThis.process) === '[object process]';
+
+          Object.defineProperty(this, 'isNode', {
+            enumerable: true,
+            value: _isNode
+          });
+          return this.isNode;
+        },
+
+        /**
+         * Dynamically import "Node.js" modules.
+         * (`eval` is used to prevent bundlers from including the module,
+         * e.g., [webpack/webpack#8826](https://github.com/webpack/webpack/issues/8826))
+         * @param {string} name Name.
+         * @returns {Object} Module.
+         */
+        // eslint-disable-next-line no-eval
+        nodeRequire: function nodeRequire(name) {
+          return eval('require')(name);
+        }
+      };
+      /***/
+    },
+    /* 1 */
+
+    /***/
+    function (module, __webpack_exports__, __webpack_require__) {
+      "use strict";
+
+      __webpack_require__.r(__webpack_exports__); // EXTERNAL MODULE: ./src/utils.js
+
+
+      var utils = __webpack_require__(0); // CONCATENATED MODULE: /tmp/sjcl-91145TTX2bF4YW4e.js
+
+      /** @fileOverview Javascript cryptography implementation.
+       *
+       * Crush to remove comments, shorten variable names and
+       * generally reduce transmission size.
+       *
+       * @author Emily Stark
+       * @author Mike Hamburg
+       * @author Dan Boneh
+       */
+
+      /*jslint indent: 2, bitwise: false, nomen: false, plusplus: false, white: false, regexp: false */
+
+      /*global document, window, escape, unescape, module, require, Uint32Array */
+
+      /**
+       * The Stanford Javascript Crypto Library, top-level namespace.
+       * @namespace
+       */
+
+
+      var sjcl = {
+        /**
+         * Symmetric ciphers.
+         * @namespace
+         */
+        cipher: {},
+
+        /**
+         * Hash functions.  Right now only SHA256 is implemented.
+         * @namespace
+         */
+        hash: {},
+
+        /**
+         * Key exchange functions.  Right now only SRP is implemented.
+         * @namespace
+         */
+        keyexchange: {},
+
+        /**
+         * Cipher modes of operation.
+         * @namespace
+         */
+        mode: {},
+
+        /**
+         * Miscellaneous.  HMAC and PBKDF2.
+         * @namespace
+         */
+        misc: {},
+
+        /**
+         * Bit array encoders and decoders.
+         * @namespace
+         *
+         * @description
+         * The members of this namespace are functions which translate between
+         * SJCL's bitArrays and other objects (usually strings).  Because it
+         * isn't always clear which direction is encoding and which is decoding,
+         * the method names are "fromBits" and "toBits".
+         */
+        codec: {},
+
+        /**
+         * Exceptions.
+         * @namespace
+         */
+        exception: {
+          /**
+           * Ciphertext is corrupt.
+           * @constructor
+           */
+          corrupt: function (message) {
+            this.toString = function () {
+              return "CORRUPT: " + this.message;
+            };
+
+            this.message = message;
+          },
+
+          /**
+           * Invalid parameter.
+           * @constructor
+           */
+          invalid: function (message) {
+            this.toString = function () {
+              return "INVALID: " + this.message;
+            };
+
+            this.message = message;
+          },
+
+          /**
+           * Bug or missing feature in SJCL.
+           * @constructor
+           */
+          bug: function (message) {
+            this.toString = function () {
+              return "BUG: " + this.message;
+            };
+
+            this.message = message;
+          },
+
+          /**
+           * Something isn't ready.
+           * @constructor
+           */
+          notReady: function (message) {
+            this.toString = function () {
+              return "NOT READY: " + this.message;
+            };
+
+            this.message = message;
           }
         }
-      } else {
-        throw new TypeError('Unknown OTP type');
-      } // Label: required
-      // Issuer: optional
+      };
+      /** @fileOverview Arrays of bits, encoded as arrays of Numbers.
+       *
+       * @author Emily Stark
+       * @author Mike Hamburg
+       * @author Dan Boneh
+       */
 
+      /**
+       * Arrays of bits, encoded as arrays of Numbers.
+       * @namespace
+       * @description
+       * <p>
+       * These objects are the currency accepted by SJCL's crypto functions.
+       * </p>
+       *
+       * <p>
+       * Most of our crypto primitives operate on arrays of 4-byte words internally,
+       * but many of them can take arguments that are not a multiple of 4 bytes.
+       * This library encodes arrays of bits (whose size need not be a multiple of 8
+       * bits) as arrays of 32-bit words.  The bits are packed, big-endian, into an
+       * array of words, 32 bits at a time.  Since the words are double-precision
+       * floating point numbers, they fit some extra data.  We use this (in a private,
+       * possibly-changing manner) to encode the number of bits actually  present
+       * in the last word of the array.
+       * </p>
+       *
+       * <p>
+       * Because bitwise ops clear this out-of-band data, these arrays can be passed
+       * to ciphers like AES which want arrays of words.
+       * </p>
+       */
 
-      if (uriLabel.length === 2) {
-        config.label = uriLabel[1];
+      sjcl.bitArray = {
+        /**
+         * Array slices in units of bits.
+         * @param {bitArray} a The array to slice.
+         * @param {Number} bstart The offset to the start of the slice, in bits.
+         * @param {Number} bend The offset to the end of the slice, in bits.  If this is undefined,
+         * slice until the end of the array.
+         * @return {bitArray} The requested slice.
+         */
+        bitSlice: function (a, bstart, bend) {
+          a = sjcl.bitArray._shiftRight(a.slice(bstart / 32), 32 - (bstart & 31)).slice(1);
+          return bend === undefined ? a : sjcl.bitArray.clamp(a, bend - bstart);
+        },
 
-        if (typeof uriParams.issuer === 'undefined') {
-          config.issuer = uriLabel[0];
-        } else if (uriParams.issuer === uriLabel[0]) {
-          config.issuer = uriParams.issuer;
-        } else {
-          throw new TypeError('Invalid \'issuer\' parameter');
+        /**
+         * Extract a number packed into a bit array.
+         * @param {bitArray} a The array to slice.
+         * @param {Number} bstart The offset to the start of the slice, in bits.
+         * @param {Number} blength The length of the number to extract.
+         * @return {Number} The requested slice.
+         */
+        extract: function (a, bstart, blength) {
+          // FIXME: this Math.floor is not necessary at all, but for some reason
+          // seems to suppress a bug in the Chromium JIT.
+          var x,
+              sh = Math.floor(-bstart - blength & 31);
+
+          if ((bstart + blength - 1 ^ bstart) & -32) {
+            // it crosses a boundary
+            x = a[bstart / 32 | 0] << 32 - sh ^ a[bstart / 32 + 1 | 0] >>> sh;
+          } else {
+            // within a single word
+            x = a[bstart / 32 | 0] >>> sh;
+          }
+
+          return x & (1 << blength) - 1;
+        },
+
+        /**
+         * Concatenate two bit arrays.
+         * @param {bitArray} a1 The first array.
+         * @param {bitArray} a2 The second array.
+         * @return {bitArray} The concatenation of a1 and a2.
+         */
+        concat: function (a1, a2) {
+          if (a1.length === 0 || a2.length === 0) {
+            return a1.concat(a2);
+          }
+
+          var last = a1[a1.length - 1],
+              shift = sjcl.bitArray.getPartial(last);
+
+          if (shift === 32) {
+            return a1.concat(a2);
+          } else {
+            return sjcl.bitArray._shiftRight(a2, shift, last | 0, a1.slice(0, a1.length - 1));
+          }
+        },
+
+        /**
+         * Find the length of an array of bits.
+         * @param {bitArray} a The array.
+         * @return {Number} The length of a, in bits.
+         */
+        bitLength: function (a) {
+          var l = a.length,
+              x;
+
+          if (l === 0) {
+            return 0;
+          }
+
+          x = a[l - 1];
+          return (l - 1) * 32 + sjcl.bitArray.getPartial(x);
+        },
+
+        /**
+         * Truncate an array.
+         * @param {bitArray} a The array.
+         * @param {Number} len The length to truncate to, in bits.
+         * @return {bitArray} A new array, truncated to len bits.
+         */
+        clamp: function (a, len) {
+          if (a.length * 32 < len) {
+            return a;
+          }
+
+          a = a.slice(0, Math.ceil(len / 32));
+          var l = a.length;
+          len = len & 31;
+
+          if (l > 0 && len) {
+            a[l - 1] = sjcl.bitArray.partial(len, a[l - 1] & 0x80000000 >> len - 1, 1);
+          }
+
+          return a;
+        },
+
+        /**
+         * Make a partial word for a bit array.
+         * @param {Number} len The number of bits in the word.
+         * @param {Number} x The bits.
+         * @param {Number} [_end=0] Pass 1 if x has already been shifted to the high side.
+         * @return {Number} The partial word.
+         */
+        partial: function (len, x, _end) {
+          if (len === 32) {
+            return x;
+          }
+
+          return (_end ? x | 0 : x << 32 - len) + len * 0x10000000000;
+        },
+
+        /**
+         * Get the number of bits used by a partial word.
+         * @param {Number} x The partial word.
+         * @return {Number} The number of bits used by the partial word.
+         */
+        getPartial: function (x) {
+          return Math.round(x / 0x10000000000) || 32;
+        },
+
+        /**
+         * Compare two arrays for equality in a predictable amount of time.
+         * @param {bitArray} a The first array.
+         * @param {bitArray} b The second array.
+         * @return {boolean} true if a == b; false otherwise.
+         */
+        equal: function (a, b) {
+          if (sjcl.bitArray.bitLength(a) !== sjcl.bitArray.bitLength(b)) {
+            return false;
+          }
+
+          var x = 0,
+              i;
+
+          for (i = 0; i < a.length; i++) {
+            x |= a[i] ^ b[i];
+          }
+
+          return x === 0;
+        },
+
+        /** Shift an array right.
+         * @param {bitArray} a The array to shift.
+         * @param {Number} shift The number of bits to shift.
+         * @param {Number} [carry=0] A byte to carry in
+         * @param {bitArray} [out=[]] An array to prepend to the output.
+         * @private
+         */
+        _shiftRight: function (a, shift, carry, out) {
+          var i,
+              last2 = 0,
+              shift2;
+
+          if (out === undefined) {
+            out = [];
+          }
+
+          for (; shift >= 32; shift -= 32) {
+            out.push(carry);
+            carry = 0;
+          }
+
+          if (shift === 0) {
+            return out.concat(a);
+          }
+
+          for (i = 0; i < a.length; i++) {
+            out.push(carry | a[i] >>> shift);
+            carry = a[i] << 32 - shift;
+          }
+
+          last2 = a.length ? a[a.length - 1] : 0;
+          shift2 = sjcl.bitArray.getPartial(last2);
+          out.push(sjcl.bitArray.partial(shift + shift2 & 31, shift + shift2 > 32 ? carry : out.pop(), 1));
+          return out;
+        },
+
+        /** xor a block of 4 words together.
+         * @private
+         */
+        _xor4: function (x, y) {
+          return [x[0] ^ y[0], x[1] ^ y[1], x[2] ^ y[2], x[3] ^ y[3]];
+        },
+
+        /** byteswap a word array inplace.
+         * (does not handle partial words)
+         * @param {sjcl.bitArray} a word array
+         * @return {sjcl.bitArray} byteswapped array
+         */
+        byteswapM: function (a) {
+          var i,
+              v,
+              m = 0xff00;
+
+          for (i = 0; i < a.length; ++i) {
+            v = a[i];
+            a[i] = v >>> 24 | v >>> 8 & m | (v & m) << 8 | v << 24;
+          }
+
+          return a;
         }
-      } else {
-        config.label = uriLabel[0];
+      };
+      /** @fileOverview Bit array codec implementations.
+       *
+       * @author Marco Munizaga
+       */
+      //patch arraybuffers if they don't exist
 
-        if (typeof uriParams.issuer !== 'undefined') {
-          config.issuer = uriParams.issuer;
+      if (typeof ArrayBuffer === 'undefined') {
+        (function (globals) {
+          "use strict";
+
+          globals.ArrayBuffer = function () {};
+
+          globals.DataView = function () {};
+        })(undefined);
+      }
+      /**
+       * ArrayBuffer
+       * @namespace
+       */
+
+
+      sjcl.codec.arrayBuffer = {
+        /** Convert from a bitArray to an ArrayBuffer. 
+         * Will default to 8byte padding if padding is undefined*/
+        fromBits: function (arr, padding, padding_count) {
+          var out, i, ol, tmp, smallest;
+          padding = padding == undefined ? true : padding;
+          padding_count = padding_count || 8;
+
+          if (arr.length === 0) {
+            return new ArrayBuffer(0);
+          }
+
+          ol = sjcl.bitArray.bitLength(arr) / 8; //check to make sure the bitLength is divisible by 8, if it isn't 
+          //we can't do anything since arraybuffers work with bytes, not bits
+
+          if (sjcl.bitArray.bitLength(arr) % 8 !== 0) {
+            throw new sjcl.exception.invalid("Invalid bit size, must be divisble by 8 to fit in an arraybuffer correctly");
+          }
+
+          if (padding && ol % padding_count !== 0) {
+            ol += padding_count - ol % padding_count;
+          } //padded temp for easy copying
+
+
+          tmp = new DataView(new ArrayBuffer(arr.length * 4));
+
+          for (i = 0; i < arr.length; i++) {
+            tmp.setUint32(i * 4, arr[i] << 32); //get rid of the higher bits
+          } //now copy the final message if we are not going to 0 pad
+
+
+          out = new DataView(new ArrayBuffer(ol)); //save a step when the tmp and out bytelength are ===
+
+          if (out.byteLength === tmp.byteLength) {
+            return tmp.buffer;
+          }
+
+          smallest = tmp.byteLength < out.byteLength ? tmp.byteLength : out.byteLength;
+
+          for (i = 0; i < smallest; i++) {
+            out.setUint8(i, tmp.getUint8(i));
+          }
+
+          return out.buffer;
+        },
+
+        /** Convert from an ArrayBuffer to a bitArray. */
+        toBits: function (buffer) {
+          var i,
+              out = [],
+              len,
+              inView,
+              tmp;
+
+          if (buffer.byteLength === 0) {
+            return [];
+          }
+
+          inView = new DataView(buffer);
+          len = inView.byteLength - inView.byteLength % 4;
+
+          for (var i = 0; i < len; i += 4) {
+            out.push(inView.getUint32(i));
+          }
+
+          if (inView.byteLength % 4 != 0) {
+            tmp = new DataView(new ArrayBuffer(4));
+
+            for (var i = 0, l = inView.byteLength % 4; i < l; i++) {
+              //we want the data to the right, because partial slices off the starting bits
+              tmp.setUint8(i + 4 - l, inView.getUint8(len + i)); // big-endian, 
+            }
+
+            out.push(sjcl.bitArray.partial(inView.byteLength % 4 * 8, tmp.getUint32(0)));
+          }
+
+          return out;
+        },
+
+        /** Prints a hex output of the buffer contents, akin to hexdump **/
+        hexDumpBuffer: function (buffer) {
+          var stringBufferView = new DataView(buffer);
+          var string = '';
+
+          var pad = function (n, width) {
+            n = n + '';
+            return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+          };
+
+          for (var i = 0; i < stringBufferView.byteLength; i += 2) {
+            if (i % 16 == 0) string += '\n' + i.toString(16) + '\t';
+            string += pad(stringBufferView.getUint16(i).toString(16), 4) + ' ';
+          }
+
+          if (typeof console === undefined) {
+            console = console || {
+              log: function () {}
+            }; //fix for IE
+          }
+
+          console.log(string.toUpperCase());
         }
-      } // Secret: required
+      };
+      /** @fileOverview Javascript SHA-1 implementation.
+       *
+       * Based on the implementation in RFC 3174, method 1, and on the SJCL
+       * SHA-256 implementation.
+       *
+       * @author Quinn Slack
+       */
 
+      /**
+       * Context for a SHA-1 operation in progress.
+       * @constructor
+       */
 
-      if (typeof uriParams.secret !== 'undefined' && SECRET_REGEX.test(uriParams.secret)) {
-        config.secret = new secret_Secret({
-          buffer: utils["b" /* Utils */].b32.toBuf(uriParams.secret)
-        });
-      } else {
-        throw new TypeError('Missing or invalid \'secret\' parameter');
-      } // Algorithm: optional
-
-
-      if (typeof uriParams.algorithm !== 'undefined') {
-        if (ALGORITHM_REGEX.test(uriParams.algorithm)) {
-          config.algorithm = uriParams.algorithm;
+      sjcl.hash.sha1 = function (hash) {
+        if (hash) {
+          this._h = hash._h.slice(0);
+          this._buffer = hash._buffer.slice(0);
+          this._length = hash._length;
         } else {
-          throw new TypeError('Invalid \'algorithm\' parameter');
+          this.reset();
         }
-      } // Digits: optional
+      };
+      /**
+       * Hash a string or an array of words.
+       * @static
+       * @param {bitArray|String} data the data to hash.
+       * @return {bitArray} The hash value, an array of 5 big-endian words.
+       */
 
 
-      if (typeof uriParams.digits !== 'undefined') {
-        if (POSITIVE_INTEGER_REGEX.test(uriParams.digits)) {
-          config.digits = parseInt(uriParams.digits, 10);
+      sjcl.hash.sha1.hash = function (data) {
+        return new sjcl.hash.sha1().update(data).finalize();
+      };
+
+      sjcl.hash.sha1.prototype = {
+        /**
+         * The hash's block size, in bits.
+         * @constant
+         */
+        blockSize: 512,
+
+        /**
+         * Reset the hash state.
+         * @return this
+         */
+        reset: function () {
+          this._h = this._init.slice(0);
+          this._buffer = [];
+          this._length = 0;
+          return this;
+        },
+
+        /**
+         * Input several words to the hash.
+         * @param {bitArray|String} data the data to hash.
+         * @return this
+         */
+        update: function (data) {
+          if (typeof data === "string") {
+            data = sjcl.codec.utf8String.toBits(data);
+          }
+
+          var i,
+              b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
+              ol = this._length,
+              nl = this._length = ol + sjcl.bitArray.bitLength(data);
+
+          if (nl > 9007199254740991) {
+            throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
+          }
+
+          if (typeof Uint32Array !== 'undefined') {
+            var c = new Uint32Array(b);
+            var j = 0;
+
+            for (i = this.blockSize + ol - (this.blockSize + ol & this.blockSize - 1); i <= nl; i += this.blockSize) {
+              this._block(c.subarray(16 * j, 16 * (j + 1)));
+
+              j += 1;
+            }
+
+            b.splice(0, 16 * j);
+          } else {
+            for (i = this.blockSize + ol - (this.blockSize + ol & this.blockSize - 1); i <= nl; i += this.blockSize) {
+              this._block(b.splice(0, 16));
+            }
+          }
+
+          return this;
+        },
+
+        /**
+         * Complete hashing and output the hash value.
+         * @return {bitArray} The hash value, an array of 5 big-endian words. TODO
+         */
+        finalize: function () {
+          var i,
+              b = this._buffer,
+              h = this._h; // Round out and push the buffer
+
+          b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]); // Round out the buffer to a multiple of 16 words, less the 2 length words.
+
+          for (i = b.length + 2; i & 15; i++) {
+            b.push(0);
+          } // append the length
+
+
+          b.push(Math.floor(this._length / 0x100000000));
+          b.push(this._length | 0);
+
+          while (b.length) {
+            this._block(b.splice(0, 16));
+          }
+
+          this.reset();
+          return h;
+        },
+
+        /**
+         * The SHA-1 initialization vector.
+         * @private
+         */
+        _init: [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0],
+
+        /**
+         * The SHA-1 hash key.
+         * @private
+         */
+        _key: [0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6],
+
+        /**
+         * The SHA-1 logical functions f(0), f(1), ..., f(79).
+         * @private
+         */
+        _f: function (t, b, c, d) {
+          if (t <= 19) {
+            return b & c | ~b & d;
+          } else if (t <= 39) {
+            return b ^ c ^ d;
+          } else if (t <= 59) {
+            return b & c | b & d | c & d;
+          } else if (t <= 79) {
+            return b ^ c ^ d;
+          }
+        },
+
+        /**
+         * Circular left-shift operator.
+         * @private
+         */
+        _S: function (n, x) {
+          return x << n | x >>> 32 - n;
+        },
+
+        /**
+         * Perform one cycle of SHA-1.
+         * @param {Uint32Array|bitArray} words one block of words.
+         * @private
+         */
+        _block: function (words) {
+          var t,
+              tmp,
+              a,
+              b,
+              c,
+              d,
+              e,
+              h = this._h;
+          var w;
+
+          if (typeof Uint32Array !== 'undefined') {
+            // When words is passed to _block, it has 16 elements. SHA1 _block
+            // function extends words with new elements (at the end there are 80 elements). 
+            // The problem is that if we use Uint32Array instead of Array, 
+            // the length of Uint32Array cannot be changed. Thus, we replace words with a 
+            // normal Array here.
+            w = Array(80); // do not use Uint32Array here as the instantiation is slower
+
+            for (var j = 0; j < 16; j++) {
+              w[j] = words[j];
+            }
+          } else {
+            w = words;
+          }
+
+          a = h[0];
+          b = h[1];
+          c = h[2];
+          d = h[3];
+          e = h[4];
+
+          for (t = 0; t <= 79; t++) {
+            if (t >= 16) {
+              w[t] = this._S(1, w[t - 3] ^ w[t - 8] ^ w[t - 14] ^ w[t - 16]);
+            }
+
+            tmp = this._S(5, a) + this._f(t, b, c, d) + e + w[t] + this._key[Math.floor(t / 20)] | 0;
+            e = d;
+            d = c;
+            c = this._S(30, b);
+            b = a;
+            a = tmp;
+          }
+
+          h[0] = h[0] + a | 0;
+          h[1] = h[1] + b | 0;
+          h[2] = h[2] + c | 0;
+          h[3] = h[3] + d | 0;
+          h[4] = h[4] + e | 0;
+        }
+      };
+      /** @fileOverview Javascript SHA-256 implementation.
+       *
+       * An older version of this implementation is available in the public
+       * domain, but this one is (c) Emily Stark, Mike Hamburg, Dan Boneh,
+       * Stanford University 2008-2010 and BSD-licensed for liability
+       * reasons.
+       *
+       * Special thanks to Aldo Cortesi for pointing out several bugs in
+       * this code.
+       *
+       * @author Emily Stark
+       * @author Mike Hamburg
+       * @author Dan Boneh
+       */
+
+      /**
+       * Context for a SHA-256 operation in progress.
+       * @constructor
+       */
+
+      sjcl.hash.sha256 = function (hash) {
+        if (!this._key[0]) {
+          this._precompute();
+        }
+
+        if (hash) {
+          this._h = hash._h.slice(0);
+          this._buffer = hash._buffer.slice(0);
+          this._length = hash._length;
         } else {
-          throw new TypeError('Invalid \'digits\' parameter');
+          this.reset();
+        }
+      };
+      /**
+       * Hash a string or an array of words.
+       * @static
+       * @param {bitArray|String} data the data to hash.
+       * @return {bitArray} The hash value, an array of 16 big-endian words.
+       */
+
+
+      sjcl.hash.sha256.hash = function (data) {
+        return new sjcl.hash.sha256().update(data).finalize();
+      };
+
+      sjcl.hash.sha256.prototype = {
+        /**
+         * The hash's block size, in bits.
+         * @constant
+         */
+        blockSize: 512,
+
+        /**
+         * Reset the hash state.
+         * @return this
+         */
+        reset: function () {
+          this._h = this._init.slice(0);
+          this._buffer = [];
+          this._length = 0;
+          return this;
+        },
+
+        /**
+         * Input several words to the hash.
+         * @param {bitArray|String} data the data to hash.
+         * @return this
+         */
+        update: function (data) {
+          if (typeof data === "string") {
+            data = sjcl.codec.utf8String.toBits(data);
+          }
+
+          var i,
+              b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
+              ol = this._length,
+              nl = this._length = ol + sjcl.bitArray.bitLength(data);
+
+          if (nl > 9007199254740991) {
+            throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
+          }
+
+          if (typeof Uint32Array !== 'undefined') {
+            var c = new Uint32Array(b);
+            var j = 0;
+
+            for (i = 512 + ol - (512 + ol & 511); i <= nl; i += 512) {
+              this._block(c.subarray(16 * j, 16 * (j + 1)));
+
+              j += 1;
+            }
+
+            b.splice(0, 16 * j);
+          } else {
+            for (i = 512 + ol - (512 + ol & 511); i <= nl; i += 512) {
+              this._block(b.splice(0, 16));
+            }
+          }
+
+          return this;
+        },
+
+        /**
+         * Complete hashing and output the hash value.
+         * @return {bitArray} The hash value, an array of 8 big-endian words.
+         */
+        finalize: function () {
+          var i,
+              b = this._buffer,
+              h = this._h; // Round out and push the buffer
+
+          b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]); // Round out the buffer to a multiple of 16 words, less the 2 length words.
+
+          for (i = b.length + 2; i & 15; i++) {
+            b.push(0);
+          } // append the length
+
+
+          b.push(Math.floor(this._length / 0x100000000));
+          b.push(this._length | 0);
+
+          while (b.length) {
+            this._block(b.splice(0, 16));
+          }
+
+          this.reset();
+          return h;
+        },
+
+        /**
+         * The SHA-256 initialization vector, to be precomputed.
+         * @private
+         */
+        _init: [],
+
+        /*
+        _init:[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19],
+        */
+
+        /**
+         * The SHA-256 hash key, to be precomputed.
+         * @private
+         */
+        _key: [],
+
+        /*
+        _key:
+          [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+           0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+           0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+           0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+           0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+           0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+           0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+           0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2],
+        */
+
+        /**
+         * Function to precompute _init and _key.
+         * @private
+         */
+        _precompute: function () {
+          var i = 0,
+              prime = 2,
+              factor,
+              isPrime;
+
+          function frac(x) {
+            return (x - Math.floor(x)) * 0x100000000 | 0;
+          }
+
+          for (; i < 64; prime++) {
+            isPrime = true;
+
+            for (factor = 2; factor * factor <= prime; factor++) {
+              if (prime % factor === 0) {
+                isPrime = false;
+                break;
+              }
+            }
+
+            if (isPrime) {
+              if (i < 8) {
+                this._init[i] = frac(Math.pow(prime, 1 / 2));
+              }
+
+              this._key[i] = frac(Math.pow(prime, 1 / 3));
+              i++;
+            }
+          }
+        },
+
+        /**
+         * Perform one cycle of SHA-256.
+         * @param {Uint32Array|bitArray} w one block of words.
+         * @private
+         */
+        _block: function (w) {
+          var i,
+              tmp,
+              a,
+              b,
+              h = this._h,
+              k = this._key,
+              h0 = h[0],
+              h1 = h[1],
+              h2 = h[2],
+              h3 = h[3],
+              h4 = h[4],
+              h5 = h[5],
+              h6 = h[6],
+              h7 = h[7];
+          /* Rationale for placement of |0 :
+           * If a value can overflow is original 32 bits by a factor of more than a few
+           * million (2^23 ish), there is a possibility that it might overflow the
+           * 53-bit mantissa and lose precision.
+           *
+           * To avoid this, we clamp back to 32 bits by |'ing with 0 on any value that
+           * propagates around the loop, and on the hash state h[].  I don't believe
+           * that the clamps on h4 and on h0 are strictly necessary, but it's close
+           * (for h4 anyway), and better safe than sorry.
+           *
+           * The clamps on h[] are necessary for the output to be correct even in the
+           * common case and for short inputs.
+           */
+
+          for (i = 0; i < 64; i++) {
+            // load up the input word for this round
+            if (i < 16) {
+              tmp = w[i];
+            } else {
+              a = w[i + 1 & 15];
+              b = w[i + 14 & 15];
+              tmp = w[i & 15] = (a >>> 7 ^ a >>> 18 ^ a >>> 3 ^ a << 25 ^ a << 14) + (b >>> 17 ^ b >>> 19 ^ b >>> 10 ^ b << 15 ^ b << 13) + w[i & 15] + w[i + 9 & 15] | 0;
+            }
+
+            tmp = tmp + h7 + (h4 >>> 6 ^ h4 >>> 11 ^ h4 >>> 25 ^ h4 << 26 ^ h4 << 21 ^ h4 << 7) + (h6 ^ h4 & (h5 ^ h6)) + k[i]; // | 0;
+            // shift register
+
+            h7 = h6;
+            h6 = h5;
+            h5 = h4;
+            h4 = h3 + tmp | 0;
+            h3 = h2;
+            h2 = h1;
+            h1 = h0;
+            h0 = tmp + (h1 & h2 ^ h3 & (h1 ^ h2)) + (h1 >>> 2 ^ h1 >>> 13 ^ h1 >>> 22 ^ h1 << 30 ^ h1 << 19 ^ h1 << 10) | 0;
+          }
+
+          h[0] = h[0] + h0 | 0;
+          h[1] = h[1] + h1 | 0;
+          h[2] = h[2] + h2 | 0;
+          h[3] = h[3] + h3 | 0;
+          h[4] = h[4] + h4 | 0;
+          h[5] = h[5] + h5 | 0;
+          h[6] = h[6] + h6 | 0;
+          h[7] = h[7] + h7 | 0;
+        }
+      };
+      /** @fileOverview Javascript SHA-512 implementation.
+       *
+       * This implementation was written for CryptoJS by Jeff Mott and adapted for
+       * SJCL by Stefan Thomas.
+       *
+       * CryptoJS (c) 2009–2012 by Jeff Mott. All rights reserved.
+       * Released with New BSD License
+       *
+       * @author Emily Stark
+       * @author Mike Hamburg
+       * @author Dan Boneh
+       * @author Jeff Mott
+       * @author Stefan Thomas
+       */
+
+      /**
+       * Context for a SHA-512 operation in progress.
+       * @constructor
+       */
+
+      sjcl.hash.sha512 = function (hash) {
+        if (!this._key[0]) {
+          this._precompute();
+        }
+
+        if (hash) {
+          this._h = hash._h.slice(0);
+          this._buffer = hash._buffer.slice(0);
+          this._length = hash._length;
+        } else {
+          this.reset();
+        }
+      };
+      /**
+       * Hash a string or an array of words.
+       * @static
+       * @param {bitArray|String} data the data to hash.
+       * @return {bitArray} The hash value, an array of 16 big-endian words.
+       */
+
+
+      sjcl.hash.sha512.hash = function (data) {
+        return new sjcl.hash.sha512().update(data).finalize();
+      };
+
+      sjcl.hash.sha512.prototype = {
+        /**
+         * The hash's block size, in bits.
+         * @constant
+         */
+        blockSize: 1024,
+
+        /**
+         * Reset the hash state.
+         * @return this
+         */
+        reset: function () {
+          this._h = this._init.slice(0);
+          this._buffer = [];
+          this._length = 0;
+          return this;
+        },
+
+        /**
+         * Input several words to the hash.
+         * @param {bitArray|String} data the data to hash.
+         * @return this
+         */
+        update: function (data) {
+          if (typeof data === "string") {
+            data = sjcl.codec.utf8String.toBits(data);
+          }
+
+          var i,
+              b = this._buffer = sjcl.bitArray.concat(this._buffer, data),
+              ol = this._length,
+              nl = this._length = ol + sjcl.bitArray.bitLength(data);
+
+          if (nl > 9007199254740991) {
+            throw new sjcl.exception.invalid("Cannot hash more than 2^53 - 1 bits");
+          }
+
+          if (typeof Uint32Array !== 'undefined') {
+            var c = new Uint32Array(b);
+            var j = 0;
+
+            for (i = 1024 + ol - (1024 + ol & 1023); i <= nl; i += 1024) {
+              this._block(c.subarray(32 * j, 32 * (j + 1)));
+
+              j += 1;
+            }
+
+            b.splice(0, 32 * j);
+          } else {
+            for (i = 1024 + ol - (1024 + ol & 1023); i <= nl; i += 1024) {
+              this._block(b.splice(0, 32));
+            }
+          }
+
+          return this;
+        },
+
+        /**
+         * Complete hashing and output the hash value.
+         * @return {bitArray} The hash value, an array of 16 big-endian words.
+         */
+        finalize: function () {
+          var i,
+              b = this._buffer,
+              h = this._h; // Round out and push the buffer
+
+          b = sjcl.bitArray.concat(b, [sjcl.bitArray.partial(1, 1)]); // Round out the buffer to a multiple of 32 words, less the 4 length words.
+
+          for (i = b.length + 4; i & 31; i++) {
+            b.push(0);
+          } // append the length
+
+
+          b.push(0);
+          b.push(0);
+          b.push(Math.floor(this._length / 0x100000000));
+          b.push(this._length | 0);
+
+          while (b.length) {
+            this._block(b.splice(0, 32));
+          }
+
+          this.reset();
+          return h;
+        },
+
+        /**
+         * The SHA-512 initialization vector, to be precomputed.
+         * @private
+         */
+        _init: [],
+
+        /**
+         * Least significant 24 bits of SHA512 initialization values.
+         *
+         * Javascript only has 53 bits of precision, so we compute the 40 most
+         * significant bits and add the remaining 24 bits as constants.
+         *
+         * @private
+         */
+        _initr: [0xbcc908, 0xcaa73b, 0x94f82b, 0x1d36f1, 0xe682d1, 0x3e6c1f, 0x41bd6b, 0x7e2179],
+
+        /*
+        _init:
+        [0x6a09e667, 0xf3bcc908, 0xbb67ae85, 0x84caa73b, 0x3c6ef372, 0xfe94f82b, 0xa54ff53a, 0x5f1d36f1,
+         0x510e527f, 0xade682d1, 0x9b05688c, 0x2b3e6c1f, 0x1f83d9ab, 0xfb41bd6b, 0x5be0cd19, 0x137e2179],
+        */
+
+        /**
+         * The SHA-512 hash key, to be precomputed.
+         * @private
+         */
+        _key: [],
+
+        /**
+         * Least significant 24 bits of SHA512 key values.
+         * @private
+         */
+        _keyr: [0x28ae22, 0xef65cd, 0x4d3b2f, 0x89dbbc, 0x48b538, 0x05d019, 0x194f9b, 0x6d8118, 0x030242, 0x706fbe, 0xe4b28c, 0xffb4e2, 0x7b896f, 0x1696b1, 0xc71235, 0x692694, 0xf14ad2, 0x4f25e3, 0x8cd5b5, 0xac9c65, 0x2b0275, 0xa6e483, 0x41fbd4, 0x1153b5, 0x66dfab, 0xb43210, 0xfb213f, 0xef0ee4, 0xa88fc2, 0x0aa725, 0x03826f, 0x0e6e70, 0xd22ffc, 0x26c926, 0xc42aed, 0x95b3df, 0xaf63de, 0x77b2a8, 0xedaee6, 0x82353b, 0xf10364, 0x423001, 0xf89791, 0x54be30, 0xef5218, 0x65a910, 0x71202a, 0xbbd1b8, 0xd2d0c8, 0x41ab53, 0x8eeb99, 0x9b48a8, 0xc95a63, 0x418acb, 0x63e373, 0xb2b8a3, 0xefb2fc, 0x172f60, 0xf0ab72, 0x6439ec, 0x631e28, 0x82bde9, 0xc67915, 0x72532b, 0x26619c, 0xc0c207, 0xe0eb1e, 0x6ed178, 0x176fba, 0xc898a6, 0xf90dae, 0x1c471b, 0x047d84, 0xc72493, 0xc9bebc, 0x100d4c, 0x3e42b6, 0x657e2a, 0xd6faec, 0x475817],
+
+        /*
+        _key:
+        [0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd, 0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
+         0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019, 0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
+         0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe, 0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
+         0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1, 0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
+         0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3, 0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
+         0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483, 0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
+         0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210, 0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
+         0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725, 0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
+         0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926, 0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
+         0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8, 0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
+         0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001, 0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
+         0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910, 0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
+         0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53, 0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
+         0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb, 0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
+         0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60, 0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
+         0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9, 0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
+         0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207, 0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
+         0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6, 0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
+         0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493, 0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
+         0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a, 0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817],
+        */
+
+        /**
+         * Function to precompute _init and _key.
+         * @private
+         */
+        _precompute: function () {
+          // XXX: This code is for precomputing the SHA256 constants, change for
+          //      SHA512 and re-enable.
+          var i = 0,
+              prime = 2,
+              factor,
+              isPrime;
+
+          function frac(x) {
+            return (x - Math.floor(x)) * 0x100000000 | 0;
+          }
+
+          function frac2(x) {
+            return (x - Math.floor(x)) * 0x10000000000 & 0xff;
+          }
+
+          for (; i < 80; prime++) {
+            isPrime = true;
+
+            for (factor = 2; factor * factor <= prime; factor++) {
+              if (prime % factor === 0) {
+                isPrime = false;
+                break;
+              }
+            }
+
+            if (isPrime) {
+              if (i < 8) {
+                this._init[i * 2] = frac(Math.pow(prime, 1 / 2));
+                this._init[i * 2 + 1] = frac2(Math.pow(prime, 1 / 2)) << 24 | this._initr[i];
+              }
+
+              this._key[i * 2] = frac(Math.pow(prime, 1 / 3));
+              this._key[i * 2 + 1] = frac2(Math.pow(prime, 1 / 3)) << 24 | this._keyr[i];
+              i++;
+            }
+          }
+        },
+
+        /**
+         * Perform one cycle of SHA-512.
+         * @param {Uint32Array|bitArray} words one block of words.
+         * @private
+         */
+        _block: function (words) {
+          var i,
+              wrh,
+              wrl,
+              h = this._h,
+              k = this._key,
+              h0h = h[0],
+              h0l = h[1],
+              h1h = h[2],
+              h1l = h[3],
+              h2h = h[4],
+              h2l = h[5],
+              h3h = h[6],
+              h3l = h[7],
+              h4h = h[8],
+              h4l = h[9],
+              h5h = h[10],
+              h5l = h[11],
+              h6h = h[12],
+              h6l = h[13],
+              h7h = h[14],
+              h7l = h[15];
+          var w;
+
+          if (typeof Uint32Array !== 'undefined') {
+            // When words is passed to _block, it has 32 elements. SHA512 _block
+            // function extends words with new elements (at the end there are 160 elements). 
+            // The problem is that if we use Uint32Array instead of Array, 
+            // the length of Uint32Array cannot be changed. Thus, we replace words with a 
+            // normal Array here.
+            w = Array(160); // do not use Uint32Array here as the instantiation is slower
+
+            for (var j = 0; j < 32; j++) {
+              w[j] = words[j];
+            }
+          } else {
+            w = words;
+          } // Working variables
+
+
+          var ah = h0h,
+              al = h0l,
+              bh = h1h,
+              bl = h1l,
+              ch = h2h,
+              cl = h2l,
+              dh = h3h,
+              dl = h3l,
+              eh = h4h,
+              el = h4l,
+              fh = h5h,
+              fl = h5l,
+              gh = h6h,
+              gl = h6l,
+              hh = h7h,
+              hl = h7l;
+
+          for (i = 0; i < 80; i++) {
+            // load up the input word for this round
+            if (i < 16) {
+              wrh = w[i * 2];
+              wrl = w[i * 2 + 1];
+            } else {
+              // Gamma0
+              var gamma0xh = w[(i - 15) * 2];
+              var gamma0xl = w[(i - 15) * 2 + 1];
+              var gamma0h = (gamma0xl << 31 | gamma0xh >>> 1) ^ (gamma0xl << 24 | gamma0xh >>> 8) ^ gamma0xh >>> 7;
+              var gamma0l = (gamma0xh << 31 | gamma0xl >>> 1) ^ (gamma0xh << 24 | gamma0xl >>> 8) ^ (gamma0xh << 25 | gamma0xl >>> 7); // Gamma1
+
+              var gamma1xh = w[(i - 2) * 2];
+              var gamma1xl = w[(i - 2) * 2 + 1];
+              var gamma1h = (gamma1xl << 13 | gamma1xh >>> 19) ^ (gamma1xh << 3 | gamma1xl >>> 29) ^ gamma1xh >>> 6;
+              var gamma1l = (gamma1xh << 13 | gamma1xl >>> 19) ^ (gamma1xl << 3 | gamma1xh >>> 29) ^ (gamma1xh << 26 | gamma1xl >>> 6); // Shortcuts
+
+              var wr7h = w[(i - 7) * 2];
+              var wr7l = w[(i - 7) * 2 + 1];
+              var wr16h = w[(i - 16) * 2];
+              var wr16l = w[(i - 16) * 2 + 1]; // W(round) = gamma0 + W(round - 7) + gamma1 + W(round - 16)
+
+              wrl = gamma0l + wr7l;
+              wrh = gamma0h + wr7h + (wrl >>> 0 < gamma0l >>> 0 ? 1 : 0);
+              wrl += gamma1l;
+              wrh += gamma1h + (wrl >>> 0 < gamma1l >>> 0 ? 1 : 0);
+              wrl += wr16l;
+              wrh += wr16h + (wrl >>> 0 < wr16l >>> 0 ? 1 : 0);
+            }
+
+            w[i * 2] = wrh |= 0;
+            w[i * 2 + 1] = wrl |= 0; // Ch
+
+            var chh = eh & fh ^ ~eh & gh;
+            var chl = el & fl ^ ~el & gl; // Maj
+
+            var majh = ah & bh ^ ah & ch ^ bh & ch;
+            var majl = al & bl ^ al & cl ^ bl & cl; // Sigma0
+
+            var sigma0h = (al << 4 | ah >>> 28) ^ (ah << 30 | al >>> 2) ^ (ah << 25 | al >>> 7);
+            var sigma0l = (ah << 4 | al >>> 28) ^ (al << 30 | ah >>> 2) ^ (al << 25 | ah >>> 7); // Sigma1
+
+            var sigma1h = (el << 18 | eh >>> 14) ^ (el << 14 | eh >>> 18) ^ (eh << 23 | el >>> 9);
+            var sigma1l = (eh << 18 | el >>> 14) ^ (eh << 14 | el >>> 18) ^ (el << 23 | eh >>> 9); // K(round)
+
+            var krh = k[i * 2];
+            var krl = k[i * 2 + 1]; // t1 = h + sigma1 + ch + K(round) + W(round)
+
+            var t1l = hl + sigma1l;
+            var t1h = hh + sigma1h + (t1l >>> 0 < hl >>> 0 ? 1 : 0);
+            t1l += chl;
+            t1h += chh + (t1l >>> 0 < chl >>> 0 ? 1 : 0);
+            t1l += krl;
+            t1h += krh + (t1l >>> 0 < krl >>> 0 ? 1 : 0);
+            t1l = t1l + wrl | 0; // FF32..FF34 perf issue https://bugzilla.mozilla.org/show_bug.cgi?id=1054972
+
+            t1h += wrh + (t1l >>> 0 < wrl >>> 0 ? 1 : 0); // t2 = sigma0 + maj
+
+            var t2l = sigma0l + majl;
+            var t2h = sigma0h + majh + (t2l >>> 0 < sigma0l >>> 0 ? 1 : 0); // Update working variables
+
+            hh = gh;
+            hl = gl;
+            gh = fh;
+            gl = fl;
+            fh = eh;
+            fl = el;
+            el = dl + t1l | 0;
+            eh = dh + t1h + (el >>> 0 < dl >>> 0 ? 1 : 0) | 0;
+            dh = ch;
+            dl = cl;
+            ch = bh;
+            cl = bl;
+            bh = ah;
+            bl = al;
+            al = t1l + t2l | 0;
+            ah = t1h + t2h + (al >>> 0 < t1l >>> 0 ? 1 : 0) | 0;
+          } // Intermediate hash
+
+
+          h0l = h[1] = h0l + al | 0;
+          h[0] = h0h + ah + (h0l >>> 0 < al >>> 0 ? 1 : 0) | 0;
+          h1l = h[3] = h1l + bl | 0;
+          h[2] = h1h + bh + (h1l >>> 0 < bl >>> 0 ? 1 : 0) | 0;
+          h2l = h[5] = h2l + cl | 0;
+          h[4] = h2h + ch + (h2l >>> 0 < cl >>> 0 ? 1 : 0) | 0;
+          h3l = h[7] = h3l + dl | 0;
+          h[6] = h3h + dh + (h3l >>> 0 < dl >>> 0 ? 1 : 0) | 0;
+          h4l = h[9] = h4l + el | 0;
+          h[8] = h4h + eh + (h4l >>> 0 < el >>> 0 ? 1 : 0) | 0;
+          h5l = h[11] = h5l + fl | 0;
+          h[10] = h5h + fh + (h5l >>> 0 < fl >>> 0 ? 1 : 0) | 0;
+          h6l = h[13] = h6l + gl | 0;
+          h[12] = h6h + gh + (h6l >>> 0 < gl >>> 0 ? 1 : 0) | 0;
+          h7l = h[15] = h7l + hl | 0;
+          h[14] = h7h + hh + (h7l >>> 0 < hl >>> 0 ? 1 : 0) | 0;
+        }
+      };
+      /** @fileOverview HMAC implementation.
+       *
+       * @author Emily Stark
+       * @author Mike Hamburg
+       * @author Dan Boneh
+       */
+
+      /** HMAC with the specified hash function.
+       * @constructor
+       * @param {bitArray} key the key for HMAC.
+       * @param {Object} [Hash=sjcl.hash.sha256] The hash function to use.
+       */
+
+      sjcl.misc.hmac = function (key, Hash) {
+        this._hash = Hash = Hash || sjcl.hash.sha256;
+        var exKey = [[], []],
+            i,
+            bs = Hash.prototype.blockSize / 32;
+        this._baseHash = [new Hash(), new Hash()];
+
+        if (key.length > bs) {
+          key = Hash.hash(key);
+        }
+
+        for (i = 0; i < bs; i++) {
+          exKey[0][i] = key[i] ^ 0x36363636;
+          exKey[1][i] = key[i] ^ 0x5C5C5C5C;
+        }
+
+        this._baseHash[0].update(exKey[0]);
+
+        this._baseHash[1].update(exKey[1]);
+
+        this._resultHash = new Hash(this._baseHash[0]);
+      };
+      /** HMAC with the specified hash function.  Also called encrypt since it's a prf.
+       * @param {bitArray|String} data The data to mac.
+       */
+
+
+      sjcl.misc.hmac.prototype.encrypt = sjcl.misc.hmac.prototype.mac = function (data) {
+        if (!this._updated) {
+          this.update(data);
+          return this.digest(data);
+        } else {
+          throw new sjcl.exception.invalid("encrypt on already updated hmac called!");
+        }
+      };
+
+      sjcl.misc.hmac.prototype.reset = function () {
+        this._resultHash = new this._hash(this._baseHash[0]);
+        this._updated = false;
+      };
+
+      sjcl.misc.hmac.prototype.update = function (data) {
+        this._updated = true;
+
+        this._resultHash.update(data);
+      };
+
+      sjcl.misc.hmac.prototype.digest = function () {
+        var w = this._resultHash.finalize(),
+            result = new this._hash(this._baseHash[1]).update(w).finalize();
+
+        this.reset();
+        return result;
+      };
+
+      ;
+      /* harmony default export */
+
+      var sjcl_91145TTX2bF4YW4e = sjcl; // CONCATENATED MODULE: ./src/crypto.js
+      // eslint-disable-next-line import/no-extraneous-dependencies
+      // SJCL is included during compilation.
+
+      var randomBytes;
+      var crypto_hmacDigest;
+
+      if (utils["a"
+      /* InternalUtils */
+      ].isNode) {
+        var NodeBuffer = utils["a"
+        /* InternalUtils */
+        ].globalThis.Buffer;
+        var NodeCrypto = utils["a"
+        /* InternalUtils */
+        ].nodeRequire('crypto');
+        var nodeBufferFromArrayBuffer;
+
+        if (typeof NodeBuffer.from === 'function') {
+          nodeBufferFromArrayBuffer = NodeBuffer.from;
+        } else {
+          // Node.js < 5.10.0
+          nodeBufferFromArrayBuffer = function nodeBufferFromArrayBuffer(arrayBuffer) {
+            var nodeBuffer = new NodeBuffer(arrayBuffer.byteLength);
+            var uint8Array = new Uint8Array(arrayBuffer);
+
+            for (var i = 0; i < uint8Array.length; i++) {
+              nodeBuffer[i] = uint8Array[i];
+            }
+
+            return nodeBuffer;
+          };
+        }
+
+        var nodeBufferToArrayBuffer;
+
+        if (NodeBuffer.prototype instanceof Uint8Array) {
+          nodeBufferToArrayBuffer = function nodeBufferToArrayBuffer(nodeBuffer) {
+            return nodeBuffer.buffer;
+          };
+        } else {
+          // Node.js < 4.0.0
+          nodeBufferToArrayBuffer = function nodeBufferToArrayBuffer(nodeBuffer) {
+            var uint8Array = new Uint8Array(nodeBuffer.length);
+
+            for (var i = 0; i < uint8Array.length; i++) {
+              uint8Array[i] = nodeBuffer[i];
+            }
+
+            return uint8Array.buffer;
+          };
+        }
+
+        randomBytes = function randomBytes(size) {
+          var bytes = NodeCrypto.randomBytes(size);
+          return nodeBufferToArrayBuffer(bytes);
+        };
+
+        crypto_hmacDigest = function hmacDigest(algorithm, key, message) {
+          var hmac = NodeCrypto.createHmac(algorithm, nodeBufferFromArrayBuffer(key));
+          hmac.update(nodeBufferFromArrayBuffer(message));
+          return nodeBufferToArrayBuffer(hmac.digest());
+        };
+      } else {
+        var BrowserCrypto = utils["a"
+        /* InternalUtils */
+        ].globalThis.crypto || utils["a"
+        /* InternalUtils */
+        ].globalThis.msCrypto;
+        var getRandomValues;
+
+        if (typeof BrowserCrypto !== 'undefined' && typeof BrowserCrypto.getRandomValues === 'function') {
+          getRandomValues = function getRandomValues(array) {
+            BrowserCrypto.getRandomValues(array);
+          };
+        } else {
+          utils["a"
+          /* InternalUtils */
+          ].console.warn('Cryptography API not available, falling back to \'Math.random\'...');
+
+          getRandomValues = function getRandomValues(array) {
+            for (var i = 0; i < array.length; i++) {
+              array[i] = Math.floor(Math.random() * 256);
+            }
+          };
+        }
+
+        randomBytes = function randomBytes(size) {
+          var bytes = new Uint8Array(size);
+          getRandomValues(bytes);
+          return bytes.buffer;
+        };
+
+        crypto_hmacDigest = function hmacDigest(algorithm, key, message) {
+          var hash = sjcl_91145TTX2bF4YW4e.hash[algorithm.toLowerCase()];
+
+          if (typeof hash === 'undefined') {
+            throw new TypeError('Unknown hash function');
+          } // eslint-disable-next-line new-cap
+
+
+          var hmac = new sjcl_91145TTX2bF4YW4e.misc.hmac(sjcl_91145TTX2bF4YW4e.codec.arrayBuffer.toBits(key), hash);
+          hmac.update(sjcl_91145TTX2bF4YW4e.codec.arrayBuffer.toBits(message));
+          return sjcl_91145TTX2bF4YW4e.codec.arrayBuffer.fromBits(hmac.digest(), false);
+        };
+      }
+      /**
+       * An object containing some cryptography functions with dirty workarounds for Node.js and browsers.
+       * @private
+       * @type {Object}
+       */
+
+
+      var Crypto = {
+        /**
+         * Returns random bytes.
+         * @param {number} size Size.
+         * @returns {ArrayBuffer} Random bytes.
+         */
+        randomBytes: randomBytes,
+
+        /**
+         * Calculates an HMAC digest.
+         * In Node.js, the command `openssl list -digest-algorithms` displays the available digest algorithms.
+         * @param {string} algorithm Algorithm.
+         * @param {ArrayBuffer} key Key.
+         * @param {ArrayBuffer} message Message.
+         * @returns {ArrayBuffer} Digest.
+         */
+        hmacDigest: crypto_hmacDigest
+      }; // CONCATENATED MODULE: ./src/secret.js
+
+      function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+          throw new TypeError("Cannot call a class as a function");
         }
       }
 
-      return new OTP(config);
-    }
-    /**
-     * Converts an HOTP/TOTP object to a Google Authenticator key URI.
-     * @param {HOTP|TOTP} otp HOTP/TOTP object.
-     * @param {Object} [config] Configuration options.
-     * @param {boolean} [config.legacyIssuer=true] Set issuer label prefix.
-     * @returns {string} Google Authenticator Key URI.
-     */
-
-  }, {
-    key: "stringify",
-    value: function stringify(otp) {
-      var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref$legacyIssuer = _ref.legacyIssuer,
-          legacyIssuer = _ref$legacyIssuer === void 0 ? true : _ref$legacyIssuer;
-
-      var isHOTP = otp instanceof otp_HOTP;
-      var isTOTP = otp instanceof otp_TOTP;
-
-      if (!isHOTP && !isTOTP) {
-        throw new TypeError('Invalid \'HOTP/TOTP\' object');
-      } // Key URI format:
-      //   otpauth://TYPE/[ISSUER:]LABEL?PARAMETERS
-
-
-      var uri = 'otpauth://'; // Type.
-
-      uri += "".concat(isTOTP ? 'totp' : 'hotp', "/"); // Label and optional issuer.
-
-      if (otp.issuer.length > 0) {
-        // Legacy label prefix.
-        if (legacyIssuer) uri += "".concat(encodeURIComponent(otp.issuer), ":"); // Label.
-
-        uri += "".concat(encodeURIComponent(otp.label), "?"); // Issuer.
-
-        uri += "issuer=".concat(encodeURIComponent(otp.issuer), "&");
-      } else {
-        // Label.
-        uri += "".concat(encodeURIComponent(otp.label), "?");
-      } // Generic parameters.
-
-
-      uri += "secret=".concat(encodeURIComponent(otp.secret.b32)) + "&algorithm=".concat(encodeURIComponent(otp.algorithm)) + "&digits=".concat(encodeURIComponent(otp.digits)); // Extra parameters.
-
-      if (isTOTP) {
-        // TOTP parameters.
-        uri += "&period=".concat(encodeURIComponent(otp.period));
-      } else {
-        // HOTP parameters.
-        uri += "&counter=".concat(encodeURIComponent(otp.counter));
-      }
-
-      return uri;
-    }
-  }]);
-
-  return URI;
-}();
-// CONCATENATED MODULE: ./src/otp.js
-function otp_classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function otp_defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function otp_createClass(Constructor, protoProps, staticProps) { if (protoProps) otp_defineProperties(Constructor.prototype, protoProps); if (staticProps) otp_defineProperties(Constructor, staticProps); return Constructor; }
-
-
-
- // eslint-disable-next-line import/no-cycle
-
-
-/**
- * Default configuration.
- * @private
- * @type {Object}
- */
-
-var defaults = {
-  issuer: '',
-  label: 'OTPAuth',
-  algorithm: 'SHA1',
-  digits: 6,
-  counter: 0,
-  period: 30,
-  window: 1
-};
-/**
- * HOTP: An HMAC-based One-time Password Algorithm (RFC 4226)
- * (https://tools.ietf.org/html/rfc4226).
- * @param {Object} [config] Configuration options.
- * @param {string} [config.issuer=''] Account provider.
- * @param {string} [config.label='OTPAuth'] Account label.
- * @param {Secret|string} [config.secret=Secret] Secret key.
- * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
- * @param {number} [config.digits=6] Token length.
- * @param {number} [config.counter=0] Initial counter value.
- */
-
-var otp_HOTP =
-/*#__PURE__*/
-function () {
-  function HOTP() {
-    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref$issuer = _ref.issuer,
-        issuer = _ref$issuer === void 0 ? defaults.issuer : _ref$issuer,
-        _ref$label = _ref.label,
-        label = _ref$label === void 0 ? defaults.label : _ref$label,
-        _ref$secret = _ref.secret,
-        secret = _ref$secret === void 0 ? new secret_Secret() : _ref$secret,
-        _ref$algorithm = _ref.algorithm,
-        algorithm = _ref$algorithm === void 0 ? defaults.algorithm : _ref$algorithm,
-        _ref$digits = _ref.digits,
-        digits = _ref$digits === void 0 ? defaults.digits : _ref$digits,
-        _ref$counter = _ref.counter,
-        counter = _ref$counter === void 0 ? defaults.counter : _ref$counter;
-
-    otp_classCallCheck(this, HOTP);
-
-    /**
-     * Account provider.
-     * @type {string}
-     */
-    this.issuer = issuer;
-    /**
-     * Account label.
-     * @type {string}
-     */
-
-    this.label = label;
-    /**
-     * Secret key.
-     * @type {Secret}
-     */
-
-    this.secret = typeof secret === 'string' ? secret_Secret.fromB32(secret) : secret;
-    /**
-     * HMAC hashing algorithm.
-     * @type {string}
-     */
-
-    this.algorithm = algorithm;
-    /**
-     * Token length.
-     * @type {number}
-     */
-
-    this.digits = digits;
-    /**
-     * Initial counter value.
-     * @type {number}
-     */
-
-    this.counter = counter;
-  }
-  /**
-   * Generates an HOTP token.
-   * @param {Object} config Configuration options.
-   * @param {Secret} config.secret Secret key.
-   * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
-   * @param {number} [config.digits=6] Token length.
-   * @param {number} [config.counter=0] Counter value.
-   * @returns {string} Token.
-   */
-
-
-  otp_createClass(HOTP, [{
-    key: "generate",
-
-    /**
-     * Generates an HOTP token.
-     * @param {Object} [config] Configuration options.
-     * @param {number} [config.counter=this.counter++] Counter value.
-     * @returns {string} Token.
-     */
-    value: function generate() {
-      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          _ref2$counter = _ref2.counter,
-          counter = _ref2$counter === void 0 ? this.counter++ : _ref2$counter;
-
-      return HOTP.generate({
-        secret: this.secret,
-        algorithm: this.algorithm,
-        digits: this.digits,
-        counter: counter
-      });
-    }
-    /**
-     * Validates an HOTP token.
-     * @param {Object} config Configuration options.
-     * @param {string} config.token Token value.
-     * @param {Secret} config.secret Secret key.
-     * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
-     * @param {number} [config.counter=0] Counter value.
-     * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta, or null if the token is not found.
-     */
-
-  }, {
-    key: "validate",
-
-    /**
-     * Validates an HOTP token.
-     * @param {Object} config Configuration options.
-     * @param {string} config.token Token value.
-     * @param {number} [config.counter=this.counter] Counter value.
-     * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta, or null if the token is not found.
-     */
-    value: function validate(_ref3) {
-      var token = _ref3.token,
-          _ref3$counter = _ref3.counter,
-          counter = _ref3$counter === void 0 ? this.counter : _ref3$counter,
-          window = _ref3.window;
-      return HOTP.validate({
-        token: utils["b" /* Utils */].pad(token, this.digits),
-        secret: this.secret,
-        algorithm: this.algorithm,
-        counter: counter,
-        window: window
-      });
-    }
-    /**
-     * Returns a Google Authenticator key URI.
-     * @returns {string} URI.
-     */
-
-  }, {
-    key: "toString",
-    value: function toString() {
-      return uri_URI.stringify(this);
-    }
-  }], [{
-    key: "generate",
-    value: function generate(_ref4) {
-      var secret = _ref4.secret,
-          _ref4$algorithm = _ref4.algorithm,
-          algorithm = _ref4$algorithm === void 0 ? defaults.algorithm : _ref4$algorithm,
-          _ref4$digits = _ref4.digits,
-          digits = _ref4$digits === void 0 ? defaults.digits : _ref4$digits,
-          _ref4$counter = _ref4.counter,
-          counter = _ref4$counter === void 0 ? defaults.counter : _ref4$counter;
-      var digest = new Uint8Array(Crypto.hmacDigest(algorithm, secret.buffer, utils["b" /* Utils */].uint.toBuf(counter)));
-      var offset = digest[digest.byteLength - 1] & 15;
-      var otp = ((digest[offset] & 127) << 24 | (digest[offset + 1] & 255) << 16 | (digest[offset + 2] & 255) << 8 | digest[offset + 3] & 255) % Math.pow(10, digits);
-      return utils["b" /* Utils */].pad(otp, digits);
-    }
-  }, {
-    key: "validate",
-    value: function validate(_ref5) {
-      var token = _ref5.token,
-          secret = _ref5.secret,
-          algorithm = _ref5.algorithm,
-          _ref5$counter = _ref5.counter,
-          counter = _ref5$counter === void 0 ? defaults.counter : _ref5$counter,
-          _ref5$window = _ref5.window,
-          window = _ref5$window === void 0 ? defaults.window : _ref5$window;
-
-      for (var i = counter - window; i <= counter + window; ++i) {
-        var generatedToken = HOTP.generate({
-          secret: secret,
-          algorithm: algorithm,
-          digits: token.length,
-          counter: i
-        });
-
-        if (token === generatedToken) {
-          return i - counter;
+      function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
         }
       }
 
-      return null;
-    }
-  }]);
-
-  return HOTP;
-}();
-/**
- * TOTP: Time-Based One-Time Password Algorithm (RFC 6238)
- * (https://tools.ietf.org/html/rfc6238).
- * @param {Object} [config] Configuration options.
- * @param {string} [config.issuer=''] Account provider.
- * @param {string} [config.label='OTPAuth'] Account label.
- * @param {Secret|string} [config.secret=Secret] Secret key.
- * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
- * @param {number} [config.digits=6] Token length.
- * @param {number} [config.period=30] Token time-step duration.
- */
-
-var otp_TOTP =
-/*#__PURE__*/
-function () {
-  function TOTP() {
-    var _ref6 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref6$issuer = _ref6.issuer,
-        issuer = _ref6$issuer === void 0 ? defaults.issuer : _ref6$issuer,
-        _ref6$label = _ref6.label,
-        label = _ref6$label === void 0 ? defaults.label : _ref6$label,
-        _ref6$secret = _ref6.secret,
-        secret = _ref6$secret === void 0 ? new secret_Secret() : _ref6$secret,
-        _ref6$algorithm = _ref6.algorithm,
-        algorithm = _ref6$algorithm === void 0 ? defaults.algorithm : _ref6$algorithm,
-        _ref6$digits = _ref6.digits,
-        digits = _ref6$digits === void 0 ? defaults.digits : _ref6$digits,
-        _ref6$period = _ref6.period,
-        period = _ref6$period === void 0 ? defaults.period : _ref6$period;
-
-    otp_classCallCheck(this, TOTP);
-
-    /**
-     * Account provider.
-     * @type {string}
-     */
-    this.issuer = issuer;
-    /**
-     * Account label.
-     * @type {string}
-     */
-
-    this.label = label;
-    /**
-     * Secret key.
-     * @type {Secret}
-     */
-
-    this.secret = typeof secret === 'string' ? secret_Secret.fromB32(secret) : secret;
-    /**
-     * HMAC hashing algorithm.
-     * @type {string}
-     */
-
-    this.algorithm = algorithm;
-    /**
-     * Token length.
-     * @type {number}
-     */
-
-    this.digits = digits;
-    /**
-     * Token time-step duration.
-     * @type {number}
-     */
-
-    this.period = period;
-  }
-  /**
-   * Generates a TOTP token.
-   * @param {Object} config Configuration options.
-   * @param {Secret} config.secret Secret key.
-   * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
-   * @param {number} [config.digits=6] Token length.
-   * @param {number} [config.period=30] Token time-step duration.
-   * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-   * @returns {string} Token.
-   */
+      function _createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) _defineProperties(Constructor, staticProps);
+        return Constructor;
+      }
+      /**
+       * Secret key object.
+       * @param {Object} [config] Configuration options.
+       * @param {ArrayBuffer} [config.buffer=Crypto.randomBytes] Secret key.
+       * @param {number} [config.size=20] Number of random bytes to generate, ignored if 'buffer' is provided.
+       */
 
 
-  otp_createClass(TOTP, [{
-    key: "generate",
+      var secret_Secret =
+      /*#__PURE__*/
+      function () {
+        function Secret() {
+          var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              buffer = _ref.buffer,
+              _ref$size = _ref.size,
+              size = _ref$size === void 0 ? 20 : _ref$size;
 
-    /**
-     * Generates a TOTP token.
-     * @param {Object} [config] Configuration options.
-     * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-     * @returns {string} Token.
-     */
-    value: function generate() {
-      var _ref7 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          _ref7$timestamp = _ref7.timestamp,
-          timestamp = _ref7$timestamp === void 0 ? Date.now() : _ref7$timestamp;
+          _classCallCheck(this, Secret);
+          /**
+           * Secret key.
+           * @type {ArrayBuffer}
+           */
 
-      return TOTP.generate({
-        secret: this.secret,
-        algorithm: this.algorithm,
-        digits: this.digits,
-        period: this.period,
-        timestamp: timestamp
+
+          this.buffer = typeof buffer === 'undefined' ? Crypto.randomBytes(size) : buffer;
+        }
+        /**
+         * Converts a raw string to a Secret object.
+         * @param {string} str Raw string.
+         * @returns {Secret} Secret object.
+         */
+
+
+        _createClass(Secret, [{
+          key: "raw",
+
+          /**
+           * String representation of secret key.
+           * @type {string}
+           */
+          get: function get() {
+            Object.defineProperty(this, 'raw', {
+              enumerable: true,
+              configurable: true,
+              writable: true,
+              value: utils["b"
+              /* Utils */
+              ].raw.fromBuf(this.buffer)
+            });
+            return this.raw;
+          }
+          /**
+           * Base32 representation of secret key.
+           * @type {string}
+           */
+
+        }, {
+          key: "b32",
+          get: function get() {
+            Object.defineProperty(this, 'b32', {
+              enumerable: true,
+              configurable: true,
+              writable: true,
+              value: utils["b"
+              /* Utils */
+              ].b32.fromBuf(this.buffer)
+            });
+            return this.b32;
+          }
+          /**
+           * Hexadecimal representation of secret key.
+           * @type {string}
+           */
+
+        }, {
+          key: "hex",
+          get: function get() {
+            Object.defineProperty(this, 'hex', {
+              enumerable: true,
+              configurable: true,
+              writable: true,
+              value: utils["b"
+              /* Utils */
+              ].hex.fromBuf(this.buffer)
+            });
+            return this.hex;
+          }
+        }], [{
+          key: "fromRaw",
+          value: function fromRaw(str) {
+            return new Secret({
+              buffer: utils["b"
+              /* Utils */
+              ].raw.toBuf(str)
+            });
+          }
+          /**
+           * Converts a base32 string to a Secret object.
+           * @param {string} str Base32 string.
+           * @returns {Secret} Secret object.
+           */
+
+        }, {
+          key: "fromB32",
+          value: function fromB32(str) {
+            return new Secret({
+              buffer: utils["b"
+              /* Utils */
+              ].b32.toBuf(str)
+            });
+          }
+          /**
+           * Converts a hexadecimal string to a Secret object.
+           * @param {string} str Hexadecimal string.
+           * @returns {Secret} Secret object.
+           */
+
+        }, {
+          key: "fromHex",
+          value: function fromHex(str) {
+            return new Secret({
+              buffer: utils["b"
+              /* Utils */
+              ].hex.toBuf(str)
+            });
+          }
+        }]);
+
+        return Secret;
+      }(); // CONCATENATED MODULE: ./src/uri.js
+
+
+      function uri_classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+          throw new TypeError("Cannot call a class as a function");
+        }
+      }
+
+      function uri_defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
+        }
+      }
+
+      function uri_createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) uri_defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) uri_defineProperties(Constructor, staticProps);
+        return Constructor;
+      } // eslint-disable-next-line import/no-cycle
+
+      /**
+       * Valid key URI parameters.
+       * @private
+       * @type {Array}
+       */
+
+
+      var OTPURI_PARAMS = ['issuer', 'secret', 'algorithm', 'digits', 'counter', 'period'];
+      /**
+       * Key URI regex.
+       *   otpauth://TYPE/[ISSUER:]LABEL?PARAMETERS
+       * @private
+       * @type {RegExp}
+       */
+
+      var OTPURI_REGEX = new RegExp("^otpauth:\\/\\/([ht]otp)\\/(.+)\\?((?:&?(?:".concat(OTPURI_PARAMS.join('|'), ")=[^&]+)+)$"), 'i');
+      /**
+       * RFC 4648 base32 alphabet with pad.
+       * @private
+       * @type {string}
+       */
+
+      var SECRET_REGEX = /^[2-7A-Z]+=*$/i;
+      /**
+       * Regex for supported algorithms.
+       * @private
+       * @type {RegExp}
+       */
+
+      var ALGORITHM_REGEX = /^SHA(?:1|256|512)$/i;
+      /**
+       * Integer regex.
+       * @private
+       * @type {RegExp}
+       */
+
+      var INTEGER_REGEX = /^[+-]?\d+$/;
+      /**
+       * Positive integer regex.
+       * @private
+       * @type {RegExp}
+       */
+
+      var POSITIVE_INTEGER_REGEX = /^\+?[1-9]\d*$/;
+      /**
+       * HOTP/TOTP object/string conversion
+       * (https://github.com/google/google-authenticator/wiki/Key-Uri-Format).
+       */
+
+      var uri_URI =
+      /*#__PURE__*/
+      function () {
+        function URI() {
+          uri_classCallCheck(this, URI);
+        }
+
+        uri_createClass(URI, null, [{
+          key: "parse",
+
+          /**
+           * Parses a Google Authenticator key URI and returns an HOTP/TOTP object.
+           * @param {string} uri Google Authenticator Key URI.
+           * @returns {HOTP|TOTP} HOTP/TOTP object.
+           */
+          value: function parse(uri) {
+            var uriGroups;
+
+            try {
+              uriGroups = uri.match(OTPURI_REGEX);
+            } catch (error) {
+              /* Handled below */
+            }
+
+            if (!Array.isArray(uriGroups)) {
+              throw new URIError('Invalid URI format');
+            } // Extract URI groups.
+
+
+            var uriType = uriGroups[1].toLowerCase();
+            var uriLabel = uriGroups[2].split(/:(.+)/, 2).map(decodeURIComponent);
+            var uriParams = uriGroups[3].split('&').reduce(function (acc, cur) {
+              var pairArr = cur.split(/=(.+)/, 2).map(decodeURIComponent);
+              var pairKey = pairArr[0].toLowerCase();
+              var pairVal = pairArr[1];
+              var pairAcc = acc;
+              pairAcc[pairKey] = pairVal;
+              return pairAcc;
+            }, {}); // 'OTP' will be instantiated with 'config' argument.
+
+            var OTP;
+            var config = {};
+
+            if (uriType === 'hotp') {
+              OTP = otp_HOTP; // Counter: required
+
+              if (typeof uriParams.counter !== 'undefined' && INTEGER_REGEX.test(uriParams.counter)) {
+                config.counter = parseInt(uriParams.counter, 10);
+              } else {
+                throw new TypeError('Missing or invalid \'counter\' parameter');
+              }
+            } else if (uriType === 'totp') {
+              OTP = otp_TOTP; // Period: optional
+
+              if (typeof uriParams.period !== 'undefined') {
+                if (POSITIVE_INTEGER_REGEX.test(uriParams.period)) {
+                  config.period = parseInt(uriParams.period, 10);
+                } else {
+                  throw new TypeError('Invalid \'period\' parameter');
+                }
+              }
+            } else {
+              throw new TypeError('Unknown OTP type');
+            } // Label: required
+            // Issuer: optional
+
+
+            if (uriLabel.length === 2) {
+              config.label = uriLabel[1];
+
+              if (typeof uriParams.issuer === 'undefined') {
+                config.issuer = uriLabel[0];
+              } else if (uriParams.issuer === uriLabel[0]) {
+                config.issuer = uriParams.issuer;
+              } else {
+                throw new TypeError('Invalid \'issuer\' parameter');
+              }
+            } else {
+              config.label = uriLabel[0];
+
+              if (typeof uriParams.issuer !== 'undefined') {
+                config.issuer = uriParams.issuer;
+              }
+            } // Secret: required
+
+
+            if (typeof uriParams.secret !== 'undefined' && SECRET_REGEX.test(uriParams.secret)) {
+              config.secret = new secret_Secret({
+                buffer: utils["b"
+                /* Utils */
+                ].b32.toBuf(uriParams.secret)
+              });
+            } else {
+              throw new TypeError('Missing or invalid \'secret\' parameter');
+            } // Algorithm: optional
+
+
+            if (typeof uriParams.algorithm !== 'undefined') {
+              if (ALGORITHM_REGEX.test(uriParams.algorithm)) {
+                config.algorithm = uriParams.algorithm;
+              } else {
+                throw new TypeError('Invalid \'algorithm\' parameter');
+              }
+            } // Digits: optional
+
+
+            if (typeof uriParams.digits !== 'undefined') {
+              if (POSITIVE_INTEGER_REGEX.test(uriParams.digits)) {
+                config.digits = parseInt(uriParams.digits, 10);
+              } else {
+                throw new TypeError('Invalid \'digits\' parameter');
+              }
+            }
+
+            return new OTP(config);
+          }
+          /**
+           * Converts an HOTP/TOTP object to a Google Authenticator key URI.
+           * @param {HOTP|TOTP} otp HOTP/TOTP object.
+           * @param {Object} [config] Configuration options.
+           * @param {boolean} [config.legacyIssuer=true] Set issuer label prefix.
+           * @returns {string} Google Authenticator Key URI.
+           */
+
+        }, {
+          key: "stringify",
+          value: function stringify(otp) {
+            var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+                _ref$legacyIssuer = _ref.legacyIssuer,
+                legacyIssuer = _ref$legacyIssuer === void 0 ? true : _ref$legacyIssuer;
+
+            var isHOTP = otp instanceof otp_HOTP;
+            var isTOTP = otp instanceof otp_TOTP;
+
+            if (!isHOTP && !isTOTP) {
+              throw new TypeError('Invalid \'HOTP/TOTP\' object');
+            } // Key URI format:
+            //   otpauth://TYPE/[ISSUER:]LABEL?PARAMETERS
+
+
+            var uri = 'otpauth://'; // Type.
+
+            uri += "".concat(isTOTP ? 'totp' : 'hotp', "/"); // Label and optional issuer.
+
+            if (otp.issuer.length > 0) {
+              // Legacy label prefix.
+              if (legacyIssuer) uri += "".concat(encodeURIComponent(otp.issuer), ":"); // Label.
+
+              uri += "".concat(encodeURIComponent(otp.label), "?"); // Issuer.
+
+              uri += "issuer=".concat(encodeURIComponent(otp.issuer), "&");
+            } else {
+              // Label.
+              uri += "".concat(encodeURIComponent(otp.label), "?");
+            } // Generic parameters.
+
+
+            uri += "secret=".concat(encodeURIComponent(otp.secret.b32)) + "&algorithm=".concat(encodeURIComponent(otp.algorithm)) + "&digits=".concat(encodeURIComponent(otp.digits)); // Extra parameters.
+
+            if (isTOTP) {
+              // TOTP parameters.
+              uri += "&period=".concat(encodeURIComponent(otp.period));
+            } else {
+              // HOTP parameters.
+              uri += "&counter=".concat(encodeURIComponent(otp.counter));
+            }
+
+            return uri;
+          }
+        }]);
+        return URI;
+      }(); // CONCATENATED MODULE: ./src/otp.js
+
+
+      function otp_classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+          throw new TypeError("Cannot call a class as a function");
+        }
+      }
+
+      function otp_defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
+        }
+      }
+
+      function otp_createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) otp_defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) otp_defineProperties(Constructor, staticProps);
+        return Constructor;
+      } // eslint-disable-next-line import/no-cycle
+
+      /**
+       * Default configuration.
+       * @private
+       * @type {Object}
+       */
+
+
+      var defaults = {
+        issuer: '',
+        label: 'OTPAuth',
+        algorithm: 'SHA1',
+        digits: 6,
+        counter: 0,
+        period: 30,
+        window: 1
+      };
+      /**
+       * HOTP: An HMAC-based One-time Password Algorithm (RFC 4226)
+       * (https://tools.ietf.org/html/rfc4226).
+       * @param {Object} [config] Configuration options.
+       * @param {string} [config.issuer=''] Account provider.
+       * @param {string} [config.label='OTPAuth'] Account label.
+       * @param {Secret|string} [config.secret=Secret] Secret key.
+       * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
+       * @param {number} [config.digits=6] Token length.
+       * @param {number} [config.counter=0] Initial counter value.
+       */
+
+      var otp_HOTP =
+      /*#__PURE__*/
+      function () {
+        function HOTP() {
+          var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref$issuer = _ref.issuer,
+              issuer = _ref$issuer === void 0 ? defaults.issuer : _ref$issuer,
+              _ref$label = _ref.label,
+              label = _ref$label === void 0 ? defaults.label : _ref$label,
+              _ref$secret = _ref.secret,
+              secret = _ref$secret === void 0 ? new secret_Secret() : _ref$secret,
+              _ref$algorithm = _ref.algorithm,
+              algorithm = _ref$algorithm === void 0 ? defaults.algorithm : _ref$algorithm,
+              _ref$digits = _ref.digits,
+              digits = _ref$digits === void 0 ? defaults.digits : _ref$digits,
+              _ref$counter = _ref.counter,
+              counter = _ref$counter === void 0 ? defaults.counter : _ref$counter;
+
+          otp_classCallCheck(this, HOTP);
+          /**
+           * Account provider.
+           * @type {string}
+           */
+
+          this.issuer = issuer;
+          /**
+           * Account label.
+           * @type {string}
+           */
+
+          this.label = label;
+          /**
+           * Secret key.
+           * @type {Secret}
+           */
+
+          this.secret = typeof secret === 'string' ? secret_Secret.fromB32(secret) : secret;
+          /**
+           * HMAC hashing algorithm.
+           * @type {string}
+           */
+
+          this.algorithm = algorithm;
+          /**
+           * Token length.
+           * @type {number}
+           */
+
+          this.digits = digits;
+          /**
+           * Initial counter value.
+           * @type {number}
+           */
+
+          this.counter = counter;
+        }
+        /**
+         * Generates an HOTP token.
+         * @param {Object} config Configuration options.
+         * @param {Secret} config.secret Secret key.
+         * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
+         * @param {number} [config.digits=6] Token length.
+         * @param {number} [config.counter=0] Counter value.
+         * @returns {string} Token.
+         */
+
+
+        otp_createClass(HOTP, [{
+          key: "generate",
+
+          /**
+           * Generates an HOTP token.
+           * @param {Object} [config] Configuration options.
+           * @param {number} [config.counter=this.counter++] Counter value.
+           * @returns {string} Token.
+           */
+          value: function generate() {
+            var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                _ref2$counter = _ref2.counter,
+                counter = _ref2$counter === void 0 ? this.counter++ : _ref2$counter;
+
+            return HOTP.generate({
+              secret: this.secret,
+              algorithm: this.algorithm,
+              digits: this.digits,
+              counter: counter
+            });
+          }
+          /**
+           * Validates an HOTP token.
+           * @param {Object} config Configuration options.
+           * @param {string} config.token Token value.
+           * @param {Secret} config.secret Secret key.
+           * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
+           * @param {number} [config.counter=0] Counter value.
+           * @param {number} [config.window=1] Window of counter values to test.
+           * @returns {number|null} Token delta, or null if the token is not found.
+           */
+
+        }, {
+          key: "validate",
+
+          /**
+           * Validates an HOTP token.
+           * @param {Object} config Configuration options.
+           * @param {string} config.token Token value.
+           * @param {number} [config.counter=this.counter] Counter value.
+           * @param {number} [config.window=1] Window of counter values to test.
+           * @returns {number|null} Token delta, or null if the token is not found.
+           */
+          value: function validate(_ref3) {
+            var token = _ref3.token,
+                _ref3$counter = _ref3.counter,
+                counter = _ref3$counter === void 0 ? this.counter : _ref3$counter,
+                window = _ref3.window;
+            return HOTP.validate({
+              token: utils["b"
+              /* Utils */
+              ].pad(token, this.digits),
+              secret: this.secret,
+              algorithm: this.algorithm,
+              counter: counter,
+              window: window
+            });
+          }
+          /**
+           * Returns a Google Authenticator key URI.
+           * @returns {string} URI.
+           */
+
+        }, {
+          key: "toString",
+          value: function toString() {
+            return uri_URI.stringify(this);
+          }
+        }], [{
+          key: "generate",
+          value: function generate(_ref4) {
+            var secret = _ref4.secret,
+                _ref4$algorithm = _ref4.algorithm,
+                algorithm = _ref4$algorithm === void 0 ? defaults.algorithm : _ref4$algorithm,
+                _ref4$digits = _ref4.digits,
+                digits = _ref4$digits === void 0 ? defaults.digits : _ref4$digits,
+                _ref4$counter = _ref4.counter,
+                counter = _ref4$counter === void 0 ? defaults.counter : _ref4$counter;
+            var digest = new Uint8Array(Crypto.hmacDigest(algorithm, secret.buffer, utils["b"
+            /* Utils */
+            ].uint.toBuf(counter)));
+            var offset = digest[digest.byteLength - 1] & 15;
+            var otp = ((digest[offset] & 127) << 24 | (digest[offset + 1] & 255) << 16 | (digest[offset + 2] & 255) << 8 | digest[offset + 3] & 255) % Math.pow(10, digits);
+            return utils["b"
+            /* Utils */
+            ].pad(otp, digits);
+          }
+        }, {
+          key: "validate",
+          value: function validate(_ref5) {
+            var token = _ref5.token,
+                secret = _ref5.secret,
+                algorithm = _ref5.algorithm,
+                _ref5$counter = _ref5.counter,
+                counter = _ref5$counter === void 0 ? defaults.counter : _ref5$counter,
+                _ref5$window = _ref5.window,
+                window = _ref5$window === void 0 ? defaults.window : _ref5$window;
+
+            for (var i = counter - window; i <= counter + window; ++i) {
+              var generatedToken = HOTP.generate({
+                secret: secret,
+                algorithm: algorithm,
+                digits: token.length,
+                counter: i
+              });
+
+              if (token === generatedToken) {
+                return i - counter;
+              }
+            }
+
+            return null;
+          }
+        }]);
+        return HOTP;
+      }();
+      /**
+       * TOTP: Time-Based One-Time Password Algorithm (RFC 6238)
+       * (https://tools.ietf.org/html/rfc6238).
+       * @param {Object} [config] Configuration options.
+       * @param {string} [config.issuer=''] Account provider.
+       * @param {string} [config.label='OTPAuth'] Account label.
+       * @param {Secret|string} [config.secret=Secret] Secret key.
+       * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
+       * @param {number} [config.digits=6] Token length.
+       * @param {number} [config.period=30] Token time-step duration.
+       */
+
+
+      var otp_TOTP =
+      /*#__PURE__*/
+      function () {
+        function TOTP() {
+          var _ref6 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+              _ref6$issuer = _ref6.issuer,
+              issuer = _ref6$issuer === void 0 ? defaults.issuer : _ref6$issuer,
+              _ref6$label = _ref6.label,
+              label = _ref6$label === void 0 ? defaults.label : _ref6$label,
+              _ref6$secret = _ref6.secret,
+              secret = _ref6$secret === void 0 ? new secret_Secret() : _ref6$secret,
+              _ref6$algorithm = _ref6.algorithm,
+              algorithm = _ref6$algorithm === void 0 ? defaults.algorithm : _ref6$algorithm,
+              _ref6$digits = _ref6.digits,
+              digits = _ref6$digits === void 0 ? defaults.digits : _ref6$digits,
+              _ref6$period = _ref6.period,
+              period = _ref6$period === void 0 ? defaults.period : _ref6$period;
+
+          otp_classCallCheck(this, TOTP);
+          /**
+           * Account provider.
+           * @type {string}
+           */
+
+          this.issuer = issuer;
+          /**
+           * Account label.
+           * @type {string}
+           */
+
+          this.label = label;
+          /**
+           * Secret key.
+           * @type {Secret}
+           */
+
+          this.secret = typeof secret === 'string' ? secret_Secret.fromB32(secret) : secret;
+          /**
+           * HMAC hashing algorithm.
+           * @type {string}
+           */
+
+          this.algorithm = algorithm;
+          /**
+           * Token length.
+           * @type {number}
+           */
+
+          this.digits = digits;
+          /**
+           * Token time-step duration.
+           * @type {number}
+           */
+
+          this.period = period;
+        }
+        /**
+         * Generates a TOTP token.
+         * @param {Object} config Configuration options.
+         * @param {Secret} config.secret Secret key.
+         * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
+         * @param {number} [config.digits=6] Token length.
+         * @param {number} [config.period=30] Token time-step duration.
+         * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
+         * @returns {string} Token.
+         */
+
+
+        otp_createClass(TOTP, [{
+          key: "generate",
+
+          /**
+           * Generates a TOTP token.
+           * @param {Object} [config] Configuration options.
+           * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
+           * @returns {string} Token.
+           */
+          value: function generate() {
+            var _ref7 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                _ref7$timestamp = _ref7.timestamp,
+                timestamp = _ref7$timestamp === void 0 ? Date.now() : _ref7$timestamp;
+
+            return TOTP.generate({
+              secret: this.secret,
+              algorithm: this.algorithm,
+              digits: this.digits,
+              period: this.period,
+              timestamp: timestamp
+            });
+          }
+          /**
+           * Validates a TOTP token.
+           * @param {Object} config Configuration options.
+           * @param {string} config.token Token value.
+           * @param {Secret} config.secret Secret key.
+           * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
+           * @param {number} [config.period=30] Token time-step duration.
+           * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
+           * @param {number} [config.window=1] Window of counter values to test.
+           * @returns {number|null} Token delta, or null if the token is not found.
+           */
+
+        }, {
+          key: "validate",
+
+          /**
+           * Validates a TOTP token.
+           * @param {Object} config Configuration options.
+           * @param {string} config.token Token value.
+           * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
+           * @param {number} [config.window=1] Window of counter values to test.
+           * @returns {number|null} Token delta, or null if the token is not found.
+           */
+          value: function validate(_ref8) {
+            var token = _ref8.token,
+                timestamp = _ref8.timestamp,
+                window = _ref8.window;
+            return TOTP.validate({
+              token: utils["b"
+              /* Utils */
+              ].pad(token, this.digits),
+              secret: this.secret,
+              algorithm: this.algorithm,
+              period: this.period,
+              timestamp: timestamp,
+              window: window
+            });
+          }
+          /**
+           * Returns a Google Authenticator key URI.
+           * @returns {string} URI.
+           */
+
+        }, {
+          key: "toString",
+          value: function toString() {
+            return uri_URI.stringify(this);
+          }
+        }], [{
+          key: "generate",
+          value: function generate(_ref9) {
+            var secret = _ref9.secret,
+                algorithm = _ref9.algorithm,
+                digits = _ref9.digits,
+                _ref9$period = _ref9.period,
+                period = _ref9$period === void 0 ? defaults.period : _ref9$period,
+                _ref9$timestamp = _ref9.timestamp,
+                timestamp = _ref9$timestamp === void 0 ? Date.now() : _ref9$timestamp;
+            return otp_HOTP.generate({
+              secret: secret,
+              algorithm: algorithm,
+              digits: digits,
+              counter: Math.floor(timestamp / 1000 / period)
+            });
+          }
+        }, {
+          key: "validate",
+          value: function validate(_ref10) {
+            var token = _ref10.token,
+                secret = _ref10.secret,
+                algorithm = _ref10.algorithm,
+                _ref10$period = _ref10.period,
+                period = _ref10$period === void 0 ? defaults.period : _ref10$period,
+                _ref10$timestamp = _ref10.timestamp,
+                timestamp = _ref10$timestamp === void 0 ? Date.now() : _ref10$timestamp,
+                window = _ref10.window;
+            return otp_HOTP.validate({
+              token: token,
+              secret: secret,
+              algorithm: algorithm,
+              counter: Math.floor(timestamp / 1000 / period),
+              window: window
+            });
+          }
+        }]);
+        return TOTP;
+      }(); // CONCATENATED MODULE: ./src/version.js
+
+      /**
+       * Library version.
+       * @type {string}
+       */
+
+
+      var version = "5.0.3"; // CONCATENATED MODULE: ./src/main.js
+
+      /* concated harmony reexport HOTP */
+
+      __webpack_require__.d(__webpack_exports__, "HOTP", function () {
+        return otp_HOTP;
       });
-    }
-    /**
-     * Validates a TOTP token.
-     * @param {Object} config Configuration options.
-     * @param {string} config.token Token value.
-     * @param {Secret} config.secret Secret key.
-     * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
-     * @param {number} [config.period=30] Token time-step duration.
-     * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-     * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta, or null if the token is not found.
-     */
+      /* concated harmony reexport TOTP */
 
-  }, {
-    key: "validate",
 
-    /**
-     * Validates a TOTP token.
-     * @param {Object} config Configuration options.
-     * @param {string} config.token Token value.
-     * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-     * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta, or null if the token is not found.
-     */
-    value: function validate(_ref8) {
-      var token = _ref8.token,
-          timestamp = _ref8.timestamp,
-          window = _ref8.window;
-      return TOTP.validate({
-        token: utils["b" /* Utils */].pad(token, this.digits),
-        secret: this.secret,
-        algorithm: this.algorithm,
-        period: this.period,
-        timestamp: timestamp,
-        window: window
+      __webpack_require__.d(__webpack_exports__, "TOTP", function () {
+        return otp_TOTP;
       });
-    }
-    /**
-     * Returns a Google Authenticator key URI.
-     * @returns {string} URI.
-     */
+      /* concated harmony reexport URI */
 
-  }, {
-    key: "toString",
-    value: function toString() {
-      return uri_URI.stringify(this);
-    }
-  }], [{
-    key: "generate",
-    value: function generate(_ref9) {
-      var secret = _ref9.secret,
-          algorithm = _ref9.algorithm,
-          digits = _ref9.digits,
-          _ref9$period = _ref9.period,
-          period = _ref9$period === void 0 ? defaults.period : _ref9$period,
-          _ref9$timestamp = _ref9.timestamp,
-          timestamp = _ref9$timestamp === void 0 ? Date.now() : _ref9$timestamp;
-      return otp_HOTP.generate({
-        secret: secret,
-        algorithm: algorithm,
-        digits: digits,
-        counter: Math.floor(timestamp / 1000 / period)
+
+      __webpack_require__.d(__webpack_exports__, "URI", function () {
+        return uri_URI;
       });
-    }
-  }, {
-    key: "validate",
-    value: function validate(_ref10) {
-      var token = _ref10.token,
-          secret = _ref10.secret,
-          algorithm = _ref10.algorithm,
-          _ref10$period = _ref10.period,
-          period = _ref10$period === void 0 ? defaults.period : _ref10$period,
-          _ref10$timestamp = _ref10.timestamp,
-          timestamp = _ref10$timestamp === void 0 ? Date.now() : _ref10$timestamp,
-          window = _ref10.window;
-      return otp_HOTP.validate({
-        token: token,
-        secret: secret,
-        algorithm: algorithm,
-        counter: Math.floor(timestamp / 1000 / period),
-        window: window
+      /* concated harmony reexport Secret */
+
+
+      __webpack_require__.d(__webpack_exports__, "Secret", function () {
+        return secret_Secret;
       });
+      /* concated harmony reexport Utils */
+
+
+      __webpack_require__.d(__webpack_exports__, "Utils", function () {
+        return utils["b"
+        /* Utils */
+        ];
+      });
+      /* concated harmony reexport version */
+
+
+      __webpack_require__.d(__webpack_exports__, "version", function () {
+        return version;
+      });
+      /**
+       * One Time Password (HOTP/TOTP) library for Node.js and browser.
+       * @module OTPAuth
+       * @author Héctor Molinero Fernández <hector@molinero.dev>
+       */
+
+      /* harmony default export */
+
+
+      var main = __webpack_exports__["default"] = {
+        HOTP: otp_HOTP,
+        TOTP: otp_TOTP,
+        URI: uri_URI,
+        Secret: secret_Secret,
+        Utils: utils["b"
+        /* Utils */
+        ],
+        version: version
+      };
+      /***/
     }
-  }]);
-
-  return TOTP;
-}();
-// CONCATENATED MODULE: ./src/version.js
-/**
- * Library version.
- * @type {string}
- */
-var version = "5.0.3";
-// CONCATENATED MODULE: ./src/main.js
-/* concated harmony reexport HOTP */__webpack_require__.d(__webpack_exports__, "HOTP", function() { return otp_HOTP; });
-/* concated harmony reexport TOTP */__webpack_require__.d(__webpack_exports__, "TOTP", function() { return otp_TOTP; });
-/* concated harmony reexport URI */__webpack_require__.d(__webpack_exports__, "URI", function() { return uri_URI; });
-/* concated harmony reexport Secret */__webpack_require__.d(__webpack_exports__, "Secret", function() { return secret_Secret; });
-/* concated harmony reexport Utils */__webpack_require__.d(__webpack_exports__, "Utils", function() { return utils["b" /* Utils */]; });
-/* concated harmony reexport version */__webpack_require__.d(__webpack_exports__, "version", function() { return version; });
-/**
- * One Time Password (HOTP/TOTP) library for Node.js and browser.
- * @module OTPAuth
- * @author Héctor Molinero Fernández <hector@molinero.dev>
- */
-
-
-
-
-
-/* harmony default export */ var main = __webpack_exports__["default"] = ({
-  HOTP: otp_HOTP,
-  TOTP: otp_TOTP,
-  URI: uri_URI,
-  Secret: secret_Secret,
-  Utils: utils["b" /* Utils */],
-  version: version
-});
-
-
-/***/ })
-/******/ ]);
+    /******/
+    ])
+  );
 });
 
 },{}],33:[function(require,module,exports){
@@ -18718,57 +19185,76 @@ module.exports = Buffer
 },{"isarray":61}],61:[function(require,module,exports){
 arguments[4][29][0].apply(exports,arguments)
 },{"dup":29}],62:[function(require,module,exports){
+"use strict";
+
+var _homeController = _interopRequireDefault(require("./controllers/home-controller"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const AccountsController = require('./controllers/accounts-controller');
-const HomeController = require('./controllers/home-controller');
+
 const BudgetCalendarController = require('./controllers/budget-calendar-controller');
+
 const BalanceSheetController = require('./controllers/balance-sheet-controller');
+
 const PayDaysController = require('./controllers/pay-days-controller');
+
 const DepositController = require('./controllers/deposit-controller');
+
 const PricesController = require('./controllers/prices-controller');
+
 const LoginController = require('./controllers/login-controller');
+
 const LoginSignupController = require('./controllers/login-signup-controller');
+
 const LinkBankAccountController = require('./controllers/link-bank-account-controller');
+
 const Nav = require('./nav');
+
 const AccountSettingsView = require('./views/account-settings-view');
+
 const Util = require('./util');
 
 $(document).ready(function () {
-    'use strict';
-    Nav.initNav($('.tab-nav-bar'));
-    let controller;
-    let pageName = window.location.href.split('/').pop().toLocaleLowerCase();
-    if (pageName === '' || pageName.startsWith('index.html')) {
-        controller = new HomeController();
-    } else if (pageName.startsWith('balance-sheet.html')) {
-        controller = new BalanceSheetController();
-    } else if (pageName.startsWith('pay-days.html')) {
-        controller = new PayDaysController();
-    } else if (pageName.startsWith('budget-calendar.html')) {
-        controller = new BudgetCalendarController();
-    }  else if (pageName.startsWith('accounts.html')) {
-        controller = new AccountsController();
-    } else if (pageName.startsWith('deposit.html')) {
-        controller = new DepositController();
-    } else if (pageName.startsWith('prices.html')) {
-        controller = new PricesController();
-    } else if (pageName.startsWith('login.html')) {
-        controller = new LoginController();
-    } else if (pageName.startsWith('login-signup.html')) {
-        controller = new LoginSignupController();
-    } else if (pageName.startsWith('link-bank-account.html')) {
-        controller = new LinkBankAccountController();
-    }
-    let obfuscate = Util.obfuscate();
-    $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView(obfuscate));
-    $('body').append('<div id="page-footer"></div>');
-    $('#page-footer').append(`
+  'use strict';
+
+  Nav.initNav($('.tab-nav-bar'));
+  let controller;
+  let pageName = window.location.href.split('/').pop().toLocaleLowerCase();
+
+  if (pageName === '' || pageName.startsWith('index.html')) {
+    controller = new _homeController.default();
+  } else if (pageName.startsWith('balance-sheet.html')) {
+    controller = new BalanceSheetController();
+  } else if (pageName.startsWith('pay-days.html')) {
+    controller = new PayDaysController();
+  } else if (pageName.startsWith('budget-calendar.html')) {
+    controller = new BudgetCalendarController();
+  } else if (pageName.startsWith('accounts.html')) {
+    controller = new AccountsController();
+  } else if (pageName.startsWith('deposit.html')) {
+    controller = new DepositController();
+  } else if (pageName.startsWith('prices.html')) {
+    controller = new PricesController();
+  } else if (pageName.startsWith('login.html')) {
+    controller = new LoginController();
+  } else if (pageName.startsWith('login-signup.html')) {
+    controller = new LoginSignupController();
+  } else if (pageName.startsWith('link-bank-account.html')) {
+    controller = new LinkBankAccountController();
+  }
+
+  let obfuscate = Util.obfuscate();
+  $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView(obfuscate));
+  $('body').append('<div id="page-footer"></div>');
+  $('#page-footer').append(`
         <hr />
         <p class="text-center">By browsing and using this site you agree to our <a target="_blank" href="https://www.primordial-software.com/LICENSE.txt">license</a>
     `);
-    $('#page-footer').append(`<div id="debug-console" class="no-print"></div>`);
-    $('#page-footer').append(`<div id="account-settings-container"></div>`).append(AccountSettingsView.getAccountSettingsView());
-    $('#page-footer').append(`<div id="raw-data-container"></div>`).append(AccountSettingsView.getRawDataView());
-    $('#page-footer').append(`
+  $('#page-footer').append(`<div id="debug-console" class="no-print"></div>`);
+  $('#page-footer').append(`<div id="account-settings-container"></div>`).append(AccountSettingsView.getAccountSettingsView());
+  $('#page-footer').append(`<div id="raw-data-container"></div>`).append(AccountSettingsView.getRawDataView());
+  $('#page-footer').append(`
         <div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
               <div class="modal-dialog">
                 <div class="loader"></div>
@@ -18776,7 +19262,7 @@ $(document).ready(function () {
           </div>
         <div class="loader-group hide modal-backdrop fade in"></div>
     `);
-    controller.init();
+  controller.init();
 });
 
 },{"./controllers/accounts-controller":73,"./controllers/balance-sheet-controller":74,"./controllers/budget-calendar-controller":76,"./controllers/deposit-controller":77,"./controllers/home-controller":78,"./controllers/link-bank-account-controller":79,"./controllers/login-controller":80,"./controllers/login-signup-controller":81,"./controllers/pay-days-controller":82,"./controllers/prices-controller":83,"./nav":85,"./util":86,"./views/account-settings-view":87}],63:[function(require,module,exports){
@@ -18928,12 +19414,15 @@ function NetIncomeCalculator() {
             if (wre) {
                 getWeeklyExpenses(wre, current, breakdown);
             }
-            if (config.biWeeklyIncome) {
-                getIncome(
-                    config.biWeeklyIncome.amount,
-                    current.getTime(),
-                    breakdown,
-                    config.biWeeklyIncome.date.getTime());
+            for (let biweeklyItem of (config.biweekly || [])
+                    .filter(x => utcDay.getDayDiff(x.date.getTime(), current.getTime()) % cal.BIWEEKLY_INTERVAL === 0)) {
+                breakdown.push({
+                    'name': biweeklyItem.name,
+                    'amount': biweeklyItem.amount,
+                    'date': new Date(current.getTime()),
+                    'type': biweeklyItem.type,
+                    'paymentSource': ''
+                });
             }
             current.setUTCDate(current.getUTCDate() + 1);
         }
@@ -18985,29 +19474,6 @@ function NetIncomeCalculator() {
                 });
             }
         }
-    }
-
-    function getIncome(amount, time, breakdown, startTime) {
-        let incomeAccrual = getIncomeAccrual(amount, time, startTime);
-        if (incomeAccrual) {
-            breakdown.push(incomeAccrual);
-        }
-    }
-
-    function getIncomeAccrual(amount, time, startTime) {
-        let accrual;
-        let diffFromFirstPayDate = utcDay.getDayDiff(startTime, time);
-        let modulusIntervalsFromFirstPayDate = diffFromFirstPayDate % cal.BIWEEKLY_INTERVAL;
-        if (modulusIntervalsFromFirstPayDate === 0) {
-            accrual = {
-                'name': 'biweekly income',
-                'amount': amount,
-                'date': new Date(time),
-                'type': 'income',
-                'paymentSource': 'salary'
-            };
-        }
-        return accrual;
     }
 
 }
@@ -19283,8 +19749,7 @@ function AccountSettingsController() {
     let view;
     async function save() {
         let data = await view.getModel();
-        /*
-         * This has to get done on account creation.
+        /*This has to get done on account creation.
         data.licenseAgreement = {
             agreedToLicense: agreedToLicense
         };*/
@@ -19640,7 +20105,10 @@ function BudgetCalendarController() {
             for (let mre of data.monthlyRecurringExpenses) {
                 mre.date = new Date(mre.date);
             }
-            data.biWeeklyIncome.date = new Date(data.biWeeklyIncome.date);
+
+            for (let biweekly of data.biweekly) {
+                biweekly.date = new Date(biweekly.date);
+            }
 
             let year = new Date().getUTCFullYear();
             month = new Date().getUTCMonth();
@@ -19708,41 +20176,70 @@ function DepositController() {
 
 module.exports = DepositController;
 },{"../data-client":84,"../util":86,"./account-settings-controller":72}],78:[function(require,module,exports){
-const HomeView = require('../views/home-view');
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _homeView = _interopRequireDefault(require("../views/home-view"));
+
+var _weeklyView = _interopRequireDefault(require("../views/budget/weekly-view"));
+
+var _monthlyView = _interopRequireDefault(require("../views/budget/monthly-view"));
+
+var _biweeklyView = _interopRequireDefault(require("../views/budget/biweekly-view"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const DataClient = require('../data-client');
+
 const AccountSettingsController = require('./account-settings-controller');
+
 const Util = require('../util');
-function HomeController() {
-    'use strict';
-    let dataClient;
-    let homeView;
-    async function refresh() {
-        try {
-            let data = await dataClient.getBudget();
-            homeView.setView(data, Util.obfuscate());
-        } catch (err) {
-            Util.log(err);
-        }
+
+class HomeController {
+  constructor() {
+    this.dataClient = {};
+    this.homeView = {};
+  }
+
+  async refresh() {
+    try {
+      let data = await this.dataClient.getBudget();
+      this.homeView.setView(data, Util.obfuscate());
+    } catch (err) {
+      Util.log(err);
     }
-    this.init = function () {
-        homeView = new HomeView();
-        dataClient = new DataClient();
-        new AccountSettingsController().init(homeView);
-        $('#add-new-monthly').prop('disabled', true);
-        $('#add-new-weekly').prop('disabled', true);
-        $('#add-new-monthly').click(function () {
-            $(this).hide();
-            $('.new-monthly-container').prepend(homeView.getEditableTransactionView('monthly'));
-        });
-        $('#add-new-weekly').click(function () {
-            $(this).hide();
-            $('.new-weekly-container').prepend(homeView.getEditableTransactionView('weekly'));
-        });
-        refresh();
-    };
+  }
+
+  init() {
+    this.homeView = new _homeView.default();
+    this.dataClient = new DataClient();
+    new AccountSettingsController().init(this.homeView);
+    let self = this;
+    $('.add-new-budget-item').prop('disabled', true);
+    $('#add-new-biweekly').click(function () {
+      $(this).hide();
+      $('.new-biweekly-container').prepend(self.homeView.getEditableTransactionView(_biweeklyView.default));
+    });
+    $('#add-new-monthly').click(function () {
+      $(this).hide();
+      $('.new-monthly-container').prepend(self.homeView.getEditableTransactionView(_monthlyView.default));
+    });
+    $('#add-new-weekly').click(function () {
+      $(this).hide();
+      $('.new-weekly-container').prepend(self.homeView.getEditableTransactionView(_weeklyView.default));
+    });
+    this.refresh();
+  }
+
 }
-module.exports = HomeController;
-},{"../data-client":84,"../util":86,"../views/home-view":97,"./account-settings-controller":72}],79:[function(require,module,exports){
+
+exports.default = HomeController;
+
+},{"../data-client":84,"../util":86,"../views/budget/biweekly-view":97,"../views/budget/monthly-view":98,"../views/budget/weekly-view":99,"../views/home-view":100,"./account-settings-controller":72}],79:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const Util = require('../util');
@@ -20195,7 +20692,7 @@ function PayDaysController() {
 }
 
 module.exports = PayDaysController;
-},{"../calculators/calendar":66,"../calculators/utc-day":69,"../data-client":84,"../util":86,"../views/pay-days-view":98,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],83:[function(require,module,exports){
+},{"../calculators/calendar":66,"../calculators/utc-day":69,"../data-client":84,"../util":86,"../views/pay-days-view":101,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],83:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const PricesView = require('../views/prices-view');
@@ -20230,7 +20727,7 @@ function PricesController() {
 }
 
 module.exports = PricesController;
-},{"../data-client":84,"../util":86,"../views/prices-view":99,"./account-settings-controller":72}],84:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../views/prices-view":102,"./account-settings-controller":72}],84:[function(require,module,exports){
 const Util = require('./util');
 const Currency = require('currency.js');
 function DataClient() {
@@ -20280,10 +20777,6 @@ function DataClient() {
         let obfuscate = Util.obfuscate();
         if (obfuscate) {
             $('#save').prop('disabled', true);
-            if (data.biWeeklyIncome && data.biWeeklyIncome.amount) {
-                data.biWeeklyIncome.amount = Currency(data.biWeeklyIncome.amount, Util.getCurrencyDefaults())
-                    .multiply(Util.obfuscationAmount()).toString();
-            }
             for (let weekly of data.weeklyRecurringExpenses) {
                 weekly.amount = Currency(weekly.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
             }
@@ -21167,63 +21660,187 @@ function TransferView() {
 module.exports = TransferView;
 
 },{"moment/moment":31}],97:[function(require,module,exports){
-const cal = require('../calculators/calendar');
-const Util = require('../util');
-function HomeView() {
-    let self = this;
-    let data;
-    function getTxInputHtmlMonthly() {
-        let txHtmlInput = '<select class="date form-control"><option>Day of Month</option>';
-        for (let day = 1; day <= cal.SAFE_LAST_DAY_OF_MONTH; day++) {
-            txHtmlInput += `<option
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+class BiweeklyView {
+  static get iteration() {
+    return 'biweekly';
+  }
+
+  static get dateName() {
+    return 'start date';
+  }
+
+  getTextInputHtml() {
+    return `<input type="text" placeholder="2015-12-25T00:00:00Z" class="date form-control" />`;
+  }
+
+  getDateText(date) {
+    return date;
+  }
+
+}
+
+exports.default = BiweeklyView;
+
+},{}],98:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+const cal = require('../../calculators/calendar');
+
+class MonthlyView {
+  static get iteration() {
+    return 'monthly';
+  }
+
+  static get dateName() {
+    return 'day of month';
+  }
+
+  getTextInputHtml() {
+    let txHtmlInput = '<select class="date form-control"><option>Day of Month</option>';
+
+    for (let day = 1; day <= cal.SAFE_LAST_DAY_OF_MONTH; day++) {
+      txHtmlInput += `<option
             value=${new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), day)).toISOString()}>${day}</option>`;
-        }
-        txHtmlInput += '</select>';
-        return txHtmlInput;
     }
-    function getTxInputHtmlWeekly() {
-        let txtHtmlInput = '<select class="date form-control"><option>Day of Week</option>';
-        for (let day = 0; day < 7; day++) {
-            txtHtmlInput += `<option value="${getDateWithDay(day)}">${cal.DAY_NAMES[day]}</option>`;
-        }
-        txtHtmlInput += '</select>';
-        return txtHtmlInput;
+
+    txHtmlInput += '</select>';
+    return txHtmlInput;
+  }
+
+  getDateText(date) {
+    return new Date(date).getUTCDate();
+  }
+
+}
+
+exports.default = MonthlyView;
+
+},{"../../calculators/calendar":66}],99:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+const cal = require('../../calculators/calendar');
+
+class WeeklyView {
+  static get iteration() {
+    return 'weekly';
+  }
+
+  static get dateName() {
+    return 'day of week';
+  }
+
+  getDateWithDay(day) {
+    let date = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
+    let distance = day - date.getUTCDay();
+    date.setDate(date.getDate() + distance);
+    return date.toISOString();
+  }
+
+  getTextInputHtml() {
+    let txtHtmlInput = '<select class="date form-control"><option>Day of Week</option>';
+
+    for (let day = 0; day < 7; day++) {
+      txtHtmlInput += `<option value="${this.getDateWithDay(day)}">${cal.DAY_NAMES[day]}</option>`;
     }
-    function getDateWithDay(day) {
-        let date = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
-        let distance = day - date.getUTCDay();
-        date.setDate(date.getDate() + distance);
-        return date.toISOString();
+
+    txtHtmlInput += '</select>';
+    return txtHtmlInput;
+  }
+
+  getDateText(date) {
+    return cal.DAY_NAMES[new Date(date).getUTCDay()];
+  }
+
+}
+
+exports.default = WeeklyView;
+
+},{"../../calculators/calendar":66}],100:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _weeklyView = _interopRequireDefault(require("./budget/weekly-view"));
+
+var _monthlyView = _interopRequireDefault(require("./budget/monthly-view"));
+
+var _biweeklyView = _interopRequireDefault(require("./budget/biweekly-view"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const cal = require('../calculators/calendar');
+
+const Util = require('../util');
+
+function sortByAmount(a, b) {
+  return b.amount - a.amount;
+}
+
+function getTransactionModel(target) {
+  /*
+      "date": "2015-12-25T00:00:00Z",
+      "type": "income",
+      "amount": 100
+   */
+  return {
+    amount: Util.cleanseNumericString($(target).find('.amount').val().trim()),
+    date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
+    name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
+    type: $(target).find('.transaction-type').val() || $(target).data().txntype,
+    paymentSource: $(target).find('select.transaction-payment-source').val() || $(target).find('span.transaction-payment-source').text()
+  };
+}
+
+class HomeView {
+  constructor() {
+    this.data = {};
+  }
+
+  getEditableTransactionView(viewType) {
+    let iteration = viewType.iteration;
+    let paymentSourceHtml = '';
+
+    for (paymentSource of this.data.paymentSources || []) {
+      paymentSourceHtml += `<option value='${paymentSource}'>${paymentSource}</option>`;
     }
-    function getTransactionModel(target) {
-        return {
-            amount: Util.cleanseNumericString($(target).find('.amount').val().trim()),
-            date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
-            name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
-            type: $(target).find('.transaction-type').val() || $(target).data().txntype,
-            paymentSource: $(target).find('select.transaction-payment-source').val() || $(target).find('span.transaction-payment-source').text()
-        };
-    }
-    this.getEditableTransactionView = function (iteration) {
-        let paymentSourceHtml = '';
-        for (paymentSource of data.paymentSources || []) {
-            paymentSourceHtml += `<option value='${paymentSource}'>${paymentSource}</option>`;
-        }
-        return `<h4>New ${iteration.charAt(0).toUpperCase()}${iteration.slice(1)} Transaction</h4>
-                <form class="transferring container-fluid ${iteration}-expense-item new-transaction-view">
-                <div class="form-group row">
-                    <div class="col-xs-6"><input placeholder="Amount" class="amount form-control text-right" type="text" /></div>
+
+    return `<h4>New ${iteration.charAt(0).toUpperCase()}${iteration.slice(1)} Transaction</h4>
+                <form class="transferring container-fluid ${iteration}-budget-item new-transaction-view">
+                <div class="form-group row display-flex">
+                    <div class="col-xs-3 display-flex-valign-center">Amount:</div>
+                    <div class="col-xs-9"><input placeholder="Amount" class="amount form-control text-right" type="text" /></div>
                 </div>
-                <div class="form-group row">
-                    <div class="col-xs-12">
-                        ${iteration === 'weekly' ? getTxInputHtmlWeekly() : getTxInputHtmlMonthly()}
-                    </div>
+                <div class="form-group row display-flex">
+                    <div class="col-xs-3 display-flex-valign-center capitalize">${viewType.dateName}:</div>
+                    <div class="col-xs-9">${new viewType().getTextInputHtml()}</div>
                 </div>
-                <div class="form-group row">
-                  <div class="col-xs-12"><input placeholder="Name" class="name form-control" type="text" /></div>
+                <div class="form-group row display-flex">
+                  <div class="col-xs-3 display-flex-valign-center">Name:</div>
+                  <div class="col-xs-9"><input placeholder="Name" class="name form-control" type="text" /></div>
                 </div>
-                <div class="form-group row">
-                  <div class="col-xs-12">
+                <div class="form-group row display-flex">
+                  <div class="col-xs-3">Income or Expense:</div>
+                  <div class="col-xs-9">
                       <select class="transaction-type form-control">
                         <option>Transaction Type</option>
                         <option value="income">Income</option>
@@ -21231,8 +21848,9 @@ function HomeView() {
                       </select>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <div class="col-xs-12">
+                <div class="form-group row display-flex">
+                  <div class="col-xs-3">Account:</div>
+                  <div class="col-xs-9">
                       <select class="transaction-payment-source form-control">
                         <option value="">Account</option>
                         ${paymentSourceHtml};
@@ -21240,82 +21858,84 @@ function HomeView() {
                   </div>
                 </div>
             </form>`;
-    };
-    this.getTransactionView = function (transaction, iteration, disable) {
-        let date = transaction.date || '';
-        transaction.type = transaction.type || 'expense';
-        let paidByHtml = transaction.paymentSource ?
-            ` <span class="payment-source-appended-to-name">paid by <span class="transaction-payment-source">${transaction.paymentSource}</span></span>`
-            : '';
-        let view = $(`
-        <div class="row transaction-input-view ${iteration}-${transaction.type}-item" data-txntype="${transaction.type}">
-            <div class="col-xs-4">
+  }
+
+  getTransactionView(transaction, viewType, disable) {
+    let date = transaction.date || '';
+    transaction.type = transaction.type || 'expense';
+    let paidByHtml = transaction.paymentSource ? ` <span class="payment-source-appended-to-name">paid by <span class="transaction-payment-source">${transaction.paymentSource}</span></span>` : '';
+    let view = $(`
+        <div class="row transaction-input-view ${viewType.iteration}-budget-item budget-${transaction.type}-item display-flex" data-txntype="${transaction.type}">
+            <div class="col-xs-4 display-flex-valign-center">
                 <div class="input-group">
                     <div class="input-group-addon ">$</div>
                     <input class="amount form-control text-right" type="text" value="${transaction.amount ? Util.formatShares(transaction.amount) : Util.format(0)}" />
                 </div>
             </div>
-            <div class="col-xs-3"><span class="date" data-date="${date}">${iteration === 'weekly'
-            ? cal.DAY_NAMES[new Date(date).getUTCDay()]
-            : new Date(date).getUTCDate()}</span></div>
-            <div class="col-xs-4"><span class="name">${transaction.name || ''}</span>${paidByHtml}</div>
-            <div class="col-xs-1 add-remove-btn-container">
+            <div class="col-xs-3 display-flex-valign-center"><span class="date" data-date="${date}">${new viewType().getDateText(date)}</span></div>
+            <div class="col-xs-4 display-flex-valign-center"><span class="name">${transaction.name || ''}</span>${paidByHtml}</div>
+            <div class="col-xs-1 add-remove-btn-container display-flex-valign-center">
                 <button ${disable ? 'disabled="disabled"' : ''} class="btn remove row-remove-button add-remove-btn-container add-remove-btn">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                 </button>
             </div>
         </div>`);
-        view.find('.row-remove-button').click(function () { view.remove(); });
-        return view;
-    };
-    this.setView = function (budget, obfuscate) {
-        'use strict';
-        data = budget;
-        $('#biweekly-input').val(budget.biWeeklyIncome.amount);
-        $('#weekly-input-group').empty();
-        $('#monthly-input-group').empty();
-        for (let transaction of budget.weeklyRecurringExpenses) {
-            $('#weekly-input-group').append(self.getTransactionView(transaction, 'weekly', obfuscate));
-        }
-        for (let transaction of budget.monthlyRecurringExpenses) {
-            $('#monthly-input-group').append(self.getTransactionView(transaction, 'monthly', obfuscate));
-        }
-        if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
-            $('#acceptLicense').prop('checked', true);
-            $('#acceptLicense').prop('disabled', true);
-            $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
-        }
-        if (!obfuscate) {
-            $('#add-new-monthly').prop('disabled', false);
-            $('#add-new-weekly').prop('disabled', false);
-        }
-    };
-    this.getModel = function () {
-        'use strict';
-        let budgetSettings = {};
-        budgetSettings.biWeeklyIncome = {};
-        budgetSettings.biWeeklyIncome.amount = parseInt($('#biweekly-input').val().trim());
-        budgetSettings.biWeeklyIncome.date = new Date(Date.UTC(2015, 11, 25));
-        budgetSettings.monthlyRecurringExpenses = [];
-        $('.monthly-expense-item, .monthly-income-item').each(function () {
-            budgetSettings.monthlyRecurringExpenses.push(getTransactionModel(this));
-        });
-        budgetSettings.monthlyRecurringExpenses.sort(function(a,b) {
-            return b.amount - a.amount;
-        });
-        budgetSettings.weeklyRecurringExpenses = [];
-        $('.weekly-expense-item').each(function () {
-            budgetSettings.weeklyRecurringExpenses.push(getTransactionModel(this));
-        });
-        budgetSettings.weeklyRecurringExpenses.sort(function(a,b) {
-            return b.amount - a.amount;
-        });
-        return budgetSettings;
-    };
-}
-module.exports = HomeView;
+    view.find('.row-remove-button').click(function () {
+      view.remove();
+    });
+    return view;
+  }
 
-},{"../calculators/calendar":66,"../util":86}],98:[function(require,module,exports){
+  setView(budget, obfuscate) {
+    this.data = budget;
+
+    for (let transaction of budget.biweekly) {
+      $('#biweekly-input-group').append(this.getTransactionView(transaction, _biweeklyView.default, obfuscate));
+    }
+
+    for (let transaction of budget.weeklyRecurringExpenses) {
+      $('#weekly-input-group').append(this.getTransactionView(transaction, _weeklyView.default, obfuscate));
+    }
+
+    for (let transaction of budget.monthlyRecurringExpenses) {
+      $('#monthly-input-group').append(this.getTransactionView(transaction, _monthlyView.default, obfuscate));
+    }
+
+    if (this.data.licenseAgreement && this.data.licenseAgreement.agreedToLicense) {
+      $('#acceptLicense').prop('checked', true);
+      $('#acceptLicense').prop('disabled', true);
+      $('.licenseAgreementDetails').append(`agreed to license on ${this.data.licenseAgreement.agreementDateUtc} from IP ${this.data.licenseAgreement.ipAddress}`);
+    }
+
+    $('.add-new-budget-item').prop('disabled', obfuscate);
+  }
+
+  getModel() {
+    let budgetSettings = {
+      biweekly: [],
+      monthlyRecurringExpenses: [],
+      weeklyRecurringExpenses: []
+    };
+    $('.biweekly-budget-item, .monthly-income-item').each(function () {
+      budgetSettings.biweekly.push(getTransactionModel(this));
+    });
+    $('.monthly-budget-item').each(function () {
+      budgetSettings.monthlyRecurringExpenses.push(getTransactionModel(this));
+    });
+    $('.weekly-budget-item').each(function () {
+      budgetSettings.weeklyRecurringExpenses.push(getTransactionModel(this));
+    });
+    budgetSettings.biweekly.sort(sortByAmount);
+    budgetSettings.monthlyRecurringExpenses.sort(sortByAmount);
+    budgetSettings.weeklyRecurringExpenses.sort(sortByAmount);
+    return budgetSettings;
+  }
+
+}
+
+exports.default = HomeView;
+
+},{"../calculators/calendar":66,"../util":86,"./budget/biweekly-view":97,"./budget/monthly-view":98,"./budget/weekly-view":99}],101:[function(require,module,exports){
 const Currency = require('currency.js');
 
 exports.getModel = function () {
@@ -21324,7 +21944,7 @@ exports.getModel = function () {
     model['401k-contribution-per-pay-check'] = Currency($('#401k-contribution-per-pay-check').val().trim()).toString();
     return model;
 };
-},{"currency.js":26}],99:[function(require,module,exports){
+},{"currency.js":26}],102:[function(require,module,exports){
 const DataClient = require('../data-client');
 exports.getModel = async function () {
     let prices = [];

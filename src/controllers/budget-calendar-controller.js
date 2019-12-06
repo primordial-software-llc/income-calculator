@@ -24,7 +24,10 @@ function BudgetCalendarController() {
             for (let mre of data.monthlyRecurringExpenses) {
                 mre.date = new Date(mre.date);
             }
-            data.biWeeklyIncome.date = new Date(data.biWeeklyIncome.date);
+
+            for (let biweekly of data.biweekly) {
+                biweekly.date = new Date(biweekly.date);
+            }
 
             let year = new Date().getUTCFullYear();
             month = new Date().getUTCMonth();

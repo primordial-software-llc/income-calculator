@@ -6,8 +6,7 @@ function AccountSettingsController() {
     let view;
     async function save() {
         let data = await view.getModel();
-        /*
-         * This has to get done on account creation.
+        /*This has to get done on account creation.
         data.licenseAgreement = {
             agreedToLicense: agreedToLicense
         };*/

@@ -223,6 +223,10 @@ h4 {
     text-transform:capitalize;
 }
 
+.capitalize {
+    text-transform: capitalize;
+}
+
 .account-row {
     margin-bottom: 10px;
 }
@@ -327,13 +331,11 @@ h4 {
     display: flex;
 }
 
-.transaction-input-view.monthly-expense-item input.amount,
-.transaction-input-view.weekly-expense-item input.amount{
+.transaction-input-view.budget-expense-item input.amount {
     background-color: #f2dede;
 }
 
-.transaction-input-view.monthly-income-item input.amount,
-.transaction-input-view.weekly-income-item input.amount {
+.transaction-input-view.budget-income-item input.amount {
     background-color: #ccffb6
 }
 
@@ -344,6 +346,10 @@ h4 {
 
 .display-flex-valign-bottom {
     align-self: flex-end;
+}
+
+.display-flex-valign-center {
+    align-self: center;
 }
 
 /* balance sheet */

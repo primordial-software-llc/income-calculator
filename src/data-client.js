@@ -47,10 +47,6 @@ function DataClient() {
         let obfuscate = Util.obfuscate();
         if (obfuscate) {
             $('#save').prop('disabled', true);
-            if (data.biWeeklyIncome && data.biWeeklyIncome.amount) {
-                data.biWeeklyIncome.amount = Currency(data.biWeeklyIncome.amount, Util.getCurrencyDefaults())
-                    .multiply(Util.obfuscationAmount()).toString();
-            }
             for (let weekly of data.weeklyRecurringExpenses) {
                 weekly.amount = Currency(weekly.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
             }

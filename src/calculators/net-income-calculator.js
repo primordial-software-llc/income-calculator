@@ -13,12 +13,15 @@ function NetIncomeCalculator() {
             if (wre) {
                 getWeeklyExpenses(wre, current, breakdown);
             }
-            if (config.biWeeklyIncome) {
-                getIncome(
-                    config.biWeeklyIncome.amount,
-                    current.getTime(),
-                    breakdown,
-                    config.biWeeklyIncome.date.getTime());
+            for (let biweeklyItem of (config.biweekly || [])
+                    .filter(x => utcDay.getDayDiff(x.date.getTime(), current.getTime()) % cal.BIWEEKLY_INTERVAL === 0)) {
+                breakdown.push({
+                    'name': biweeklyItem.name,
+                    'amount': biweeklyItem.amount,
+                    'date': new Date(current.getTime()),
+                    'type': biweeklyItem.type,
+                    'paymentSource': ''
+                });
             }
             current.setUTCDate(current.getUTCDate() + 1);
         }
@@ -70,29 +73,6 @@ function NetIncomeCalculator() {
                 });
             }
         }
-    }
-
-    function getIncome(amount, time, breakdown, startTime) {
-        let incomeAccrual = getIncomeAccrual(amount, time, startTime);
-        if (incomeAccrual) {
-            breakdown.push(incomeAccrual);
-        }
-    }
-
-    function getIncomeAccrual(amount, time, startTime) {
-        let accrual;
-        let diffFromFirstPayDate = utcDay.getDayDiff(startTime, time);
-        let modulusIntervalsFromFirstPayDate = diffFromFirstPayDate % cal.BIWEEKLY_INTERVAL;
-        if (modulusIntervalsFromFirstPayDate === 0) {
-            accrual = {
-                'name': 'biweekly income',
-                'amount': amount,
-                'date': new Date(time),
-                'type': 'income',
-                'paymentSource': 'salary'
-            };
-        }
-        return accrual;
     }
 
 }
