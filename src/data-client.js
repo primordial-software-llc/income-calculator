@@ -66,14 +66,14 @@ function DataClient() {
     };
     this.sendRequestInner = async function (requestType, requestParams, isRetryFromRefresh) {
         let response;
+        let url = `${Util.getApiUrl()}${requestType}`;
         try {
             $('.loader-group').removeClass('hide');
-            response = await fetch(`${Util.getApiUrl()}${requestType}`, requestParams);
+            response = await fetch(url, requestParams);
         } catch (error) {
             $('.loader-group').addClass('hide');
-            console.log('An error occurred when fetching. The server response can\'t be read');
-            console.log(error);
-            return;
+            console.log(`An error occurred when fetching ${url}. The server response can\'t be read`);
+            throw 'Network error failed to fetch: ' + url;
         }
         // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
         if (response.status.toString() === '401') {

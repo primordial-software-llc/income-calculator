@@ -1,6 +1,6 @@
 const Util = require('../../util');
 const ExpenseViewModel = require('./expense-view-model');
-const PropertyPlantAndEquipmentViewModel = require('./property-plant-and-equipment-view-model');
+import PropertyPlantAndEquipmentViewModel from './property-plant-and-equipment-view-model';
 const BondViewModel = require('./bond-view-model');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 const CashOrStockViewModel = require('./cash-or-stock-view-model');

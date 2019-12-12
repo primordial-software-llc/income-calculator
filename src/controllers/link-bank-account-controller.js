@@ -6,10 +6,7 @@ function LinkBankAccountController() {
     'use strict';
     async function initAsync() {
         $('#link-button').on('click', function(e) {
-            let selectedProducts = [];
-            $("input[name='plaid-products']:checked").each(function (index, obj) {
-                selectedProducts.push($(obj).val());
-            });
+            let selectedProducts = ['transactions'];
             let handler = Plaid.create({
                 clientName: 'My App',
                 env: 'development',
@@ -75,7 +72,7 @@ function LinkBankAccountController() {
                         clientName: 'My App',
                         env: 'development',
                         key: '7e6391ab6cbcc3b212440b5821bfa7',
-                        product: ['auth','transactions'], // FIX THIS, NOT ALL BANKS SUPPORT AUTH E.G. CREDIT CARD ONLY BANKS.
+                        product: ['transactions'],
                         token: result['public_token'],
                         onSuccess: async function(public_token, metadata) {
                             window.alert('updated account access token');

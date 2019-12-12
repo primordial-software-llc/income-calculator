@@ -454,7 +454,7 @@ var AuthenticationHelper = function () {
 var _default = AuthenticationHelper;
 exports.default = _default;
 
-},{"./BigInteger":3,"buffer/":19,"crypto-js/core":20,"crypto-js/hmac-sha256":22,"crypto-js/lib-typedarrays":24,"crypto-js/sha256":25}],3:[function(require,module,exports){
+},{"./BigInteger":3,"buffer/":20,"crypto-js/core":21,"crypto-js/hmac-sha256":23,"crypto-js/lib-typedarrays":25,"crypto-js/sha256":26}],3:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1712,7 +1712,7 @@ var CognitoJwtToken = function () {
 var _default = CognitoJwtToken;
 exports.default = _default;
 
-},{"buffer/":19}],8:[function(require,module,exports){
+},{"buffer/":20}],8:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3721,7 +3721,7 @@ var CognitoUser = function () {
 var _default = CognitoUser;
 exports.default = _default;
 
-},{"./AuthenticationHelper":2,"./BigInteger":3,"./CognitoAccessToken":5,"./CognitoIdToken":6,"./CognitoRefreshToken":8,"./CognitoUserAttribute":10,"./CognitoUserSession":12,"./DateHelper":14,"./StorageHelper":15,"buffer/":19,"crypto-js/core":20,"crypto-js/enc-base64":21,"crypto-js/hmac-sha256":22,"crypto-js/lib-typedarrays":24}],10:[function(require,module,exports){
+},{"./AuthenticationHelper":2,"./BigInteger":3,"./CognitoAccessToken":5,"./CognitoIdToken":6,"./CognitoRefreshToken":8,"./CognitoUserAttribute":10,"./CognitoUserSession":12,"./DateHelper":14,"./StorageHelper":15,"buffer/":20,"crypto-js/core":21,"crypto-js/enc-base64":22,"crypto-js/hmac-sha256":23,"crypto-js/lib-typedarrays":25}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4288,7 +4288,7 @@ var CookieStorage = function () {
 var _default = CookieStorage;
 exports.default = _default;
 
-},{"js-cookie":30}],14:[function(require,module,exports){
+},{"js-cookie":31}],14:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4754,7 +4754,1810 @@ function fromByteArray (uint8) {
 }
 
 },{}],19:[function(require,module,exports){
-(function (global){
+(function (Buffer){
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+/* eslint-disable no-proto */
+
+'use strict'
+
+var base64 = require('base64-js')
+var ieee754 = require('ieee754')
+var customInspectSymbol =
+  (typeof Symbol === 'function' && typeof Symbol.for === 'function')
+    ? Symbol.for('nodejs.util.inspect.custom')
+    : null
+
+exports.Buffer = Buffer
+exports.SlowBuffer = SlowBuffer
+exports.INSPECT_MAX_BYTES = 50
+
+var K_MAX_LENGTH = 0x7fffffff
+exports.kMaxLength = K_MAX_LENGTH
+
+/**
+ * If `Buffer.TYPED_ARRAY_SUPPORT`:
+ *   === true    Use Uint8Array implementation (fastest)
+ *   === false   Print warning and recommend using `buffer` v4.x which has an Object
+ *               implementation (most compatible, even IE6)
+ *
+ * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
+ * Opera 11.6+, iOS 4.2+.
+ *
+ * We report that the browser does not support typed arrays if the are not subclassable
+ * using __proto__. Firefox 4-29 lacks support for adding new properties to `Uint8Array`
+ * (See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438). IE 10 lacks support
+ * for __proto__ and has a buggy typed array implementation.
+ */
+Buffer.TYPED_ARRAY_SUPPORT = typedArraySupport()
+
+if (!Buffer.TYPED_ARRAY_SUPPORT && typeof console !== 'undefined' &&
+    typeof console.error === 'function') {
+  console.error(
+    'This browser lacks typed array (Uint8Array) support which is required by ' +
+    '`buffer` v5.x. Use `buffer` v4.x if you require old browser support.'
+  )
+}
+
+function typedArraySupport () {
+  // Can typed array instances can be augmented?
+  try {
+    var arr = new Uint8Array(1)
+    var proto = { foo: function () { return 42 } }
+    Object.setPrototypeOf(proto, Uint8Array.prototype)
+    Object.setPrototypeOf(arr, proto)
+    return arr.foo() === 42
+  } catch (e) {
+    return false
+  }
+}
+
+Object.defineProperty(Buffer.prototype, 'parent', {
+  enumerable: true,
+  get: function () {
+    if (!Buffer.isBuffer(this)) return undefined
+    return this.buffer
+  }
+})
+
+Object.defineProperty(Buffer.prototype, 'offset', {
+  enumerable: true,
+  get: function () {
+    if (!Buffer.isBuffer(this)) return undefined
+    return this.byteOffset
+  }
+})
+
+function createBuffer (length) {
+  if (length > K_MAX_LENGTH) {
+    throw new RangeError('The value "' + length + '" is invalid for option "size"')
+  }
+  // Return an augmented `Uint8Array` instance
+  var buf = new Uint8Array(length)
+  Object.setPrototypeOf(buf, Buffer.prototype)
+  return buf
+}
+
+/**
+ * The Buffer constructor returns instances of `Uint8Array` that have their
+ * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
+ * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
+ * and the `Uint8Array` methods. Square bracket notation works as expected -- it
+ * returns a single octet.
+ *
+ * The `Uint8Array` prototype remains unmodified.
+ */
+
+function Buffer (arg, encodingOrOffset, length) {
+  // Common case.
+  if (typeof arg === 'number') {
+    if (typeof encodingOrOffset === 'string') {
+      throw new TypeError(
+        'The "string" argument must be of type string. Received type number'
+      )
+    }
+    return allocUnsafe(arg)
+  }
+  return from(arg, encodingOrOffset, length)
+}
+
+// Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97
+if (typeof Symbol !== 'undefined' && Symbol.species != null &&
+    Buffer[Symbol.species] === Buffer) {
+  Object.defineProperty(Buffer, Symbol.species, {
+    value: null,
+    configurable: true,
+    enumerable: false,
+    writable: false
+  })
+}
+
+Buffer.poolSize = 8192 // not used by this implementation
+
+function from (value, encodingOrOffset, length) {
+  if (typeof value === 'string') {
+    return fromString(value, encodingOrOffset)
+  }
+
+  if (ArrayBuffer.isView(value)) {
+    return fromArrayLike(value)
+  }
+
+  if (value == null) {
+    throw new TypeError(
+      'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
+      'or Array-like Object. Received type ' + (typeof value)
+    )
+  }
+
+  if (isInstance(value, ArrayBuffer) ||
+      (value && isInstance(value.buffer, ArrayBuffer))) {
+    return fromArrayBuffer(value, encodingOrOffset, length)
+  }
+
+  if (typeof value === 'number') {
+    throw new TypeError(
+      'The "value" argument must not be of type number. Received type number'
+    )
+  }
+
+  var valueOf = value.valueOf && value.valueOf()
+  if (valueOf != null && valueOf !== value) {
+    return Buffer.from(valueOf, encodingOrOffset, length)
+  }
+
+  var b = fromObject(value)
+  if (b) return b
+
+  if (typeof Symbol !== 'undefined' && Symbol.toPrimitive != null &&
+      typeof value[Symbol.toPrimitive] === 'function') {
+    return Buffer.from(
+      value[Symbol.toPrimitive]('string'), encodingOrOffset, length
+    )
+  }
+
+  throw new TypeError(
+    'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
+    'or Array-like Object. Received type ' + (typeof value)
+  )
+}
+
+/**
+ * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
+ * if value is a number.
+ * Buffer.from(str[, encoding])
+ * Buffer.from(array)
+ * Buffer.from(buffer)
+ * Buffer.from(arrayBuffer[, byteOffset[, length]])
+ **/
+Buffer.from = function (value, encodingOrOffset, length) {
+  return from(value, encodingOrOffset, length)
+}
+
+// Note: Change prototype *after* Buffer.from is defined to workaround Chrome bug:
+// https://github.com/feross/buffer/pull/148
+Object.setPrototypeOf(Buffer.prototype, Uint8Array.prototype)
+Object.setPrototypeOf(Buffer, Uint8Array)
+
+function assertSize (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('"size" argument must be of type number')
+  } else if (size < 0) {
+    throw new RangeError('The value "' + size + '" is invalid for option "size"')
+  }
+}
+
+function alloc (size, fill, encoding) {
+  assertSize(size)
+  if (size <= 0) {
+    return createBuffer(size)
+  }
+  if (fill !== undefined) {
+    // Only pay attention to encoding if it's a string. This
+    // prevents accidentally sending in a number that would
+    // be interpretted as a start offset.
+    return typeof encoding === 'string'
+      ? createBuffer(size).fill(fill, encoding)
+      : createBuffer(size).fill(fill)
+  }
+  return createBuffer(size)
+}
+
+/**
+ * Creates a new filled Buffer instance.
+ * alloc(size[, fill[, encoding]])
+ **/
+Buffer.alloc = function (size, fill, encoding) {
+  return alloc(size, fill, encoding)
+}
+
+function allocUnsafe (size) {
+  assertSize(size)
+  return createBuffer(size < 0 ? 0 : checked(size) | 0)
+}
+
+/**
+ * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
+ * */
+Buffer.allocUnsafe = function (size) {
+  return allocUnsafe(size)
+}
+/**
+ * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
+ */
+Buffer.allocUnsafeSlow = function (size) {
+  return allocUnsafe(size)
+}
+
+function fromString (string, encoding) {
+  if (typeof encoding !== 'string' || encoding === '') {
+    encoding = 'utf8'
+  }
+
+  if (!Buffer.isEncoding(encoding)) {
+    throw new TypeError('Unknown encoding: ' + encoding)
+  }
+
+  var length = byteLength(string, encoding) | 0
+  var buf = createBuffer(length)
+
+  var actual = buf.write(string, encoding)
+
+  if (actual !== length) {
+    // Writing a hex string, for example, that contains invalid characters will
+    // cause everything after the first invalid character to be ignored. (e.g.
+    // 'abxxcd' will be treated as 'ab')
+    buf = buf.slice(0, actual)
+  }
+
+  return buf
+}
+
+function fromArrayLike (array) {
+  var length = array.length < 0 ? 0 : checked(array.length) | 0
+  var buf = createBuffer(length)
+  for (var i = 0; i < length; i += 1) {
+    buf[i] = array[i] & 255
+  }
+  return buf
+}
+
+function fromArrayBuffer (array, byteOffset, length) {
+  if (byteOffset < 0 || array.byteLength < byteOffset) {
+    throw new RangeError('"offset" is outside of buffer bounds')
+  }
+
+  if (array.byteLength < byteOffset + (length || 0)) {
+    throw new RangeError('"length" is outside of buffer bounds')
+  }
+
+  var buf
+  if (byteOffset === undefined && length === undefined) {
+    buf = new Uint8Array(array)
+  } else if (length === undefined) {
+    buf = new Uint8Array(array, byteOffset)
+  } else {
+    buf = new Uint8Array(array, byteOffset, length)
+  }
+
+  // Return an augmented `Uint8Array` instance
+  Object.setPrototypeOf(buf, Buffer.prototype)
+
+  return buf
+}
+
+function fromObject (obj) {
+  if (Buffer.isBuffer(obj)) {
+    var len = checked(obj.length) | 0
+    var buf = createBuffer(len)
+
+    if (buf.length === 0) {
+      return buf
+    }
+
+    obj.copy(buf, 0, 0, len)
+    return buf
+  }
+
+  if (obj.length !== undefined) {
+    if (typeof obj.length !== 'number' || numberIsNaN(obj.length)) {
+      return createBuffer(0)
+    }
+    return fromArrayLike(obj)
+  }
+
+  if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
+    return fromArrayLike(obj.data)
+  }
+}
+
+function checked (length) {
+  // Note: cannot use `length < K_MAX_LENGTH` here because that fails when
+  // length is NaN (which is otherwise coerced to zero.)
+  if (length >= K_MAX_LENGTH) {
+    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
+                         'size: 0x' + K_MAX_LENGTH.toString(16) + ' bytes')
+  }
+  return length | 0
+}
+
+function SlowBuffer (length) {
+  if (+length != length) { // eslint-disable-line eqeqeq
+    length = 0
+  }
+  return Buffer.alloc(+length)
+}
+
+Buffer.isBuffer = function isBuffer (b) {
+  return b != null && b._isBuffer === true &&
+    b !== Buffer.prototype // so Buffer.isBuffer(Buffer.prototype) will be false
+}
+
+Buffer.compare = function compare (a, b) {
+  if (isInstance(a, Uint8Array)) a = Buffer.from(a, a.offset, a.byteLength)
+  if (isInstance(b, Uint8Array)) b = Buffer.from(b, b.offset, b.byteLength)
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {
+    throw new TypeError(
+      'The "buf1", "buf2" arguments must be one of type Buffer or Uint8Array'
+    )
+  }
+
+  if (a === b) return 0
+
+  var x = a.length
+  var y = b.length
+
+  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    if (a[i] !== b[i]) {
+      x = a[i]
+      y = b[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+Buffer.isEncoding = function isEncoding (encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'latin1':
+    case 'binary':
+    case 'base64':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true
+    default:
+      return false
+  }
+}
+
+Buffer.concat = function concat (list, length) {
+  if (!Array.isArray(list)) {
+    throw new TypeError('"list" argument must be an Array of Buffers')
+  }
+
+  if (list.length === 0) {
+    return Buffer.alloc(0)
+  }
+
+  var i
+  if (length === undefined) {
+    length = 0
+    for (i = 0; i < list.length; ++i) {
+      length += list[i].length
+    }
+  }
+
+  var buffer = Buffer.allocUnsafe(length)
+  var pos = 0
+  for (i = 0; i < list.length; ++i) {
+    var buf = list[i]
+    if (isInstance(buf, Uint8Array)) {
+      buf = Buffer.from(buf)
+    }
+    if (!Buffer.isBuffer(buf)) {
+      throw new TypeError('"list" argument must be an Array of Buffers')
+    }
+    buf.copy(buffer, pos)
+    pos += buf.length
+  }
+  return buffer
+}
+
+function byteLength (string, encoding) {
+  if (Buffer.isBuffer(string)) {
+    return string.length
+  }
+  if (ArrayBuffer.isView(string) || isInstance(string, ArrayBuffer)) {
+    return string.byteLength
+  }
+  if (typeof string !== 'string') {
+    throw new TypeError(
+      'The "string" argument must be one of type string, Buffer, or ArrayBuffer. ' +
+      'Received type ' + typeof string
+    )
+  }
+
+  var len = string.length
+  var mustMatch = (arguments.length > 2 && arguments[2] === true)
+  if (!mustMatch && len === 0) return 0
+
+  // Use a for loop to avoid recursion
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'ascii':
+      case 'latin1':
+      case 'binary':
+        return len
+      case 'utf8':
+      case 'utf-8':
+        return utf8ToBytes(string).length
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return len * 2
+      case 'hex':
+        return len >>> 1
+      case 'base64':
+        return base64ToBytes(string).length
+      default:
+        if (loweredCase) {
+          return mustMatch ? -1 : utf8ToBytes(string).length // assume utf8
+        }
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+Buffer.byteLength = byteLength
+
+function slowToString (encoding, start, end) {
+  var loweredCase = false
+
+  // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
+  // property of a typed array.
+
+  // This behaves neither like String nor Uint8Array in that we set start/end
+  // to their upper/lower bounds if the value passed is out of range.
+  // undefined is handled specially as per ECMA-262 6th Edition,
+  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.
+  if (start === undefined || start < 0) {
+    start = 0
+  }
+  // Return early if start > this.length. Done here to prevent potential uint32
+  // coercion fail below.
+  if (start > this.length) {
+    return ''
+  }
+
+  if (end === undefined || end > this.length) {
+    end = this.length
+  }
+
+  if (end <= 0) {
+    return ''
+  }
+
+  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
+  end >>>= 0
+  start >>>= 0
+
+  if (end <= start) {
+    return ''
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  while (true) {
+    switch (encoding) {
+      case 'hex':
+        return hexSlice(this, start, end)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Slice(this, start, end)
+
+      case 'ascii':
+        return asciiSlice(this, start, end)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Slice(this, start, end)
+
+      case 'base64':
+        return base64Slice(this, start, end)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return utf16leSlice(this, start, end)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = (encoding + '').toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+// This property is used by `Buffer.isBuffer` (and the `is-buffer` npm package)
+// to detect a Buffer instance. It's not possible to use `instanceof Buffer`
+// reliably in a browserify context because there could be multiple different
+// copies of the 'buffer' package in use. This method works even for Buffer
+// instances that were created from another copy of the `buffer` package.
+// See: https://github.com/feross/buffer/issues/154
+Buffer.prototype._isBuffer = true
+
+function swap (b, n, m) {
+  var i = b[n]
+  b[n] = b[m]
+  b[m] = i
+}
+
+Buffer.prototype.swap16 = function swap16 () {
+  var len = this.length
+  if (len % 2 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 16-bits')
+  }
+  for (var i = 0; i < len; i += 2) {
+    swap(this, i, i + 1)
+  }
+  return this
+}
+
+Buffer.prototype.swap32 = function swap32 () {
+  var len = this.length
+  if (len % 4 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 32-bits')
+  }
+  for (var i = 0; i < len; i += 4) {
+    swap(this, i, i + 3)
+    swap(this, i + 1, i + 2)
+  }
+  return this
+}
+
+Buffer.prototype.swap64 = function swap64 () {
+  var len = this.length
+  if (len % 8 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 64-bits')
+  }
+  for (var i = 0; i < len; i += 8) {
+    swap(this, i, i + 7)
+    swap(this, i + 1, i + 6)
+    swap(this, i + 2, i + 5)
+    swap(this, i + 3, i + 4)
+  }
+  return this
+}
+
+Buffer.prototype.toString = function toString () {
+  var length = this.length
+  if (length === 0) return ''
+  if (arguments.length === 0) return utf8Slice(this, 0, length)
+  return slowToString.apply(this, arguments)
+}
+
+Buffer.prototype.toLocaleString = Buffer.prototype.toString
+
+Buffer.prototype.equals = function equals (b) {
+  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer')
+  if (this === b) return true
+  return Buffer.compare(this, b) === 0
+}
+
+Buffer.prototype.inspect = function inspect () {
+  var str = ''
+  var max = exports.INSPECT_MAX_BYTES
+  str = this.toString('hex', 0, max).replace(/(.{2})/g, '$1 ').trim()
+  if (this.length > max) str += ' ... '
+  return '<Buffer ' + str + '>'
+}
+if (customInspectSymbol) {
+  Buffer.prototype[customInspectSymbol] = Buffer.prototype.inspect
+}
+
+Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
+  if (isInstance(target, Uint8Array)) {
+    target = Buffer.from(target, target.offset, target.byteLength)
+  }
+  if (!Buffer.isBuffer(target)) {
+    throw new TypeError(
+      'The "target" argument must be one of type Buffer or Uint8Array. ' +
+      'Received type ' + (typeof target)
+    )
+  }
+
+  if (start === undefined) {
+    start = 0
+  }
+  if (end === undefined) {
+    end = target ? target.length : 0
+  }
+  if (thisStart === undefined) {
+    thisStart = 0
+  }
+  if (thisEnd === undefined) {
+    thisEnd = this.length
+  }
+
+  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {
+    throw new RangeError('out of range index')
+  }
+
+  if (thisStart >= thisEnd && start >= end) {
+    return 0
+  }
+  if (thisStart >= thisEnd) {
+    return -1
+  }
+  if (start >= end) {
+    return 1
+  }
+
+  start >>>= 0
+  end >>>= 0
+  thisStart >>>= 0
+  thisEnd >>>= 0
+
+  if (this === target) return 0
+
+  var x = thisEnd - thisStart
+  var y = end - start
+  var len = Math.min(x, y)
+
+  var thisCopy = this.slice(thisStart, thisEnd)
+  var targetCopy = target.slice(start, end)
+
+  for (var i = 0; i < len; ++i) {
+    if (thisCopy[i] !== targetCopy[i]) {
+      x = thisCopy[i]
+      y = targetCopy[i]
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+}
+
+// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,
+// OR the last index of `val` in `buffer` at offset <= `byteOffset`.
+//
+// Arguments:
+// - buffer - a Buffer to search
+// - val - a string, Buffer, or number
+// - byteOffset - an index into `buffer`; will be clamped to an int32
+// - encoding - an optional encoding, relevant is val is a string
+// - dir - true for indexOf, false for lastIndexOf
+function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
+  // Empty buffer means no match
+  if (buffer.length === 0) return -1
+
+  // Normalize byteOffset
+  if (typeof byteOffset === 'string') {
+    encoding = byteOffset
+    byteOffset = 0
+  } else if (byteOffset > 0x7fffffff) {
+    byteOffset = 0x7fffffff
+  } else if (byteOffset < -0x80000000) {
+    byteOffset = -0x80000000
+  }
+  byteOffset = +byteOffset // Coerce to Number.
+  if (numberIsNaN(byteOffset)) {
+    // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
+    byteOffset = dir ? 0 : (buffer.length - 1)
+  }
+
+  // Normalize byteOffset: negative offsets start from the end of the buffer
+  if (byteOffset < 0) byteOffset = buffer.length + byteOffset
+  if (byteOffset >= buffer.length) {
+    if (dir) return -1
+    else byteOffset = buffer.length - 1
+  } else if (byteOffset < 0) {
+    if (dir) byteOffset = 0
+    else return -1
+  }
+
+  // Normalize val
+  if (typeof val === 'string') {
+    val = Buffer.from(val, encoding)
+  }
+
+  // Finally, search either indexOf (if dir is true) or lastIndexOf
+  if (Buffer.isBuffer(val)) {
+    // Special case: looking for empty string/buffer always fails
+    if (val.length === 0) {
+      return -1
+    }
+    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
+  } else if (typeof val === 'number') {
+    val = val & 0xFF // Search for a byte value [0-255]
+    if (typeof Uint8Array.prototype.indexOf === 'function') {
+      if (dir) {
+        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
+      } else {
+        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
+      }
+    }
+    return arrayIndexOf(buffer, [val], byteOffset, encoding, dir)
+  }
+
+  throw new TypeError('val must be string, number or Buffer')
+}
+
+function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
+  var indexSize = 1
+  var arrLength = arr.length
+  var valLength = val.length
+
+  if (encoding !== undefined) {
+    encoding = String(encoding).toLowerCase()
+    if (encoding === 'ucs2' || encoding === 'ucs-2' ||
+        encoding === 'utf16le' || encoding === 'utf-16le') {
+      if (arr.length < 2 || val.length < 2) {
+        return -1
+      }
+      indexSize = 2
+      arrLength /= 2
+      valLength /= 2
+      byteOffset /= 2
+    }
+  }
+
+  function read (buf, i) {
+    if (indexSize === 1) {
+      return buf[i]
+    } else {
+      return buf.readUInt16BE(i * indexSize)
+    }
+  }
+
+  var i
+  if (dir) {
+    var foundIndex = -1
+    for (i = byteOffset; i < arrLength; i++) {
+      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
+        if (foundIndex === -1) foundIndex = i
+        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
+      } else {
+        if (foundIndex !== -1) i -= i - foundIndex
+        foundIndex = -1
+      }
+    }
+  } else {
+    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength
+    for (i = byteOffset; i >= 0; i--) {
+      var found = true
+      for (var j = 0; j < valLength; j++) {
+        if (read(arr, i + j) !== read(val, j)) {
+          found = false
+          break
+        }
+      }
+      if (found) return i
+    }
+  }
+
+  return -1
+}
+
+Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
+  return this.indexOf(val, byteOffset, encoding) !== -1
+}
+
+Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
+}
+
+Buffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
+}
+
+function hexWrite (buf, string, offset, length) {
+  offset = Number(offset) || 0
+  var remaining = buf.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+
+  var strLen = string.length
+
+  if (length > strLen / 2) {
+    length = strLen / 2
+  }
+  for (var i = 0; i < length; ++i) {
+    var parsed = parseInt(string.substr(i * 2, 2), 16)
+    if (numberIsNaN(parsed)) return i
+    buf[offset + i] = parsed
+  }
+  return i
+}
+
+function utf8Write (buf, string, offset, length) {
+  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+function asciiWrite (buf, string, offset, length) {
+  return blitBuffer(asciiToBytes(string), buf, offset, length)
+}
+
+function latin1Write (buf, string, offset, length) {
+  return asciiWrite(buf, string, offset, length)
+}
+
+function base64Write (buf, string, offset, length) {
+  return blitBuffer(base64ToBytes(string), buf, offset, length)
+}
+
+function ucs2Write (buf, string, offset, length) {
+  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+Buffer.prototype.write = function write (string, offset, length, encoding) {
+  // Buffer#write(string)
+  if (offset === undefined) {
+    encoding = 'utf8'
+    length = this.length
+    offset = 0
+  // Buffer#write(string, encoding)
+  } else if (length === undefined && typeof offset === 'string') {
+    encoding = offset
+    length = this.length
+    offset = 0
+  // Buffer#write(string, offset[, length][, encoding])
+  } else if (isFinite(offset)) {
+    offset = offset >>> 0
+    if (isFinite(length)) {
+      length = length >>> 0
+      if (encoding === undefined) encoding = 'utf8'
+    } else {
+      encoding = length
+      length = undefined
+    }
+  } else {
+    throw new Error(
+      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
+    )
+  }
+
+  var remaining = this.length - offset
+  if (length === undefined || length > remaining) length = remaining
+
+  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
+    throw new RangeError('Attempt to write outside buffer bounds')
+  }
+
+  if (!encoding) encoding = 'utf8'
+
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'hex':
+        return hexWrite(this, string, offset, length)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Write(this, string, offset, length)
+
+      case 'ascii':
+        return asciiWrite(this, string, offset, length)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Write(this, string, offset, length)
+
+      case 'base64':
+        // Warning: maxLength not taken into account in base64Write
+        return base64Write(this, string, offset, length)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return ucs2Write(this, string, offset, length)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
+    }
+  }
+}
+
+Buffer.prototype.toJSON = function toJSON () {
+  return {
+    type: 'Buffer',
+    data: Array.prototype.slice.call(this._arr || this, 0)
+  }
+}
+
+function base64Slice (buf, start, end) {
+  if (start === 0 && end === buf.length) {
+    return base64.fromByteArray(buf)
+  } else {
+    return base64.fromByteArray(buf.slice(start, end))
+  }
+}
+
+function utf8Slice (buf, start, end) {
+  end = Math.min(buf.length, end)
+  var res = []
+
+  var i = start
+  while (i < end) {
+    var firstByte = buf[i]
+    var codePoint = null
+    var bytesPerSequence = (firstByte > 0xEF) ? 4
+      : (firstByte > 0xDF) ? 3
+        : (firstByte > 0xBF) ? 2
+          : 1
+
+    if (i + bytesPerSequence <= end) {
+      var secondByte, thirdByte, fourthByte, tempCodePoint
+
+      switch (bytesPerSequence) {
+        case 1:
+          if (firstByte < 0x80) {
+            codePoint = firstByte
+          }
+          break
+        case 2:
+          secondByte = buf[i + 1]
+          if ((secondByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F)
+            if (tempCodePoint > 0x7F) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 3:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F)
+            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
+              codePoint = tempCodePoint
+            }
+          }
+          break
+        case 4:
+          secondByte = buf[i + 1]
+          thirdByte = buf[i + 2]
+          fourthByte = buf[i + 3]
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F)
+            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
+              codePoint = tempCodePoint
+            }
+          }
+      }
+    }
+
+    if (codePoint === null) {
+      // we did not generate a valid codePoint so insert a
+      // replacement char (U+FFFD) and advance only 1 byte
+      codePoint = 0xFFFD
+      bytesPerSequence = 1
+    } else if (codePoint > 0xFFFF) {
+      // encode to utf16 (surrogate pair dance)
+      codePoint -= 0x10000
+      res.push(codePoint >>> 10 & 0x3FF | 0xD800)
+      codePoint = 0xDC00 | codePoint & 0x3FF
+    }
+
+    res.push(codePoint)
+    i += bytesPerSequence
+  }
+
+  return decodeCodePointsArray(res)
+}
+
+// Based on http://stackoverflow.com/a/22747272/680742, the browser with
+// the lowest limit is Chrome, with 0x10000 args.
+// We go 1 magnitude less, for safety
+var MAX_ARGUMENTS_LENGTH = 0x1000
+
+function decodeCodePointsArray (codePoints) {
+  var len = codePoints.length
+  if (len <= MAX_ARGUMENTS_LENGTH) {
+    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
+  }
+
+  // Decode in chunks to avoid "call stack size exceeded".
+  var res = ''
+  var i = 0
+  while (i < len) {
+    res += String.fromCharCode.apply(
+      String,
+      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
+    )
+  }
+  return res
+}
+
+function asciiSlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i] & 0x7F)
+  }
+  return ret
+}
+
+function latin1Slice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i])
+  }
+  return ret
+}
+
+function hexSlice (buf, start, end) {
+  var len = buf.length
+
+  if (!start || start < 0) start = 0
+  if (!end || end < 0 || end > len) end = len
+
+  var out = ''
+  for (var i = start; i < end; ++i) {
+    out += hexSliceLookupTable[buf[i]]
+  }
+  return out
+}
+
+function utf16leSlice (buf, start, end) {
+  var bytes = buf.slice(start, end)
+  var res = ''
+  for (var i = 0; i < bytes.length; i += 2) {
+    res += String.fromCharCode(bytes[i] + (bytes[i + 1] * 256))
+  }
+  return res
+}
+
+Buffer.prototype.slice = function slice (start, end) {
+  var len = this.length
+  start = ~~start
+  end = end === undefined ? len : ~~end
+
+  if (start < 0) {
+    start += len
+    if (start < 0) start = 0
+  } else if (start > len) {
+    start = len
+  }
+
+  if (end < 0) {
+    end += len
+    if (end < 0) end = 0
+  } else if (end > len) {
+    end = len
+  }
+
+  if (end < start) end = start
+
+  var newBuf = this.subarray(start, end)
+  // Return an augmented `Uint8Array` instance
+  Object.setPrototypeOf(newBuf, Buffer.prototype)
+
+  return newBuf
+}
+
+/*
+ * Need to make sure that buffer isn't trying to write out of bounds.
+ */
+function checkOffset (offset, ext, length) {
+  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
+  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
+}
+
+Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) {
+    checkOffset(offset, byteLength, this.length)
+  }
+
+  var val = this[offset + --byteLength]
+  var mul = 1
+  while (byteLength > 0 && (mul *= 0x100)) {
+    val += this[offset + --byteLength] * mul
+  }
+
+  return val
+}
+
+Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  return this[offset]
+}
+
+Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return this[offset] | (this[offset + 1] << 8)
+}
+
+Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  return (this[offset] << 8) | this[offset + 1]
+}
+
+Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return ((this[offset]) |
+      (this[offset + 1] << 8) |
+      (this[offset + 2] << 16)) +
+      (this[offset + 3] * 0x1000000)
+}
+
+Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] * 0x1000000) +
+    ((this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    this[offset + 3])
+}
+
+Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var val = this[offset]
+  var mul = 1
+  var i = 0
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) checkOffset(offset, byteLength, this.length)
+
+  var i = byteLength
+  var mul = 1
+  var val = this[offset + --i]
+  while (i > 0 && (mul *= 0x100)) {
+    val += this[offset + --i] * mul
+  }
+  mul *= 0x80
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength)
+
+  return val
+}
+
+Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 1, this.length)
+  if (!(this[offset] & 0x80)) return (this[offset])
+  return ((0xff - this[offset] + 1) * -1)
+}
+
+Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset] | (this[offset + 1] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 2, this.length)
+  var val = this[offset + 1] | (this[offset] << 8)
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+}
+
+Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset]) |
+    (this[offset + 1] << 8) |
+    (this[offset + 2] << 16) |
+    (this[offset + 3] << 24)
+}
+
+Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+
+  return (this[offset] << 24) |
+    (this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    (this[offset + 3])
+}
+
+Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, true, 23, 4)
+}
+
+Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 4, this.length)
+  return ieee754.read(this, offset, false, 23, 4)
+}
+
+Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, true, 52, 8)
+}
+
+Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
+  offset = offset >>> 0
+  if (!noAssert) checkOffset(offset, 8, this.length)
+  return ieee754.read(this, offset, false, 52, 8)
+}
+
+function checkInt (buf, value, offset, ext, max, min) {
+  if (!Buffer.isBuffer(buf)) throw new TypeError('"buffer" argument must be a Buffer instance')
+  if (value > max || value < min) throw new RangeError('"value" argument is out of bounds')
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+}
+
+Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var mul = 1
+  var i = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  byteLength = byteLength >>> 0
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    checkInt(this, value, offset, byteLength, maxBytes, 0)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  this[offset] = (value & 0xff)
+  this[offset + 1] = (value >>> 8)
+  return offset + 2
+}
+
+Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
+  this[offset] = (value >>> 8)
+  this[offset + 1] = (value & 0xff)
+  return offset + 2
+}
+
+Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  this[offset + 3] = (value >>> 24)
+  this[offset + 2] = (value >>> 16)
+  this[offset + 1] = (value >>> 8)
+  this[offset] = (value & 0xff)
+  return offset + 4
+}
+
+Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
+  this[offset] = (value >>> 24)
+  this[offset + 1] = (value >>> 16)
+  this[offset + 2] = (value >>> 8)
+  this[offset + 3] = (value & 0xff)
+  return offset + 4
+}
+
+Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) {
+    var limit = Math.pow(2, (8 * byteLength) - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = 0
+  var mul = 1
+  var sub = 0
+  this[offset] = value & 0xFF
+  while (++i < byteLength && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
+      sub = 1
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) {
+    var limit = Math.pow(2, (8 * byteLength) - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
+  }
+
+  var i = byteLength - 1
+  var mul = 1
+  var sub = 0
+  this[offset + i] = value & 0xFF
+  while (--i >= 0 && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
+      sub = 1
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF
+  }
+
+  return offset + byteLength
+}
+
+Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)
+  if (value < 0) value = 0xff + value + 1
+  this[offset] = (value & 0xff)
+  return offset + 1
+}
+
+Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  this[offset] = (value & 0xff)
+  this[offset + 1] = (value >>> 8)
+  return offset + 2
+}
+
+Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
+  this[offset] = (value >>> 8)
+  this[offset + 1] = (value & 0xff)
+  return offset + 2
+}
+
+Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  this[offset] = (value & 0xff)
+  this[offset + 1] = (value >>> 8)
+  this[offset + 2] = (value >>> 16)
+  this[offset + 3] = (value >>> 24)
+  return offset + 4
+}
+
+Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
+  if (value < 0) value = 0xffffffff + value + 1
+  this[offset] = (value >>> 24)
+  this[offset + 1] = (value >>> 16)
+  this[offset + 2] = (value >>> 8)
+  this[offset + 3] = (value & 0xff)
+  return offset + 4
+}
+
+function checkIEEE754 (buf, value, offset, ext, max, min) {
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+  if (offset < 0) throw new RangeError('Index out of range')
+}
+
+function writeFloat (buf, value, offset, littleEndian, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 4, 3.4028234663852886e+38, -3.4028234663852886e+38)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 23, 4)
+  return offset + 4
+}
+
+Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, false, noAssert)
+}
+
+function writeDouble (buf, value, offset, littleEndian, noAssert) {
+  value = +value
+  offset = offset >>> 0
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 8, 1.7976931348623157E+308, -1.7976931348623157E+308)
+  }
+  ieee754.write(buf, value, offset, littleEndian, 52, 8)
+  return offset + 8
+}
+
+Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, false, noAssert)
+}
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function copy (target, targetStart, start, end) {
+  if (!Buffer.isBuffer(target)) throw new TypeError('argument should be a Buffer')
+  if (!start) start = 0
+  if (!end && end !== 0) end = this.length
+  if (targetStart >= target.length) targetStart = target.length
+  if (!targetStart) targetStart = 0
+  if (end > 0 && end < start) end = start
+
+  // Copy 0 bytes; we're done
+  if (end === start) return 0
+  if (target.length === 0 || this.length === 0) return 0
+
+  // Fatal error conditions
+  if (targetStart < 0) {
+    throw new RangeError('targetStart out of bounds')
+  }
+  if (start < 0 || start >= this.length) throw new RangeError('Index out of range')
+  if (end < 0) throw new RangeError('sourceEnd out of bounds')
+
+  // Are we oob?
+  if (end > this.length) end = this.length
+  if (target.length - targetStart < end - start) {
+    end = target.length - targetStart + start
+  }
+
+  var len = end - start
+
+  if (this === target && typeof Uint8Array.prototype.copyWithin === 'function') {
+    // Use built-in when available, missing from IE11
+    this.copyWithin(targetStart, start, end)
+  } else if (this === target && start < targetStart && targetStart < end) {
+    // descending copy from end
+    for (var i = len - 1; i >= 0; --i) {
+      target[i + targetStart] = this[i + start]
+    }
+  } else {
+    Uint8Array.prototype.set.call(
+      target,
+      this.subarray(start, end),
+      targetStart
+    )
+  }
+
+  return len
+}
+
+// Usage:
+//    buffer.fill(number[, offset[, end]])
+//    buffer.fill(buffer[, offset[, end]])
+//    buffer.fill(string[, offset[, end]][, encoding])
+Buffer.prototype.fill = function fill (val, start, end, encoding) {
+  // Handle string cases:
+  if (typeof val === 'string') {
+    if (typeof start === 'string') {
+      encoding = start
+      start = 0
+      end = this.length
+    } else if (typeof end === 'string') {
+      encoding = end
+      end = this.length
+    }
+    if (encoding !== undefined && typeof encoding !== 'string') {
+      throw new TypeError('encoding must be a string')
+    }
+    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
+      throw new TypeError('Unknown encoding: ' + encoding)
+    }
+    if (val.length === 1) {
+      var code = val.charCodeAt(0)
+      if ((encoding === 'utf8' && code < 128) ||
+          encoding === 'latin1') {
+        // Fast path: If `val` fits into a single byte, use that numeric value.
+        val = code
+      }
+    }
+  } else if (typeof val === 'number') {
+    val = val & 255
+  } else if (typeof val === 'boolean') {
+    val = Number(val)
+  }
+
+  // Invalid ranges are not set to a default, so can range check early.
+  if (start < 0 || this.length < start || this.length < end) {
+    throw new RangeError('Out of range index')
+  }
+
+  if (end <= start) {
+    return this
+  }
+
+  start = start >>> 0
+  end = end === undefined ? this.length : end >>> 0
+
+  if (!val) val = 0
+
+  var i
+  if (typeof val === 'number') {
+    for (i = start; i < end; ++i) {
+      this[i] = val
+    }
+  } else {
+    var bytes = Buffer.isBuffer(val)
+      ? val
+      : Buffer.from(val, encoding)
+    var len = bytes.length
+    if (len === 0) {
+      throw new TypeError('The value "' + val +
+        '" is invalid for argument "value"')
+    }
+    for (i = 0; i < end - start; ++i) {
+      this[i + start] = bytes[i % len]
+    }
+  }
+
+  return this
+}
+
+// HELPER FUNCTIONS
+// ================
+
+var INVALID_BASE64_RE = /[^+/0-9A-Za-z-_]/g
+
+function base64clean (str) {
+  // Node takes equal signs as end of the Base64 encoding
+  str = str.split('=')[0]
+  // Node strips out invalid characters like \n and \t from the string, base64-js does not
+  str = str.trim().replace(INVALID_BASE64_RE, '')
+  // Node converts strings with length < 2 to ''
+  if (str.length < 2) return ''
+  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
+  while (str.length % 4 !== 0) {
+    str = str + '='
+  }
+  return str
+}
+
+function utf8ToBytes (string, units) {
+  units = units || Infinity
+  var codePoint
+  var length = string.length
+  var leadSurrogate = null
+  var bytes = []
+
+  for (var i = 0; i < length; ++i) {
+    codePoint = string.charCodeAt(i)
+
+    // is surrogate component
+    if (codePoint > 0xD7FF && codePoint < 0xE000) {
+      // last char was a lead
+      if (!leadSurrogate) {
+        // no lead yet
+        if (codePoint > 0xDBFF) {
+          // unexpected trail
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        } else if (i + 1 === length) {
+          // unpaired lead
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          continue
+        }
+
+        // valid lead
+        leadSurrogate = codePoint
+
+        continue
+      }
+
+      // 2 leads in a row
+      if (codePoint < 0xDC00) {
+        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+        leadSurrogate = codePoint
+        continue
+      }
+
+      // valid surrogate pair
+      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000
+    } else if (leadSurrogate) {
+      // valid bmp char, but last char was a lead
+      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+    }
+
+    leadSurrogate = null
+
+    // encode utf8
+    if (codePoint < 0x80) {
+      if ((units -= 1) < 0) break
+      bytes.push(codePoint)
+    } else if (codePoint < 0x800) {
+      if ((units -= 2) < 0) break
+      bytes.push(
+        codePoint >> 0x6 | 0xC0,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x10000) {
+      if ((units -= 3) < 0) break
+      bytes.push(
+        codePoint >> 0xC | 0xE0,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else if (codePoint < 0x110000) {
+      if ((units -= 4) < 0) break
+      bytes.push(
+        codePoint >> 0x12 | 0xF0,
+        codePoint >> 0xC & 0x3F | 0x80,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      )
+    } else {
+      throw new Error('Invalid code point')
+    }
+  }
+
+  return bytes
+}
+
+function asciiToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; ++i) {
+    // Node's code seems to be doing this and not & 0x7F..
+    byteArray.push(str.charCodeAt(i) & 0xFF)
+  }
+  return byteArray
+}
+
+function utf16leToBytes (str, units) {
+  var c, hi, lo
+  var byteArray = []
+  for (var i = 0; i < str.length; ++i) {
+    if ((units -= 2) < 0) break
+
+    c = str.charCodeAt(i)
+    hi = c >> 8
+    lo = c % 256
+    byteArray.push(lo)
+    byteArray.push(hi)
+  }
+
+  return byteArray
+}
+
+function base64ToBytes (str) {
+  return base64.toByteArray(base64clean(str))
+}
+
+function blitBuffer (src, dst, offset, length) {
+  for (var i = 0; i < length; ++i) {
+    if ((i + offset >= dst.length) || (i >= src.length)) break
+    dst[i + offset] = src[i]
+  }
+  return i
+}
+
+// ArrayBuffer or Uint8Array objects from other contexts (i.e. iframes) do not pass
+// the `instanceof` check but they should be treated as of that type.
+// See: https://github.com/feross/buffer/issues/166
+function isInstance (obj, type) {
+  return obj instanceof type ||
+    (obj != null && obj.constructor != null && obj.constructor.name != null &&
+      obj.constructor.name === type.name)
+}
+function numberIsNaN (obj) {
+  // For IE11 support
+  return obj !== obj // eslint-disable-line no-self-compare
+}
+
+// Create lookup table for `toString('hex')`
+// See: https://github.com/feross/buffer/issues/219
+var hexSliceLookupTable = (function () {
+  var alphabet = '0123456789abcdef'
+  var table = new Array(256)
+  for (var i = 0; i < 16; ++i) {
+    var i16 = i * 16
+    for (var j = 0; j < 16; ++j) {
+      table[i16 + j] = alphabet[i] + alphabet[j]
+    }
+  }
+  return table
+})()
+
+}).call(this,require("buffer").Buffer)
+},{"base64-js":18,"buffer":19,"ieee754":29}],20:[function(require,module,exports){
+(function (global,Buffer){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -6545,8 +8348,8 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"base64-js":18,"ieee754":28,"isarray":29}],20:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
+},{"base64-js":18,"buffer":19,"ieee754":29,"isarray":30}],21:[function(require,module,exports){
 ;(function (root, factory) {
 	if (typeof exports === "object") {
 		// CommonJS
@@ -7307,7 +9110,7 @@ function isnan (val) {
 	return CryptoJS;
 
 }));
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 ;(function (root, factory) {
 	if (typeof exports === "object") {
 		// CommonJS
@@ -7443,7 +9246,7 @@ function isnan (val) {
 	return CryptoJS.enc.Base64;
 
 }));
-},{"./core":20}],22:[function(require,module,exports){
+},{"./core":21}],23:[function(require,module,exports){
 ;(function (root, factory, undef) {
 	if (typeof exports === "object") {
 		// CommonJS
@@ -7462,7 +9265,7 @@ function isnan (val) {
 	return CryptoJS.HmacSHA256;
 
 }));
-},{"./core":20,"./hmac":23,"./sha256":25}],23:[function(require,module,exports){
+},{"./core":21,"./hmac":24,"./sha256":26}],24:[function(require,module,exports){
 ;(function (root, factory) {
 	if (typeof exports === "object") {
 		// CommonJS
@@ -7606,7 +9409,7 @@ function isnan (val) {
 
 
 }));
-},{"./core":20}],24:[function(require,module,exports){
+},{"./core":21}],25:[function(require,module,exports){
 ;(function (root, factory) {
 	if (typeof exports === "object") {
 		// CommonJS
@@ -7683,7 +9486,7 @@ function isnan (val) {
 	return CryptoJS.lib.WordArray;
 
 }));
-},{"./core":20}],25:[function(require,module,exports){
+},{"./core":21}],26:[function(require,module,exports){
 ;(function (root, factory) {
 	if (typeof exports === "object") {
 		// CommonJS
@@ -7883,7 +9686,7 @@ function isnan (val) {
 	return CryptoJS.SHA256;
 
 }));
-},{"./core":20}],26:[function(require,module,exports){
+},{"./core":21}],27:[function(require,module,exports){
 /*
  currency.js - v1.2.1
  http://scurker.github.io/currency.js
@@ -7897,7 +9700,7 @@ e.prototype={add:function(b){var a=this.s,f=this.p;return e((this.intValue+c(b,a
 f));g.push(k)}return g},dollars:function(){return~~this.value},cents:function(){return~~(this.intValue%this.p)},format:function(b){var a=this.s,c=a.pattern,e=a.negativePattern,g=a.formatWithSymbol,d=a.symbol,h=a.separator,k=a.decimal;a=a.groups;var l=(this+"").replace(/^-/,"").split("."),m=l[0];l=l[1];"undefined"===typeof b&&(b=g);return(0<=this.value?c:e).replace("!",b?d:"").replace("#","".concat(m.replace(a,"$1"+h)).concat(l?k+l:""))},toString:function(){var b=this.s,a=b.increment;return(Math.round(this.intValue/
 this.p/a)*a).toFixed(b.precision)},toJSON:function(){return this.value}};return e});
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 /******************************************************************************
@@ -8064,7 +9867,7 @@ if (typeof module !== 'undefined') {
   module.exports = dijkstra;
 }
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -8150,14 +9953,14 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /*!
  * JavaScript Cookie v2.2.1
  * https://github.com/js-cookie/js-cookie
@@ -8322,7 +10125,7 @@ module.exports = Array.isArray || function (arr) {
 	return init(function () {});
 }));
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 //! moment.js
 
 ;(function (global, factory) {
@@ -12926,7 +14729,7 @@ module.exports = Array.isArray || function (arr) {
 
 })));
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 "use strict";
 
 /*! otpauth v5.0.3 | (c) Héctor Molinero Fernández <hector@molinero.dev> | https://github.com/hectorm/otpauth | MIT */
@@ -15983,7 +17786,7 @@ module.exports = Array.isArray || function (arr) {
   );
 });
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 
 var canPromise = require('./can-promise')
 
@@ -16061,7 +17864,7 @@ exports.toString = renderCanvas.bind(null, function (data, _, opts) {
   return SvgRenderer.render(data, opts)
 })
 
-},{"./can-promise":34,"./core/qrcode":50,"./renderer/canvas":57,"./renderer/svg-tag.js":58}],34:[function(require,module,exports){
+},{"./can-promise":35,"./core/qrcode":51,"./renderer/canvas":58,"./renderer/svg-tag.js":59}],35:[function(require,module,exports){
 // can-promise has a crash in some versions of react native that dont have
 // standard global objects
 // https://github.com/soldair/node-qrcode/issues/157
@@ -16070,7 +17873,7 @@ module.exports = function () {
   return typeof Promise === 'function' && Promise.prototype && Promise.prototype.then
 }
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /**
  * Alignment pattern are fixed reference pattern in defined positions
  * in a matrix symbology, which enables the decode software to re-synchronise
@@ -16155,7 +17958,7 @@ exports.getPositions = function getPositions (version) {
   return coords
 }
 
-},{"./utils":54}],36:[function(require,module,exports){
+},{"./utils":55}],37:[function(require,module,exports){
 var Mode = require('./mode')
 
 /**
@@ -16216,7 +18019,7 @@ AlphanumericData.prototype.write = function write (bitBuffer) {
 
 module.exports = AlphanumericData
 
-},{"./mode":47}],37:[function(require,module,exports){
+},{"./mode":48}],38:[function(require,module,exports){
 function BitBuffer () {
   this.buffer = []
   this.length = 0
@@ -16255,7 +18058,7 @@ BitBuffer.prototype = {
 
 module.exports = BitBuffer
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var Buffer = require('../utils/buffer')
 
 /**
@@ -16326,7 +18129,7 @@ BitMatrix.prototype.isReserved = function (row, col) {
 
 module.exports = BitMatrix
 
-},{"../utils/buffer":60}],39:[function(require,module,exports){
+},{"../utils/buffer":61}],40:[function(require,module,exports){
 var Buffer = require('../utils/buffer')
 var Mode = require('./mode')
 
@@ -16355,7 +18158,7 @@ ByteData.prototype.write = function (bitBuffer) {
 
 module.exports = ByteData
 
-},{"../utils/buffer":60,"./mode":47}],40:[function(require,module,exports){
+},{"../utils/buffer":61,"./mode":48}],41:[function(require,module,exports){
 var ECLevel = require('./error-correction-level')
 
 var EC_BLOCKS_TABLE = [
@@ -16492,7 +18295,7 @@ exports.getTotalCodewordsCount = function getTotalCodewordsCount (version, error
   }
 }
 
-},{"./error-correction-level":41}],41:[function(require,module,exports){
+},{"./error-correction-level":42}],42:[function(require,module,exports){
 exports.L = { bit: 1 }
 exports.M = { bit: 0 }
 exports.Q = { bit: 3 }
@@ -16544,7 +18347,7 @@ exports.from = function from (value, defaultValue) {
   }
 }
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var getSymbolSize = require('./utils').getSymbolSize
 var FINDER_PATTERN_SIZE = 7
 
@@ -16568,7 +18371,7 @@ exports.getPositions = function getPositions (version) {
   ]
 }
 
-},{"./utils":54}],43:[function(require,module,exports){
+},{"./utils":55}],44:[function(require,module,exports){
 var Utils = require('./utils')
 
 var G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0)
@@ -16599,7 +18402,7 @@ exports.getEncodedBits = function getEncodedBits (errorCorrectionLevel, mask) {
   return ((data << 10) | d) ^ G15_MASK
 }
 
-},{"./utils":54}],44:[function(require,module,exports){
+},{"./utils":55}],45:[function(require,module,exports){
 var Buffer = require('../utils/buffer')
 
 var EXP_TABLE
@@ -16680,7 +18483,7 @@ exports.mul = function mul (x, y) {
   return EXP_TABLE[LOG_TABLE[x] + LOG_TABLE[y]]
 }
 
-},{"../utils/buffer":60}],45:[function(require,module,exports){
+},{"../utils/buffer":61}],46:[function(require,module,exports){
 var Mode = require('./mode')
 var Utils = require('./utils')
 
@@ -16736,7 +18539,7 @@ KanjiData.prototype.write = function (bitBuffer) {
 
 module.exports = KanjiData
 
-},{"./mode":47,"./utils":54}],46:[function(require,module,exports){
+},{"./mode":48,"./utils":55}],47:[function(require,module,exports){
 /**
  * Data mask pattern reference
  * @type {Object}
@@ -16972,7 +18775,7 @@ exports.getBestMask = function getBestMask (data, setupFormatFunc) {
   return bestPattern
 }
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var VersionCheck = require('./version-check')
 var Regex = require('./regex')
 
@@ -17141,7 +18944,7 @@ exports.from = function from (value, defaultValue) {
   }
 }
 
-},{"./regex":52,"./version-check":55}],48:[function(require,module,exports){
+},{"./regex":53,"./version-check":56}],49:[function(require,module,exports){
 var Mode = require('./mode')
 
 function NumericData (data) {
@@ -17186,7 +18989,7 @@ NumericData.prototype.write = function write (bitBuffer) {
 
 module.exports = NumericData
 
-},{"./mode":47}],49:[function(require,module,exports){
+},{"./mode":48}],50:[function(require,module,exports){
 var Buffer = require('../utils/buffer')
 var GF = require('./galois-field')
 
@@ -17252,7 +19055,7 @@ exports.generateECPolynomial = function generateECPolynomial (degree) {
   return poly
 }
 
-},{"../utils/buffer":60,"./galois-field":44}],50:[function(require,module,exports){
+},{"../utils/buffer":61,"./galois-field":45}],51:[function(require,module,exports){
 var Buffer = require('../utils/buffer')
 var Utils = require('./utils')
 var ECLevel = require('./error-correction-level')
@@ -17753,7 +19556,7 @@ exports.create = function create (data, options) {
   return createSymbol(data, version, errorCorrectionLevel, mask)
 }
 
-},{"../utils/buffer":60,"./alignment-pattern":35,"./bit-buffer":37,"./bit-matrix":38,"./error-correction-code":40,"./error-correction-level":41,"./finder-pattern":42,"./format-info":43,"./mask-pattern":46,"./mode":47,"./reed-solomon-encoder":51,"./segments":53,"./utils":54,"./version":56,"isarray":61}],51:[function(require,module,exports){
+},{"../utils/buffer":61,"./alignment-pattern":36,"./bit-buffer":38,"./bit-matrix":39,"./error-correction-code":41,"./error-correction-level":42,"./finder-pattern":43,"./format-info":44,"./mask-pattern":47,"./mode":48,"./reed-solomon-encoder":52,"./segments":54,"./utils":55,"./version":57,"isarray":62}],52:[function(require,module,exports){
 var Buffer = require('../utils/buffer')
 var Polynomial = require('./polynomial')
 
@@ -17814,7 +19617,7 @@ ReedSolomonEncoder.prototype.encode = function encode (data) {
 
 module.exports = ReedSolomonEncoder
 
-},{"../utils/buffer":60,"./polynomial":49}],52:[function(require,module,exports){
+},{"../utils/buffer":61,"./polynomial":50}],53:[function(require,module,exports){
 var numeric = '[0-9]+'
 var alphanumeric = '[A-Z $%*+\\-./:]+'
 var kanji = '(?:[u3000-u303F]|[u3040-u309F]|[u30A0-u30FF]|' +
@@ -17847,7 +19650,7 @@ exports.testAlphanumeric = function testAlphanumeric (str) {
   return TEST_ALPHANUMERIC.test(str)
 }
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 var Mode = require('./mode')
 var NumericData = require('./numeric-data')
 var AlphanumericData = require('./alphanumeric-data')
@@ -18179,7 +19982,7 @@ exports.rawSplit = function rawSplit (data) {
   )
 }
 
-},{"./alphanumeric-data":36,"./byte-data":39,"./kanji-data":45,"./mode":47,"./numeric-data":48,"./regex":52,"./utils":54,"dijkstrajs":27}],54:[function(require,module,exports){
+},{"./alphanumeric-data":37,"./byte-data":40,"./kanji-data":46,"./mode":48,"./numeric-data":49,"./regex":53,"./utils":55,"dijkstrajs":28}],55:[function(require,module,exports){
 var toSJISFunction
 var CODEWORDS_COUNT = [
   0, // Not used
@@ -18244,7 +20047,7 @@ exports.toSJIS = function toSJIS (kanji) {
   return toSJISFunction(kanji)
 }
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 /**
  * Check if QR Code version is valid
  *
@@ -18255,7 +20058,7 @@ exports.isValid = function isValid (version) {
   return !isNaN(version) && version >= 1 && version <= 40
 }
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var Utils = require('./utils')
 var ECCode = require('./error-correction-code')
 var ECLevel = require('./error-correction-level')
@@ -18421,7 +20224,7 @@ exports.getEncodedBits = function getEncodedBits (version) {
   return (version << 12) | d
 }
 
-},{"./error-correction-code":40,"./error-correction-level":41,"./mode":47,"./utils":54,"./version-check":55,"isarray":61}],57:[function(require,module,exports){
+},{"./error-correction-code":41,"./error-correction-level":42,"./mode":48,"./utils":55,"./version-check":56,"isarray":62}],58:[function(require,module,exports){
 var Utils = require('./utils')
 
 function clearCanvas (ctx, canvas, size) {
@@ -18486,7 +20289,7 @@ exports.renderToDataURL = function renderToDataURL (qrData, canvas, options) {
   return canvasEl.toDataURL(type, rendererOpts.quality)
 }
 
-},{"./utils":59}],58:[function(require,module,exports){
+},{"./utils":60}],59:[function(require,module,exports){
 var Utils = require('./utils')
 
 function getColorAttrib (color, attrib) {
@@ -18569,7 +20372,7 @@ exports.render = function render (qrData, options, cb) {
   return svgTag
 }
 
-},{"./utils":59}],59:[function(require,module,exports){
+},{"./utils":60}],60:[function(require,module,exports){
 function hex2rgba (hex) {
   if (typeof hex === 'number') {
     hex = hex.toString()
@@ -18668,7 +20471,8 @@ exports.qrToImageData = function qrToImageData (imgData, qr, opts) {
   }
 }
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
+(function (Buffer){
 /**
  * Implementation of a subset of node.js Buffer methods for the browser.
  * Based on https://github.com/feross/buffer
@@ -19182,9 +20986,10 @@ Buffer.isBuffer = function isBuffer (b) {
 
 module.exports = Buffer
 
-},{"isarray":61}],61:[function(require,module,exports){
-arguments[4][29][0].apply(exports,arguments)
-},{"dup":29}],62:[function(require,module,exports){
+}).call(this,require("buffer").Buffer)
+},{"buffer":19,"isarray":62}],62:[function(require,module,exports){
+arguments[4][30][0].apply(exports,arguments)
+},{"dup":30}],63:[function(require,module,exports){
 "use strict";
 
 var _homeController = _interopRequireDefault(require("./controllers/home-controller"));
@@ -19215,12 +21020,28 @@ const AccountSettingsView = require('./views/account-settings-view');
 
 const Util = require('./util');
 
-$(document).ready(function () {
+const DataClient = require('./data-client');
+
+async function init() {
   'use strict';
 
-  Nav.initNav($('.tab-nav-bar'));
-  let controller;
   let pageName = window.location.href.split('/').pop().toLocaleLowerCase();
+  let showPayroll;
+  let usernameResponse;
+
+  try {
+    if (!pageName.startsWith('login.html')) {
+      // Avoid infinite loop when logged outf
+      usernameResponse = await new DataClient().get('getusername');
+      showPayroll = (usernameResponse || '').username === 'timg456789@yahoo.com';
+    }
+  } catch (err) {
+    Util.log(err);
+  }
+
+  let navView = Nav.getNavView(showPayroll);
+  $('.tab-nav-bar').append(navView);
+  let controller;
 
   if (pageName === '' || pageName.startsWith('index.html')) {
     controller = new _homeController.default();
@@ -19253,6 +21074,7 @@ $(document).ready(function () {
     `);
   $('#page-footer').append(`<div id="debug-console" class="no-print"></div>`);
   $('#page-footer').append(`<div id="account-settings-container"></div>`).append(AccountSettingsView.getAccountSettingsView());
+  $('#account-settings-view-cognito-user').val((usernameResponse || '').username);
   $('#page-footer').append(`<div id="raw-data-container"></div>`).append(AccountSettingsView.getRawDataView());
   $('#page-footer').append(`
         <div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
@@ -19263,9 +21085,13 @@ $(document).ready(function () {
         <div class="loader-group hide modal-backdrop fade in"></div>
     `);
   controller.init();
+}
+
+$(document).ready(function () {
+  init();
 });
 
-},{"./controllers/accounts-controller":73,"./controllers/balance-sheet-controller":74,"./controllers/budget-calendar-controller":76,"./controllers/deposit-controller":77,"./controllers/home-controller":78,"./controllers/link-bank-account-controller":79,"./controllers/login-controller":80,"./controllers/login-signup-controller":81,"./controllers/pay-days-controller":82,"./controllers/prices-controller":83,"./nav":85,"./util":86,"./views/account-settings-view":87}],63:[function(require,module,exports){
+},{"./controllers/accounts-controller":74,"./controllers/balance-sheet-controller":75,"./controllers/budget-calendar-controller":77,"./controllers/deposit-controller":78,"./controllers/home-controller":79,"./controllers/link-bank-account-controller":80,"./controllers/login-controller":81,"./controllers/login-signup-controller":82,"./controllers/pay-days-controller":83,"./controllers/prices-controller":84,"./data-client":85,"./nav":86,"./util":87,"./views/account-settings-view":88}],64:[function(require,module,exports){
 const Currency = require('currency.js');
 const Util = require('../util');
 function AvailableBalanceCalculator() {
@@ -19285,7 +21111,7 @@ function AvailableBalanceCalculator() {
     };
 }
 module.exports = AvailableBalanceCalculator;
-},{"../util":86,"currency.js":26}],64:[function(require,module,exports){
+},{"../util":87,"currency.js":27}],65:[function(require,module,exports){
 const CalendarSearch = require('./calendar-search');
 const Currency = require('currency.js');
 const Util = require('../util');
@@ -19343,7 +21169,7 @@ function CalendarAggregator() {
 
 module.exports = CalendarAggregator;
 
-},{"../util":86,"./calendar-search":65,"currency.js":26}],65:[function(require,module,exports){
+},{"../util":87,"./calendar-search":66,"currency.js":27}],66:[function(require,module,exports){
 function CalendarSearch() {
 
     this.find = function (startTime, endTime, transactions) {
@@ -19364,7 +21190,7 @@ function CalendarSearch() {
 }
 
 module.exports = CalendarSearch;
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 exports.JANUARY = 0;
 exports.FEBRUARY = 1;
 exports.MARCH = 2;
@@ -19398,7 +21224,7 @@ exports.DAY_NAMES = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 
 exports.DAY_NAME_ABBRS = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
 
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 const cal = require('./calendar');
 const UtcDay = require('./utc-day');
 function NetIncomeCalculator() {
@@ -19479,7 +21305,7 @@ function NetIncomeCalculator() {
 }
 
 module.exports = NetIncomeCalculator;
-},{"./calendar":66,"./utc-day":69}],68:[function(require,module,exports){
+},{"./calendar":67,"./utc-day":70}],69:[function(require,module,exports){
 const Calendar = require('./calendar');
 
 function PayoffDateCalculator() {
@@ -19529,7 +21355,7 @@ function PayoffDateCalculator() {
 
 module.exports = PayoffDateCalculator;
 
-},{"./calendar":66}],69:[function(require,module,exports){
+},{"./calendar":67}],70:[function(require,module,exports){
 exports.UTC_DAY_MILLISECONDS = 86400000;
 
 function UtcDay() {
@@ -19543,7 +21369,7 @@ function UtcDay() {
 }
 
 module.exports = UtcDay;
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 
 function CalendarCalculator() {
 
@@ -19594,7 +21420,7 @@ function CalendarCalculator() {
 }
 
 module.exports = CalendarCalculator;
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 const cal = require('./calculators/calendar');
 const CalendarCalculator = require('./calendar-calculator');
 const Util = require('./util');
@@ -19740,7 +21566,7 @@ exports.load = function (budgetSettings, start, end) {
     });
 };
 
-},{"./calculators/calendar":66,"./calculators/calendar-aggregator":64,"./calculators/net-income-calculator":67,"./calendar-calculator":70,"./util":86}],72:[function(require,module,exports){
+},{"./calculators/calendar":67,"./calculators/calendar-aggregator":65,"./calculators/net-income-calculator":68,"./calendar-calculator":71,"./util":87}],73:[function(require,module,exports){
 const DataClient = require('../data-client');
 const Util = require('../util');
 function AccountSettingsController() {
@@ -19773,7 +21599,6 @@ function AccountSettingsController() {
             window.location.reload();
         });
         $('#account-settings-button').click(() => {
-            $('#account-settings-view-cognito-user').val(Util.getUsername());
             $('#account-settings-view').modal({backdrop: 'static'});
         });
         $('#log-out-button').click(async () => {
@@ -19820,7 +21645,7 @@ function AccountSettingsController() {
 }
 
 module.exports = AccountSettingsController;
-},{"../data-client":84,"../util":86}],73:[function(require,module,exports){
+},{"../data-client":85,"../util":87}],74:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const AccountsView = require('../views/accounts-view');
 const AvailableBalanceCalculator = require('../calculators/available-balance-calculator');
@@ -19919,7 +21744,7 @@ function AccountsController() {
 }
 
 module.exports = AccountsController;
-},{"../calculators/available-balance-calculator":63,"../data-client":84,"../util":86,"../views/accounts-view":88,"../views/balance-sheet/balance-sheet-view":89,"./account-settings-controller":72,"currency.js":26}],74:[function(require,module,exports){
+},{"../calculators/available-balance-calculator":64,"../data-client":85,"../util":87,"../views/accounts-view":89,"../views/balance-sheet/balance-sheet-view":90,"./account-settings-controller":73,"currency.js":27}],75:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 const Currency = require('currency.js');
@@ -20006,7 +21831,7 @@ function HomeController() {
 }
 
 module.exports = HomeController;
-},{"../data-client":84,"../util":86,"../views/balance-sheet/balance-sheet-view":89,"../views/balance-sheet/loan-view-model":94,"./account-settings-controller":72,"currency.js":26}],75:[function(require,module,exports){
+},{"../data-client":85,"../util":87,"../views/balance-sheet/balance-sheet-view":90,"../views/balance-sheet/loan-view-model":95,"./account-settings-controller":73,"currency.js":27}],76:[function(require,module,exports){
 const DataClient = require('../../data-client');
 const Moment = require('moment/moment');
 const TransferView = require('../../views/balance-sheet/transfer-view');
@@ -20078,7 +21903,7 @@ function TransferController() {
 
 module.exports = TransferController;
 
-},{"../../data-client":84,"../../util":86,"../../views/balance-sheet/transfer-view":96,"moment/moment":31}],76:[function(require,module,exports){
+},{"../../data-client":85,"../../util":87,"../../views/balance-sheet/transfer-view":97,"moment/moment":32}],77:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const CalendarView = require('../calendar-view');
 const DataClient = require('../data-client');
@@ -20128,7 +21953,7 @@ function BudgetCalendarController() {
 }
 
 module.exports = BudgetCalendarController;
-},{"../calendar-view":71,"../data-client":84,"../util":86,"./account-settings-controller":72}],77:[function(require,module,exports){
+},{"../calendar-view":72,"../data-client":85,"../util":87,"./account-settings-controller":73}],78:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const Util = require('../util');
@@ -20175,7 +22000,7 @@ function DepositController() {
 }
 
 module.exports = DepositController;
-},{"../data-client":84,"../util":86,"./account-settings-controller":72}],78:[function(require,module,exports){
+},{"../data-client":85,"../util":87,"./account-settings-controller":73}],79:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20239,7 +22064,7 @@ class HomeController {
 
 exports.default = HomeController;
 
-},{"../data-client":84,"../util":86,"../views/budget/biweekly-view":97,"../views/budget/monthly-view":98,"../views/budget/weekly-view":99,"../views/home-view":100,"./account-settings-controller":72}],79:[function(require,module,exports){
+},{"../data-client":85,"../util":87,"../views/budget/biweekly-view":98,"../views/budget/monthly-view":99,"../views/budget/weekly-view":100,"../views/home-view":101,"./account-settings-controller":73}],80:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const Util = require('../util');
@@ -20248,10 +22073,7 @@ function LinkBankAccountController() {
     'use strict';
     async function initAsync() {
         $('#link-button').on('click', function(e) {
-            let selectedProducts = [];
-            $("input[name='plaid-products']:checked").each(function (index, obj) {
-                selectedProducts.push($(obj).val());
-            });
+            let selectedProducts = ['transactions'];
             let handler = Plaid.create({
                 clientName: 'My App',
                 env: 'development',
@@ -20317,7 +22139,7 @@ function LinkBankAccountController() {
                         clientName: 'My App',
                         env: 'development',
                         key: '7e6391ab6cbcc3b212440b5821bfa7',
-                        product: ['auth','transactions'], // FIX THIS, NOT ALL BANKS SUPPORT AUTH E.G. CREDIT CARD ONLY BANKS.
+                        product: ['transactions'],
                         token: result['public_token'],
                         onSuccess: async function(public_token, metadata) {
                             window.alert('updated account access token');
@@ -20353,7 +22175,7 @@ function LinkBankAccountController() {
 }
 
 module.exports = LinkBankAccountController;
-},{"../data-client":84,"../util":86,"./account-settings-controller":72}],80:[function(require,module,exports){
+},{"../data-client":85,"../util":87,"./account-settings-controller":73}],81:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const DataClient = require('../data-client');
@@ -20517,7 +22339,7 @@ function LoginController() {
 }
 
 module.exports = LoginController;
-},{"../data-client":84,"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17,"otpauth":32,"qrcode":33}],81:[function(require,module,exports){
+},{"../data-client":85,"../util":87,"./account-settings-controller":73,"amazon-cognito-identity-js":17,"otpauth":33,"qrcode":34}],82:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const Util = require('../util');
@@ -20620,7 +22442,7 @@ function LoginSignupController() {
 }
 
 module.exports = LoginSignupController;
-},{"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17}],82:[function(require,module,exports){
+},{"../util":87,"./account-settings-controller":73,"amazon-cognito-identity-js":17}],83:[function(require,module,exports){
 const moment = require('moment/moment');
 const cal = require('../calculators/calendar');
 const UtcDay = require('../calculators/utc-day');
@@ -20692,7 +22514,7 @@ function PayDaysController() {
 }
 
 module.exports = PayDaysController;
-},{"../calculators/calendar":66,"../calculators/utc-day":69,"../data-client":84,"../util":86,"../views/pay-days-view":101,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],83:[function(require,module,exports){
+},{"../calculators/calendar":67,"../calculators/utc-day":70,"../data-client":85,"../util":87,"../views/pay-days-view":102,"./account-settings-controller":73,"currency.js":27,"moment/moment":32}],84:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const PricesView = require('../views/prices-view');
@@ -20727,7 +22549,7 @@ function PricesController() {
 }
 
 module.exports = PricesController;
-},{"../data-client":84,"../util":86,"../views/prices-view":102,"./account-settings-controller":72}],84:[function(require,module,exports){
+},{"../data-client":85,"../util":87,"../views/prices-view":103,"./account-settings-controller":73}],85:[function(require,module,exports){
 const Util = require('./util');
 const Currency = require('currency.js');
 function DataClient() {
@@ -20796,14 +22618,14 @@ function DataClient() {
     };
     this.sendRequestInner = async function (requestType, requestParams, isRetryFromRefresh) {
         let response;
+        let url = `${Util.getApiUrl()}${requestType}`;
         try {
             $('.loader-group').removeClass('hide');
-            response = await fetch(`${Util.getApiUrl()}${requestType}`, requestParams);
+            response = await fetch(url, requestParams);
         } catch (error) {
             $('.loader-group').addClass('hide');
-            console.log('An error occurred when fetching. The server response can\'t be read');
-            console.log(error);
-            return;
+            console.log(`An error occurred when fetching ${url}. The server response can\'t be read`);
+            throw 'Network error failed to fetch: ' + url;
         }
         // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
         if (response.status.toString() === '401') {
@@ -20839,11 +22661,11 @@ function DataClient() {
 
 module.exports = DataClient;
 
-},{"./util":86,"currency.js":26}],85:[function(require,module,exports){
+},{"./util":87,"currency.js":27}],86:[function(require,module,exports){
 const Util = require('./util');
-exports.initNav = function (target) {
+exports.getNavView = function (showPayroll) {
     let root = Util.rootUrl();
-    target.append(`<div class="container">
+    return $(`<div class="container">
           <div class="container-fluid">
               <a class="tab-nav-item" href="${root}/index.html" title="Budget">
                   <span class="ac-gn-link-text">Budget</span>
@@ -20863,9 +22685,9 @@ exports.initNav = function (target) {
               <a class="tab-nav-item" href="${root}/pages/prices.html" title="Prices">
                   <span class="ac-gn-link-text">Prices</span>
               </a>
-              <a class="tab-nav-item" href="${root}/pages/pay-days.html" title="Pay Days">
+              ${showPayroll ? `<a class="tab-nav-item" href="${root}/pages/pay-days.html" title="Pay Days">
                   <span class="ac-gn-link-text">Pay Days</span>
-              </a>
+              </a>` : ''}
               <a class="tab-nav-item" href="${root}/pages/link-bank-account.html" title="View and Manage Linked Banks">
                   <span class="ac-gn-link-text">Banks</span>
               </a>
@@ -20873,7 +22695,7 @@ exports.initNav = function (target) {
       </div>`);
 };
 
-},{"./util":86}],86:[function(require,module,exports){
+},{"./util":87}],87:[function(require,module,exports){
 const Currency = require('currency.js');
 exports.log = function (error) {
     console.log(error);
@@ -20947,17 +22769,6 @@ exports.getCookie = function (cookieNmae) {
 };
 exports.obfuscate = () => exports.getCookie('obfuscate') === 'true';
 exports.obfuscationAmount = () => Math.random()/10;
-exports.getUsername = function () {
-    let idToken = exports.getCookie('idToken');
-    if (!idToken) {
-        return '';
-    }
-    let payload = idToken.split('.')[1];
-    let decodedPayload = atob(payload);
-    let parsed = JSON.parse(decodedPayload);
-    return parsed.email;
-};
-
 // ENVIRONMENT
 // Test
 //exports.getPoolData = () => {
@@ -20975,7 +22786,10 @@ exports.getPoolData = () => {
     };
 };
 exports.getApiUrl = () => 'https://api.primordial-software.com/';
-},{"currency.js":26}],87:[function(require,module,exports){
+// I exposed the origin at some point, so I need to deploy the api to a new endpoint.
+// Or block traffic from non-cloudflare IP's.
+// I should have something to block traffic for non-cloudflare IP's from the gallery project.
+},{"currency.js":27}],88:[function(require,module,exports){
 exports.getCommandButtonsContainerView = (obfuscate) =>
     `<span id="log-out-button" class="command-button" title="log out">
           <span class="glyphicon glyphicon glyphicon-log-out" aria-hidden="true"></span>
@@ -21032,7 +22846,7 @@ exports.getRawDataView = () =>
           </div>
       </div>
   </div>`;
-},{}],88:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 const Moment = require('moment');
 const Util = require('../util');
 exports.getTransferView = (transfer) =>
@@ -21057,125 +22871,142 @@ exports.getTransferView = (transfer) =>
                 </button>
             </div>
         </div>`);
-},{"../util":86,"moment":31}],89:[function(require,module,exports){
+},{"../util":87,"moment":32}],90:[function(require,module,exports){
+"use strict";
+
+var _propertyPlantAndEquipmentViewModel = _interopRequireDefault(require("./property-plant-and-equipment-view-model"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const LoanViewModel = require('./loan-view-model');
+
 const CashViewModel = require('./cash-view-model');
+
 const CashOrStockViewModel = require('./cash-or-stock-view-model');
-const PpeVm = require('./property-plant-and-equipment-view-model');
+
 const BondViewModel = require('./bond-view-model');
+
 const cal = require('../../calculators/calendar');
+
 const Currency = require('currency.js');
+
 const Util = require('../../util');
+
 const Moment = require('moment');
+
 exports.getModel = function () {
-    return { balances: new LoanViewModel().getModels() };
+  return {
+    balances: new LoanViewModel().getModels()
+  };
 };
+
 function setupToggle(container, detail) {
-    $(container).click(function () {
-        $(container).empty();
-        if ($(detail).is(':visible')) {
-            $(detail).hide();
-            $(container).append($('<span class="glyphicon glyphicon-expand" aria-hidden="true"></span>'));
-        } else {
-            $(detail).show();
-            $(container).append($('<span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>'));
-        }
-    });
+  $(container).click(function () {
+    $(container).empty();
+
+    if ($(detail).is(':visible')) {
+      $(detail).hide();
+      $(container).append($('<span class="glyphicon glyphicon-expand" aria-hidden="true"></span>'));
+    } else {
+      $(detail).show();
+      $(container).append($('<span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>'));
+    }
+  });
 }
+
 function getWeeklyAmount(budget, debtName) {
-    let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
-    let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
-    return monthlyTxn ? Currency(monthlyTxn.amount, Util.getCurrencyDefaults()).divide(cal.WEEKS_IN_MONTH).toString()
-        : weeklyTxn ? weeklyTxn.amount : 0;
+  let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
+  let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
+  return monthlyTxn ? Currency(monthlyTxn.amount, Util.getCurrencyDefaults()).divide(cal.WEEKS_IN_MONTH).toString() : weeklyTxn ? weeklyTxn.amount : 0;
 }
+
 exports.setView = function (budget, obfuscate) {
-    $('#balance-input-group').empty();
-    $('.cash-header-container').append(new CashViewModel().getReadOnlyHeaderView());
-    $('.assets-header-container').append(new CashOrStockViewModel().getReadOnlyHeaderView());
-    $('.property-plant-and-equipment-header-container').append(new PpeVm().getHeaderView());
-    let debtTotal = Currency(0, Util.getCurrencyDefaults());
-    let totalDemandDepositsAndCash = Currency(0, Util.getCurrencyDefaults());
-    let totalEquities = Currency(0, Util.getCurrencyDefaults());
-    let totalBonds = Currency(0, Util.getCurrencyDefaults());
-    let totalPropertyPlantAndEquipment = Currency(0, Util.getCurrencyDefaults());
-    for (let loan of budget.balances) {
-        debtTotal = debtTotal.add(loan.amount);
-        let loanView = new LoanViewModel().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
-        $('#balance-input-group').append(loanView);
+  $('#balance-input-group').empty();
+  $('.cash-header-container').append(new CashViewModel().getReadOnlyHeaderView());
+  $('.assets-header-container').append(new CashOrStockViewModel().getReadOnlyHeaderView());
+  $('.property-plant-and-equipment-header-container').append(new _propertyPlantAndEquipmentViewModel.default().getReadOnlyHeaderView());
+  let debtTotal = Currency(0, Util.getCurrencyDefaults());
+  let totalDemandDepositsAndCash = Currency(0, Util.getCurrencyDefaults());
+  let totalEquities = Currency(0, Util.getCurrencyDefaults());
+  let totalBonds = Currency(0, Util.getCurrencyDefaults());
+  let totalPropertyPlantAndEquipment = Currency(0, Util.getCurrencyDefaults());
+
+  for (let loan of budget.balances) {
+    debtTotal = debtTotal.add(loan.amount);
+    let loanView = new LoanViewModel().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
+    $('#balance-input-group').append(loanView);
+  }
+
+  for (let cashAccount of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'cash')) {
+    totalDemandDepositsAndCash = totalDemandDepositsAndCash.add(cashAccount.amount);
+    let view = new CashViewModel().getReadOnlyView(cashAccount, obfuscate);
+    $('#cash-input-group').append(view);
+  }
+
+  for (let tangibleAsset of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'property-plant-and-equipment')) {
+    totalPropertyPlantAndEquipment = totalPropertyPlantAndEquipment.add(tangibleAsset.amount);
+    $('#property-plant-and-equipment-input-group').append(new _propertyPlantAndEquipmentViewModel.default().getReadOnlyView(tangibleAsset, obfuscate));
+  }
+
+  let equityViewModel = new CashOrStockViewModel();
+
+  for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
+    totalEquities = totalEquities.add(Util.getAmount(equity));
+  }
+
+  for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
+    let view = equityViewModel.getReadOnlyView(equity, totalEquities.toString(), budget.pending, obfuscate);
+    $('#asset-input-group').append(view);
+  }
+
+  let sortedBonds = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'bond');
+  sortedBonds.sort(function (a, b) {
+    if (a.issueDate && b.issueDate) {
+      let maturityDateA = Moment(a.issueDate).add(a.daysToMaturation, 'days').valueOf();
+      let maturityDateB = Moment(b.issueDate).add(b.daysToMaturation, 'days').valueOf();
+      return maturityDateA - maturityDateB;
+    } else {
+      return 0;
     }
-    for (let cashAccount of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'cash')) {
-        totalDemandDepositsAndCash = totalDemandDepositsAndCash.add(cashAccount.amount);
-        let view = new CashViewModel().getReadOnlyView(cashAccount, obfuscate);
-        $('#cash-input-group').append(view);
-    }
-    for (let tangibleAsset of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'property-plant-and-equipment')) {
-        totalPropertyPlantAndEquipment = totalPropertyPlantAndEquipment.add(tangibleAsset.amount);
-        $('#property-plant-and-equipment-input-group').append(new PpeVm().getReadOnlyView(tangibleAsset.amount, tangibleAsset.name));
-    }
-    let equityViewModel = new CashOrStockViewModel();
-    for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
-        totalEquities = totalEquities.add(Util.getAmount(equity));
-    }
-    for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
-        let view = equityViewModel.getReadOnlyView(equity, totalEquities.toString(), budget.pending, obfuscate);
-        $('#asset-input-group').append(view);
-    }
-    let sortedBonds = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'bond');
-    sortedBonds.sort(function(a, b) {
-        if (a.issueDate && b.issueDate) {
-            let maturityDateA = Moment(a.issueDate).add(a.daysToMaturation, 'days').valueOf();
-            let maturityDateB = Moment(b.issueDate).add(b.daysToMaturation, 'days').valueOf();
-            return maturityDateA - maturityDateB;
-        } else {
-            return 0;
-        }
-    });
-    for (let bond of sortedBonds) {
-        totalBonds = totalBonds.add(Currency(bond.amount));
-        $('#bond-input-group').append(new BondViewModel().getReadOnlyView(bond, obfuscate));
-    }
-    $('#loan-total-amount-value').text(`(${Util.format(debtTotal.toString())})`);
-    let ppeTotalView = $(`<div class="subtotal">Total Property, Plant and Equipment<span class="pull-right amount">${Util.format(totalPropertyPlantAndEquipment.toString())}</span></div>`);
-    $('#property-plant-and-equipment-total-amount').append(ppeTotalView);
-    $('#cash-total-amount').append(
-        $(`<div class="subtotal">Total Cash<span class="pull-right amount">${Util.format(totalDemandDepositsAndCash.toString())}</span></div>`)
-    );
-    $('#cash-and-stocks-total-amount').append(
-        $(`<div class="subtotal">Total Equities<span class="pull-right amount">${Util.format(totalEquities.toString())}</span></div>`)
-    );
-    $('#bond-total-amount').append(
-        (`<div class="subtotal">Total Bonds<span class="pull-right amount">${Util.format(totalBonds.toString())}</span></div>`)
-    );
-    let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults())
-        .add(totalDemandDepositsAndCash)
-        .add(totalEquities)
-        .add(totalBonds);
-    $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
-    $('#cash-and-stocks-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Equities<span class="pull-right amount">
+  });
+
+  for (let bond of sortedBonds) {
+    totalBonds = totalBonds.add(Currency(bond.amount));
+    $('#bond-input-group').append(new BondViewModel().getReadOnlyView(bond, obfuscate));
+  }
+
+  $('#loan-total-amount-value').text(`(${Util.format(debtTotal.toString())})`);
+  let ppeTotalView = $(`<div class="subtotal">Total Property, Plant and Equipment<span class="pull-right amount">${Util.format(totalPropertyPlantAndEquipment.toString())}</span></div>`);
+  $('#property-plant-and-equipment-total-amount').append(ppeTotalView);
+  $('#cash-total-amount').append($(`<div class="subtotal">Total Cash<span class="pull-right amount">${Util.format(totalDemandDepositsAndCash.toString())}</span></div>`));
+  $('#cash-and-stocks-total-amount').append($(`<div class="subtotal">Total Equities<span class="pull-right amount">${Util.format(totalEquities.toString())}</span></div>`));
+  $('#bond-total-amount').append(`<div class="subtotal">Total Bonds<span class="pull-right amount">${Util.format(totalBonds.toString())}</span></div>`);
+  let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults()).add(totalDemandDepositsAndCash).add(totalEquities).add(totalBonds);
+  $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
+  $('#cash-and-stocks-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Equities<span class="pull-right amount">
             ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
-    $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
+  $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
             ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString()}</span></div>`));
-    $('#total-tangible-assets').text(Util.format(totalPropertyPlantAndEquipment));
-    $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets.toString()));
-    $('#total-debt').text(`(${Util.format(debtTotal)})`);
-    let net = Currency(0, Util.getCurrencyDefaults())
-        .subtract(debtTotal)
-        .add(totalPropertyPlantAndEquipment)
-        .add(totalNonTangibleAssets);
-    $('#net-total').text(Util.format(net.toString()));
-    setupToggle('#tree-view-loans','#loans-container');
-    setupToggle('#tree-view-cash', '#cash-container');
-    setupToggle('#tree-view-property-pant-and-equipment', '#property-plant-and-equipment-container');
-    setupToggle('#tree-view-cash-or-stock','#assets-container');
-    setupToggle('#tree-view-bonds','#bond-container');
-    setupToggle('#tree-view-totals-row','#totals-row');
-    if (budget.licenseAgreement && budget.licenseAgreement.agreedToLicense) {
-        $('#acceptLicense').prop('checked', true);
-        $('#acceptLicense').prop('disabled', true);
-        $('.licenseAgreementDetails').append(`agreed to license on ${budget.licenseAgreement.agreementDateUtc} from IP ${budget.licenseAgreement.ipAddress}`);
-    }
+  $('#total-tangible-assets').text(Util.format(totalPropertyPlantAndEquipment));
+  $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets.toString()));
+  $('#total-debt').text(`(${Util.format(debtTotal)})`);
+  let net = Currency(0, Util.getCurrencyDefaults()).subtract(debtTotal).add(totalPropertyPlantAndEquipment).add(totalNonTangibleAssets);
+  $('#net-total').text(Util.format(net.toString()));
+  setupToggle('#tree-view-loans', '#loans-container');
+  setupToggle('#tree-view-cash', '#cash-container');
+  setupToggle('#tree-view-property-pant-and-equipment', '#property-plant-and-equipment-container');
+  setupToggle('#tree-view-cash-or-stock', '#assets-container');
+  setupToggle('#tree-view-bonds', '#bond-container');
+  setupToggle('#tree-view-totals-row', '#totals-row');
+
+  if (budget.licenseAgreement && budget.licenseAgreement.agreedToLicense) {
+    $('#acceptLicense').prop('checked', true);
+    $('#acceptLicense').prop('disabled', true);
+    $('.licenseAgreementDetails').append(`agreed to license on ${budget.licenseAgreement.agreementDateUtc} from IP ${budget.licenseAgreement.ipAddress}`);
+  }
 };
-},{"../../calculators/calendar":66,"../../util":86,"./bond-view-model":90,"./cash-or-stock-view-model":91,"./cash-view-model":92,"./loan-view-model":94,"./property-plant-and-equipment-view-model":95,"currency.js":26,"moment":31}],90:[function(require,module,exports){
+
+},{"../../calculators/calendar":67,"../../util":87,"./bond-view-model":91,"./cash-or-stock-view-model":92,"./cash-view-model":93,"./loan-view-model":95,"./property-plant-and-equipment-view-model":96,"currency.js":27,"moment":32}],91:[function(require,module,exports){
 const Moment = require('moment/moment');
 const Util = require('../../util');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
@@ -21262,7 +23093,7 @@ function BondViewModel() {
 }
 
 module.exports = BondViewModel;
-},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":92,"moment/moment":31}],91:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":76,"../../util":87,"./cash-view-model":93,"moment/moment":32}],92:[function(require,module,exports){
 const AvailableBalanceCalculator = require('../../calculators/available-balance-calculator');
 const Currency = require('currency.js');
 const Util = require('../../util');
@@ -21315,7 +23146,7 @@ function CashOrStockViewModel() {
                   </div>
         `);
         let transferButton = $(`<div class="col-xs-1">
-                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
+                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
                             </button>
                           </div>`);
@@ -21362,39 +23193,51 @@ function CashOrStockViewModel() {
 
 module.exports = CashOrStockViewModel;
 
-},{"../../calculators/available-balance-calculator":63,"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":92,"currency.js":26}],92:[function(require,module,exports){
+},{"../../calculators/available-balance-calculator":64,"../../controllers/balance-sheet/transfer-controller":76,"../../util":87,"./cash-view-model":93,"currency.js":27}],93:[function(require,module,exports){
+"use strict";
+
+var _propertyPlantAndEquipmentViewModel = _interopRequireDefault(require("./property-plant-and-equipment-view-model"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const Util = require('../../util');
+
 const ExpenseViewModel = require('./expense-view-model');
-const PropertyPlantAndEquipmentViewModel = require('./property-plant-and-equipment-view-model');
+
 const BondViewModel = require('./bond-view-model');
+
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
+
 const CashOrStockViewModel = require('./cash-or-stock-view-model');
+
 function CashViewModel() {
-    this.getViewDescription = () => 'Cash';
-    this.getViewType = () => 'cash';
-    this.getModel = function (target) {
-        return {
-            amount: $(target).find('input.amount').val().trim(),
-            name: $(target).find('input.name').val().trim()
-        };
+  this.getViewDescription = () => 'Cash';
+
+  this.getViewType = () => 'cash';
+
+  this.getModel = function (target) {
+    return {
+      amount: $(target).find('input.amount').val().trim(),
+      name: $(target).find('input.name').val().trim()
     };
-    this.getHeaderView = () =>
-        $(`<div class="row table-header-row">
+  };
+
+  this.getHeaderView = () => $(`<div class="row table-header-row">
               <div class="col-xs-9">Name</div>
               <div class="col-xs-3">Amount</div>
           </div>`);
-    this.getReadOnlyHeaderView = () =>
-        $(`<div class="row table-header-row">
+
+  this.getReadOnlyHeaderView = () => $(`<div class="row table-header-row">
               <div class="col-xs-8">Name</div>
               <div class="col-xs-3">Amount</div>
               <div class="col-xs-1">Transfer</div>
           </div>`);
-    this.getReadOnlyView = function (currentAssetAccount, disable) {
-        'use strict';
-        let icon = currentAssetAccount.isAuthoritative
-            ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`
-            : '';
-        let view = $(`
+
+  this.getReadOnlyView = function (currentAssetAccount, disable) {
+    'use strict';
+
+    let icon = currentAssetAccount.isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
+    let view = $(`
             <div class="dotted-underline-row row transaction-input-view">
                     <div class="col-xs-8 vertical-align amount-description-column">
                         <div class="dotted-underline">
@@ -21407,31 +23250,20 @@ function CashViewModel() {
                     </div>
             </div>
         `);
-        let transferButton = $(`<div class="col-xs-1">
+    let transferButton = $(`<div class="col-xs-1">
                             <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
                             </button>
                           </div>`);
-        view.append(transferButton);
-        let viewContainer = $('<div></div>');
-        viewContainer.append(view);
-        new TransferController().init(
-            transferButton,
-            viewContainer,
-            currentAssetAccount.name,
-            [
-                new CashViewModel(),
-                new CashOrStockViewModel(),
-                new ExpenseViewModel(),
-                new PropertyPlantAndEquipmentViewModel(),
-                new BondViewModel()
-            ],
-            currentAssetAccount.id
-        );
-        return viewContainer;
-    };
-    this.getView = (readOnlyAmount) =>
-        $(`<div>
+    view.append(transferButton);
+    let viewContainer = $('<div></div>');
+    viewContainer.append(view);
+    console.log('setting up transfer');
+    new TransferController().init(transferButton, viewContainer, currentAssetAccount.name, [new CashViewModel(), new CashOrStockViewModel(), new ExpenseViewModel(), new _propertyPlantAndEquipmentViewModel.default(), new BondViewModel()], currentAssetAccount.id);
+    return viewContainer;
+  };
+
+  this.getView = readOnlyAmount => $(`<div>
                <div class="asset-item row transaction-input-view">
                    <div class="col-xs-9">
                        <input class="name form-control text-right" type="text" />
@@ -21449,9 +23281,10 @@ function CashViewModel() {
                </div>
           </div>`);
 }
+
 module.exports = CashViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./bond-view-model":90,"./cash-or-stock-view-model":91,"./expense-view-model":93,"./property-plant-and-equipment-view-model":95}],93:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":76,"../../util":87,"./bond-view-model":91,"./cash-or-stock-view-model":92,"./expense-view-model":94,"./property-plant-and-equipment-view-model":96}],94:[function(require,module,exports){
 function ExpenseViewModel() {
     this.getViewDescription = () => 'Expense';
     this.getViewType = () => 'expense';
@@ -21483,7 +23316,7 @@ function ExpenseViewModel() {
            </div>`);
 }
 module.exports = ExpenseViewModel;
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 const cal = require('../../calculators/calendar');
 const PayoffDateCalculator = require('../../calculators/payoff-date-calculator');
 const payoffDateCalculator = new PayoffDateCalculator();
@@ -21577,34 +23410,73 @@ function LoanViewModel() {
 }
 
 module.exports = LoanViewModel;
-},{"../../calculators/calendar":66,"../../calculators/payoff-date-calculator":68,"../../util":86,"currency.js":26}],95:[function(require,module,exports){
+},{"../../calculators/calendar":67,"../../calculators/payoff-date-calculator":69,"../../util":87,"currency.js":27}],96:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+const TransferController = require('../../controllers/balance-sheet/transfer-controller');
+
 const Util = require('../../util');
-function PropertyPlantAndEquipmentViewModel() {
-    this.getViewDescription = () => 'Property plant and equipment';
-    this.getViewType = () => 'property-plant-and-equipment';
-    this.getModel = function (target) {
-        return {
-            amount: $(target).find('input.amount').val().trim(),
-            name: $(target).find('input.name').val().trim()
-        };
+
+class PropertyPlantAndEquipmentViewModel {
+  getViewDescription() {
+    return 'Property plant and equipment';
+  }
+
+  getViewType() {
+    return 'property-plant-and-equipment';
+  }
+
+  getModel(target) {
+    return {
+      amount: $(target).find('input.amount').val().trim(),
+      name: $(target).find('input.name').val().trim()
     };
-    this.getHeaderView = () =>
-        $(`<div class="row table-header-row">
+  }
+
+  getHeaderView() {
+    return $(`<div class="row table-header-row">
                <div class="col-xs-9">Name</div>
                <div class="col-xs-3">Value</div>
            </div>`);
-    this.getReadOnlyView = (amount, name) =>
-        $(`<div>
+  }
+
+  getReadOnlyHeaderView() {
+    return $(`<div class="row table-header-row">
+               <div class="col-xs-8">Name</div>
+               <div class="col-xs-3">Value</div>
+               <div class="col-xs-1">Liquidate</div>
+           </div>`);
+  }
+
+  getReadOnlyView(model, disable) {
+    let view = $(`<div>
                 <div class="dotted-underline-row row transaction-input-view">
-                        <div class="col-xs-9 vertical-align amount-description-column">
-                            <div class="dotted-underline">${name}</div></div>
+                        <div class="col-xs-8 vertical-align amount-description-column">
+                            <div class="dotted-underline">${model.name}</div></div>
                         <div class="col-xs-3 text-right vertical-align amount-description-column">
-                            <div class="dotted-underline">${Util.format(amount)}</div>
+                            <div class="dotted-underline">${Util.format(model.amount)}</div>
                         </div>
+                        <div class="col-xs-1 transfer-button">
+                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
+                                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+                            </button>
+                          </div>
                 </div>
             </div>`);
-    this.getView = function () {
-        $(`<div>
+
+    const CashViewModel = require('./cash-view-model');
+
+    new TransferController().init(view.find('.transfer-button'), view, model.name, [new CashViewModel()], model.id);
+    return view;
+  }
+
+  getView() {
+    return $(`<div>
                 <div class="asset-item row transaction-input-view">
                     <div class="col-xs-9">
                         <input class="name form-control text-right" type="text" />
@@ -21617,11 +23489,13 @@ function PropertyPlantAndEquipmentViewModel() {
                     </div>
                 </div>
             </div>`);
-    };
-}
-module.exports = PropertyPlantAndEquipmentViewModel;
+  }
 
-},{"../../util":86}],96:[function(require,module,exports){
+}
+
+exports.default = PropertyPlantAndEquipmentViewModel;
+
+},{"../../controllers/balance-sheet/transfer-controller":76,"../../util":87,"./cash-view-model":93}],97:[function(require,module,exports){
 const Moment = require('moment/moment');
 function TransferView() {
     this.getView = function (name, allowableTransferViewModels) {
@@ -21659,7 +23533,7 @@ function TransferView() {
 
 module.exports = TransferView;
 
-},{"moment/moment":31}],97:[function(require,module,exports){
+},{"moment/moment":32}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21688,7 +23562,7 @@ class BiweeklyView {
 
 exports.default = BiweeklyView;
 
-},{}],98:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21727,7 +23601,7 @@ class MonthlyView {
 
 exports.default = MonthlyView;
 
-},{"../../calculators/calendar":66}],99:[function(require,module,exports){
+},{"../../calculators/calendar":67}],100:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21772,7 +23646,7 @@ class WeeklyView {
 
 exports.default = WeeklyView;
 
-},{"../../calculators/calendar":66}],100:[function(require,module,exports){
+},{"../../calculators/calendar":67}],101:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21935,7 +23809,7 @@ class HomeView {
 
 exports.default = HomeView;
 
-},{"../calculators/calendar":66,"../util":86,"./budget/biweekly-view":97,"./budget/monthly-view":98,"./budget/weekly-view":99}],101:[function(require,module,exports){
+},{"../calculators/calendar":67,"../util":87,"./budget/biweekly-view":98,"./budget/monthly-view":99,"./budget/weekly-view":100}],102:[function(require,module,exports){
 const Currency = require('currency.js');
 
 exports.getModel = function () {
@@ -21944,7 +23818,7 @@ exports.getModel = function () {
     model['401k-contribution-per-pay-check'] = Currency($('#401k-contribution-per-pay-check').val().trim()).toString();
     return model;
 };
-},{"currency.js":26}],102:[function(require,module,exports){
+},{"currency.js":27}],103:[function(require,module,exports){
 const DataClient = require('../data-client');
 exports.getModel = async function () {
     let prices = [];
@@ -21988,4 +23862,4 @@ exports.getView = (name, sharePrice) =>
                 </div>
               </div>
           </div>`);
-},{"../data-client":84}]},{},[62]);
+},{"../data-client":85}]},{},[63]);

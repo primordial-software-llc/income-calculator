@@ -71,17 +71,6 @@ exports.getCookie = function (cookieNmae) {
 };
 exports.obfuscate = () => exports.getCookie('obfuscate') === 'true';
 exports.obfuscationAmount = () => Math.random()/10;
-exports.getUsername = function () {
-    let idToken = exports.getCookie('idToken');
-    if (!idToken) {
-        return '';
-    }
-    let payload = idToken.split('.')[1];
-    let decodedPayload = atob(payload);
-    let parsed = JSON.parse(decodedPayload);
-    return parsed.email;
-};
-
 // ENVIRONMENT
 // Test
 //exports.getPoolData = () => {
@@ -99,3 +88,6 @@ exports.getPoolData = () => {
     };
 };
 exports.getApiUrl = () => 'https://api.primordial-software.com/';
+// I exposed the origin at some point, so I need to deploy the api to a new endpoint.
+// Or block traffic from non-cloudflare IP's.
+// I should have something to block traffic for non-cloudflare IP's from the gallery project.

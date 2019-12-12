@@ -22,50 +22,7 @@
 <div class="container">
     <form id="input-form" class="container-fluid form">
         <h2>Link a Bank</h2>
-        <p>Select the level of access you would like to grant to your bank. Certain banks will not be available with certain products.
-            e.g. Full Routing and Checking Account Numbers aren't available for credit card only banks e.g. American Express.</p>
-        <div class="form-check">
-            <input type="checkbox" name="plaid-products" id="plaid-products-auth" value="auth" />
-            <label class="form-check-label" for="plaid-products-auth">
-                Balance, Full Routing and Checking Account Numbers
-            </label>
-        </div>
-        <div class="form-check">
-            <input type="checkbox" name="plaid-products" id="plaid-products-transactions" value="transactions" />
-            <label class="form-check-label" for="plaid-products-transactions">
-                Balance and Transactions
-            </label>
-        </div>
-        <div class="form-check">
-            <input type="checkbox" disabled="disabled" name="plaid-products" id="plaid-products-assets" value="assets" />
-            <label class="form-check-label" for="plaid-products-assets">
-                Assets
-            </label>
-        </div>
-        <div class="form-check">
-            <input type="checkbox" disabled="disabled" name="plaid-products" id="plaid-products-identity" value="identity" />
-            <label class="form-check-label" for="plaid-products-identity">
-                Identity
-            </label>
-        </div>
-        <div class="form-check">
-            <input type="checkbox" disabled="disabled" name="plaid-products" id="plaid-products-income" value="income" />
-            <label class="form-check-label" for="plaid-products-income">
-                Income
-            </label>
-        </div>
-        <div class="form-check">
-            <input type="checkbox" disabled="disabled" name="plaid-products" id="plaid-products-investments" value="investments" />
-            <label class="form-check-label" for="plaid-products-investments">
-                Investments
-            </label>
-        </div>
-        <div class="form-check">
-            <input type="checkbox" disabled="disabled" name="plaid-products" id="plaid-products-liabilities" value="liabilities" />
-            <label class="form-check-label" for="plaid-products-liabilities">
-                Liabilities
-            </label>
-        </div>
+        <p>Linking a bank will grant this application access to the account balance and transactions.</p>
         <button class="btn btn-primary" type="button" id="link-button">Link a Bank</button>
         <div id="message-container"></div>
         <h3>Existing Bank Links</h3>

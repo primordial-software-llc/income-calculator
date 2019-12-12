@@ -1,7 +1,7 @@
 const LoanViewModel = require('./loan-view-model');
 const CashViewModel = require('./cash-view-model');
 const CashOrStockViewModel = require('./cash-or-stock-view-model');
-const PpeVm = require('./property-plant-and-equipment-view-model');
+import PropertyPlantAndEquipmentViewModel from './property-plant-and-equipment-view-model';
 const BondViewModel = require('./bond-view-model');
 const cal = require('../../calculators/calendar');
 const Currency = require('currency.js');
@@ -32,7 +32,7 @@ exports.setView = function (budget, obfuscate) {
     $('#balance-input-group').empty();
     $('.cash-header-container').append(new CashViewModel().getReadOnlyHeaderView());
     $('.assets-header-container').append(new CashOrStockViewModel().getReadOnlyHeaderView());
-    $('.property-plant-and-equipment-header-container').append(new PpeVm().getHeaderView());
+    $('.property-plant-and-equipment-header-container').append(new PropertyPlantAndEquipmentViewModel().getReadOnlyHeaderView());
     let debtTotal = Currency(0, Util.getCurrencyDefaults());
     let totalDemandDepositsAndCash = Currency(0, Util.getCurrencyDefaults());
     let totalEquities = Currency(0, Util.getCurrencyDefaults());
@@ -50,7 +50,8 @@ exports.setView = function (budget, obfuscate) {
     }
     for (let tangibleAsset of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'property-plant-and-equipment')) {
         totalPropertyPlantAndEquipment = totalPropertyPlantAndEquipment.add(tangibleAsset.amount);
-        $('#property-plant-and-equipment-input-group').append(new PpeVm().getReadOnlyView(tangibleAsset.amount, tangibleAsset.name));
+        $('#property-plant-and-equipment-input-group').append(new PropertyPlantAndEquipmentViewModel().getReadOnlyView(
+            tangibleAsset, obfuscate));
     }
     let equityViewModel = new CashOrStockViewModel();
     for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {

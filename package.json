@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "browser-resolve": "^1.11.3",
+    "browserify": "^16.5.0",
     "esmify": "^2.1.1",
     "tape": "4.5.1"
   }

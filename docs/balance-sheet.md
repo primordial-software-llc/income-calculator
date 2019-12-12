@@ -37,6 +37,8 @@ Cash Transfer
 
 ## Equities
 
+Equity is short for stock holders equity which represents ownership held in a company.
+
 Transfer Cash to Equity
 ![Transfer Cash to Equity](https://imgur.com/nz3EmCw.jpg)
 
@@ -57,4 +59,17 @@ Existing Bond
 ![Existing Bond](https://imgur.com/kWTR5Cb.jpg)
 
 Transfer Bond to Cash
-![https://imgur.com/pEC5Rou](https://imgur.com/pEC5Rou.jpg)
+![Transfer Bond to Cash](https://imgur.com/pEC5Rou.jpg)
+
+## Property, Plant and Equipment
+
+Property plant and equipment refers to tangible assets. These assets are typically difficult to liquidate and held over a long-term making them not liquid.
+
+Transfer Cash to Property, Plant and Equipment
+![Transfer Cash to Property, Plant adn Equipment](https://imgur.com/2Qbel34.jpg)
+
+Existing Property, Plant and Equipment
+![Existing Property, Plant and Equipment](https://imgur.com/bwkPSC0.jpg)
+
+Transfer Property, Plant and Equipment to Cash
+![Transfer Property, Plant and Equipment to Cash](https://imgur.com/TxSBJro.jpg)

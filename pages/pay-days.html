@@ -19,7 +19,8 @@
   <div class="tab-nav-bar"></div>
   <div class="container">
       <form id="input-form" class="container-fluid form">
-          <h2>401k</h2>
+          <h2>Payroll</h2>
+          <h3>401k</h3>
           <div class="form-group row">
               <label class="col-xs-3 col-form-label col-form-label-lg">Employee contributions for the Year</label>
               <div class="col-xs-9">
@@ -38,11 +39,11 @@
                   </div>
               </div>
           </div>
-          <h3>Projected Contribution</h3>
+          <h4>Projected Contribution</h4>
           <p>
-              You are projected to contribute <span id="projected-contribution-for-year"></span> to your 401k by the end of the year.
+              You are projected to contribute <strong><span id="projected-contribution-for-year"></span></strong> to your 401k by the end of the year.
           </p>
-          <h3>Contribution Limit</h3>
+          <h4>Contribution Limit</h4>
           <p>
               The max an employee may contribute to their 401k for the 2019 tax year is
               <a href="https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-401k-and-profit-sharing-plan-contribution-limits">
@@ -52,29 +53,17 @@
           </p>
           <p>
               To reach the max contribution limit by the end of 2019 with <span id="paychecks-remaining"></span> paychecks remaining,
-              you need to contribute <span id="should-contribute-for-max"></span> per paycheck
+              you need to contribute <strong><span id="should-contribute-for-max"></span></strong> per paycheck
               for a total of <span id="remaining-should-contribute-for-year"></span>.
               If you contribute the suggested amount per paycheck you will contribute a total of <span id="total-should-contribute-for-year"></span>
               by the end of the year.
           </p>
-          <h2>Pay Days</h2>
+          <h3>Pay Days</h3>
           <p>
               Pay dates are from today, until the end of the year assuming a biweekly (two week) pay cycle with a paycheck on 04/12/2019 UTC.
           </p>
-          <div class="pay-days-container">
-          </div>
-          <form>
-              <input id="save" type="button" value="Save" class="btn btn-primary" />
-              <div class="form-group">
-                  <label for="acceptLicense">
-                      <a target="_blank" href="https://www.primordial-software.com/LICENSE.txt">
-                          Agree to License
-                      </a>
-                  </label>
-                  <input type="checkbox" id="acceptLicense">
-                  <span class="licenseAgreementDetails"></span>
-              </div>
-          </form>
+          <div class="pay-days-container"></div>
+          <input id="save" type="button" value="Save" class="btn btn-primary" />
       </form>
   </div>
   </body>

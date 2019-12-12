@@ -11,12 +11,24 @@ const LinkBankAccountController = require('./controllers/link-bank-account-contr
 const Nav = require('./nav');
 const AccountSettingsView = require('./views/account-settings-view');
 const Util = require('./util');
+const DataClient = require('./data-client');
 
-$(document).ready(function () {
+async function init() {
     'use strict';
-    Nav.initNav($('.tab-nav-bar'));
-    let controller;
     let pageName = window.location.href.split('/').pop().toLocaleLowerCase();
+    let showPayroll;
+    let usernameResponse;
+    try {
+        if (!pageName.startsWith('login.html')) { // Avoid infinite loop when logged outf
+            usernameResponse = await new DataClient().get('getusername');
+            showPayroll = (usernameResponse || '').username === 'timg456789@yahoo.com';
+        }
+    } catch (err) {
+        Util.log(err);
+    }
+    let navView = Nav.getNavView(showPayroll);
+    $('.tab-nav-bar').append(navView);
+    let controller;
     if (pageName === '' || pageName.startsWith('index.html')) {
         controller = new HomeController();
     } else if (pageName.startsWith('balance-sheet.html')) {
@@ -47,6 +59,7 @@ $(document).ready(function () {
     `);
     $('#page-footer').append(`<div id="debug-console" class="no-print"></div>`);
     $('#page-footer').append(`<div id="account-settings-container"></div>`).append(AccountSettingsView.getAccountSettingsView());
+    $('#account-settings-view-cognito-user').val((usernameResponse || '').username);
     $('#page-footer').append(`<div id="raw-data-container"></div>`).append(AccountSettingsView.getRawDataView());
     $('#page-footer').append(`
         <div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
@@ -57,4 +70,8 @@ $(document).ready(function () {
         <div class="loader-group hide modal-backdrop fade in"></div>
     `);
     controller.init();
+}
+
+$(document).ready(function () {
+    init();
 });

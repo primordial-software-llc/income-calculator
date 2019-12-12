@@ -30,7 +30,6 @@ function AccountSettingsController() {
             window.location.reload();
         });
         $('#account-settings-button').click(() => {
-            $('#account-settings-view-cognito-user').val(Util.getUsername());
             $('#account-settings-view').modal({backdrop: 'static'});
         });
         $('#log-out-button').click(async () => {

@@ -1,7 +1,7 @@
 const Util = require('./util');
-exports.initNav = function (target) {
+exports.getNavView = function (showPayroll) {
     let root = Util.rootUrl();
-    target.append(`<div class="container">
+    return $(`<div class="container">
           <div class="container-fluid">
               <a class="tab-nav-item" href="${root}/index.html" title="Budget">
                   <span class="ac-gn-link-text">Budget</span>
@@ -21,9 +21,9 @@ exports.initNav = function (target) {
               <a class="tab-nav-item" href="${root}/pages/prices.html" title="Prices">
                   <span class="ac-gn-link-text">Prices</span>
               </a>
-              <a class="tab-nav-item" href="${root}/pages/pay-days.html" title="Pay Days">
+              ${showPayroll ? `<a class="tab-nav-item" href="${root}/pages/pay-days.html" title="Pay Days">
                   <span class="ac-gn-link-text">Pay Days</span>
-              </a>
+              </a>` : ''}
               <a class="tab-nav-item" href="${root}/pages/link-bank-account.html" title="View and Manage Linked Banks">
                   <span class="ac-gn-link-text">Banks</span>
               </a>
