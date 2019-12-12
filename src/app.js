@@ -15,18 +15,35 @@ const DataClient = require('./data-client');
 
 async function init() {
     'use strict';
+    let obfuscate = Util.obfuscate();
+    $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView(obfuscate));
+    $('body').append('<div id="page-footer"></div>');
+    $('#page-footer').append(`
+        <hr />
+        <p class="text-center">By browsing and using this site you agree to our <a target="_blank" href="https://www.primordial-software.com/LICENSE.txt">license</a>
+    `);
+    $('#page-footer').append(`<div id="debug-console" class="no-print"></div>`);
+    $('#page-footer').append(`<div id="account-settings-container"></div>`).append(AccountSettingsView.getAccountSettingsView());
+    $('#page-footer').append(`<div id="raw-data-container"></div>`).append(AccountSettingsView.getRawDataView());
+    $('#page-footer').append(`
+        <div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
+              <div class="modal-dialog">
+                <div class="loader"></div>
+              </div>
+          </div>
+        <div class="loader-group hide modal-backdrop fade in"></div>
+    `);
     let pageName = window.location.href.split('/').pop().toLocaleLowerCase();
-    let showPayroll;
     let usernameResponse;
     try {
         if (!pageName.startsWith('login.html')) { // Avoid infinite loop when logged outf
             usernameResponse = await new DataClient().get('getusername');
-            showPayroll = (usernameResponse || '').username === 'timg456789@yahoo.com';
         }
     } catch (err) {
         Util.log(err);
     }
-    let navView = Nav.getNavView(showPayroll);
+    $('#account-settings-view-cognito-user').val((usernameResponse || '').username);
+    let navView = Nav.getNavView((usernameResponse || '').username === 'timg456789@yahoo.com');
     $('.tab-nav-bar').append(navView);
     let controller;
     if (pageName === '' || pageName.startsWith('index.html')) {
@@ -50,25 +67,6 @@ async function init() {
     } else if (pageName.startsWith('link-bank-account.html')) {
         controller = new LinkBankAccountController();
     }
-    let obfuscate = Util.obfuscate();
-    $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView(obfuscate));
-    $('body').append('<div id="page-footer"></div>');
-    $('#page-footer').append(`
-        <hr />
-        <p class="text-center">By browsing and using this site you agree to our <a target="_blank" href="https://www.primordial-software.com/LICENSE.txt">license</a>
-    `);
-    $('#page-footer').append(`<div id="debug-console" class="no-print"></div>`);
-    $('#page-footer').append(`<div id="account-settings-container"></div>`).append(AccountSettingsView.getAccountSettingsView());
-    $('#account-settings-view-cognito-user').val((usernameResponse || '').username);
-    $('#page-footer').append(`<div id="raw-data-container"></div>`).append(AccountSettingsView.getRawDataView());
-    $('#page-footer').append(`
-        <div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
-              <div class="modal-dialog">
-                <div class="loader"></div>
-              </div>
-          </div>
-        <div class="loader-group hide modal-backdrop fade in"></div>
-    `);
     controller.init();
 }
 
