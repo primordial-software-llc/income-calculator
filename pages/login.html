@@ -35,13 +35,20 @@
             <a href="login-signup.html">Create New Account</a>
         </div>
     </form>
-    <form class="mfa-form hide">
+    <div class="mfa-form hide">
         <div class="form-group sign-in-mfa-code-container">
             <label for="mfaCode">MFA Code</label>
             <input type="text" class="form-control" id="mfaCode">
         </div>
         <button id="mfa-button" type="button" class="btn btn-primary">Sign In</button>
-    </form>
+    </div>
+    <div class="mfa-confirm-form hide">
+        <div class="form-group sign-in-mfa-code-container">
+            <label for="mfaCode">MFA Code</label>
+            <input type="text" class="form-control" id="mfa-confirm-code">
+        </div>
+        <button id="mfa-confirm-button" type="button" class="btn btn-primary">Sign In</button>
+    </div>
     <form class="form-additional-fields hide">
         <div class="form-group password-group">
             <label for="login-new-password">New Password</label>

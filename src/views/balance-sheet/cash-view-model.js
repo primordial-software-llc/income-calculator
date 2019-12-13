@@ -8,9 +8,17 @@ function CashViewModel() {
     this.getViewDescription = () => 'Cash';
     this.getViewType = () => 'cash';
     this.getModel = function (target) {
+        let name = $(target).find('input.name').val().trim();
+        $(target).find('.required-field-description').remove();
+        $(target).find('input.name').removeClass('required-field-validation');
+        if (!name) {
+            $(target).find('input.name').after('<div class="required-field-description">*Required</div>')
+            $(target).find('input.name').addClass('required-field-validation');
+            return;
+        }
         return {
             amount: $(target).find('input.amount').val().trim(),
-            name: $(target).find('input.name').val().trim()
+            name: name
         };
     };
     this.getHeaderView = () =>

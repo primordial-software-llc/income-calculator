@@ -128,10 +128,15 @@ function LoginController() {
             totpRequired : function(secretCode) {
                 setMessage('');
                 $('.login-form').addClass('hide');
-                $('.mfa-form').removeClass('hide');
-                $('#mfa-button').unbind();
-                $('#mfa-button').click(function () {
-                    cognitoUser.sendMFACode($('#mfaCode').val(), getAuthCallback(cognitoUser, username, password), 'SOFTWARE_TOKEN_MFA')
+                $('.mfa-confirm-form').removeClass('hide');
+                $('#mfa-confirm-button').unbind();
+                $(document).on('keypress.mfa-confirm-submit', function(e) {
+                    if(e.which === 13 && !$('.mfa-confirm-form').hasClass('hide')) {
+                        cognitoUser.sendMFACode($('#mfa-confirm-code').val(), getAuthCallback(cognitoUser, username, password), 'SOFTWARE_TOKEN_MFA')
+                    }
+                });
+                $('#mfa-confirm-button').click(function () {
+                    cognitoUser.sendMFACode($('#mfa-confirm-code').val(), getAuthCallback(cognitoUser, username, password), 'SOFTWARE_TOKEN_MFA')
                 });
             }
         };

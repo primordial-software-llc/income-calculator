@@ -30,34 +30,35 @@ function TransferController() {
             transferView.append(saveTransferBtn);
             let cancelTransferBtn = $(`<input type="button" value="Cancel" class="btn btn-default cancel">`);
             transferView.append(cancelTransferBtn);
-            saveTransferBtn.click(function () {
+            saveTransferBtn.click(async function () {
                 let dataClient = new DataClient();
-                dataClient.getBudget()
-                    .then(data => {
-                        let patch = {};
-                        data.pending = data.pending || [];
-                        patch.pending = data.pending;
-                        let transferModel = viewModel.getModel(newView);
-                        transferModel.id = Util.guid();
-                        if (transferModel.amount) {
-                            transferModel.amount = Util.cleanseNumericString(transferModel.amount);
-                        }
-                        transferModel.transferDate = Moment(transferView.find('.transfer-date').val().trim(), 'YYYY-MM-DD UTC Z');
-                        transferModel.debitAccount = debitAccountName;
-                        transferModel.type = viewModel.getViewType();
-                        if (!transferModel.creditAccount) {
-                            transferModel.creditAccount = transferModel.name;
-                        }
-                        transferModel.debitId = debitId;
-                        patch.pending.push(transferModel);
-                        return dataClient.patch(patch);
-                    })
-                    .then(putResult => {
-                        window.location.reload();
-                    })
-                    .catch(err => {
-                        Util.log(err);
-                    });
+                try {
+                    let data = await dataClient.getBudget();
+                    let patch = {};
+                    data.pending = data.pending || [];
+                    patch.pending = data.pending;
+                    let transferModel = viewModel.getModel(newView);
+                    if (!transferModel) {
+                        return;
+                    }
+                    transferModel.id = Util.guid();
+                    if (transferModel.amount) {
+                        transferModel.amount = Util.cleanseNumericString(transferModel.amount);
+                    }
+                    transferModel.transferDate = Moment(transferView.find('.transfer-date').val().trim(), 'YYYY-MM-DD UTC Z');
+                    transferModel.debitAccount = debitAccountName;
+                    transferModel.type = viewModel.getViewType();
+                    if (!transferModel.creditAccount) {
+                        transferModel.creditAccount = transferModel.name;
+                    }
+                    transferModel.debitId = debitId;
+                    patch.pending.push(transferModel);
+
+                    await dataClient.patch(patch);
+                    window.location.reload();
+                } catch (error) {
+                    Util.log(err);
+                }
             });
             cancelTransferBtn.click(function () {
                 transferButton.find('button').attr("disabled", false);

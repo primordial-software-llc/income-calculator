@@ -366,6 +366,15 @@ h4 {
     padding-left: 0px;
 }
 
+/* Forms */
+.required-field-validation {
+    border: 1px solid red;
+}
+
+.required-field-description {
+    font-weight: bold;
+}
+
 /* Printing */
 @media print
 {
@@ -374,6 +383,8 @@ h4 {
         display: none !important;
     }
 }
+
+/* Loader */
 
 .loader-container {
     position: fixed;
