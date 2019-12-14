@@ -1,12 +1,12 @@
 const AccountsController = require('./controllers/accounts-controller');
 const BudgetCalendarController = require('./controllers/budget-calendar-controller');
-const BalanceSheetController = require('./controllers/balance-sheet-controller');
+import BalanceSheetController from './controllers/balance-sheet-controller';
 import HomeController from './controllers/home-controller';
 const PayDaysController = require('./controllers/pay-days-controller');
-const DepositController = require('./controllers/deposit-controller');
+import DepositController from './controllers/deposit-controller';
 const PricesController = require('./controllers/prices-controller');
 const LoginController = require('./controllers/login-controller');
-const LoginSignupController = require('./controllers/login-signup-controller');
+import LoginSignupController from './controllers/login-signup-controller';
 const LinkBankAccountController = require('./controllers/link-bank-account-controller');
 const Nav = require('./nav');
 const AccountSettingsView = require('./views/account-settings-view');
@@ -36,14 +36,18 @@ async function init() {
     let pageName = window.location.href.split('/').pop().toLocaleLowerCase();
     let usernameResponse;
     try {
-        if (!pageName.startsWith('login.html')) { // Avoid infinite loop when logged outf
-            usernameResponse = await new DataClient().get('getusername');
+        if (!pageName.startsWith('login.html') &&
+            !pageName.startsWith('login-signup.html')) {
+            usernameResponse = await new DataClient().getBudget();
+            $('#account-settings-view-cognito-user').text(usernameResponse.email);
+            $('#account-settings-view-license-agreement').append(
+                `Agreed to license on ${usernameResponse.licenseAgreement.agreementDateUtc} ` +
+                `from IP ${usernameResponse.licenseAgreement.ipAddress}`);
         }
     } catch (err) {
         Util.log(err);
     }
-    $('#account-settings-view-cognito-user').val((usernameResponse || '').username);
-    let navView = Nav.getNavView((usernameResponse || '').username === 'timg456789@yahoo.com');
+    let navView = Nav.getNavView((usernameResponse || {}).email === 'timg456789@yahoo.com');
     $('.tab-nav-bar').append(navView);
     let controller;
     if (pageName === '' || pageName.startsWith('index.html')) {

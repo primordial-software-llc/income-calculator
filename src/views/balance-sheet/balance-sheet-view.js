@@ -1,6 +1,6 @@
 const LoanViewModel = require('./loan-view-model');
-const CashViewModel = require('./cash-view-model');
-const CashOrStockViewModel = require('./cash-or-stock-view-model');
+import CashViewModel from './cash-view-model';
+const EquityViewModel = require('./equity-view-model');
 import PropertyPlantAndEquipmentViewModel from './property-plant-and-equipment-view-model';
 const BondViewModel = require('./bond-view-model');
 const cal = require('../../calculators/calendar');
@@ -31,7 +31,7 @@ function getWeeklyAmount(budget, debtName) {
 exports.setView = function (budget, obfuscate) {
     $('#balance-input-group').empty();
     $('.cash-header-container').append(new CashViewModel().getReadOnlyHeaderView());
-    $('.assets-header-container').append(new CashOrStockViewModel().getReadOnlyHeaderView());
+    $('.assets-header-container').append(new EquityViewModel().getReadOnlyHeaderView());
     $('.property-plant-and-equipment-header-container').append(new PropertyPlantAndEquipmentViewModel().getReadOnlyHeaderView());
     let debtTotal = Currency(0, Util.getCurrencyDefaults());
     let totalDemandDepositsAndCash = Currency(0, Util.getCurrencyDefaults());
@@ -45,7 +45,7 @@ exports.setView = function (budget, obfuscate) {
     }
     for (let cashAccount of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'cash')) {
         totalDemandDepositsAndCash = totalDemandDepositsAndCash.add(cashAccount.amount);
-        let view = new CashViewModel().getReadOnlyView(cashAccount, obfuscate);
+        let view = new CashViewModel().getReadOnlyView(cashAccount, obfuscate, budget.pending);
         $('#cash-input-group').append(view);
     }
     for (let tangibleAsset of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'property-plant-and-equipment')) {
@@ -53,12 +53,12 @@ exports.setView = function (budget, obfuscate) {
         $('#property-plant-and-equipment-input-group').append(new PropertyPlantAndEquipmentViewModel().getReadOnlyView(
             tangibleAsset, obfuscate));
     }
-    let equityViewModel = new CashOrStockViewModel();
+    let equityViewModel = new EquityViewModel();
     for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
         totalEquities = totalEquities.add(Util.getAmount(equity));
     }
     for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
-        let view = equityViewModel.getReadOnlyView(equity, totalEquities.toString(), budget.pending, obfuscate);
+        let view = equityViewModel.getReadOnlyView(equity, totalEquities.toString(), obfuscate);
         $('#asset-input-group').append(view);
     }
     let sortedBonds = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'bond');
@@ -91,11 +91,11 @@ exports.setView = function (budget, obfuscate) {
         .add(totalDemandDepositsAndCash)
         .add(totalEquities)
         .add(totalBonds);
-    $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
+    $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
     $('#cash-and-stocks-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Equities<span class="pull-right amount">
-            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
+            ${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
     $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
-            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString()}</span></div>`));
+            ${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString()}</span></div>`));
     $('#total-tangible-assets').text(Util.format(totalPropertyPlantAndEquipment));
     $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets.toString()));
     $('#total-debt').text(`(${Util.format(debtTotal)})`);

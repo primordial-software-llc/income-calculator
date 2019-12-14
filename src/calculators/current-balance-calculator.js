@@ -1,8 +1,12 @@
 const Currency = require('currency.js');
 const Util = require('../util');
-function AvailableBalanceCalculator() {
-    this.getAvailableBalance = function (accountName, startingBalance, allPendingTransfers, accountType,
-                                         accountId) {
+export default class CurrentBalanceCalculator {
+    static getCurrentBalance(
+        accountName,
+        startingBalance,
+        allPendingTransfers,
+        accountType,
+        accountId) {
         return (allPendingTransfers || []).filter(x =>
             x.creditAccount.toLowerCase() === accountName.toLowerCase() || // No credit id while accounts are typed with free-text
             x.debitId === accountId
@@ -16,4 +20,3 @@ function AvailableBalanceCalculator() {
         }, {amount: Currency(startingBalance, Util.getCurrencyDefaults())}).amount.toString();
     };
 }
-module.exports = AvailableBalanceCalculator;

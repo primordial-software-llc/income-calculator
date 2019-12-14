@@ -1,3 +1,4 @@
+import CashViewModel from './cash-view-model';
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 const Util = require('../../util');
 export default class PropertyPlantAndEquipmentViewModel {
@@ -38,7 +39,6 @@ export default class PropertyPlantAndEquipmentViewModel {
                 </div>
             </div>`);
 
-        const CashViewModel = require('./cash-view-model');
         new TransferController().init(
             view.find('.transfer-button'),
             view,

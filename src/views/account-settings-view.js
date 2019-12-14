@@ -27,7 +27,11 @@ exports.getAccountSettingsView = () =>
                   <form>
                       <div class="form-group">
                           <label for="account-settings-view-cognito-user">User</label>
-                          <input type="email" class="form-control" id="account-settings-view-cognito-user">
+                          <div id="account-settings-view-cognito-user"></div>
+                      </div>
+                      <div class="form-group">
+                          <label for="account-settings-view-cognito-user">License Agreement</label>
+                          <div id="account-settings-view-license-agreement"></div>
                       </div>
                   </form>
               </div>

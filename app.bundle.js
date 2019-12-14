@@ -19187,7 +19187,13 @@ arguments[4][29][0].apply(exports,arguments)
 },{"dup":29}],62:[function(require,module,exports){
 "use strict";
 
+var _balanceSheetController = _interopRequireDefault(require("./controllers/balance-sheet-controller"));
+
 var _homeController = _interopRequireDefault(require("./controllers/home-controller"));
+
+var _depositController = _interopRequireDefault(require("./controllers/deposit-controller"));
+
+var _loginSignupController = _interopRequireDefault(require("./controllers/login-signup-controller"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19195,17 +19201,11 @@ const AccountsController = require('./controllers/accounts-controller');
 
 const BudgetCalendarController = require('./controllers/budget-calendar-controller');
 
-const BalanceSheetController = require('./controllers/balance-sheet-controller');
-
 const PayDaysController = require('./controllers/pay-days-controller');
-
-const DepositController = require('./controllers/deposit-controller');
 
 const PricesController = require('./controllers/prices-controller');
 
 const LoginController = require('./controllers/login-controller');
-
-const LoginSignupController = require('./controllers/login-signup-controller');
 
 const LinkBankAccountController = require('./controllers/link-bank-account-controller');
 
@@ -19242,23 +19242,23 @@ async function init() {
   let usernameResponse;
 
   try {
-    if (!pageName.startsWith('login.html')) {
-      // Avoid infinite loop when logged outf
-      usernameResponse = await new DataClient().get('getusername');
+    if (!pageName.startsWith('login.html') && !pageName.startsWith('login-signup.html')) {
+      usernameResponse = await new DataClient().getBudget();
+      $('#account-settings-view-cognito-user').text(usernameResponse.email);
+      $('#account-settings-view-license-agreement').append(`Agreed to license on ${usernameResponse.licenseAgreement.agreementDateUtc} ` + `from IP ${usernameResponse.licenseAgreement.ipAddress}`);
     }
   } catch (err) {
     Util.log(err);
   }
 
-  $('#account-settings-view-cognito-user').val((usernameResponse || '').username);
-  let navView = Nav.getNavView((usernameResponse || '').username === 'timg456789@yahoo.com');
+  let navView = Nav.getNavView((usernameResponse || {}).email === 'timg456789@yahoo.com');
   $('.tab-nav-bar').append(navView);
   let controller;
 
   if (pageName === '' || pageName.startsWith('index.html')) {
     controller = new _homeController.default();
   } else if (pageName.startsWith('balance-sheet.html')) {
-    controller = new BalanceSheetController();
+    controller = new _balanceSheetController.default();
   } else if (pageName.startsWith('pay-days.html')) {
     controller = new PayDaysController();
   } else if (pageName.startsWith('budget-calendar.html')) {
@@ -19266,13 +19266,13 @@ async function init() {
   } else if (pageName.startsWith('accounts.html')) {
     controller = new AccountsController();
   } else if (pageName.startsWith('deposit.html')) {
-    controller = new DepositController();
+    controller = new _depositController.default();
   } else if (pageName.startsWith('prices.html')) {
     controller = new PricesController();
   } else if (pageName.startsWith('login.html')) {
     controller = new LoginController();
   } else if (pageName.startsWith('login-signup.html')) {
-    controller = new LoginSignupController();
+    controller = new _loginSignupController.default();
   } else if (pageName.startsWith('link-bank-account.html')) {
     controller = new LinkBankAccountController();
   }
@@ -19285,26 +19285,6 @@ $(document).ready(function () {
 });
 
 },{"./controllers/accounts-controller":73,"./controllers/balance-sheet-controller":74,"./controllers/budget-calendar-controller":76,"./controllers/deposit-controller":77,"./controllers/home-controller":78,"./controllers/link-bank-account-controller":79,"./controllers/login-controller":80,"./controllers/login-signup-controller":81,"./controllers/pay-days-controller":82,"./controllers/prices-controller":83,"./data-client":84,"./nav":85,"./util":86,"./views/account-settings-view":87}],63:[function(require,module,exports){
-const Currency = require('currency.js');
-const Util = require('../util');
-function AvailableBalanceCalculator() {
-    this.getAvailableBalance = function (accountName, startingBalance, allPendingTransfers, accountType,
-                                         accountId) {
-        return (allPendingTransfers || []).filter(x =>
-            x.creditAccount.toLowerCase() === accountName.toLowerCase() || // No credit id while accounts are typed with free-text
-            x.debitId === accountId
-        ).reduce((sumTransfer, transfer) => {
-                    sumTransfer.amount =
-                        transfer.creditAccount.toLowerCase() === accountName.toLowerCase() &&
-                        (transfer.type || '').toLowerCase() === (accountType || '').toLowerCase()
-                            ? sumTransfer.amount.add(Util.getAmount(transfer))
-                            : sumTransfer.amount.subtract(Util.getAmount(transfer));
-                    return sumTransfer;
-        }, {amount: Currency(startingBalance, Util.getCurrencyDefaults())}).amount.toString();
-    };
-}
-module.exports = AvailableBalanceCalculator;
-},{"../util":86,"currency.js":26}],64:[function(require,module,exports){
 const CalendarSearch = require('./calendar-search');
 const Currency = require('currency.js');
 const Util = require('../util');
@@ -19362,7 +19342,7 @@ function CalendarAggregator() {
 
 module.exports = CalendarAggregator;
 
-},{"../util":86,"./calendar-search":65,"currency.js":26}],65:[function(require,module,exports){
+},{"../util":86,"./calendar-search":64,"currency.js":26}],64:[function(require,module,exports){
 function CalendarSearch() {
 
     this.find = function (startTime, endTime, transactions) {
@@ -19383,7 +19363,7 @@ function CalendarSearch() {
 }
 
 module.exports = CalendarSearch;
-},{}],66:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 exports.JANUARY = 0;
 exports.FEBRUARY = 1;
 exports.MARCH = 2;
@@ -19417,7 +19397,34 @@ exports.DAY_NAMES = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 
 exports.DAY_NAME_ABBRS = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
 
-},{}],67:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+const Currency = require('currency.js');
+
+const Util = require('../util');
+
+class CurrentBalanceCalculator {
+  static getCurrentBalance(accountName, startingBalance, allPendingTransfers, accountType, accountId) {
+    return (allPendingTransfers || []).filter(x => x.creditAccount.toLowerCase() === accountName.toLowerCase() || // No credit id while accounts are typed with free-text
+    x.debitId === accountId).reduce((sumTransfer, transfer) => {
+      sumTransfer.amount = transfer.creditAccount.toLowerCase() === accountName.toLowerCase() && (transfer.type || '').toLowerCase() === (accountType || '').toLowerCase() ? sumTransfer.amount.add(Util.getAmount(transfer)) : sumTransfer.amount.subtract(Util.getAmount(transfer));
+      return sumTransfer;
+    }, {
+      amount: Currency(startingBalance, Util.getCurrencyDefaults())
+    }).amount.toString();
+  }
+
+}
+
+exports.default = CurrentBalanceCalculator;
+
+},{"../util":86,"currency.js":26}],67:[function(require,module,exports){
 const cal = require('./calendar');
 const UtcDay = require('./utc-day');
 function NetIncomeCalculator() {
@@ -19498,7 +19505,7 @@ function NetIncomeCalculator() {
 }
 
 module.exports = NetIncomeCalculator;
-},{"./calendar":66,"./utc-day":69}],68:[function(require,module,exports){
+},{"./calendar":65,"./utc-day":69}],68:[function(require,module,exports){
 const Calendar = require('./calendar');
 
 function PayoffDateCalculator() {
@@ -19548,7 +19555,7 @@ function PayoffDateCalculator() {
 
 module.exports = PayoffDateCalculator;
 
-},{"./calendar":66}],69:[function(require,module,exports){
+},{"./calendar":65}],69:[function(require,module,exports){
 exports.UTC_DAY_MILLISECONDS = 86400000;
 
 function UtcDay() {
@@ -19759,7 +19766,7 @@ exports.load = function (budgetSettings, start, end) {
     });
 };
 
-},{"./calculators/calendar":66,"./calculators/calendar-aggregator":64,"./calculators/net-income-calculator":67,"./calendar-calculator":70,"./util":86}],72:[function(require,module,exports){
+},{"./calculators/calendar":65,"./calculators/calendar-aggregator":63,"./calculators/net-income-calculator":67,"./calendar-calculator":70,"./util":86}],72:[function(require,module,exports){
 const DataClient = require('../data-client');
 const Util = require('../util');
 function AccountSettingsController() {
@@ -19839,192 +19846,238 @@ function AccountSettingsController() {
 
 module.exports = AccountSettingsController;
 },{"../data-client":84,"../util":86}],73:[function(require,module,exports){
+"use strict";
+
+var _transferView = _interopRequireDefault(require("../views/transfer-view"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const AccountSettingsController = require('./account-settings-controller');
-const AccountsView = require('../views/accounts-view');
-const AvailableBalanceCalculator = require('../calculators/available-balance-calculator');
+
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
+
 const Currency = require('currency.js');
+
 const DataClient = require('../data-client');
+
 const Util = require('../util');
+
 function AccountsController() {
-    'use strict';
-    let dataClient;
-    async function cancelTransfer(transferId) {
-        try {
-            let data = await dataClient.getBudget();
-            let patch = {};
-            patch.pending = data.pending.filter(x => x.id != transferId);
-            await dataClient.patch(patch);
-            window.location.reload();
-        } catch (error) {
-            Util.log(error);
-        }
+  'use strict';
+
+  let dataClient;
+
+  async function cancelTransfer(transferId) {
+    try {
+      let data = await dataClient.getBudget();
+      let patch = {};
+      patch.pending = data.pending.filter(x => x.id != transferId);
+      await dataClient.patch(patch);
+      window.location.reload();
+    } catch (error) {
+      Util.log(error);
     }
-    async function completeTransfer(transferId) {
-        let data = await dataClient.getBudget();
-        let patch = { assets: data.assets || [] };
-        let credit = data.pending.find(x => x.id === transferId);
-        credit.type = credit.type || '';
-        patch.pending = data.pending.filter(x => x.id !== transferId);
-        let debitAccount = patch.assets.find(x => x.id === credit.debitId);
-        let creditAmount = Util.getAmount(credit);
-        if (debitAccount.shares && debitAccount.sharePrice) {
-            let newDebitAmount = Currency(Util.getAmount(debitAccount), Util.getCurrencyDefaults()).subtract(Util.getAmount(credit)).toString();
-            debitAccount.shares = Currency(newDebitAmount, Util.getCurrencyDefaults()).divide(debitAccount.sharePrice).toString();
-        } else {
-            debitAccount.amount = Currency(debitAccount.amount, Util.getCurrencyDefaults()).subtract(creditAmount).toString();
-        }
-        if (credit.type.toLowerCase() !== 'expense') {
-            let creditAccount = patch.assets.find(asset =>
-                (asset.type || '').toLowerCase() == (credit.type).toLowerCase() &&
-                (asset.name || '').toLowerCase() === credit.creditAccount.toLowerCase());
-            if (!creditAccount) {
-                delete credit.creditAccount;
-                delete credit.debitAccount;
-                delete credit.transferDate;
-                creditAccount = {
-                    name: credit.name,
-                    amount: credit.amount,
-                    sharePrice: credit.sharePrice,
-                    shares: credit.shares,
-                    daysToMaturation: credit.daysToMaturation,
-                    id: credit.id,
-                    issueDate: credit.issueDate,
-                    type: credit.type
-                };
-                patch.assets.push(creditAccount);
-            } else {
-                if (credit.shares && credit.sharePrice) {
-                    creditAccount.shares = Currency(creditAccount.shares, Util.getCurrencyDefaults()).add(credit.shares).toString();
-                } else {
-                    creditAccount.amount = Currency(creditAccount.amount, Util.getCurrencyDefaults()).add(credit.amount).toString();
-                }
-            }
-        }
-        patch.assets = patch.assets.filter(x => Currency(Util.getAmount(x)).intValue > 0);
-        try {
-            await dataClient.patch(patch);
-            window.location.reload();
-        } catch (err) {
-            Util.log(err);
-        }
-    }
-    function setView(data) {
-        for (let transfer of data.pending || []) {
-            let transferView = AccountsView.getTransferView(transfer);
-            transferView.find('.cancel-transfer').click(function () { cancelTransfer(transfer.id) });
-            transferView.find('.complete-transfer').click(function () { completeTransfer(transfer.id) });
-            $('.accounts-container').append(transferView);
-        }
-        return;
-    }
-    async function refresh() {
-        try {
-            let data = await dataClient.getBudget('budget');
-            setView(data);
-            if (location.hash && document.querySelector(location.hash)) {
-                window.scrollTo(0, document.querySelector(location.hash).offsetTop);
-            }
-        } catch (err) {
-            Util.log(err);
-        }
-    }
-    this.init = function () {
-        dataClient = new DataClient();
-        new AccountSettingsController().init(balanceSheetView);
-        refresh();
+  }
+
+  async function completeTransfer(transferId) {
+    let data = await dataClient.getBudget();
+    let patch = {
+      assets: data.assets || []
     };
+    let credit = data.pending.find(x => x.id === transferId);
+    credit.type = credit.type || '';
+    patch.pending = data.pending.filter(x => x.id !== transferId);
+    let debitAccount = patch.assets.find(x => x.id === credit.debitId);
+    let creditAmount = Util.getAmount(credit);
+
+    if (debitAccount.shares && debitAccount.sharePrice) {
+      let newDebitAmount = Currency(Util.getAmount(debitAccount), Util.getCurrencyDefaults()).subtract(Util.getAmount(credit)).toString();
+      debitAccount.shares = Currency(newDebitAmount, Util.getCurrencyDefaults()).divide(debitAccount.sharePrice).toString();
+    } else {
+      debitAccount.amount = Currency(debitAccount.amount, Util.getCurrencyDefaults()).subtract(creditAmount).toString();
+    }
+
+    if (credit.type.toLowerCase() !== 'expense') {
+      let creditAccount = patch.assets.find(asset => (asset.type || '').toLowerCase() == credit.type.toLowerCase() && (asset.name || '').toLowerCase() === credit.creditAccount.toLowerCase());
+
+      if (!creditAccount) {
+        delete credit.creditAccount;
+        delete credit.debitAccount;
+        delete credit.transferDate;
+        creditAccount = {
+          name: credit.name,
+          amount: credit.amount,
+          sharePrice: credit.sharePrice,
+          shares: credit.shares,
+          daysToMaturation: credit.daysToMaturation,
+          id: credit.id,
+          issueDate: credit.issueDate,
+          type: credit.type
+        };
+        patch.assets.push(creditAccount);
+      } else {
+        if (credit.shares && credit.sharePrice) {
+          creditAccount.shares = Currency(creditAccount.shares, Util.getCurrencyDefaults()).add(credit.shares).toString();
+        } else {
+          creditAccount.amount = Currency(creditAccount.amount, Util.getCurrencyDefaults()).add(credit.amount).toString();
+        }
+      }
+    }
+
+    patch.assets = patch.assets.filter(x => Currency(Util.getAmount(x)).intValue > 0);
+
+    try {
+      await dataClient.patch(patch);
+      window.location.reload();
+    } catch (err) {
+      Util.log(err);
+    }
+  }
+
+  function setView(data) {
+    for (let transfer of data.pending || []) {
+      let transferView = new _transferView.default().getTransferView(transfer);
+      transferView.find('.cancel-transfer').click(function () {
+        cancelTransfer(transfer.id);
+      });
+      transferView.find('.complete-transfer').click(function () {
+        completeTransfer(transfer.id);
+      });
+      $('.accounts-container').append(transferView);
+    }
+
+    return;
+  }
+
+  async function refresh() {
+    try {
+      let data = await dataClient.getBudget('budget');
+      setView(data);
+
+      if (location.hash && document.querySelector(location.hash)) {
+        window.scrollTo(0, document.querySelector(location.hash).offsetTop);
+      }
+    } catch (err) {
+      Util.log(err);
+    }
+  }
+
+  this.init = function () {
+    dataClient = new DataClient();
+    new AccountSettingsController().init(balanceSheetView);
+    refresh();
+  };
 }
 
 module.exports = AccountsController;
-},{"../calculators/available-balance-calculator":63,"../data-client":84,"../util":86,"../views/accounts-view":88,"../views/balance-sheet/balance-sheet-view":89,"./account-settings-controller":72,"currency.js":26}],74:[function(require,module,exports){
+
+},{"../data-client":84,"../util":86,"../views/balance-sheet/balance-sheet-view":88,"../views/transfer-view":102,"./account-settings-controller":72,"currency.js":26}],74:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 const AccountSettingsController = require('./account-settings-controller');
+
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
+
 const Currency = require('currency.js');
+
 const DataClient = require('../data-client');
+
 const LoanViewModel = require('../views/balance-sheet/loan-view-model');
+
 const Util = require('../util');
-function HomeController() {
-    'use strict';
-    let dataClient;
-    async function refresh() {
-        try {
-            let data = await dataClient.getBudget();
-            let bankData = await dataClient.get('accountBalance'); // Synchronous so there are no uncaught promises if authentication fails. Call to budget is fast anyway.
-            let viewModel = getViewModel(data, bankData);
-            if (Util.obfuscate()) {
-                obfuscate(viewModel);
-            }
-            balanceSheetView.setView(viewModel, Util.obfuscate());
-        } catch (err) {
-            Util.log(err);
-        }
+
+async function refresh() {
+  try {
+    let data = await new DataClient().getBudget();
+    let bankData = await new DataClient().get('accountBalance'); // Synchronous so there are no uncaught promises if authentication fails. Call to budget is fast anyway.
+
+    let viewModel = getViewModel(data, bankData);
+
+    if (Util.obfuscate()) {
+      obfuscate(viewModel);
     }
-    function obfuscate(viewModel) {
-        for (let asset of viewModel.assets) {
-            if (asset.shares) {
-                asset.shares = Currency(asset.shares, Util.getCurrencyDefaults()).multiply(
-                    Util.obfuscationAmount()
-                ).toString();
-            }
-            if (asset.amount) {
-                asset.amount = Currency(asset.amount, Util.getCurrencyDefaults()).multiply(
-                    Util.obfuscationAmount()
-                ).toString();
-            }
-        }
-        for (let debt of viewModel.balances) {
-            debt.amount = Currency(debt.amount, Util.getCurrencyDefaults()).multiply(
-                Util.obfuscationAmount()
-            ).toString();
-        }
-    }
-    function getViewModel(data, bankData) {
-        let viewModel = JSON.parse(JSON.stringify(data));
-        viewModel.assets = viewModel.assets || [];
-        viewModel.balances = viewModel.balances || [];
-        for (let bankAccount of bankData.allAccounts || []) {
-            for (let account of bankAccount.accounts.filter(x => x.type === 'depository')) {
-                viewModel.assets.push({
-                    type: account.type === 'depository' ? 'cash' : '',
-                    name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
-                    amount: account.balances.available,
-                    id: account['account_id'],
-                    isAuthoritative: true
-                });
-            }
-            for (let account of bankAccount.accounts.filter(x => x.type === 'credit')) {
-                viewModel.balances.push({
-                    type: account.type,
-                    name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
-                    amount: account.balances.current,
-                    isAuthoritative: true
-                });
-            }
-        }
-        return viewModel;
-    }
-    this.init = function () {
-        dataClient = new DataClient();
-        new AccountSettingsController().init(balanceSheetView);
-        if (Util.obfuscate()) {
-            $('#add-new-balance').prop('disabled', true);
-        }
-        $('#add-new-balance').click(function () {
-            $('#balance-input-group').append(new LoanViewModel().getView(
-                {
-                    name: 'New Loan',
-                    rate: '.00',
-                    amount: '0',
-                    type: 'credit'
-                }));
-        });
-        refresh();
-    };
+
+    balanceSheetView.setView(viewModel, Util.obfuscate());
+  } catch (err) {
+    Util.log(err);
+  }
 }
 
-module.exports = HomeController;
-},{"../data-client":84,"../util":86,"../views/balance-sheet/balance-sheet-view":89,"../views/balance-sheet/loan-view-model":94,"./account-settings-controller":72,"currency.js":26}],75:[function(require,module,exports){
+function obfuscate(viewModel) {
+  for (let asset of viewModel.assets) {
+    if (asset.shares) {
+      asset.shares = Currency(asset.shares, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+    }
+
+    if (asset.amount) {
+      asset.amount = Currency(asset.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+    }
+  }
+
+  for (let debt of viewModel.balances) {
+    debt.amount = Currency(debt.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+  }
+}
+
+function getViewModel(data, bankData) {
+  let viewModel = JSON.parse(JSON.stringify(data));
+  viewModel.assets = viewModel.assets || [];
+  viewModel.balances = viewModel.balances || [];
+
+  for (let bankAccount of bankData.allAccounts || []) {
+    for (let account of bankAccount.accounts.filter(x => x.type === 'depository')) {
+      viewModel.assets.push({
+        type: 'cash',
+        name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
+        amount: account.balances.available,
+        currentBalance: account.balances.current,
+        id: account['account_id'],
+        isAuthoritative: true
+      });
+    }
+
+    for (let account of bankAccount.accounts.filter(x => x.type === 'credit')) {
+      viewModel.balances.push({
+        type: account.type,
+        name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
+        amount: account.balances.current,
+        isAuthoritative: true
+      });
+    }
+  }
+
+  return viewModel;
+}
+
+class BalanceSheetController {
+  init() {
+    new AccountSettingsController().init(balanceSheetView);
+
+    if (Util.obfuscate()) {
+      $('#add-new-balance').prop('disabled', true);
+    }
+
+    $('#add-new-balance').click(function () {
+      $('#balance-input-group').append(new LoanViewModel().getView({
+        name: 'New Loan',
+        rate: '.00',
+        amount: '0',
+        type: 'credit'
+      }));
+    });
+    refresh();
+  }
+
+}
+
+exports.default = BalanceSheetController;
+
+},{"../data-client":84,"../util":86,"../views/balance-sheet/balance-sheet-view":88,"../views/balance-sheet/loan-view-model":93,"./account-settings-controller":72,"currency.js":26}],75:[function(require,module,exports){
 const DataClient = require('../../data-client');
 const Moment = require('moment/moment');
 const TransferView = require('../../views/balance-sheet/transfer-view');
@@ -20097,7 +20150,7 @@ function TransferController() {
 
 module.exports = TransferController;
 
-},{"../../data-client":84,"../../util":86,"../../views/balance-sheet/transfer-view":96,"moment/moment":31}],76:[function(require,module,exports){
+},{"../../data-client":84,"../../util":86,"../../views/balance-sheet/transfer-view":95,"moment/moment":31}],76:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const CalendarView = require('../calendar-view');
 const DataClient = require('../data-client');
@@ -20148,52 +20201,70 @@ function BudgetCalendarController() {
 
 module.exports = BudgetCalendarController;
 },{"../calendar-view":71,"../data-client":84,"../util":86,"./account-settings-controller":72}],77:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 const AccountSettingsController = require('./account-settings-controller');
+
 const DataClient = require('../data-client');
+
 const Util = require('../util');
-function DepositController() {
-    'use strict';
-    let dataClient;
-    async function deposit(amount) {
-        let dataClient = new DataClient();
-        let data = await dataClient.getBudget();
-        data.assets = data.assets || [];
-        let cashAsset = data.assets.find(x => (x.name || '').toLowerCase() === "cash");
-        if (!cashAsset) {
-            cashAsset = {
-                name: 'Cash',
-                id: Util.guid(),
-                type: 'cash'
-            };
-            data.assets.push(cashAsset);
-        }
-        cashAsset.amount = Util.add(cashAsset.amount, amount);
-        await dataClient.patch({ assets: data.assets });
-        $('#transfer-amount').val('');
-        $('#message-container').html(`<div class="alert alert-success" role="alert">
+
+async function deposit(amount) {
+  let dataClient = new DataClient();
+  let data = await dataClient.getBudget();
+  data.assets = data.assets || [];
+  let cashAsset = data.assets.find(x => (x.name || '').toLowerCase() === "cash");
+
+  if (!cashAsset) {
+    cashAsset = {
+      name: 'Cash',
+      id: Util.guid(),
+      type: 'cash'
+    };
+    data.assets.push(cashAsset);
+  }
+
+  cashAsset.amount = Util.add(cashAsset.amount, amount);
+  await new DataClient().patch({
+    assets: data.assets
+  });
+  $('#transfer-amount').val('');
+  $('#message-container').html(`<div class="alert alert-success" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
                 <p class="mb-0">Deposit successful. New cash Balance: ${Util.format(Util.getAmount(cashAsset))}</p>
             </div>`);
-    }
-    async function initAsync() {
-        if (Util.obfuscate()) {
-            $('#submit-transfer').prop('disabled', true);
-        }
-        $('#submit-transfer').click(function() {
-            $('#submit-transfer').prop('disabled', true);
-            deposit($('#transfer-amount').val().trim());
-        });
-    }
-    this.init = function () {
-        dataClient = new DataClient();
-        new AccountSettingsController().init();
-        initAsync().catch(err => { Util.log(err); });
-    };
 }
 
-module.exports = DepositController;
+async function initAsync() {
+  if (Util.obfuscate()) {
+    $('#submit-transfer').prop('disabled', true);
+  }
+
+  $('#submit-transfer').click(function () {
+    $('#submit-transfer').prop('disabled', true);
+    deposit($('#transfer-amount').val().trim());
+  });
+}
+
+class DepositController {
+  init() {
+    new AccountSettingsController().init();
+    initAsync().catch(err => {
+      Util.log(err);
+    });
+  }
+
+}
+
+exports.default = DepositController;
+
 },{"../data-client":84,"../util":86,"./account-settings-controller":72}],78:[function(require,module,exports){
 "use strict";
 
@@ -20258,7 +20329,7 @@ class HomeController {
 
 exports.default = HomeController;
 
-},{"../data-client":84,"../util":86,"../views/budget/biweekly-view":97,"../views/budget/monthly-view":98,"../views/budget/weekly-view":99,"../views/home-view":100,"./account-settings-controller":72}],79:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../views/budget/biweekly-view":96,"../views/budget/monthly-view":97,"../views/budget/weekly-view":98,"../views/home-view":99,"./account-settings-controller":72}],79:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const Util = require('../util');
@@ -20541,7 +20612,9 @@ module.exports = LoginController;
 },{"../data-client":84,"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17,"otpauth":32,"qrcode":33}],81:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+const DataClient = require('../data-client');
 const Util = require('../util');
+
 function LoginSignupController() {
     'use strict';
     function setError(errorMessage) {
@@ -20568,70 +20641,37 @@ function LoginSignupController() {
         if ($('#login-password').val().trim().length < 1) {
             issues.push('Password is required');
         }
-        if ($('#login-firstname').val().trim().length < 1) {
-            issues.push('First name is required');
-        }
-        if ($('#login-lastname').val().trim().length < 1) {
-            issues.push('Last name is required');
-        }
-        if ($('#login-phone').val().trim().length < 1) {
-            issues.push('Phone number is required');
-        }
-        if ($('#login-date-of-birth').val().trim().length < 1) {
-            issues.push('Date of birth is required');
-        }
-        if ($('#login-address').val().trim().length < 1) {
-            issues.push('Address is required');
-        }
         if (!$('#acceptLicense').is(':checked')) {
             issues.push('You must agree to the license to proceed');
         }
         return issues;
     }
-    function signupUser() {
-        let userPool = new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData());
-        let email = $('#login-username').val().trim();
-        let password = $('#login-password').val().trim();
-        let attributeList = [
-            new AmazonCognitoIdentity.CognitoUserAttribute({
-                Name: 'email', Value: email }),
-            new AmazonCognitoIdentity.CognitoUserAttribute({
-                Name: 'given_name', Value: $('#login-firstname').val().trim() }),
-            new AmazonCognitoIdentity.CognitoUserAttribute({
-                Name: 'family_name', Value: $('#login-lastname').val().trim() }),
-            new AmazonCognitoIdentity.CognitoUserAttribute({
-                Name: 'phone_number', Value: $('#login-phone').val().trim() }),
-            new AmazonCognitoIdentity.CognitoUserAttribute({
-                Name: 'birthdate', Value: $('#login-date-of-birth').val().trim() }),
-            new AmazonCognitoIdentity.CognitoUserAttribute({
-                Name: 'address', Value: $('#login-address').val().trim() })
-        ];
-        userPool.signUp(email, password, attributeList, null, function(
-            error,
-            result
-        ) {
-            if (error) {
-                setError(error.message || JSON.stringify(error));
-                return;
-            }
-            setError('');
-            $('.signup-form').addClass('hide');
-            $('#successMessageAlert').removeClass('hide');
-            $('#successMessageAlert').text(`Your user has successfully been created. ` +
-                                            `Your user name is ${result.user.getUsername()}. ` +
-                                            `A confirmation link has been sent to your email from noreply@primordial-software.com. ` +
-                                            `You need to click the verification link in the email before you can login.`);
-        });
+    async function signupUser() {
+        setError('');
+        let validation = getFieldValidation();
+        if (validation.length > 0) {
+            setError(validation);
+            return;
+        }
+        let dataClient = new DataClient();
+        let response = await dataClient.post('unauthenticated/signup',
+            {
+                email: $('#login-username').val().trim(),
+                password: $('#login-password').val().trim(),
+                agreedToLicense: $('#acceptLicense').is(':checked')
+            });
+        setError('');
+        $('.signup-form').addClass('hide');
+        $('#successMessageAlert').removeClass('hide');
+        $('#successMessageAlert').text(response.status);
     }
     async function initAsync() {
         $('#sign-up-button').click(async function () {
-            setError('');
-            let validation = getFieldValidation();
-            if (validation.length > 0) {
-                setError(validation);
-                return;
+            try {
+                await signupUser();
+            } catch (error) {
+                setError(JSON.stringify(error));
             }
-            signupUser();
         });
     }
     this.init = function () {
@@ -20641,7 +20681,7 @@ function LoginSignupController() {
 }
 
 module.exports = LoginSignupController;
-},{"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17}],82:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17}],82:[function(require,module,exports){
 const moment = require('moment/moment');
 const cal = require('../calculators/calendar');
 const UtcDay = require('../calculators/utc-day');
@@ -20713,7 +20753,7 @@ function PayDaysController() {
 }
 
 module.exports = PayDaysController;
-},{"../calculators/calendar":66,"../calculators/utc-day":69,"../data-client":84,"../util":86,"../views/pay-days-view":101,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],83:[function(require,module,exports){
+},{"../calculators/calendar":65,"../calculators/utc-day":69,"../data-client":84,"../util":86,"../views/pay-days-view":100,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],83:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const PricesView = require('../views/prices-view');
@@ -20748,7 +20788,7 @@ function PricesController() {
 }
 
 module.exports = PricesController;
-},{"../data-client":84,"../util":86,"../views/prices-view":102,"./account-settings-controller":72}],84:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../views/prices-view":101,"./account-settings-controller":72}],84:[function(require,module,exports){
 const Util = require('./util');
 const Currency = require('currency.js');
 function DataClient() {
@@ -20945,7 +20985,8 @@ exports.guid = function () {
 exports.getAmount = function (transaction) {
     return !transaction.sharePrice && !transaction.shares
         ? transaction.amount
-        : Currency(transaction.sharePrice, exports.getCurrencyDefaults()).multiply(transaction.shares).toString();
+        : Currency(transaction.sharePrice, exports.getCurrencyDefaults())
+            .multiply(Currency(transaction.shares, exports.getCurrencyDefaults())).toString();
 };
 exports.getCurrencyDefaults = () => { return {precision: 3} };
 exports.add = (one, two) => Currency(one, exports.getCurrencyDefaults()).add(two).toString();
@@ -21018,7 +21059,11 @@ exports.getAccountSettingsView = () =>
                   <form>
                       <div class="form-group">
                           <label for="account-settings-view-cognito-user">User</label>
-                          <input type="email" class="form-control" id="account-settings-view-cognito-user">
+                          <div id="account-settings-view-cognito-user"></div>
+                      </div>
+                      <div class="form-group">
+                          <label for="account-settings-view-cognito-user">License Agreement</label>
+                          <div id="account-settings-view-license-agreement"></div>
                       </div>
                   </form>
               </div>
@@ -21046,32 +21091,9 @@ exports.getRawDataView = () =>
       </div>
   </div>`;
 },{}],88:[function(require,module,exports){
-const Moment = require('moment');
-const Util = require('../util');
-exports.getTransferView = (transfer) =>
-    $(`<div class="row account-row">
-            <div class="col-xs-2 vertical-align amount-description-column">${Moment(transfer.transferDate).format('LL')}</div>
-            <div class="col-xs-2 vertical-align amount-description-column class="capitalize-first">${transfer.debitAccount}</div>
-            <div class="col-xs-2 vertical-align amount-description-column text-right class="capitalize-first"">
-                ${transfer.type}
-            </div>
-            <div class="col-xs-2 vertical-align amount-description-column text-right class="capitalize-first"">
-                ${transfer.creditAccount}
-            </div>
-            <div class="col-xs-2 vertical-align amount-description-column text-right">${Util.format(Util.getAmount(transfer))}</div>
-            <div class="col-xs-1 text-center">
-                <button type="button" class="complete-transfer btn btn-success add-remove-btn-container add-remove-btn" title="Complete transfer">
-                    <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                </button>
-            </div>
-            <div class="col-xs-1 remove-button-container text-center">
-                <button type="button" class="cancel-transfer btn remove add-remove-btn-container add-remove-btn" title="Cancel transfer">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                </button>
-            </div>
-        </div>`);
-},{"../util":86,"moment":31}],89:[function(require,module,exports){
 "use strict";
+
+var _cashViewModel = _interopRequireDefault(require("./cash-view-model"));
 
 var _propertyPlantAndEquipmentViewModel = _interopRequireDefault(require("./property-plant-and-equipment-view-model"));
 
@@ -21079,9 +21101,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const LoanViewModel = require('./loan-view-model');
 
-const CashViewModel = require('./cash-view-model');
-
-const CashOrStockViewModel = require('./cash-or-stock-view-model');
+const EquityViewModel = require('./equity-view-model');
 
 const BondViewModel = require('./bond-view-model');
 
@@ -21121,8 +21141,8 @@ function getWeeklyAmount(budget, debtName) {
 
 exports.setView = function (budget, obfuscate) {
   $('#balance-input-group').empty();
-  $('.cash-header-container').append(new CashViewModel().getReadOnlyHeaderView());
-  $('.assets-header-container').append(new CashOrStockViewModel().getReadOnlyHeaderView());
+  $('.cash-header-container').append(new _cashViewModel.default().getReadOnlyHeaderView());
+  $('.assets-header-container').append(new EquityViewModel().getReadOnlyHeaderView());
   $('.property-plant-and-equipment-header-container').append(new _propertyPlantAndEquipmentViewModel.default().getReadOnlyHeaderView());
   let debtTotal = Currency(0, Util.getCurrencyDefaults());
   let totalDemandDepositsAndCash = Currency(0, Util.getCurrencyDefaults());
@@ -21138,7 +21158,7 @@ exports.setView = function (budget, obfuscate) {
 
   for (let cashAccount of (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'cash')) {
     totalDemandDepositsAndCash = totalDemandDepositsAndCash.add(cashAccount.amount);
-    let view = new CashViewModel().getReadOnlyView(cashAccount, obfuscate);
+    let view = new _cashViewModel.default().getReadOnlyView(cashAccount, obfuscate, budget.pending);
     $('#cash-input-group').append(view);
   }
 
@@ -21147,14 +21167,14 @@ exports.setView = function (budget, obfuscate) {
     $('#property-plant-and-equipment-input-group').append(new _propertyPlantAndEquipmentViewModel.default().getReadOnlyView(tangibleAsset, obfuscate));
   }
 
-  let equityViewModel = new CashOrStockViewModel();
+  let equityViewModel = new EquityViewModel();
 
   for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
     totalEquities = totalEquities.add(Util.getAmount(equity));
   }
 
   for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
-    let view = equityViewModel.getReadOnlyView(equity, totalEquities.toString(), budget.pending, obfuscate);
+    let view = equityViewModel.getReadOnlyView(equity, totalEquities.toString(), obfuscate);
     $('#asset-input-group').append(view);
   }
 
@@ -21181,11 +21201,11 @@ exports.setView = function (budget, obfuscate) {
   $('#cash-and-stocks-total-amount').append($(`<div class="subtotal">Total Equities<span class="pull-right amount">${Util.format(totalEquities.toString())}</span></div>`));
   $('#bond-total-amount').append(`<div class="subtotal">Total Bonds<span class="pull-right amount">${Util.format(totalBonds.toString())}</span></div>`);
   let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults()).add(totalDemandDepositsAndCash).add(totalEquities).add(totalBonds);
-  $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
+  $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
   $('#cash-and-stocks-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Equities<span class="pull-right amount">
-            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
+            ${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
   $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
-            ${new CashOrStockViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString()}</span></div>`));
+            ${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString()}</span></div>`));
   $('#total-tangible-assets').text(Util.format(totalPropertyPlantAndEquipment));
   $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets.toString()));
   $('#total-debt').text(`(${Util.format(debtTotal)})`);
@@ -21205,37 +21225,48 @@ exports.setView = function (budget, obfuscate) {
   }
 };
 
-},{"../../calculators/calendar":66,"../../util":86,"./bond-view-model":90,"./cash-or-stock-view-model":91,"./cash-view-model":92,"./loan-view-model":94,"./property-plant-and-equipment-view-model":95,"currency.js":26,"moment":31}],90:[function(require,module,exports){
+},{"../../calculators/calendar":65,"../../util":86,"./bond-view-model":89,"./cash-view-model":90,"./equity-view-model":91,"./loan-view-model":93,"./property-plant-and-equipment-view-model":94,"currency.js":26,"moment":31}],89:[function(require,module,exports){
+"use strict";
+
+var _cashViewModel = _interopRequireDefault(require("./cash-view-model"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const Moment = require('moment/moment');
+
 const Util = require('../../util');
+
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
+
 function BondViewModel() {
-    this.getViewDescription = () => 'Bond';
-    this.getViewType = () => 'bond';
-    this.getModel = function (target) {
-        return {
-            amount: $(target).find('input.amount').val().trim(),
-            issueDate: Moment($(target).find('input.issue-date').val().trim(), 'YYYY-MM-DD UTC Z'),
-            daysToMaturation: $(target).find('select.type').val().trim(),
-            creditAccount: 'bond'
-        };
+  this.getViewDescription = () => 'Bond';
+
+  this.getViewType = () => 'bond';
+
+  this.getModel = function (target) {
+    return {
+      amount: $(target).find('input.amount').val().trim(),
+      issueDate: Moment($(target).find('input.issue-date').val().trim(), 'YYYY-MM-DD UTC Z'),
+      daysToMaturation: $(target).find('select.type').val().trim(),
+      creditAccount: 'bond'
     };
-    this.getHeaderView = function () {
-        return $(`<div class="row table-header-row">
+  };
+
+  this.getHeaderView = function () {
+    return $(`<div class="row table-header-row">
               <div class="col-xs-4">Face Value</div>
               <div class="col-xs-4">Issue Date</div>
               <div class="col-xs-4">Time to Maturity</div>
           </div>`);
-    };
-    this.getReadOnlyView = function(bond, disable) {
-        bond = bond || {};
-        let maturityDateText = bond.issueDate
-            ? Moment(bond.issueDate).add(bond.daysToMaturation, 'days').format('YYYY-MM-DD')
-            : '';
-        bond.issueDate = bond.issueDate || new Date().toISOString();
-        bond.amount = bond.amount || '0.00';
-        let viewContainer = $('<div></div>');
-        let view = $(`<div class="bond-item transaction-input-view row">
+  };
+
+  this.getReadOnlyView = function (bond, disable) {
+    bond = bond || {};
+    let maturityDateText = bond.issueDate ? Moment(bond.issueDate).add(bond.daysToMaturation, 'days').format('YYYY-MM-DD') : '';
+    bond.issueDate = bond.issueDate || new Date().toISOString();
+    bond.amount = bond.amount || '0.00';
+    let viewContainer = $('<div></div>');
+    let view = $(`<div class="bond-item transaction-input-view row">
                     <div class="col-xs-2 text-right vertical-align amount-description-column">
                         ${Util.format(bond.amount)}
                     </div>
@@ -21243,157 +21274,55 @@ function BondViewModel() {
                         ${Moment(bond.issueDate).format('YYYY-MM-DD')}
                     </div>
                     <div class="col-xs-3 text-center">
-                        ${bond.daysToMaturation/7} weeks
+                        ${bond.daysToMaturation / 7} weeks
                     </div>
                     <div class="col-xs-2 text-center vertical-align amount-description-column">${maturityDateText}</div>
         `);
-        viewContainer.append(view);
-        let liquidateButton = $(`<div class="col-xs-1">
+    viewContainer.append(view);
+    let liquidateButton = $(`<div class="col-xs-1">
                             <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate bond">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
                             </button>
                           </div>`);
-        view.append(liquidateButton);
-        const CashViewModel = require('./cash-view-model');
-        new TransferController().init(
-            liquidateButton,
-            viewContainer,
-            'bond',
-            [
-                new CashViewModel()
-            ],
-            bond.id,
-            bond.amount);
-        return viewContainer;
-    };
-    this.getView = function (model) {
-        model = model || {};
-        let issueDateText = Moment(model.issueDate || new Date().toISOString()).format('YYYY-MM-DD UTC Z');
-        return $(`<div class="bond-item transaction-input-view row">
+    view.append(liquidateButton);
+    new TransferController().init(liquidateButton, viewContainer, 'bond', [new _cashViewModel.default()], bond.id, bond.amount);
+    return viewContainer;
+  };
+
+  this.getView = function (readOnlyAmount) {
+    return $(`<div class="bond-item transaction-input-view row">
                     <div class="col-xs-4">
                         <div class="input-group">
                             <div class="input-group-addon ">$</div>
-                            <input class="amount form-control text-right" type="text" value="${model.amount || ''}" placeholder="0.00" />
+                            <input class="amount form-control text-right" type="text" placeholder="0.00" />
                         </div>
                     </div>
                     <div class="col-xs-4">
-                        <input class="col-xs-3 issue-date form-control" type="text" value="${issueDateText}" />
+                        <input class="col-xs-3 issue-date form-control" type="text" value="${Moment(new Date().toISOString()).format('YYYY-MM-DD UTC Z')}" />
                     </div>
                     <div class="col-xs-4">
                         <select class="type form-control">
-                            <option value="${7*4}" ${model.daysToMaturation == 7*4 ? 'selected="selected"' : ''}>4 Weeks</option>
-                            <option value="${7*8}" ${model.daysToMaturation == 7*8 ? 'selected="selected"' : ''}">8 Weeks</option>
-                            <option value="${7*13}" ${model.daysToMaturation == 7*13 ? 'selected="selected"' : ''}">13 Weeks</option>
-                            <option value="${7*26}" ${model.daysToMaturation == 7*26 ? 'selected="selected"' : ''}">26 Weeks</option>
-                            <option value="${7*56}" ${model.daysToMaturation == 7*52 ? 'selected="selected"' : ''}">52 Weeks</option>
+                            <option value="${7 * 4}">4 Weeks</option>
+                            <option value="${7 * 8}">8 Weeks</option>
+                            <option value="${7 * 13}">13 Weeks</option>
+                            <option value="${7 * 26}">26 Weeks</option>
+                            <option value="${7 * 56}">52 Weeks</option>
                         </select>
                     </div>`);
-    };
+  };
 }
 
 module.exports = BondViewModel;
-},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":92,"moment/moment":31}],91:[function(require,module,exports){
-const AvailableBalanceCalculator = require('../../calculators/available-balance-calculator');
-const Currency = require('currency.js');
-const Util = require('../../util');
-const TransferController = require('../../controllers/balance-sheet/transfer-controller');
-function CashOrStockViewModel() {
-    this.getViewDescription = () => 'Stock';
-    this.getViewType = () => 'cash-or-stock';
-    this.getTotal = (name, amount) => $(`<div class="subtotal">Total ${name}<span class="pull-right">${Util.format(amount)}</span></div>`);
-    this.getModel = function (target) {
-        return {
-            shares: $(target).find('input.shares').val().trim(),
-            sharePrice: $(target).find('input.share-price').val().trim(),
-            name: $(target).find('input.name').val().trim()
-        };
-    };
-    this.getAllocation = function (total, subtotal) {
-        let allocation = Currency(subtotal, {precision: 4}).divide(total).multiply(100).toString();
-        return Currency(allocation, {precision: 2}).toString() + "%";
-    };
-    this.getReadOnlyHeaderView = () =>
-        $(`<div class="row table-header-row">
-              <div class="col-xs-1">Shares</div>
-              <div class="col-xs-1">Share Price</div>
-              <div class="col-xs-3">Current Value</div>
-              <div class="col-xs-2">Available Balance</div>
-              <div class="col-xs-2">Name</div>
-              <div class="col-xs-2">Allocation</div>
-              <div class="col-xs-1">Liquidate</div>
-          </div>`);
-    this.getReadOnlyView = function (equity, total, pending, disable) {
-        'use strict';
-        let amount = Util.getAmount({"sharePrice": equity.sharePrice, "shares": equity.shares});
-        equity.name = equity.name || '';
-        let allocation = this.getAllocation(total, amount);
-        let availableBalanceCalculator = new AvailableBalanceCalculator();
-        let availableBalance = availableBalanceCalculator.getAvailableBalance(
-            equity.name, amount.toString(), pending, equity.type, equity.id);
-        let availableBalanceView = availableBalance === amount.toString()
-            ? Util.format(amount.toString())
-            : `<a href="${`${Util.rootUrl()}/pages/accounts.html`}">${Util.format(availableBalance)}</a>`;
-        let view = $(`<div class="asset-item row transaction-input-view">
-                    <div class="col-xs-1 text-right vertical-align amount-description-column">${Util.formatShares(equity.shares)}</div>
-                    <div class="col-xs-1 text-right vertical-align amount-description-column">${Util.format(equity.sharePrice)}</div>
-                    <div class="col-xs-3 text-right vertical-align amount-description-column">${Util.format(amount)}</div>
-                    <div class="col-xs-2 text-right vertical-align amount-description-column">${availableBalanceView}</div>
-                    <div class="col-xs-2 text-center vertical-align amount-description-column asset-name" >
-                        <a target="_blank" href="https://finance.yahoo.com/quote/${equity.name}" title="View Chart">${equity.name}</a>
-                    </div>
-                    <div class="col-xs-2 text-right vertical-align amount-description-column">${allocation.toString()}</div>
-                  </div>
-        `);
-        let transferButton = $(`<div class="col-xs-1">
-                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
-                                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
-                            </button>
-                          </div>`);
-        view.append(transferButton);
-        let viewContainer = $('<div></div>');
-        viewContainer.append(view);
-        const CashViewModel = require('./cash-view-model');
-        new TransferController().init(
-            transferButton,
-            viewContainer,
-            equity.name,
-            [new CashViewModel()],
-            equity.id);
-        return viewContainer;
-    };
-    this.getHeaderView = function () {
-        return $(`<div class="row table-header-row">
-              <div class="col-xs-4">Shares</div>
-              <div class="col-xs-4">Share Price</div>
-              <div class="col-xs-4">Name</div>
-          </div>`);
-    };
-    this.getView = function (name, total, pending, shares, sharePrice) {
-        'use strict';
-        let view = $(`<div class="asset-item row transaction-input-view">
-                    <div class="col-xs-4">
-                        <input class="shares form-control text-right" type="text" value="${shares || ''}" placeholder="0.00" />
-                    </div>
-                    <div class="col-xs-4">
-                        <div class="input-group">
-                            <div class="input-group-addon ">$</div>
-                            <input class="share-price form-control text-right" type="text" value="${sharePrice || ''}"
-							placeholder="0.00"/>
-                        </div>
-                    </div>
-                    <div class="col-xs-4"><input class="input-name name form-control" type="text" value="${name || ''}" /></div>
-                  </div>
-        `);
-        let viewContainer = $('<div></div>');
-        viewContainer.append(view);
-        return viewContainer;
-    };
-}
 
-module.exports = CashOrStockViewModel;
-
-},{"../../calculators/available-balance-calculator":63,"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":92,"currency.js":26}],92:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":90,"moment/moment":31}],90:[function(require,module,exports){
 "use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _currentBalanceCalculator = _interopRequireDefault(require("../../calculators/current-balance-calculator"));
 
 var _propertyPlantAndEquipmentViewModel = _interopRequireDefault(require("./property-plant-and-equipment-view-model"));
 
@@ -21407,14 +21336,18 @@ const BondViewModel = require('./bond-view-model');
 
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 
-const CashOrStockViewModel = require('./cash-or-stock-view-model');
+const EquityViewModel = require('./equity-view-model');
 
-function CashViewModel() {
-  this.getViewDescription = () => 'Cash';
+class CashViewModel {
+  getViewDescription() {
+    return 'Cash';
+  }
 
-  this.getViewType = () => 'cash';
+  getViewType() {
+    return 'cash';
+  }
 
-  this.getModel = function (target) {
+  getModel(target) {
     let name = $(target).find('input.name').val().trim();
     $(target).find('.required-field-description').remove();
     $(target).find('input.name').removeClass('required-field-validation');
@@ -21429,33 +21362,46 @@ function CashViewModel() {
       amount: $(target).find('input.amount').val().trim(),
       name: name
     };
-  };
+  }
 
-  this.getHeaderView = () => $(`<div class="row table-header-row">
+  getHeaderView() {
+    return $(`<div class="row table-header-row">
               <div class="col-xs-9">Name</div>
               <div class="col-xs-3">Amount</div>
           </div>`);
+  }
 
-  this.getReadOnlyHeaderView = () => $(`<div class="row table-header-row">
-              <div class="col-xs-8">Name</div>
-              <div class="col-xs-3">Amount</div>
+  getReadOnlyHeaderView() {
+    return $(`<div class="row table-header-row">
+              <div class="col-xs-5">Name</div>
+              <div class="col-xs-3">Available Balance</div>
+              <div class="col-xs-3">Current Balance</div>
               <div class="col-xs-1">Transfer</div>
           </div>`);
+  }
 
-  this.getReadOnlyView = function (currentAssetAccount, disable) {
-    'use strict';
+  getReadOnlyView(currentAssetAccount, disable, pending) {
+    let startingCurrentBalance = currentAssetAccount.currentBalance === null || currentAssetAccount.currentBalance === undefined ? currentAssetAccount.amount : currentAssetAccount.currentBalance;
 
+    let currentBalanceIncludingPending = _currentBalanceCalculator.default.getCurrentBalance(currentAssetAccount.name, startingCurrentBalance.toString(), pending, currentAssetAccount.type, currentAssetAccount.id);
+
+    let currentBalanceView = Util.format(startingCurrentBalance.toString()) === Util.format(currentBalanceIncludingPending.toString()) ? Util.format(currentBalanceIncludingPending.toString()) : `<a href="${`${Util.rootUrl()}/pages/accounts.html`}">${Util.format(currentBalanceIncludingPending)}</a>`;
     let icon = currentAssetAccount.isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
     let view = $(`
             <div class="dotted-underline-row row transaction-input-view">
-                    <div class="col-xs-8 vertical-align amount-description-column">
+                    <div class="col-xs-5 vertical-align amount-description-column">
                         <div class="dotted-underline">
                             ${icon}
                             ${currentAssetAccount.name}
                         </div>
                     </div>
                     <div class="col-xs-3 text-right vertical-align amount-description-column">
-                        <div class="dotted-underline">${Util.format(currentAssetAccount.amount)}</div>
+                        <div class="dotted-underline">
+                            ${currentAssetAccount.amount === null || currentAssetAccount.amount === undefined ? 'N/A' : Util.format(currentAssetAccount.amount)}
+                        </div>
+                    </div>
+                    <div class="col-xs-3 text-right vertical-align amount-description-column">
+                        <div class="dotted-underline">${currentBalanceView}</div>
                     </div>
             </div>
         `);
@@ -21467,11 +21413,12 @@ function CashViewModel() {
     view.append(transferButton);
     let viewContainer = $('<div></div>');
     viewContainer.append(view);
-    new TransferController().init(transferButton, viewContainer, currentAssetAccount.name, [new CashViewModel(), new CashOrStockViewModel(), new ExpenseViewModel(), new _propertyPlantAndEquipmentViewModel.default(), new BondViewModel()], currentAssetAccount.id);
+    new TransferController().init(transferButton, viewContainer, currentAssetAccount.name, [new CashViewModel(), new EquityViewModel(), new ExpenseViewModel(), new _propertyPlantAndEquipmentViewModel.default(), new BondViewModel()], currentAssetAccount.id);
     return viewContainer;
-  };
+  }
 
-  this.getView = readOnlyAmount => $(`<div>
+  getView(readOnlyAmount) {
+    return $(`<div>
                <div class="asset-item row transaction-input-view">
                    <div class="col-xs-9">
                        <input class="name form-control text-right" type="text" />
@@ -21488,11 +21435,122 @@ function CashViewModel() {
                    </div>
                </div>
           </div>`);
+  }
+
 }
 
-module.exports = CashViewModel;
+exports.default = CashViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./bond-view-model":90,"./cash-or-stock-view-model":91,"./expense-view-model":93,"./property-plant-and-equipment-view-model":95}],93:[function(require,module,exports){
+},{"../../calculators/current-balance-calculator":66,"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./bond-view-model":89,"./equity-view-model":91,"./expense-view-model":92,"./property-plant-and-equipment-view-model":94}],91:[function(require,module,exports){
+"use strict";
+
+var _cashViewModel = _interopRequireDefault(require("./cash-view-model"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const Currency = require('currency.js');
+
+const Util = require('../../util');
+
+const TransferController = require('../../controllers/balance-sheet/transfer-controller');
+
+function EquityViewModel() {
+  this.getViewDescription = () => 'Stock';
+
+  this.getViewType = () => 'cash-or-stock';
+
+  this.getTotal = (name, amount) => $(`<div class="subtotal">Total ${name}<span class="pull-right">${Util.format(amount)}</span></div>`);
+
+  this.getModel = function (target) {
+    return {
+      shares: $(target).find('input.shares').val().trim(),
+      sharePrice: $(target).find('input.share-price').val().trim(),
+      name: $(target).find('input.name').val().trim()
+    };
+  };
+
+  this.getAllocation = function (total, subtotal) {
+    let allocation = Currency(subtotal, {
+      precision: 4
+    }).divide(total).multiply(100).toString();
+    return Currency(allocation, {
+      precision: 2
+    }).toString() + "%";
+  };
+
+  this.getReadOnlyHeaderView = () => $(`<div class="row table-header-row">
+              <div class="col-xs-2">Shares</div>
+              <div class="col-xs-2">Share Price</div>
+              <div class="col-xs-3">Current Value</div>
+              <div class="col-xs-2">Name</div>
+              <div class="col-xs-2">Allocation</div>
+              <div class="col-xs-1">Liquidate</div>
+          </div>`);
+
+  this.getReadOnlyView = function (equity, total, disable) {
+    'use strict';
+
+    let amount = Util.getAmount({
+      "sharePrice": equity.sharePrice,
+      "shares": equity.shares
+    });
+    equity.name = equity.name || '';
+    let allocation = this.getAllocation(total, amount);
+    let view = $(`<div class="asset-item row transaction-input-view">
+                    <div class="col-xs-2 text-right vertical-align amount-description-column">${Util.formatShares(equity.shares)}</div>
+                    <div class="col-xs-2 text-right vertical-align amount-description-column">${Util.format(equity.sharePrice)}</div>
+                    <div class="col-xs-3 text-right vertical-align amount-description-column">${Util.format(amount)}</div>
+                    <div class="col-xs-2 text-center vertical-align amount-description-column asset-name" >
+                        <a target="_blank" href="https://finance.yahoo.com/quote/${equity.name}" title="View Chart">${equity.name}</a>
+                    </div>
+                    <div class="col-xs-2 text-right vertical-align amount-description-column">${allocation.toString()}</div>
+                  </div>
+        `);
+    let transferButton = $(`<div class="col-xs-1">
+                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
+                                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+                            </button>
+                          </div>`);
+    view.append(transferButton);
+    let viewContainer = $('<div></div>');
+    viewContainer.append(view);
+    new TransferController().init(transferButton, viewContainer, equity.name, [new _cashViewModel.default()], equity.id);
+    return viewContainer;
+  };
+
+  this.getHeaderView = function () {
+    return $(`<div class="row table-header-row">
+              <div class="col-xs-4">Shares</div>
+              <div class="col-xs-4">Share Price</div>
+              <div class="col-xs-4">Name</div>
+          </div>`);
+  };
+
+  this.getView = function (readOnlyAmount) {
+    'use strict';
+
+    let view = $(`<div class="asset-item row transaction-input-view">
+                    <div class="col-xs-4">
+                        <input class="shares form-control text-right" type="text" placeholder="0.00" />
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="input-group">
+                            <div class="input-group-addon ">$</div>
+                            <input class="share-price form-control text-right" type="text" placeholder="0.00"/>
+                        </div>
+                    </div>
+                    <div class="col-xs-4"><input class="input-name name form-control" type="text" /></div>
+                  </div>
+        `);
+    let viewContainer = $('<div></div>');
+    viewContainer.append(view);
+    return viewContainer;
+  };
+}
+
+module.exports = EquityViewModel;
+
+},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":90,"currency.js":26}],92:[function(require,module,exports){
 function ExpenseViewModel() {
     this.getViewDescription = () => 'Expense';
     this.getViewType = () => 'expense';
@@ -21503,16 +21561,15 @@ function ExpenseViewModel() {
             creditAccount: 'Expenses'
         };
     };
-    this.getView = function (model) {
-        model = model || {};
+    this.getView = function (readOnlyAmount) {
         return $(`<div class="bond-item transaction-input-view row">
                     <div class="col-xs-9">
-                        <input class="name form-control" type="text" value="${model.name || ''}" />
+                        <input class="name form-control" type="text" />
                     </div>
                     <div class="col-xs-3">
                         <div class="input-group">
                             <div class="input-group-addon">$</div>
-                            <input class="amount form-control text-right" type="text" placeholder="${model.amount || '0.00'}" />
+                            <input class="amount form-control text-right" type="text" placeholder="0.00" />
                         </div>
                     </div>
                   </div>`);
@@ -21524,7 +21581,7 @@ function ExpenseViewModel() {
            </div>`);
 }
 module.exports = ExpenseViewModel;
-},{}],94:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 const cal = require('../../calculators/calendar');
 const PayoffDateCalculator = require('../../calculators/payoff-date-calculator');
 const payoffDateCalculator = new PayoffDateCalculator();
@@ -21618,13 +21675,17 @@ function LoanViewModel() {
 }
 
 module.exports = LoanViewModel;
-},{"../../calculators/calendar":66,"../../calculators/payoff-date-calculator":68,"../../util":86,"currency.js":26}],95:[function(require,module,exports){
+},{"../../calculators/calendar":65,"../../calculators/payoff-date-calculator":68,"../../util":86,"currency.js":26}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+
+var _cashViewModel = _interopRequireDefault(require("./cash-view-model"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 
@@ -21676,10 +21737,7 @@ class PropertyPlantAndEquipmentViewModel {
                           </div>
                 </div>
             </div>`);
-
-    const CashViewModel = require('./cash-view-model');
-
-    new TransferController().init(view.find('.transfer-button'), view, model.name, [new CashViewModel()], model.id);
+    new TransferController().init(view.find('.transfer-button'), view, model.name, [new _cashViewModel.default()], model.id);
     return view;
   }
 
@@ -21703,7 +21761,7 @@ class PropertyPlantAndEquipmentViewModel {
 
 exports.default = PropertyPlantAndEquipmentViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":92}],96:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":90}],95:[function(require,module,exports){
 const Moment = require('moment/moment');
 function TransferView() {
     this.getView = function (name, allowableTransferViewModels) {
@@ -21741,7 +21799,7 @@ function TransferView() {
 
 module.exports = TransferView;
 
-},{"moment/moment":31}],97:[function(require,module,exports){
+},{"moment/moment":31}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21770,7 +21828,7 @@ class BiweeklyView {
 
 exports.default = BiweeklyView;
 
-},{}],98:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21809,7 +21867,7 @@ class MonthlyView {
 
 exports.default = MonthlyView;
 
-},{"../../calculators/calendar":66}],99:[function(require,module,exports){
+},{"../../calculators/calendar":65}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21854,7 +21912,7 @@ class WeeklyView {
 
 exports.default = WeeklyView;
 
-},{"../../calculators/calendar":66}],100:[function(require,module,exports){
+},{"../../calculators/calendar":65}],99:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21902,7 +21960,7 @@ class HomeView {
     let iteration = viewType.iteration;
     let paymentSourceHtml = '';
 
-    for (paymentSource of this.data.paymentSources || []) {
+    for (let paymentSource of this.data.paymentSources || []) {
       paymentSourceHtml += `<option value='${paymentSource}'>${paymentSource}</option>`;
     }
 
@@ -22017,7 +22075,7 @@ class HomeView {
 
 exports.default = HomeView;
 
-},{"../calculators/calendar":66,"../util":86,"./budget/biweekly-view":97,"./budget/monthly-view":98,"./budget/weekly-view":99}],101:[function(require,module,exports){
+},{"../calculators/calendar":65,"../util":86,"./budget/biweekly-view":96,"./budget/monthly-view":97,"./budget/weekly-view":98}],100:[function(require,module,exports){
 const Currency = require('currency.js');
 
 exports.getModel = function () {
@@ -22026,7 +22084,7 @@ exports.getModel = function () {
     model['401k-contribution-per-pay-check'] = Currency($('#401k-contribution-per-pay-check').val().trim()).toString();
     return model;
 };
-},{"currency.js":26}],102:[function(require,module,exports){
+},{"currency.js":26}],101:[function(require,module,exports){
 const DataClient = require('../data-client');
 exports.getModel = async function () {
     let prices = [];
@@ -22070,4 +22128,47 @@ exports.getView = (name, sharePrice) =>
                 </div>
               </div>
           </div>`);
-},{"../data-client":84}]},{},[62]);
+},{"../data-client":84}],102:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+const Moment = require('moment');
+
+const Util = require('../util');
+
+const Currency = require('currency.js');
+
+class TransferView {
+  getTransferView(transfer) {
+    return $(`<div class="row account-row">
+                <div class="col-xs-2 vertical-align amount-description-column">${Moment(transfer.transferDate).format('LL')}</div>
+                <div class="col-xs-2 vertical-align amount-description-column class="capitalize-first">${transfer.debitAccount}</div>
+                <div class="col-xs-2 vertical-align amount-description-column text-right class="capitalize-first"">
+                    ${transfer.type}
+                </div>
+                <div class="col-xs-2 vertical-align amount-description-column text-right class="capitalize-first"">
+                    ${transfer.creditAccount}
+                </div>
+                <div class="col-xs-2 vertical-align amount-description-column text-right">${Util.format(Util.getAmount(transfer))}</div>
+                <div class="col-xs-1 text-center">
+                    <button type="button" class="complete-transfer btn btn-success add-remove-btn-container add-remove-btn" title="Complete transfer">
+                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <div class="col-xs-1 remove-button-container text-center">
+                    <button type="button" class="cancel-transfer btn remove add-remove-btn-container add-remove-btn" title="Cancel transfer">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>`);
+  }
+
+}
+
+exports.default = TransferView;
+
+},{"../util":86,"currency.js":26,"moment":31}]},{},[62]);

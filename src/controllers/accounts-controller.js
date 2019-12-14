@@ -1,6 +1,5 @@
 const AccountSettingsController = require('./account-settings-controller');
-const AccountsView = require('../views/accounts-view');
-const AvailableBalanceCalculator = require('../calculators/available-balance-calculator');
+import TransferView from '../views/transfer-view';
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 const Currency = require('currency.js');
 const DataClient = require('../data-client');
@@ -70,7 +69,7 @@ function AccountsController() {
     }
     function setView(data) {
         for (let transfer of data.pending || []) {
-            let transferView = AccountsView.getTransferView(transfer);
+            let transferView = new TransferView().getTransferView(transfer);
             transferView.find('.cancel-transfer').click(function () { cancelTransfer(transfer.id) });
             transferView.find('.complete-transfer').click(function () { completeTransfer(transfer.id) });
             $('.accounts-container').append(transferView);

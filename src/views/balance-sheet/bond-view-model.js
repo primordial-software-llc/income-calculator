@@ -1,3 +1,4 @@
+import CashViewModel from'./cash-view-model';
 const Moment = require('moment/moment');
 const Util = require('../../util');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
@@ -46,7 +47,6 @@ function BondViewModel() {
                             </button>
                           </div>`);
         view.append(liquidateButton);
-        const CashViewModel = require('./cash-view-model');
         new TransferController().init(
             liquidateButton,
             viewContainer,
@@ -58,26 +58,24 @@ function BondViewModel() {
             bond.amount);
         return viewContainer;
     };
-    this.getView = function (model) {
-        model = model || {};
-        let issueDateText = Moment(model.issueDate || new Date().toISOString()).format('YYYY-MM-DD UTC Z');
+    this.getView = function (readOnlyAmount) {
         return $(`<div class="bond-item transaction-input-view row">
                     <div class="col-xs-4">
                         <div class="input-group">
                             <div class="input-group-addon ">$</div>
-                            <input class="amount form-control text-right" type="text" value="${model.amount || ''}" placeholder="0.00" />
+                            <input class="amount form-control text-right" type="text" placeholder="0.00" />
                         </div>
                     </div>
                     <div class="col-xs-4">
-                        <input class="col-xs-3 issue-date form-control" type="text" value="${issueDateText}" />
+                        <input class="col-xs-3 issue-date form-control" type="text" value="${Moment(new Date().toISOString()).format('YYYY-MM-DD UTC Z')}" />
                     </div>
                     <div class="col-xs-4">
                         <select class="type form-control">
-                            <option value="${7*4}" ${model.daysToMaturation == 7*4 ? 'selected="selected"' : ''}>4 Weeks</option>
-                            <option value="${7*8}" ${model.daysToMaturation == 7*8 ? 'selected="selected"' : ''}">8 Weeks</option>
-                            <option value="${7*13}" ${model.daysToMaturation == 7*13 ? 'selected="selected"' : ''}">13 Weeks</option>
-                            <option value="${7*26}" ${model.daysToMaturation == 7*26 ? 'selected="selected"' : ''}">26 Weeks</option>
-                            <option value="${7*56}" ${model.daysToMaturation == 7*52 ? 'selected="selected"' : ''}">52 Weeks</option>
+                            <option value="${7*4}">4 Weeks</option>
+                            <option value="${7*8}">8 Weeks</option>
+                            <option value="${7*13}">13 Weeks</option>
+                            <option value="${7*26}">26 Weeks</option>
+                            <option value="${7*56}">52 Weeks</option>
                         </select>
                     </div>`);
     };
