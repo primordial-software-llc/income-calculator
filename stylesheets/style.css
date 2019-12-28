@@ -1,5 +1,56 @@
+/* template */
+html, body {
+    height: 100%;
+}
+.imago-bg-blue {
+    background-color: #032b4f;
+    color: #FFF;
+}
+.imago-bg-blue a {
+    color: #FFF;
+    text-decoration: underline;
+}
+.imago-bg-gray {
+    background-color: #3d3f41;
+}
+.imago-header-public {
+    height: 140px;
+}
+.imago-header-public.home-page {
+    /* fix this to use a smaller image size this image is nearly a meg. */
+    background-image: url(https://www.primordial-software.com/docs/imago-design/budget-smallest.jpg);
+    background-position: 0px -211px;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.header-overlay {
+    background-color: rgba(0,0,0,0.7);
+    height: 100%;
+}
+.header-text {
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+    padding-top: 60px;
+    padding-left: 50px;
+}
+.imago-body-public {
+    height: 90%;
+}
+.imago-footer-public {
+    height: 20%;
+    min-height: 130px;
+}
+.footer-text-group {
+    padding-top: 10px;
+    text-align: center;
+}
+.footer-text-group:first-child {
+    padding-top: 20px;
+}
+
 body {
-    font-family: Tahoma, Verdana, Arial, sans-serif;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
 }
 body,
 body p,
