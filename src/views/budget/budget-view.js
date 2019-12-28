@@ -1,17 +1,11 @@
-const cal = require('../calculators/calendar');
-const Util = require('../util');
-import WeeklyView from './budget/weekly-view';
-import MonthlyView from './budget/monthly-view';
-import BiweeklyView from './budget/biweekly-view';
+const Util = require('../../util');
+import WeeklyView from './weekly-view';
+import MonthlyView from './monthly-view';
+import BiweeklyView from './biweekly-view';
 function sortByAmount(a,b) {
     return b.amount - a.amount;
 }
 function getTransactionModel(target) {
-    /*
-        "date": "2015-12-25T00:00:00Z",
-        "type": "income",
-        "amount": 100
-     */
     return {
         amount: Util.cleanseNumericString($(target).find('.amount').val().trim()),
         date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
@@ -20,7 +14,7 @@ function getTransactionModel(target) {
         paymentSource: $(target).find('select.transaction-payment-source').val() || $(target).find('span.transaction-payment-source').text()
     };
 }
-export default class HomeView {
+export default class BudgetView {
     constructor() {
         this.data = {};
     }
@@ -100,11 +94,6 @@ export default class HomeView {
         }
         for (let transaction of budget.monthlyRecurringExpenses) {
             $('#monthly-input-group').append(this.getTransactionView(transaction, MonthlyView, obfuscate));
-        }
-        if (this.data.licenseAgreement && this.data.licenseAgreement.agreedToLicense) {
-            $('#acceptLicense').prop('checked', true);
-            $('#acceptLicense').prop('disabled', true);
-            $('.licenseAgreementDetails').append(`agreed to license on ${this.data.licenseAgreement.agreementDateUtc} from IP ${this.data.licenseAgreement.ipAddress}`);
         }
         $('.add-new-budget-item').prop('disabled', obfuscate);
     };

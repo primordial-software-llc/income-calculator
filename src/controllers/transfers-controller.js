@@ -1,24 +1,32 @@
+import Navigation from "../nav";
+
 const AccountSettingsController = require('./account-settings-controller');
 import TransferView from '../views/transfer-view';
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 const Currency = require('currency.js');
 const DataClient = require('../data-client');
 const Util = require('../util');
-function AccountsController() {
-    'use strict';
-    let dataClient;
-    async function cancelTransfer(transferId) {
+export default class TransfersController {
+    static getName() {
+        return 'Transfers';
+    }
+    static getUrl() {
+        return `${Util.rootUrl()}/pages/transfers.html`;
+    }
+    async cancelTransfer(transferId) {
+        let dataClient = new DataClient();
         try {
             let data = await dataClient.getBudget();
             let patch = {};
-            patch.pending = data.pending.filter(x => x.id != transferId);
+            patch.pending = data.pending.filter(x => x.id !== transferId);
             await dataClient.patch(patch);
             window.location.reload();
         } catch (error) {
             Util.log(error);
         }
     }
-    async function completeTransfer(transferId) {
+    async completeTransfer(transferId) {
+        let dataClient = new DataClient();
         let data = await dataClient.getBudget();
         let patch = { assets: data.assets || [] };
         let credit = data.pending.find(x => x.id === transferId);
@@ -34,7 +42,7 @@ function AccountsController() {
         }
         if (credit.type.toLowerCase() !== 'expense') {
             let creditAccount = patch.assets.find(asset =>
-                (asset.type || '').toLowerCase() == (credit.type).toLowerCase() &&
+                (asset.type || '').toLowerCase() === (credit.type).toLowerCase() &&
                 (asset.name || '').toLowerCase() === credit.creditAccount.toLowerCase());
             if (!creditAccount) {
                 delete credit.creditAccount;
@@ -67,19 +75,24 @@ function AccountsController() {
             Util.log(err);
         }
     }
-    function setView(data) {
+    setView(data) {
+        let self = this;
         for (let transfer of data.pending || []) {
             let transferView = new TransferView().getTransferView(transfer);
-            transferView.find('.cancel-transfer').click(function () { cancelTransfer(transfer.id) });
-            transferView.find('.complete-transfer').click(function () { completeTransfer(transfer.id) });
+            transferView.find('.cancel-transfer').click(async function () {
+                await self.cancelTransfer(transfer.id)
+            });
+            transferView.find('.complete-transfer').click(async function () {
+                await self.completeTransfer(transfer.id)
+            });
             $('.accounts-container').append(transferView);
         }
-        return;
     }
-    async function refresh() {
+    async refresh() {
         try {
+            let dataClient = new DataClient();
             let data = await dataClient.getBudget('budget');
-            setView(data);
+            this.setView(data);
             if (location.hash && document.querySelector(location.hash)) {
                 window.scrollTo(0, document.querySelector(location.hash).offsetTop);
             }
@@ -87,11 +100,8 @@ function AccountsController() {
             Util.log(err);
         }
     }
-    this.init = function () {
-        dataClient = new DataClient();
+    async init() {
         new AccountSettingsController().init(balanceSheetView);
-        refresh();
-    };
+        this.refresh();
+    }
 }
-
-module.exports = AccountsController;

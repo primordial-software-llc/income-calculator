@@ -24,19 +24,21 @@ async function deposit(amount) {
                 <p class="mb-0">Deposit successful. New cash Balance: ${Util.format(Util.getAmount(cashAsset))}</p>
             </div>`);
 }
-async function initAsync() {
-    if (Util.obfuscate()) {
-        $('#submit-transfer').prop('disabled', true);
-    }
-    $('#submit-transfer').click(function() {
-        $('#submit-transfer').prop('disabled', true);
-        deposit($('#transfer-amount').val().trim());
-    });
-}
-
 export default class DepositController {
-    init() {
+    static getName() {
+        return 'Deposit';
+    }
+    static getUrl() {
+        return `${Util.rootUrl()}/pages/deposit.html`;
+    }
+    async init() {
         new AccountSettingsController().init();
-        initAsync().catch(err => { Util.log(err); });
+        if (Util.obfuscate()) {
+            $('#submit-transfer').prop('disabled', true);
+        }
+        $('#submit-transfer').click(function() {
+            $('#submit-transfer').prop('disabled', true);
+            deposit($('#transfer-amount').val().trim());
+        });
     };
 }

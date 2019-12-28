@@ -19187,35 +19187,35 @@ arguments[4][29][0].apply(exports,arguments)
 },{"dup":29}],62:[function(require,module,exports){
 "use strict";
 
+var _depositController = _interopRequireDefault(require("./controllers/deposit-controller"));
+
 var _balanceSheetController = _interopRequireDefault(require("./controllers/balance-sheet-controller"));
 
-var _homeController = _interopRequireDefault(require("./controllers/home-controller"));
+var _banksController = _interopRequireDefault(require("./controllers/banks-controller"));
 
-var _depositController = _interopRequireDefault(require("./controllers/deposit-controller"));
+var _budgetCalendarController = _interopRequireDefault(require("./controllers/budget-calendar-controller"));
+
+var _budgetController = _interopRequireDefault(require("./controllers/budget-controller"));
 
 var _loginSignupController = _interopRequireDefault(require("./controllers/login-signup-controller"));
 
+var _nav = _interopRequireDefault(require("./nav"));
+
+var _payDaysController = _interopRequireDefault(require("./controllers/pay-days-controller"));
+
+var _pricesController = _interopRequireDefault(require("./controllers/prices-controller"));
+
+var _transfersController = _interopRequireDefault(require("./controllers/transfers-controller"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const AccountsController = require('./controllers/accounts-controller');
-
-const BudgetCalendarController = require('./controllers/budget-calendar-controller');
-
-const PayDaysController = require('./controllers/pay-days-controller');
-
-const PricesController = require('./controllers/prices-controller');
-
-const LoginController = require('./controllers/login-controller');
-
-const LinkBankAccountController = require('./controllers/link-bank-account-controller');
-
-const Nav = require('./nav');
 
 const AccountSettingsView = require('./views/account-settings-view');
 
-const Util = require('./util');
-
 const DataClient = require('./data-client');
+
+const LoginController = require('./controllers/login-controller');
+
+const Util = require('./util');
 
 async function init() {
   'use strict';
@@ -19251,40 +19251,39 @@ async function init() {
     Util.log(err);
   }
 
-  let navView = Nav.getNavView((usernameResponse || {}).email === 'timg456789@yahoo.com');
+  let authenticatedControllers = [_budgetController.default, _budgetCalendarController.default, _balanceSheetController.default, _transfersController.default, _depositController.default, _pricesController.default, _banksController.default];
+
+  if ((usernameResponse || {}).email === 'timg456789@yahoo.com') {
+    authenticatedControllers.push(_payDaysController.default);
+  }
+
+  let root = Util.rootUrl();
+  let navItemHtml = authenticatedControllers.map(controllerType => _nav.default.getNavItemView(controllerType.getUrl(), controllerType.getName()));
+  let navView = $(`<div class="container">${navItemHtml.join('')}</div>`);
   $('.tab-nav-bar').append(navView);
   let controller;
+  let controllerType = authenticatedControllers.find(x => pageName.startsWith(x.getUrl().split('/').pop()));
 
-  if (pageName === '' || pageName.startsWith('index.html')) {
-    controller = new _homeController.default();
-  } else if (pageName.startsWith('balance-sheet.html')) {
-    controller = new _balanceSheetController.default();
-  } else if (pageName.startsWith('pay-days.html')) {
-    controller = new PayDaysController();
-  } else if (pageName.startsWith('budget-calendar.html')) {
-    controller = new BudgetCalendarController();
-  } else if (pageName.startsWith('accounts.html')) {
-    controller = new AccountsController();
-  } else if (pageName.startsWith('deposit.html')) {
-    controller = new _depositController.default();
-  } else if (pageName.startsWith('prices.html')) {
-    controller = new PricesController();
+  if (controllerType) {
+    controller = new controllerType();
   } else if (pageName.startsWith('login.html')) {
     controller = new LoginController();
   } else if (pageName.startsWith('login-signup.html')) {
     controller = new _loginSignupController.default();
-  } else if (pageName.startsWith('link-bank-account.html')) {
-    controller = new LinkBankAccountController();
   }
 
-  controller.init();
+  try {
+    await controller.init();
+  } catch (error) {
+    Util.log(error);
+  }
 }
 
 $(document).ready(function () {
   init();
 });
 
-},{"./controllers/accounts-controller":73,"./controllers/balance-sheet-controller":74,"./controllers/budget-calendar-controller":76,"./controllers/deposit-controller":77,"./controllers/home-controller":78,"./controllers/link-bank-account-controller":79,"./controllers/login-controller":80,"./controllers/login-signup-controller":81,"./controllers/pay-days-controller":82,"./controllers/prices-controller":83,"./data-client":84,"./nav":85,"./util":86,"./views/account-settings-view":87}],63:[function(require,module,exports){
+},{"./controllers/balance-sheet-controller":73,"./controllers/banks-controller":75,"./controllers/budget-calendar-controller":76,"./controllers/budget-controller":77,"./controllers/deposit-controller":78,"./controllers/login-controller":79,"./controllers/login-signup-controller":80,"./controllers/pay-days-controller":81,"./controllers/prices-controller":82,"./controllers/transfers-controller":83,"./data-client":84,"./nav":85,"./util":86,"./views/account-settings-view":87}],63:[function(require,module,exports){
 const CalendarSearch = require('./calendar-search');
 const Currency = require('currency.js');
 const Util = require('../util');
@@ -19848,132 +19847,6 @@ module.exports = AccountSettingsController;
 },{"../data-client":84,"../util":86}],73:[function(require,module,exports){
 "use strict";
 
-var _transferView = _interopRequireDefault(require("../views/transfer-view"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const AccountSettingsController = require('./account-settings-controller');
-
-const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
-
-const Currency = require('currency.js');
-
-const DataClient = require('../data-client');
-
-const Util = require('../util');
-
-function AccountsController() {
-  'use strict';
-
-  let dataClient;
-
-  async function cancelTransfer(transferId) {
-    try {
-      let data = await dataClient.getBudget();
-      let patch = {};
-      patch.pending = data.pending.filter(x => x.id != transferId);
-      await dataClient.patch(patch);
-      window.location.reload();
-    } catch (error) {
-      Util.log(error);
-    }
-  }
-
-  async function completeTransfer(transferId) {
-    let data = await dataClient.getBudget();
-    let patch = {
-      assets: data.assets || []
-    };
-    let credit = data.pending.find(x => x.id === transferId);
-    credit.type = credit.type || '';
-    patch.pending = data.pending.filter(x => x.id !== transferId);
-    let debitAccount = patch.assets.find(x => x.id === credit.debitId);
-    let creditAmount = Util.getAmount(credit);
-
-    if (debitAccount.shares && debitAccount.sharePrice) {
-      let newDebitAmount = Currency(Util.getAmount(debitAccount), Util.getCurrencyDefaults()).subtract(Util.getAmount(credit)).toString();
-      debitAccount.shares = Currency(newDebitAmount, Util.getCurrencyDefaults()).divide(debitAccount.sharePrice).toString();
-    } else {
-      debitAccount.amount = Currency(debitAccount.amount, Util.getCurrencyDefaults()).subtract(creditAmount).toString();
-    }
-
-    if (credit.type.toLowerCase() !== 'expense') {
-      let creditAccount = patch.assets.find(asset => (asset.type || '').toLowerCase() == credit.type.toLowerCase() && (asset.name || '').toLowerCase() === credit.creditAccount.toLowerCase());
-
-      if (!creditAccount) {
-        delete credit.creditAccount;
-        delete credit.debitAccount;
-        delete credit.transferDate;
-        creditAccount = {
-          name: credit.name,
-          amount: credit.amount,
-          sharePrice: credit.sharePrice,
-          shares: credit.shares,
-          daysToMaturation: credit.daysToMaturation,
-          id: credit.id,
-          issueDate: credit.issueDate,
-          type: credit.type
-        };
-        patch.assets.push(creditAccount);
-      } else {
-        if (credit.shares && credit.sharePrice) {
-          creditAccount.shares = Currency(creditAccount.shares, Util.getCurrencyDefaults()).add(credit.shares).toString();
-        } else {
-          creditAccount.amount = Currency(creditAccount.amount, Util.getCurrencyDefaults()).add(credit.amount).toString();
-        }
-      }
-    }
-
-    patch.assets = patch.assets.filter(x => Currency(Util.getAmount(x)).intValue > 0);
-
-    try {
-      await dataClient.patch(patch);
-      window.location.reload();
-    } catch (err) {
-      Util.log(err);
-    }
-  }
-
-  function setView(data) {
-    for (let transfer of data.pending || []) {
-      let transferView = new _transferView.default().getTransferView(transfer);
-      transferView.find('.cancel-transfer').click(function () {
-        cancelTransfer(transfer.id);
-      });
-      transferView.find('.complete-transfer').click(function () {
-        completeTransfer(transfer.id);
-      });
-      $('.accounts-container').append(transferView);
-    }
-
-    return;
-  }
-
-  async function refresh() {
-    try {
-      let data = await dataClient.getBudget('budget');
-      setView(data);
-
-      if (location.hash && document.querySelector(location.hash)) {
-        window.scrollTo(0, document.querySelector(location.hash).offsetTop);
-      }
-    } catch (err) {
-      Util.log(err);
-    }
-  }
-
-  this.init = function () {
-    dataClient = new DataClient();
-    new AccountSettingsController().init(balanceSheetView);
-    refresh();
-  };
-}
-
-module.exports = AccountsController;
-
-},{"../data-client":84,"../util":86,"../views/balance-sheet/balance-sheet-view":88,"../views/transfer-view":102,"./account-settings-controller":72,"currency.js":26}],74:[function(require,module,exports){
-"use strict";
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -20055,7 +19928,15 @@ function getViewModel(data, bankData) {
 }
 
 class BalanceSheetController {
-  init() {
+  static getName() {
+    return 'Balance Sheet';
+  }
+
+  static getUrl() {
+    return `${Util.rootUrl()}/pages/balance-sheet.html`;
+  }
+
+  async init() {
     new AccountSettingsController().init(balanceSheetView);
 
     if (Util.obfuscate()) {
@@ -20070,14 +19951,14 @@ class BalanceSheetController {
         type: 'credit'
       }));
     });
-    refresh();
+    await refresh();
   }
 
 }
 
 exports.default = BalanceSheetController;
 
-},{"../data-client":84,"../util":86,"../views/balance-sheet/balance-sheet-view":88,"../views/balance-sheet/loan-view-model":93,"./account-settings-controller":72,"currency.js":26}],75:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../views/balance-sheet/balance-sheet-view":88,"../views/balance-sheet/loan-view-model":93,"./account-settings-controller":72,"currency.js":26}],74:[function(require,module,exports){
 const DataClient = require('../../data-client');
 const Moment = require('moment/moment');
 const TransferView = require('../../views/balance-sheet/transfer-view');
@@ -20150,57 +20031,272 @@ function TransferController() {
 
 module.exports = TransferController;
 
-},{"../../data-client":84,"../../util":86,"../../views/balance-sheet/transfer-view":95,"moment/moment":31}],76:[function(require,module,exports){
+},{"../../data-client":84,"../../util":86,"../../views/balance-sheet/transfer-view":95,"moment/moment":31}],75:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 const AccountSettingsController = require('./account-settings-controller');
-const CalendarView = require('../calendar-view');
+
 const DataClient = require('../data-client');
+
 const Util = require('../util');
-function BudgetCalendarController() {
-    'use strict';
-    let data;
-    let month;
-    async function load() {
-        try {
-            $('#calendar-date-select').val(new Date().getUTCMonth());
-            $('#calendar-date-select').change(function () {
-                month = $(this).val();
-                var start = new Date(Date.UTC(new Date().getUTCFullYear(), month, 1));
-                var end = new Date(start.getTime());
-                end.setUTCMonth(end.getUTCMonth() + 1);
-                CalendarView.build(new Date().getUTCFullYear(), month);
-                CalendarView.load(data, start, end);
+
+class BanksController {
+  static getName() {
+    return 'Banks';
+  }
+
+  static getUrl() {
+    return `${Util.rootUrl()}/pages/banks.html`;
+  }
+
+  async init() {
+    new AccountSettingsController().init({});
+    $('#link-button').on('click', function (e) {
+      let selectedProducts = ['transactions'];
+      let handler = Plaid.create({
+        clientName: 'My App',
+        env: 'development',
+        key: '7e6391ab6cbcc3b212440b5821bfa7',
+        product: selectedProducts,
+        onSuccess: async function (public_token, metadata) {
+          let dataClient = new DataClient();
+
+          try {
+            let result = await dataClient.post('link-access-token', {
+              publicToken: public_token
             });
-
-            let dataClient = new DataClient();
-            data = await dataClient.getBudget();
-
-            for (let mre of data.monthlyRecurringExpenses) {
-                mre.date = new Date(mre.date);
-            }
-
-            for (let biweekly of data.biweekly) {
-                biweekly.date = new Date(biweekly.date);
-            }
-
-            let year = new Date().getUTCFullYear();
-            month = new Date().getUTCMonth();
-            let start = new Date(Date.UTC(year, month, 1));
-            let end = new Date(start.getTime());
-            end.setUTCMonth(end.getUTCMonth() + 1);
-            CalendarView.build(year, month);
-            CalendarView.load(data, start, end);
-        } catch (err) {
+            window.location.reload();
+          } catch (err) {
             Util.log(err);
+          }
+        },
+        onExit: function (err, metadata) {
+          // The user exited the Link flow.
+          if (err != null) {
+            // The user encountered a Plaid API error prior to exiting.
+            console.log(err);
+            window.alert(err);
+          } // metadata contains information about the institution
+          // that the user selected and the most recent API request IDs.
+          // Storing this information can be helpful for support.
+
+        },
+        onEvent: function (eventName, metadata) {// Optionally capture Link flow events, streamed through
+          // this callback as your users connect an Item to Plaid.
+          // For example:
+          // eventName = "TRANSITION_VIEW"
+          // metadata  = {
+          //   link_session_id: "123-abc",
+          //   mfa_type:        "questions",
+          //   timestamp:       "2017-09-14T14:42:19.350Z",
+          //   view_name:       "MFA",
+          // }
         }
+      });
+      handler.open();
+    });
+    let dataClient = new DataClient();
+    let bankLinks = await dataClient.get('bank-link');
+
+    for (let bankLink of bankLinks) {
+      let bankLinkView = $('<div class="bank-link-item-container"></div>');
+      bankLinkView.append(`<span title="${bankLink['institution']['name']} - ${bankLink['item_id']}">${bankLink['institution']['name']}</span>`);
+      let bankLinkUpdateButton = $(`
+                <button class="btn btn-info" title="Re-Authenticate Bank Link" type="button">
+                    <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                </button>
+            `);
+      bankLinkUpdateButton.on('click', async function (e) {
+        let data = {
+          itemId: bankLink['item_id']
+        };
+        let result;
+
+        try {
+          result = await dataClient.post('create-public-token', data);
+        } catch (err) {
+          Util.log(err);
+          return;
+        }
+
+        let handler = Plaid.create({
+          clientName: 'My App',
+          env: 'development',
+          key: '7e6391ab6cbcc3b212440b5821bfa7',
+          product: ['transactions'],
+          token: result['public_token'],
+          onSuccess: async function (public_token, metadata) {
+            window.alert('updated account access token');
+          }
+        });
+        handler.open();
+      });
+      bankLinkView.append(bankLinkUpdateButton);
+      let bankLinkRemoveButton = $(`
+                <button class="btn btn-danger" title="Remove Bank Link" type="button">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>`);
+      bankLinkRemoveButton.click(async function () {
+        try {
+          await dataClient.delete('bank-link', {
+            itemId: bankLink['item_id']
+          });
+          window.alert(`Bank link deleted: ${bankLink['institution']['name']} - ${bankLink['item_id']}`);
+          window.location.reload();
+        } catch (err) {
+          Util.log(err);
+        }
+      });
+      bankLinkView.append(bankLinkRemoveButton);
+      $('#existing-link-container').append(bankLinkView);
     }
-    this.init = function () {
-        new AccountSettingsController().init();
-        load();
-    };
+  }
+
 }
 
-module.exports = BudgetCalendarController;
+exports.default = BanksController;
+
+},{"../data-client":84,"../util":86,"./account-settings-controller":72}],76:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+const AccountSettingsController = require('./account-settings-controller');
+
+const CalendarView = require('../calendar-view');
+
+const DataClient = require('../data-client');
+
+const Util = require('../util');
+
+class BudgetCalendarController {
+  static getName() {
+    return 'Budget Calendar';
+  }
+
+  static getUrl() {
+    return `${Util.rootUrl()}/pages/budget-calendar.html`;
+  }
+
+  async load() {
+    $('#calendar-date-select').val(new Date().getUTCMonth());
+    $('#calendar-date-select').change(function () {
+      let month = $(this).val();
+      let start = new Date(Date.UTC(new Date().getUTCFullYear(), month, 1));
+      let end = new Date(start.getTime());
+      end.setUTCMonth(end.getUTCMonth() + 1);
+      CalendarView.build(new Date().getUTCFullYear(), month);
+      CalendarView.load(data, start, end);
+    });
+    let data = await new DataClient().getBudget();
+
+    for (let mre of data.monthlyRecurringExpenses) {
+      mre.date = new Date(mre.date);
+    }
+
+    for (let biweekly of data.biweekly) {
+      biweekly.date = new Date(biweekly.date);
+    }
+
+    let year = new Date().getUTCFullYear();
+    let month = new Date().getUTCMonth();
+    let start = new Date(Date.UTC(year, month, 1));
+    let end = new Date(start.getTime());
+    end.setUTCMonth(end.getUTCMonth() + 1);
+    CalendarView.build(year, month);
+    CalendarView.load(data, start, end);
+  }
+
+  async init() {
+    new AccountSettingsController().init();
+    await this.load();
+  }
+
+}
+
+exports.default = BudgetCalendarController;
+
 },{"../calendar-view":71,"../data-client":84,"../util":86,"./account-settings-controller":72}],77:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _budgetView = _interopRequireDefault(require("../views/budget/budget-view"));
+
+var _weeklyView = _interopRequireDefault(require("../views/budget/weekly-view"));
+
+var _monthlyView = _interopRequireDefault(require("../views/budget/monthly-view"));
+
+var _biweeklyView = _interopRequireDefault(require("../views/budget/biweekly-view"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const DataClient = require('../data-client');
+
+const AccountSettingsController = require('./account-settings-controller');
+
+const Util = require('../util');
+
+class BudgetController {
+  static getName() {
+    return 'Budget';
+  }
+
+  static getUrl() {
+    return `${Util.rootUrl()}/pages/budget.html`;
+  }
+
+  constructor() {
+    this.dataClient = {};
+    this.homeView = {};
+  }
+
+  async refresh() {
+    try {
+      let data = await this.dataClient.getBudget();
+      this.homeView.setView(data, Util.obfuscate());
+    } catch (err) {
+      Util.log(err);
+    }
+  }
+
+  async init() {
+    this.homeView = new _budgetView.default();
+    this.dataClient = new DataClient();
+    new AccountSettingsController().init(this.homeView);
+    let self = this;
+    $('.add-new-budget-item').prop('disabled', true);
+    $('#add-new-biweekly').click(function () {
+      $(this).hide();
+      $('.new-biweekly-container').prepend(self.homeView.getEditableTransactionView(_biweeklyView.default));
+    });
+    $('#add-new-monthly').click(function () {
+      $(this).hide();
+      $('.new-monthly-container').prepend(self.homeView.getEditableTransactionView(_monthlyView.default));
+    });
+    $('#add-new-weekly').click(function () {
+      $(this).hide();
+      $('.new-weekly-container').prepend(self.homeView.getEditableTransactionView(_weeklyView.default));
+    });
+    await this.refresh();
+  }
+
+}
+
+exports.default = BudgetController;
+
+},{"../data-client":84,"../util":86,"../views/budget/biweekly-view":96,"../views/budget/budget-view":97,"../views/budget/monthly-view":98,"../views/budget/weekly-view":99,"./account-settings-controller":72}],78:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20242,22 +20338,25 @@ async function deposit(amount) {
             </div>`);
 }
 
-async function initAsync() {
-  if (Util.obfuscate()) {
-    $('#submit-transfer').prop('disabled', true);
+class DepositController {
+  static getName() {
+    return 'Deposit';
   }
 
-  $('#submit-transfer').click(function () {
-    $('#submit-transfer').prop('disabled', true);
-    deposit($('#transfer-amount').val().trim());
-  });
-}
+  static getUrl() {
+    return `${Util.rootUrl()}/pages/deposit.html`;
+  }
 
-class DepositController {
-  init() {
+  async init() {
     new AccountSettingsController().init();
-    initAsync().catch(err => {
-      Util.log(err);
+
+    if (Util.obfuscate()) {
+      $('#submit-transfer').prop('disabled', true);
+    }
+
+    $('#submit-transfer').click(function () {
+      $('#submit-transfer').prop('disabled', true);
+      deposit($('#transfer-amount').val().trim());
     });
   }
 
@@ -20265,182 +20364,7 @@ class DepositController {
 
 exports.default = DepositController;
 
-},{"../data-client":84,"../util":86,"./account-settings-controller":72}],78:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _homeView = _interopRequireDefault(require("../views/home-view"));
-
-var _weeklyView = _interopRequireDefault(require("../views/budget/weekly-view"));
-
-var _monthlyView = _interopRequireDefault(require("../views/budget/monthly-view"));
-
-var _biweeklyView = _interopRequireDefault(require("../views/budget/biweekly-view"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const DataClient = require('../data-client');
-
-const AccountSettingsController = require('./account-settings-controller');
-
-const Util = require('../util');
-
-class HomeController {
-  constructor() {
-    this.dataClient = {};
-    this.homeView = {};
-  }
-
-  async refresh() {
-    try {
-      let data = await this.dataClient.getBudget();
-      this.homeView.setView(data, Util.obfuscate());
-    } catch (err) {
-      Util.log(err);
-    }
-  }
-
-  init() {
-    this.homeView = new _homeView.default();
-    this.dataClient = new DataClient();
-    new AccountSettingsController().init(this.homeView);
-    let self = this;
-    $('.add-new-budget-item').prop('disabled', true);
-    $('#add-new-biweekly').click(function () {
-      $(this).hide();
-      $('.new-biweekly-container').prepend(self.homeView.getEditableTransactionView(_biweeklyView.default));
-    });
-    $('#add-new-monthly').click(function () {
-      $(this).hide();
-      $('.new-monthly-container').prepend(self.homeView.getEditableTransactionView(_monthlyView.default));
-    });
-    $('#add-new-weekly').click(function () {
-      $(this).hide();
-      $('.new-weekly-container').prepend(self.homeView.getEditableTransactionView(_weeklyView.default));
-    });
-    this.refresh();
-  }
-
-}
-
-exports.default = HomeController;
-
-},{"../data-client":84,"../util":86,"../views/budget/biweekly-view":96,"../views/budget/monthly-view":97,"../views/budget/weekly-view":98,"../views/home-view":99,"./account-settings-controller":72}],79:[function(require,module,exports){
-const AccountSettingsController = require('./account-settings-controller');
-const DataClient = require('../data-client');
-const Util = require('../util');
-
-function LinkBankAccountController() {
-    'use strict';
-    async function initAsync() {
-        $('#link-button').on('click', function(e) {
-            let selectedProducts = ['transactions'];
-            let handler = Plaid.create({
-                clientName: 'My App',
-                env: 'development',
-                key: '7e6391ab6cbcc3b212440b5821bfa7',
-                product: selectedProducts,
-                onSuccess: async function(public_token, metadata) {
-                    let dataClient = new DataClient();
-                    try {
-                        let result = await dataClient.post('link-access-token', { publicToken: public_token });
-                        window.location.reload();
-                    } catch (err) {
-                        Util.log(err);
-                    }
-                },
-                onExit: function(err, metadata) {
-                    // The user exited the Link flow.
-                    if (err != null) {
-                        // The user encountered a Plaid API error prior to exiting.
-                        console.log(err);
-                        window.alert(err);
-                    }
-                    // metadata contains information about the institution
-                    // that the user selected and the most recent API request IDs.
-                    // Storing this information can be helpful for support.
-                },
-                onEvent: function(eventName, metadata) {
-                    // Optionally capture Link flow events, streamed through
-                    // this callback as your users connect an Item to Plaid.
-                    // For example:
-                    // eventName = "TRANSITION_VIEW"
-                    // metadata  = {
-                    //   link_session_id: "123-abc",
-                    //   mfa_type:        "questions",
-                    //   timestamp:       "2017-09-14T14:42:19.350Z",
-                    //   view_name:       "MFA",
-                    // }
-                }
-            });
-            handler.open();
-        });
-
-        let dataClient = new DataClient();
-        try {
-            let bankLinks = await dataClient.get('bank-link');
-            for (let bankLink of bankLinks) {
-                let bankLinkView = $('<div class="bank-link-item-container"></div>');
-                bankLinkView.append(`<span title="${bankLink['institution']['name']} - ${bankLink['item_id']}">${bankLink['institution']['name']}</span>`);
-                let bankLinkUpdateButton = $(`
-                    <button class="btn btn-info" title="Re-Authenticate Bank Link" type="button">
-                        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
-                    </button>
-                `);
-                bankLinkUpdateButton.on('click', async function(e) {
-                    let data = { itemId: bankLink['item_id'] };
-                    let result;
-                    try {
-                        result = await dataClient.post('create-public-token', data);
-                    } catch (err) {
-                        Util.log(err);
-                        return;
-                    }
-                    let handler = Plaid.create({
-                        clientName: 'My App',
-                        env: 'development',
-                        key: '7e6391ab6cbcc3b212440b5821bfa7',
-                        product: ['transactions'],
-                        token: result['public_token'],
-                        onSuccess: async function(public_token, metadata) {
-                            window.alert('updated account access token');
-                        }
-                    });
-                    handler.open();
-                });
-                bankLinkView.append(bankLinkUpdateButton);
-                let bankLinkRemoveButton = $(`
-                    <button class="btn btn-danger" title="Remove Bank Link" type="button">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </button>`);
-                bankLinkRemoveButton.click(async function () {
-                    try {
-                        await dataClient.delete('bank-link', { itemId: bankLink['item_id']});
-                        window.alert(`Bank link deleted: ${bankLink['institution']['name']} - ${bankLink['item_id']}`);
-                        window.location.reload();
-                    } catch (err) {
-                        Util.log(err);
-                    }
-                });
-                bankLinkView.append(bankLinkRemoveButton);
-                $('#existing-link-container').append(bankLinkView);
-            }
-        } catch (err) {
-            Util.log(err);
-        }
-    }
-    this.init = function () {
-        new AccountSettingsController().init({});
-        initAsync().catch(err => { Util.log(err); });
-    };
-}
-
-module.exports = LinkBankAccountController;
-},{"../data-client":84,"../util":86,"./account-settings-controller":72}],80:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"./account-settings-controller":72}],79:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const DataClient = require('../data-client');
@@ -20609,7 +20533,7 @@ function LoginController() {
 }
 
 module.exports = LoginController;
-},{"../data-client":84,"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17,"otpauth":32,"qrcode":33}],81:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17,"otpauth":32,"qrcode":33}],80:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const DataClient = require('../data-client');
@@ -20681,114 +20605,278 @@ function LoginSignupController() {
 }
 
 module.exports = LoginSignupController;
-},{"../data-client":84,"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17}],82:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"./account-settings-controller":72,"amazon-cognito-identity-js":17}],81:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 const moment = require('moment/moment');
+
 const cal = require('../calculators/calendar');
+
 const UtcDay = require('../calculators/utc-day');
+
 const DataClient = require('../data-client');
+
 const Currency = require('currency.js');
+
 const AccountSettingsController = require('./account-settings-controller');
+
 const PayDaysView = require('../views/pay-days-view');
+
 const Util = require('../util');
-function PayDaysController() {
-    'use strict';
-    let dataClient;
-    function getView(paymentNumber, payDate) {
-        return `<div class="row">
+
+function getView(paymentNumber, payDate) {
+  return `<div class="row">
                     <div class="col-xs-1 text-right">${paymentNumber}</div>
                     <div class="col-xs-11">${payDate}</div>
                 </div>`;
-    }
-    function getPayDates() {
-        let paymentDates = [];
-        let current = moment().utc().startOf('day');
-        let end = moment().utc().endOf('year');
-        let firstPayDateTime = moment('2019-04-12T00:00:00.000Z', moment.ISO_8601);
-        while (current < end) {
-            let diffFromFirstPayDate = new UtcDay().getDayDiff(firstPayDateTime, current.valueOf());
-            let modulusIntervalsFromFirstPayDate = diffFromFirstPayDate % cal.BIWEEKLY_INTERVAL;
-            if (modulusIntervalsFromFirstPayDate === 0) {
-                paymentDates.push(current.toISOString());
-            }
-            current = current.add(1, 'day');
-        }
-        return paymentDates;
-    }
-    async function initAsync() {
-        let data = await dataClient.getBudget();
-        $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
-        $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
-        let max401kContribution = 19000;
-        $('#max-401k-contribution').text(Util.format(max401kContribution));
-        let payDates = getPayDates();
-        payDates.forEach((paymentDate, index) => {
-            $('.pay-days-container').append(getView(index + 1, paymentDate));
-        });
-        let projectedContributionForYear = Currency(data['401k-contribution-for-year']).add(
-            Currency(data['401k-contribution-per-pay-check']).multiply(payDates.length)
-        );
-        $('#projected-contribution-for-year').text(Util.format(projectedContributionForYear.toString()));
-        $('#paychecks-remaining').text(payDates.length);
-        let shouldContributePerPaycheck = Currency(19000)
-            .subtract(data['401k-contribution-for-year'])
-            .divide(payDates.length);
-        let remainingShouldContribute = shouldContributePerPaycheck.multiply(payDates.length);
-        let totalShouldcontribute = remainingShouldContribute.add(data['401k-contribution-for-year']);
-        $('#should-contribute-for-max').text(Util.format(shouldContributePerPaycheck.toString()));
-        $('#remaining-should-contribute-for-year').text(Util.format(remainingShouldContribute.toString()));
-        $('#total-should-contribute-for-year').text(Util.format(totalShouldcontribute.toString()));
-
-        if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
-            $('#acceptLicense').prop('checked', true);
-            $('#acceptLicense').prop('disabled', true);
-            $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
-        }
-    }
-    this.init = function () {
-        dataClient = new DataClient();
-        new AccountSettingsController().init(PayDaysView);
-        initAsync()
-            .catch(err => { Util.log(err); });
-    };
 }
 
-module.exports = PayDaysController;
-},{"../calculators/calendar":65,"../calculators/utc-day":69,"../data-client":84,"../util":86,"../views/pay-days-view":100,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],83:[function(require,module,exports){
+function getPayDates() {
+  let paymentDates = [];
+  let current = moment().utc().startOf('day');
+  let end = moment().utc().endOf('year');
+  let firstPayDateTime = moment('2019-04-12T00:00:00.000Z', moment.ISO_8601);
+
+  while (current < end) {
+    let diffFromFirstPayDate = new UtcDay().getDayDiff(firstPayDateTime, current.valueOf());
+    let modulusIntervalsFromFirstPayDate = diffFromFirstPayDate % cal.BIWEEKLY_INTERVAL;
+
+    if (modulusIntervalsFromFirstPayDate === 0) {
+      paymentDates.push(current.toISOString());
+    }
+
+    current = current.add(1, 'day');
+  }
+
+  return paymentDates;
+}
+
+class PayDaysController {
+  static getName() {
+    return 'Pay Days';
+  }
+
+  static getUrl() {
+    return `${Util.rootUrl()}/pages/pay-days.html`;
+  }
+
+  async init() {
+    new AccountSettingsController().init(PayDaysView);
+    let data = await new DataClient().getBudget();
+    $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
+    $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
+    const max401kContribution = 19000;
+    $('#max-401k-contribution').text(Util.format(max401kContribution));
+    let payDates = getPayDates();
+    payDates.forEach((paymentDate, index) => {
+      $('.pay-days-container').append(getView(index + 1, paymentDate));
+    });
+    let projectedContributionForYear = Currency(data['401k-contribution-for-year']).add(Currency(data['401k-contribution-per-pay-check']).multiply(payDates.length));
+    $('#projected-contribution-for-year').text(Util.format(projectedContributionForYear.toString()));
+    $('#paychecks-remaining').text(payDates.length);
+    let shouldContributePerPaycheck = Currency(max401kContribution).subtract(data['401k-contribution-for-year']).divide(payDates.length);
+    let remainingShouldContribute = shouldContributePerPaycheck.multiply(payDates.length);
+    let totalShouldContribute = remainingShouldContribute.add(data['401k-contribution-for-year']);
+    $('#should-contribute-for-max').text(Util.format(shouldContributePerPaycheck.toString()));
+    $('#remaining-should-contribute-for-year').text(Util.format(remainingShouldContribute.toString()));
+    $('#total-should-contribute-for-year').text(Util.format(totalShouldContribute.toString()));
+  }
+
+}
+
+exports.default = PayDaysController;
+
+},{"../calculators/calendar":65,"../calculators/utc-day":69,"../data-client":84,"../util":86,"../views/pay-days-view":100,"./account-settings-controller":72,"currency.js":26,"moment/moment":31}],82:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 const AccountSettingsController = require('./account-settings-controller');
+
 const DataClient = require('../data-client');
+
 const PricesView = require('../views/prices-view');
+
 const Util = require('../util');
-function PricesController() {
-    'use strict';
-    let dataClient;
-    async function initAsync() {
-        try {
-            let data = await dataClient.getBudget();
-            if (data.assets) {
-                $('#prices-input-group').empty();
-                $('#prices-input-group').append(PricesView.getHeaderView());
-                for (let asset of data.assets.filter(x => x.sharePrice)) {
-                    $('#prices-input-group').append(PricesView.getView(asset.name, asset.sharePrice));
-                }
-            }
-            if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
-                $('#acceptLicense').prop('checked', true);
-                $('#acceptLicense').prop('disabled', true);
-                $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
-            }
-        } catch (err) {
-            Util.log(err);
-        }
+
+class PricesController {
+  static getName() {
+    return 'Prices';
+  }
+
+  static getUrl() {
+    return `${Util.rootUrl()}/pages/prices.html`;
+  }
+
+  async init() {
+    new AccountSettingsController().init(PricesView);
+    let dataClient = new DataClient();
+    let data = await dataClient.getBudget();
+
+    if (data.assets) {
+      $('#prices-input-group').empty();
+      $('#prices-input-group').append(PricesView.getHeaderView());
+
+      for (let asset of data.assets.filter(x => x.sharePrice)) {
+        $('#prices-input-group').append(PricesView.getView(asset.name, asset.sharePrice));
+      }
     }
-    this.init = function () {
-        dataClient = new DataClient();
-        new AccountSettingsController().init(PricesView);
-        initAsync().catch(err => { Util.log(err); });
-    };
+  }
+
 }
 
-module.exports = PricesController;
-},{"../data-client":84,"../util":86,"../views/prices-view":101,"./account-settings-controller":72}],84:[function(require,module,exports){
+exports.default = PricesController;
+
+},{"../data-client":84,"../util":86,"../views/prices-view":101,"./account-settings-controller":72}],83:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _nav = _interopRequireDefault(require("../nav"));
+
+var _transferView = _interopRequireDefault(require("../views/transfer-view"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const AccountSettingsController = require('./account-settings-controller');
+
+const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
+
+const Currency = require('currency.js');
+
+const DataClient = require('../data-client');
+
+const Util = require('../util');
+
+class TransfersController {
+  static getName() {
+    return 'Transfers';
+  }
+
+  static getUrl() {
+    return `${Util.rootUrl()}/pages/transfers.html`;
+  }
+
+  async cancelTransfer(transferId) {
+    let dataClient = new DataClient();
+
+    try {
+      let data = await dataClient.getBudget();
+      let patch = {};
+      patch.pending = data.pending.filter(x => x.id !== transferId);
+      await dataClient.patch(patch);
+      window.location.reload();
+    } catch (error) {
+      Util.log(error);
+    }
+  }
+
+  async completeTransfer(transferId) {
+    let dataClient = new DataClient();
+    let data = await dataClient.getBudget();
+    let patch = {
+      assets: data.assets || []
+    };
+    let credit = data.pending.find(x => x.id === transferId);
+    credit.type = credit.type || '';
+    patch.pending = data.pending.filter(x => x.id !== transferId);
+    let debitAccount = patch.assets.find(x => x.id === credit.debitId);
+    let creditAmount = Util.getAmount(credit);
+
+    if (debitAccount.shares && debitAccount.sharePrice) {
+      let newDebitAmount = Currency(Util.getAmount(debitAccount), Util.getCurrencyDefaults()).subtract(Util.getAmount(credit)).toString();
+      debitAccount.shares = Currency(newDebitAmount, Util.getCurrencyDefaults()).divide(debitAccount.sharePrice).toString();
+    } else {
+      debitAccount.amount = Currency(debitAccount.amount, Util.getCurrencyDefaults()).subtract(creditAmount).toString();
+    }
+
+    if (credit.type.toLowerCase() !== 'expense') {
+      let creditAccount = patch.assets.find(asset => (asset.type || '').toLowerCase() === credit.type.toLowerCase() && (asset.name || '').toLowerCase() === credit.creditAccount.toLowerCase());
+
+      if (!creditAccount) {
+        delete credit.creditAccount;
+        delete credit.debitAccount;
+        delete credit.transferDate;
+        creditAccount = {
+          name: credit.name,
+          amount: credit.amount,
+          sharePrice: credit.sharePrice,
+          shares: credit.shares,
+          daysToMaturation: credit.daysToMaturation,
+          id: credit.id,
+          issueDate: credit.issueDate,
+          type: credit.type
+        };
+        patch.assets.push(creditAccount);
+      } else {
+        if (credit.shares && credit.sharePrice) {
+          creditAccount.shares = Currency(creditAccount.shares, Util.getCurrencyDefaults()).add(credit.shares).toString();
+        } else {
+          creditAccount.amount = Currency(creditAccount.amount, Util.getCurrencyDefaults()).add(credit.amount).toString();
+        }
+      }
+    }
+
+    patch.assets = patch.assets.filter(x => Currency(Util.getAmount(x)).intValue > 0);
+
+    try {
+      await dataClient.patch(patch);
+      window.location.reload();
+    } catch (err) {
+      Util.log(err);
+    }
+  }
+
+  setView(data) {
+    let self = this;
+
+    for (let transfer of data.pending || []) {
+      let transferView = new _transferView.default().getTransferView(transfer);
+      transferView.find('.cancel-transfer').click(async function () {
+        await self.cancelTransfer(transfer.id);
+      });
+      transferView.find('.complete-transfer').click(async function () {
+        await self.completeTransfer(transfer.id);
+      });
+      $('.accounts-container').append(transferView);
+    }
+  }
+
+  async refresh() {
+    try {
+      let dataClient = new DataClient();
+      let data = await dataClient.getBudget('budget');
+      this.setView(data);
+
+      if (location.hash && document.querySelector(location.hash)) {
+        window.scrollTo(0, document.querySelector(location.hash).offsetTop);
+      }
+    } catch (err) {
+      Util.log(err);
+    }
+  }
+
+  async init() {
+    new AccountSettingsController().init(balanceSheetView);
+    this.refresh();
+  }
+
+}
+
+exports.default = TransfersController;
+
+},{"../data-client":84,"../nav":85,"../util":86,"../views/balance-sheet/balance-sheet-view":88,"../views/transfer-view":102,"./account-settings-controller":72,"currency.js":26}],84:[function(require,module,exports){
 const Util = require('./util');
 const Currency = require('currency.js');
 function DataClient() {
@@ -20901,40 +20989,25 @@ function DataClient() {
 module.exports = DataClient;
 
 },{"./util":86,"currency.js":26}],85:[function(require,module,exports){
-const Util = require('./util');
-exports.getNavView = function (showPayroll) {
-    let root = Util.rootUrl();
-    return $(`<div class="container">
-          <div class="container-fluid">
-              <a class="tab-nav-item" href="${root}/index.html" title="Budget">
-                  <span class="ac-gn-link-text">Budget</span>
-              </a>
-              <a class="tab-nav-item" href="${root}/pages/budget-calendar.html" title="Budget Calendar">
-                  <span class="ac-gn-link-text">Calendar</span>
-              </a>
-              <a class="tab-nav-item" href="${root}/pages/balance-sheet.html" title="Balance Sheet">
-                  <span class="ac-gn-link-text">Balance Sheet</span>
-              </a>
-              <a class="tab-nav-item" href="${root}/pages/accounts.html" title="Transfers">
-                  <span class="ac-gn-link-text">Transfers</span>
-              </a>
-              <a class="tab-nav-item" href="${root}/pages/deposit.html" title="Deposit">
-                  <span class="ac-gn-link-text">Deposit</span>
-              </a>
-              <a class="tab-nav-item" href="${root}/pages/prices.html" title="Prices">
-                  <span class="ac-gn-link-text">Prices</span>
-              </a>
-              ${showPayroll ? `<a class="tab-nav-item" href="${root}/pages/pay-days.html" title="Pay Days">
-                  <span class="ac-gn-link-text">Pay Days</span>
-              </a>` : ''}
-              <a class="tab-nav-item" href="${root}/pages/link-bank-account.html" title="View and Manage Linked Banks">
-                  <span class="ac-gn-link-text">Banks</span>
-              </a>
-          </div>
-      </div>`);
-};
+"use strict";
 
-},{"./util":86}],86:[function(require,module,exports){
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+class Navigation {
+  static getNavItemView(url, name) {
+    return `<a class="tab-nav-item" href="${url}" title="${name}">
+                  <span class="ac-gn-link-text">${name}</span>
+              </a>`;
+  }
+
+}
+
+exports.default = Navigation;
+
+},{}],86:[function(require,module,exports){
 const Currency = require('currency.js');
 exports.log = function (error) {
     console.log(error);
@@ -21314,7 +21387,7 @@ function BondViewModel() {
 
 module.exports = BondViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":90,"moment/moment":31}],90:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":74,"../../util":86,"./cash-view-model":90,"moment/moment":31}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21441,7 +21514,7 @@ class CashViewModel {
 
 exports.default = CashViewModel;
 
-},{"../../calculators/current-balance-calculator":66,"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./bond-view-model":89,"./equity-view-model":91,"./expense-view-model":92,"./property-plant-and-equipment-view-model":94}],91:[function(require,module,exports){
+},{"../../calculators/current-balance-calculator":66,"../../controllers/balance-sheet/transfer-controller":74,"../../util":86,"./bond-view-model":89,"./equity-view-model":91,"./expense-view-model":92,"./property-plant-and-equipment-view-model":94}],91:[function(require,module,exports){
 "use strict";
 
 var _cashViewModel = _interopRequireDefault(require("./cash-view-model"));
@@ -21550,7 +21623,7 @@ function EquityViewModel() {
 
 module.exports = EquityViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":90,"currency.js":26}],92:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":74,"../../util":86,"./cash-view-model":90,"currency.js":26}],92:[function(require,module,exports){
 function ExpenseViewModel() {
     this.getViewDescription = () => 'Expense';
     this.getViewType = () => 'expense';
@@ -21761,7 +21834,7 @@ class PropertyPlantAndEquipmentViewModel {
 
 exports.default = PropertyPlantAndEquipmentViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":75,"../../util":86,"./cash-view-model":90}],95:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":74,"../../util":86,"./cash-view-model":90}],95:[function(require,module,exports){
 const Moment = require('moment/moment');
 function TransferView() {
     this.getView = function (name, allowableTransferViewModels) {
@@ -21836,112 +21909,21 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-const cal = require('../../calculators/calendar');
+var _weeklyView = _interopRequireDefault(require("./weekly-view"));
 
-class MonthlyView {
-  static get iteration() {
-    return 'monthly';
-  }
+var _monthlyView = _interopRequireDefault(require("./monthly-view"));
 
-  static get dateName() {
-    return 'day of month';
-  }
-
-  getTextInputHtml() {
-    let txHtmlInput = '<select class="date form-control"><option>Day of Month</option>';
-
-    for (let day = 1; day <= cal.SAFE_LAST_DAY_OF_MONTH; day++) {
-      txHtmlInput += `<option
-            value=${new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), day)).toISOString()}>${day}</option>`;
-    }
-
-    txHtmlInput += '</select>';
-    return txHtmlInput;
-  }
-
-  getDateText(date) {
-    return new Date(date).getUTCDate();
-  }
-
-}
-
-exports.default = MonthlyView;
-
-},{"../../calculators/calendar":65}],98:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-const cal = require('../../calculators/calendar');
-
-class WeeklyView {
-  static get iteration() {
-    return 'weekly';
-  }
-
-  static get dateName() {
-    return 'day of week';
-  }
-
-  getDateWithDay(day) {
-    let date = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
-    let distance = day - date.getUTCDay();
-    date.setDate(date.getDate() + distance);
-    return date.toISOString();
-  }
-
-  getTextInputHtml() {
-    let txtHtmlInput = '<select class="date form-control"><option>Day of Week</option>';
-
-    for (let day = 0; day < 7; day++) {
-      txtHtmlInput += `<option value="${this.getDateWithDay(day)}">${cal.DAY_NAMES[day]}</option>`;
-    }
-
-    txtHtmlInput += '</select>';
-    return txtHtmlInput;
-  }
-
-  getDateText(date) {
-    return cal.DAY_NAMES[new Date(date).getUTCDay()];
-  }
-
-}
-
-exports.default = WeeklyView;
-
-},{"../../calculators/calendar":65}],99:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _weeklyView = _interopRequireDefault(require("./budget/weekly-view"));
-
-var _monthlyView = _interopRequireDefault(require("./budget/monthly-view"));
-
-var _biweeklyView = _interopRequireDefault(require("./budget/biweekly-view"));
+var _biweeklyView = _interopRequireDefault(require("./biweekly-view"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const cal = require('../calculators/calendar');
-
-const Util = require('../util');
+const Util = require('../../util');
 
 function sortByAmount(a, b) {
   return b.amount - a.amount;
 }
 
 function getTransactionModel(target) {
-  /*
-      "date": "2015-12-25T00:00:00Z",
-      "type": "income",
-      "amount": 100
-   */
   return {
     amount: Util.cleanseNumericString($(target).find('.amount').val().trim()),
     date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
@@ -21951,7 +21933,7 @@ function getTransactionModel(target) {
   };
 }
 
-class HomeView {
+class BudgetView {
   constructor() {
     this.data = {};
   }
@@ -22041,12 +22023,6 @@ class HomeView {
       $('#monthly-input-group').append(this.getTransactionView(transaction, _monthlyView.default, obfuscate));
     }
 
-    if (this.data.licenseAgreement && this.data.licenseAgreement.agreedToLicense) {
-      $('#acceptLicense').prop('checked', true);
-      $('#acceptLicense').prop('disabled', true);
-      $('.licenseAgreementDetails').append(`agreed to license on ${this.data.licenseAgreement.agreementDateUtc} from IP ${this.data.licenseAgreement.ipAddress}`);
-    }
-
     $('.add-new-budget-item').prop('disabled', obfuscate);
   }
 
@@ -22073,9 +22049,93 @@ class HomeView {
 
 }
 
-exports.default = HomeView;
+exports.default = BudgetView;
 
-},{"../calculators/calendar":65,"../util":86,"./budget/biweekly-view":96,"./budget/monthly-view":97,"./budget/weekly-view":98}],100:[function(require,module,exports){
+},{"../../util":86,"./biweekly-view":96,"./monthly-view":98,"./weekly-view":99}],98:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+const cal = require('../../calculators/calendar');
+
+class MonthlyView {
+  static get iteration() {
+    return 'monthly';
+  }
+
+  static get dateName() {
+    return 'day of month';
+  }
+
+  getTextInputHtml() {
+    let txHtmlInput = '<select class="date form-control"><option>Day of Month</option>';
+
+    for (let day = 1; day <= cal.SAFE_LAST_DAY_OF_MONTH; day++) {
+      txHtmlInput += `<option
+            value=${new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), day)).toISOString()}>${day}</option>`;
+    }
+
+    txHtmlInput += '</select>';
+    return txHtmlInput;
+  }
+
+  getDateText(date) {
+    return new Date(date).getUTCDate();
+  }
+
+}
+
+exports.default = MonthlyView;
+
+},{"../../calculators/calendar":65}],99:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+const cal = require('../../calculators/calendar');
+
+class WeeklyView {
+  static get iteration() {
+    return 'weekly';
+  }
+
+  static get dateName() {
+    return 'day of week';
+  }
+
+  getDateWithDay(day) {
+    let date = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()));
+    let distance = day - date.getUTCDay();
+    date.setDate(date.getDate() + distance);
+    return date.toISOString();
+  }
+
+  getTextInputHtml() {
+    let txtHtmlInput = '<select class="date form-control"><option>Day of Week</option>';
+
+    for (let day = 0; day < 7; day++) {
+      txtHtmlInput += `<option value="${this.getDateWithDay(day)}">${cal.DAY_NAMES[day]}</option>`;
+    }
+
+    txtHtmlInput += '</select>';
+    return txtHtmlInput;
+  }
+
+  getDateText(date) {
+    return cal.DAY_NAMES[new Date(date).getUTCDay()];
+  }
+
+}
+
+exports.default = WeeklyView;
+
+},{"../../calculators/calendar":65}],100:[function(require,module,exports){
 const Currency = require('currency.js');
 
 exports.getModel = function () {

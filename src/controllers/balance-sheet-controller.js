@@ -64,7 +64,13 @@ function getViewModel(data, bankData) {
     return viewModel;
 }
 export default class BalanceSheetController {
-    init() {
+    static getName() {
+        return 'Balance Sheet';
+    }
+    static getUrl() {
+        return `${Util.rootUrl()}/pages/balance-sheet.html`;
+    }
+    async init() {
         new AccountSettingsController().init(balanceSheetView);
         if (Util.obfuscate()) {
             $('#add-new-balance').prop('disabled', true);
@@ -78,6 +84,6 @@ export default class BalanceSheetController {
                     type: 'credit'
                 }));
         });
-        refresh();
+        await refresh();
     };
 }

@@ -2,33 +2,23 @@ const AccountSettingsController = require('./account-settings-controller');
 const DataClient = require('../data-client');
 const PricesView = require('../views/prices-view');
 const Util = require('../util');
-function PricesController() {
-    'use strict';
-    let dataClient;
-    async function initAsync() {
-        try {
-            let data = await dataClient.getBudget();
-            if (data.assets) {
-                $('#prices-input-group').empty();
-                $('#prices-input-group').append(PricesView.getHeaderView());
-                for (let asset of data.assets.filter(x => x.sharePrice)) {
-                    $('#prices-input-group').append(PricesView.getView(asset.name, asset.sharePrice));
-                }
-            }
-            if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
-                $('#acceptLicense').prop('checked', true);
-                $('#acceptLicense').prop('disabled', true);
-                $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
-            }
-        } catch (err) {
-            Util.log(err);
-        }
+export default class PricesController {
+    static getName() {
+        return 'Prices';
     }
-    this.init = function () {
-        dataClient = new DataClient();
+    static getUrl() {
+        return `${Util.rootUrl()}/pages/prices.html`;
+    }
+    async init() {
         new AccountSettingsController().init(PricesView);
-        initAsync().catch(err => { Util.log(err); });
+        let dataClient = new DataClient();
+        let data = await dataClient.getBudget();
+        if (data.assets) {
+            $('#prices-input-group').empty();
+            $('#prices-input-group').append(PricesView.getHeaderView());
+            for (let asset of data.assets.filter(x => x.sharePrice)) {
+                $('#prices-input-group').append(PricesView.getView(asset.name, asset.sharePrice));
+            }
+        }
     };
 }
-
-module.exports = PricesController;

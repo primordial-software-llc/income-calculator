@@ -1,4 +1,4 @@
-import HomeView from '../views/home-view';
+import BudgetView from '../views/budget/budget-view';
 import WeeklyView from '../views/budget/weekly-view';
 import MonthlyView from '../views/budget/monthly-view';
 import BiweeklyView from '../views/budget/biweekly-view';
@@ -6,7 +6,13 @@ const DataClient = require('../data-client');
 const AccountSettingsController = require('./account-settings-controller');
 const Util = require('../util');
 
-export default class HomeController {
+export default class BudgetController {
+    static getName() {
+        return 'Budget';
+    }
+    static getUrl() {
+        return `${Util.rootUrl()}/pages/budget.html`;
+    }
     constructor() {
         this.dataClient = {};
         this.homeView = {};
@@ -19,8 +25,8 @@ export default class HomeController {
             Util.log(err);
         }
     }
-    init() {
-        this.homeView = new HomeView();
+    async init() {
+        this.homeView = new BudgetView();
         this.dataClient = new DataClient();
         new AccountSettingsController().init(this.homeView);
         let self = this;
@@ -37,6 +43,6 @@ export default class HomeController {
             $(this).hide();
             $('.new-weekly-container').prepend(self.homeView.getEditableTransactionView(WeeklyView));
         });
-        this.refresh();
+        await this.refresh();
     };
 }

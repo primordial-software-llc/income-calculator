@@ -6,35 +6,40 @@ const Currency = require('currency.js');
 const AccountSettingsController = require('./account-settings-controller');
 const PayDaysView = require('../views/pay-days-view');
 const Util = require('../util');
-function PayDaysController() {
-    'use strict';
-    let dataClient;
-    function getView(paymentNumber, payDate) {
-        return `<div class="row">
+function getView(paymentNumber, payDate) {
+    return `<div class="row">
                     <div class="col-xs-1 text-right">${paymentNumber}</div>
                     <div class="col-xs-11">${payDate}</div>
                 </div>`;
-    }
-    function getPayDates() {
-        let paymentDates = [];
-        let current = moment().utc().startOf('day');
-        let end = moment().utc().endOf('year');
-        let firstPayDateTime = moment('2019-04-12T00:00:00.000Z', moment.ISO_8601);
-        while (current < end) {
-            let diffFromFirstPayDate = new UtcDay().getDayDiff(firstPayDateTime, current.valueOf());
-            let modulusIntervalsFromFirstPayDate = diffFromFirstPayDate % cal.BIWEEKLY_INTERVAL;
-            if (modulusIntervalsFromFirstPayDate === 0) {
-                paymentDates.push(current.toISOString());
-            }
-            current = current.add(1, 'day');
+}
+function getPayDates() {
+    let paymentDates = [];
+    let current = moment().utc().startOf('day');
+    let end = moment().utc().endOf('year');
+    let firstPayDateTime = moment('2019-04-12T00:00:00.000Z', moment.ISO_8601);
+    while (current < end) {
+        let diffFromFirstPayDate = new UtcDay().getDayDiff(firstPayDateTime, current.valueOf());
+        let modulusIntervalsFromFirstPayDate = diffFromFirstPayDate % cal.BIWEEKLY_INTERVAL;
+        if (modulusIntervalsFromFirstPayDate === 0) {
+            paymentDates.push(current.toISOString());
         }
-        return paymentDates;
+        current = current.add(1, 'day');
     }
-    async function initAsync() {
-        let data = await dataClient.getBudget();
+    return paymentDates;
+}
+export default class PayDaysController {
+    static getName() {
+        return 'Pay Days';
+    }
+    static getUrl() {
+        return `${Util.rootUrl()}/pages/pay-days.html`;
+    }
+    async init() {
+        new AccountSettingsController().init(PayDaysView);
+        let data = await new DataClient().getBudget();
         $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
         $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
-        let max401kContribution = 19000;
+        const max401kContribution = 19000;
         $('#max-401k-contribution').text(Util.format(max401kContribution));
         let payDates = getPayDates();
         payDates.forEach((paymentDate, index) => {
@@ -45,27 +50,13 @@ function PayDaysController() {
         );
         $('#projected-contribution-for-year').text(Util.format(projectedContributionForYear.toString()));
         $('#paychecks-remaining').text(payDates.length);
-        let shouldContributePerPaycheck = Currency(19000)
+        let shouldContributePerPaycheck = Currency(max401kContribution)
             .subtract(data['401k-contribution-for-year'])
             .divide(payDates.length);
         let remainingShouldContribute = shouldContributePerPaycheck.multiply(payDates.length);
-        let totalShouldcontribute = remainingShouldContribute.add(data['401k-contribution-for-year']);
+        let totalShouldContribute = remainingShouldContribute.add(data['401k-contribution-for-year']);
         $('#should-contribute-for-max').text(Util.format(shouldContributePerPaycheck.toString()));
         $('#remaining-should-contribute-for-year').text(Util.format(remainingShouldContribute.toString()));
-        $('#total-should-contribute-for-year').text(Util.format(totalShouldcontribute.toString()));
-
-        if (data.licenseAgreement && data.licenseAgreement.agreedToLicense) {
-            $('#acceptLicense').prop('checked', true);
-            $('#acceptLicense').prop('disabled', true);
-            $('.licenseAgreementDetails').append(`agreed to license on ${data.licenseAgreement.agreementDateUtc} from IP ${data.licenseAgreement.ipAddress}`);
-        }
+        $('#total-should-contribute-for-year').text(Util.format(totalShouldContribute.toString()));
     }
-    this.init = function () {
-        dataClient = new DataClient();
-        new AccountSettingsController().init(PayDaysView);
-        initAsync()
-            .catch(err => { Util.log(err); });
-    };
 }
-
-module.exports = PayDaysController;
