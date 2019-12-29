@@ -39,7 +39,7 @@ function getDayView(date, inMonth) {
 function addMonthContainer(monthContainerId, date) {
     $('#months-container').append(`
         <div class="month-heading-totals-container">
-            <div class="month-heading container">${cal.MONTH_NAMES[date.getUTCMonth()]} ${date.getFullYear()}</div>
+            <div class="month-heading container">${cal.MONTH_NAMES[date.getUTCMonth()]} ${date.getUTCFullYear()}</div>
             <div class="month-heading-totals-headers row">
                 <div class="col-xs-3 text-center"><span class="month-heading-total-description">&nbsp;</span></div>
                 <div class="col-xs-2 text-center">Income</div>
@@ -108,9 +108,6 @@ function loadTransactions(items) {
 }
 
 exports.load = function (budgetSettings, start, end) {
-    $('#debug-console').html(
-        `<div>Showing from: ${start.toISOString()} UTC</div>
-        <div>Until: ${end.toISOString()} UTC</div>`);
     let budget = netIncomeCalculator.getBudget(budgetSettings, start.getTime(), end.getTime());
     let summary = calendarAggregator.getSummary(start.getTime(), end.getTime(), budget);
     loadTransactions(summary.budgetItems);

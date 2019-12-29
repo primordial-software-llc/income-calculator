@@ -1,56 +1,5 @@
-/* template */
-html, body {
-    height: 100%;
-}
-.imago-bg-blue {
-    background-color: #032b4f;
-    color: #FFF;
-}
-.imago-bg-blue a {
-    color: #FFF;
-    text-decoration: underline;
-}
-.imago-bg-gray {
-    background-color: #3d3f41;
-}
-.imago-header-public {
-    height: 140px;
-}
-.imago-header-public.home-page {
-    /* fix this to use a smaller image size this image is nearly a meg. */
-    background-image: url(https://www.primordial-software.com/docs/imago-design/budget-smallest.jpg);
-    background-position: 0px -211px;
-    background-repeat: no-repeat;
-    background-size: cover;
-}
-.header-overlay {
-    background-color: rgba(0,0,0,0.7);
-    height: 100%;
-}
-.header-text {
-    color: white;
-    font-size: 36px;
-    font-weight: bold;
-    padding-top: 60px;
-    padding-left: 50px;
-}
-.imago-body-public {
-    height: 90%;
-}
-.imago-footer-public {
-    height: 20%;
-    min-height: 130px;
-}
-.footer-text-group {
-    padding-top: 10px;
-    text-align: center;
-}
-.footer-text-group:first-child {
-    padding-top: 20px;
-}
-
 body {
-    font-family: Helvetica, Verdana, Arial, sans-serif;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 body,
 body p,
@@ -64,20 +13,16 @@ h1, .tab-nav-bar, .container {
 }
 /* nav */
 .tab-nav-bar {
-    padding-top: 3px;
-    padding-bottom: 7px;
-    background: rgba(230,230,230,0.8);
+    padding: 10px;
+    display: flex;
 }
 .tab-nav-bar .ac-gn-item{
     display: inline-block;
 }
 .tab-nav-bar .tab-nav-item {
-    font-size: 1.5em;
-    color: #000;
+    flex-basis: 100%;
+    text-align: center;
     text-decoration: underline;
-}
-.tab-nav-bar .tab-nav-item:not(:first-child) {
-    padding-left: 2%;
 }
 h1, h2, h3, .month-heading {
     font-family: "Trebuchet MS";
@@ -162,17 +107,6 @@ h4 {
     margin-bottom: 0px;
 }
 
-#command-buttons-container > span {
-    display: inline-block;
-    float: right;
-    cursor: pointer;
-    margin-right: 15px;
-}
-
-.command-button > span {
-    font-size: .8em;
-}
-
 #input-form > .form-label {
     clear: left;
 }
@@ -241,7 +175,7 @@ h4 {
 }
 
 .transferring {
-    background-color: blanchedalmond;
+    background-color: #dbdcde;
     padding: 15px;
     margin-bottom: 15px;
 }
@@ -377,6 +311,9 @@ h4 {
 .font-italic {
     font-style: italic;
 }
+.font-bold {
+    font-weight: 700;
+}
 
 .transactions-for-week {
     display: flex;
@@ -461,4 +398,94 @@ h4 {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* Imago styles */
+.color-imago-cream {
+    color: #FFFACD;
+}
+.bg-color-imago-cream {
+    background-color: #FFFACD;
+}
+.link-color-white a {
+    color: #FFF
+}
+.color-white {
+    color: #FFF;
+}
+.color-imago-blue {
+    color: #032b4f;
+}
+.bg-color-imago-blue {
+    background-color: #032b4f;
+}
+.bg-color-image-light-gray {
+    background-color: #d1d3d4;
+}
+.w-100 {
+    width: 100%;
+}
+.p-15 {
+    padding: 15px;
+}
+.font-subheading1 {
+    font-size: 28px;
+    font-weight: bold;
+}
+.imago-bg-blue {
+    background-color: #032b4f;
+    color: #FFF;
+}
+.imago-bg-blue a {
+    color: #FFF;
+    text-decoration: underline;
+}
+
+.header-overlay {
+    background-color: rgba(0,0,0,0.7);
+    height: 100%;
+}
+.imago-header {
+    height: 140px;
+}
+.header-text {
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+    padding-top: 60px;
+    padding-left: 50px;
+}
+
+.imago-footer-public {
+    height: 130px;
+}
+.footer-text-group {
+    padding-top: 10px;
+    text-align: center;
+}
+.footer-text-group:first-child {
+    padding-top: 20px;
+}
+.authenticated-sitemap-footer {
+    background-color: #3d3f41;
+    display: flex;
+    padding: 10px;
+}
+.authenticated-sitemap-footer a {
+    color: #FFF;
+    flex-basis: 100%;
+    text-align: center;
+}
+
+/* behind login */
+#command-buttons-container {
+    height: 57px;
+    font-size: 40px;
+}
+
+#command-buttons-container > span {
+    display: inline-block;
+    float: right;
+    cursor: pointer;
+    margin-right: 30px;
 }

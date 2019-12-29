@@ -41,15 +41,12 @@ async function init() {
     let navItemHtml = authenticatedControllers.map(controllerType =>
         Navigation.getNavItemView(controllerType.getUrl(), controllerType.getName())
     );
-    let navView = $(`<div class="container">${navItemHtml.join('')}</div>`);
-    $('.tab-nav-bar').append(navView);
+    $('.tab-nav-bar').append(navItemHtml.join(''));
     let controller;
     let controllerType = authenticatedControllers.find(x => pageName.startsWith(x.getUrl().split('/').pop()));
     if (controllerType) {
-        $('html').removeClass('imago-bg-blue');
-        $('html').addClass('imago-bg-gray');
         controller = new controllerType();
-        $('body').append(FooterView.getView());
+        $('body').append(FooterView.getView(navItemHtml.join('')));
     } else if (pageName.startsWith('login.html')) {
         controller = new LoginController();
     } else if (pageName.startsWith('login-signup.html')) {

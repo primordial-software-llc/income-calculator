@@ -1,77 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/style.css" media="screen">
-    <title>Net Income Calculator</title>
-      <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
-      <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
-      <script type="text/javascript" src="../app.bundle.js"></script>
-  </head>
-  <body>
-  <h1>Income Calculator<span id="command-buttons-container"></span></h1>
-  <div class="tab-nav-bar"></div>
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
+        <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="../stylesheets/style.css" media="screen">
+        <style>
+            .imago-header {
+                background-image: url(https://www.primordial-software.com/docs/imago-design/budget-smallest.jpg);
+                background-position: 0px -211px;
+                background-repeat: no-repeat;
+                background-size: cover;
+            }
+        </style>
+        <title>Net Income Calculator</title>
+        <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
+        <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
+        <script type="text/javascript" src="../app.bundle.js"></script>
+    </head>
+  <body class="container">
+      <div class="bg-color-imago-cream" id="command-buttons-container"></div>
+      <div class="tab-nav-bar bg-color-imago-blue link-color-white w-100"></div>
+      <div class="imago-header">
+          <div class="header-overlay">
+              <div class="header-text">Budget</div>
+          </div>
+      </div>
   <div id="header" class="container">
       <div id="output"></div>
   </div>
-  <div class="container">
-      <form id="input-form" class="container-fluid form">
-          <h2>Budget</h2>
-          <p>
-              Enter your income and expenses, then you will be shown your transactions on a calendar.
-          </p>
-          <div class="row group-row">
-              <div class="col-xs-11"><h3>Biweekly</h3></div>
-              <div class="col-xs-1">
-                  <button id="add-new-biweekly" type="button" class="add-new-budget-item btn btn-success pull-right remove-button-container add-remove-btn" title="Add Biweekly Budget Item">
-                      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                  </button>
-              </div>
-          </div>
-          <div class="new-biweekly-container"></div>
-          <div class="row table-header-row">
-              <div class="col-xs-4">Amount</div>
-              <div class="col-xs-3">Start Date</div>
-              <div class="col-xs-4">Name</div>
-          </div>
-          <div id="biweekly-input-group" class="form-group"></div>
-          <div class="row group-row">
-              <div class="col-xs-11"><h3>Monthly</h3></div>
-              <div class="col-xs-1">
-                  <button id="add-new-monthly" type="button" class="add-new-budget-item btn btn-success pull-right remove-button-container add-remove-btn" title="Add Monthly Budget Item">
+  <div id="input-form" class="p-15 form">
+      <p>
+          Enter your income and expenses, then you will be shown your transactions on a calendar.
+      </p>
+      <div class="row group-row">
+          <div class="col-xs-11"><h3>Biweekly</h3></div>
+          <div class="col-xs-1">
+              <button id="add-new-biweekly" type="button" class="add-new-budget-item btn btn-success pull-right remove-button-container add-remove-btn" title="Add Biweekly Budget Item">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                </button>
-              </div>
+              </button>
           </div>
-          <div class="new-monthly-container"></div>
-          <div class="row table-header-row">
-              <div class="col-xs-4">Amount</div>
-              <div class="col-xs-3">Day of Month</div>
-              <div class="col-xs-4">Name</div>
+      </div>
+      <div class="new-biweekly-container"></div>
+      <div class="row table-header-row">
+          <div class="col-xs-4">Amount</div>
+          <div class="col-xs-3">Start Date</div>
+          <div class="col-xs-4">Name</div>
+      </div>
+      <div id="biweekly-input-group" class="form-group"></div>
+      <div class="row group-row">
+          <div class="col-xs-11"><h3>Monthly</h3></div>
+          <div class="col-xs-1">
+              <button id="add-new-monthly" type="button" class="add-new-budget-item btn btn-success pull-right remove-button-container add-remove-btn" title="Add Monthly Budget Item">
+              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            </button>
           </div>
-          <div id="monthly-input-group" class="form-group"></div>
-          <div class="row group-row">
-              <div class="col-xs-11 vertical-align-container">
-                  <h3 class="">Weekly Budget Items</h3>
-              </div>
-              <div class="col-xs-1 vertical-align-container">
-                  <button id="add-new-weekly" type="button" class="add-new-budget-item btn btn-success pull-right remove-button-container add-remove-btn" title="Add Weekly Budget Item">
-                      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                  </button>
-              </div>
+      </div>
+      <div class="new-monthly-container"></div>
+      <div class="row table-header-row">
+          <div class="col-xs-4">Amount</div>
+          <div class="col-xs-3">Day of Month</div>
+          <div class="col-xs-4">Name</div>
+      </div>
+      <div id="monthly-input-group" class="form-group"></div>
+      <div class="row group-row">
+          <div class="col-xs-11 vertical-align-container">
+              <h3 class="">Weekly Budget Items</h3>
           </div>
-          <div class="new-weekly-container"></div>
-          <div class="row table-header-row">
-              <div class="col-xs-4">Amount</div>
-              <div class="col-xs-3">Day of Week</div>
-              <div class="col-xs-4">Name</div>
+          <div class="col-xs-1 vertical-align-container">
+              <button id="add-new-weekly" type="button" class="add-new-budget-item btn btn-success pull-right remove-button-container add-remove-btn" title="Add Weekly Budget Item">
+                  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+              </button>
           </div>
-          <div id="weekly-input-group" class="form-group"></div>
-          <input id="save" type="button" value="Save" class="btn btn-primary" />
-      </form>
+      </div>
+      <div class="new-weekly-container"></div>
+      <div class="row table-header-row">
+          <div class="col-xs-4">Amount</div>
+          <div class="col-xs-3">Day of Week</div>
+          <div class="col-xs-4">Name</div>
+      </div>
+      <div id="weekly-input-group" class="form-group"></div>
+      <input id="save" type="button" value="Save" class="btn btn-primary" />
   </div>
   </body>
 </html>

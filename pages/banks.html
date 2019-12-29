@@ -7,27 +7,38 @@
     <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/link-bank-account.css">
+    <style>
+        .imago-header {
+            background-image: url(https://www.primordial-software.com/docs/imago-design/budget-smallest.jpg);
+            background-position: 0px -211px;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+    </style>
     <title>Net Income Calculator</title>
     <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
     <script type="text/javascript" src="../app.bundle.js"></script>
 </head>
-<body>
-<h1>Income Calculator<span id="command-buttons-container"></span></h1>
-<div class="tab-nav-bar"></div>
+<body class="container">
+<div class="bg-color-imago-cream no-print" id="command-buttons-container"></div>
+<div class="tab-nav-bar bg-color-imago-blue link-color-white w-100"></div>
+<div class="imago-header">
+    <div class="header-overlay">
+        <div class="header-text">Banks</div>
+    </div>
+</div>
 <div id="header" class="container">
     <div id="output"></div>
 </div>
-<div class="container">
-    <form id="input-form" class="container-fluid form">
-        <h2>Link a Bank</h2>
-        <p>Linking a bank will grant this application access to the account balance and transactions.</p>
-        <button class="btn btn-primary" type="button" id="link-button">Link a Bank</button>
-        <div id="message-container"></div>
-        <h3>Existing Bank Links</h3>
-        <div id="existing-link-container"></div>
-    </form>
+<div id="input-form" class="container-fluid form">
+    <h3>Link a Bank</h3>
+    <p>Linking a bank will grant this application access to the account balance and transactions.</p>
+    <button class="btn btn-primary" type="button" id="link-button">Link a Bank</button>
+    <div id="message-container"></div>
+    <h3>Existing Bank Links</h3>
+    <div id="existing-link-container"></div>
 </div>
 </body>
 </html>

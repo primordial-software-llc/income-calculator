@@ -6,20 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
     <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
+    <style>
+      .imago-header {
+          background-image: url(https://www.primordial-software.com/docs/imago-design/budget-smallest.jpg);
+          background-position: 0px -211px;
+          background-repeat: no-repeat;
+          background-size: cover;
+      }
+    </style>
     <title>Net Income Calculator</title>
       <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
       <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
       <script type="text/javascript" src="../app.bundle.js"></script>
   </head>
-  <body>
-  <h1>Income Calculator<span id="command-buttons-container"></span></h1>
+  <body class="container">
+  <div class="bg-color-imago-cream no-print" id="command-buttons-container"></div>
+  <div class="tab-nav-bar bg-color-imago-blue link-color-white w-100"></div>
+  <div class="imago-header">
+      <div class="header-overlay">
+          <div class="header-text">Payroll</div>
+      </div>
+  </div>
   <div id="header" class="container">
       <div id="output"></div>
   </div>
-  <div class="tab-nav-bar"></div>
   <div class="container">
-      <form id="input-form" class="container-fluid form">
-          <h2>Payroll</h2>
+      <form id="input-form" class="p-15 form">
           <h3>401k</h3>
           <div class="form-group row">
               <label class="col-xs-3 col-form-label col-form-label-lg">Employee contributions for the Year</label>

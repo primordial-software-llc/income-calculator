@@ -19246,16 +19246,13 @@ async function init() {
   }
 
   let navItemHtml = authenticatedControllers.map(controllerType => _nav.default.getNavItemView(controllerType.getUrl(), controllerType.getName()));
-  let navView = $(`<div class="container">${navItemHtml.join('')}</div>`);
-  $('.tab-nav-bar').append(navView);
+  $('.tab-nav-bar').append(navItemHtml.join(''));
   let controller;
   let controllerType = authenticatedControllers.find(x => pageName.startsWith(x.getUrl().split('/').pop()));
 
   if (controllerType) {
-    $('html').removeClass('imago-bg-blue');
-    $('html').addClass('imago-bg-gray');
     controller = new controllerType();
-    $('body').append(_footerView.default.getView());
+    $('body').append(_footerView.default.getView(navItemHtml.join('')));
   } else if (pageName.startsWith('login.html')) {
     controller = new LoginController();
   } else if (pageName.startsWith('login-signup.html')) {
@@ -19653,7 +19650,7 @@ function getDayView(date, inMonth) {
 function addMonthContainer(monthContainerId, date) {
     $('#months-container').append(`
         <div class="month-heading-totals-container">
-            <div class="month-heading container">${cal.MONTH_NAMES[date.getUTCMonth()]} ${date.getFullYear()}</div>
+            <div class="month-heading container">${cal.MONTH_NAMES[date.getUTCMonth()]} ${date.getUTCFullYear()}</div>
             <div class="month-heading-totals-headers row">
                 <div class="col-xs-3 text-center"><span class="month-heading-total-description">&nbsp;</span></div>
                 <div class="col-xs-2 text-center">Income</div>
@@ -19722,9 +19719,6 @@ function loadTransactions(items) {
 }
 
 exports.load = function (budgetSettings, start, end) {
-    $('#debug-console').html(
-        `<div>Showing from: ${start.toISOString()} UTC</div>
-        <div>Until: ${end.toISOString()} UTC</div>`);
     let budget = netIncomeCalculator.getBudget(budgetSettings, start.getTime(), end.getTime());
     let summary = calendarAggregator.getSummary(start.getTime(), end.getTime(), budget);
     loadTransactions(summary.budgetItems);
@@ -20667,11 +20661,11 @@ function getPayDates() {
 
 class PayDaysController {
   static getName() {
-    return 'Pay Days';
+    return 'Payroll';
   }
 
   static getUrl() {
-    return `${Util.rootUrl()}/pages/pay-days.html`;
+    return `${Util.rootUrl()}/pages/payroll.html`;
   }
 
   async init() {
@@ -22109,66 +22103,74 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 
 class FooterView {
-  static getView() {
+  static getView(navHtml) {
     return `
-        <div id="page-footer" class="imago-bg-blue">
-            <hr />
-            <p class="text-center">
-                By browsing and using this site you agree to our
+        <div class="imago-footer-public imago-bg-blue text-center">
+            <div class="footer-text-group">
+                Contact us at Support@Primordial-software.com
+            </div>
+            <div class="footer-text-group">
+                Copyright 2019-2020 &copy; All Rights Reserved | Primordial Software, LLC | 7361 HUNTERS GREENE CIRCLE LAKELAND, FL 33810
+            </div>
+            <div class="footer-text-group">
+                By viewing this site you agree to our
                 <a target="_blank" href="https://www.primordial-software.com/LICENSE.txt">license</a>
-            </p> 
-            <div id="account-settings-container">
-                <div class="modal fade" id="account-settings-view" role="dialog">
-                  <div class="modal-dialog">
-                      <div class="modal-content">
-                          <div class="modal-header">
-                              <button type="button" class="close" data-dismiss="modal">&times;</button>
-                              <h2 class="modal-title">Profile</h2>
-                          </div>
-                          <div class="modal-body">
-                              <form>
-                                  <div class="form-group">
-                                      <label for="account-settings-view-cognito-user">User</label>
-                                      <div id="account-settings-view-cognito-user"></div>
-                                  </div>
-                                  <div class="form-group">
-                                      <label for="account-settings-view-cognito-user">License Agreement</label>
-                                      <div id="account-settings-view-license-agreement"></div>
-                                  </div>
-                              </form>
-                          </div>
-                          <div class="modal-footer">
-                              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                          </div>
+            </div>
+        </div>
+        <div class="authenticated-sitemap-footer">
+            ${navHtml}
+        </div>
+        <div id="account-settings-container">
+            <div class="modal fade" id="account-settings-view" role="dialog">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          <h2 class="modal-title">Profile</h2>
+                      </div>
+                      <div class="modal-body">
+                          <form>
+                              <div class="form-group">
+                                  <label for="account-settings-view-cognito-user">User</label>
+                                  <div id="account-settings-view-cognito-user"></div>
+                              </div>
+                              <div class="form-group">
+                                  <label for="account-settings-view-cognito-user">License Agreement</label>
+                                  <div id="account-settings-view-license-agreement"></div>
+                              </div>
+                          </form>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                       </div>
                   </div>
               </div>
-            </div>
-            <div id="raw-data-container">
-                <div class="modal fade" id="raw-data-view" role="dialog">
-                    <div class="modal-dialog">
-                      <div class="modal-content">
-                          <div class="modal-header">
-                              <button type="button" class="close" data-dismiss="modal">&times;</button>
-                              <h2 class="modal-title">Raw Data</h2>
-                          </div>
-                          <div class="modal-body">
-                          </div>
-                          <div class="modal-footer">
-                              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                          </div>
+          </div>
+        </div>
+        <div id="raw-data-container">
+            <div class="modal fade" id="raw-data-view" role="dialog">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          <h2 class="modal-title">Raw Data</h2>
                       </div>
-                    </div>
+                      <div class="modal-body">
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      </div>
+                  </div>
                 </div>
             </div>
-            <div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
-                  <div class="modal-dialog">
-                    <div class="loader"></div>
-                  </div>
+        </div>
+        <div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
+              <div class="modal-dialog">
+                <div class="loader"></div>
               </div>
-            <div class="loader-group hide modal-backdrop fade in"></div>
-            <div id="debug-console" class="no-print"></div>
-        </div>`;
+          </div>
+        <div class="loader-group hide modal-backdrop fade in"></div>
+        <div id="debug-console" class="no-print"></div>`;
   }
 
 }

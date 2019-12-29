@@ -1,0 +1,103 @@
+.imago-header.home-page {
+    /* fix this to use a smaller image size this image is nearly a meg. */
+    background-image: url(https://www.primordial-software.com/docs/imago-design/budget-smallest.jpg);
+    background-position: 0px -211px;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+
+.home-subheading-text {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: justify;
+    padding-left: 18%;
+    padding-right: 18%;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.budget-calendar-section {
+    display: flex;
+    align-items: center;
+}
+.home-icon-blue-budget-calendar {
+    height: 125%;
+    width: 125%;
+}
+.home-header-blue-budget-calendar {
+    font-size: 24px;
+    font-weight: bold;
+}
+.home-content-blue-budget-calendar {
+    font-size: 18px;
+}
+
+.home-row-balance-sheet-bank-integration {
+    padding: 30px;
+}
+.home-button-go-to-plaid-demo {
+    background-color: #fffacd;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 5px;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.home-row-pricing {
+    background-color: #fffacd;
+    margin-left: 15%;
+    margin-right: 15%;
+    margin-top: 45px;
+    margin-bottom: 45px;
+}
+.pricing-header {
+    font-size: 24px;
+}
+.pricing-product {
+    background-color: rgba(190,188,188,0.5);
+    height: 100%;
+    margin: 20px;
+    padding: 20px;
+}
+
+.signup-section {
+    background-color: #868788;
+    height: 300px;
+}
+.signup-section a {
+    color: #FFF;
+    text-decoration: underline;
+}
+.data-section {
+    height: 300px;
+}
+.data-header {
+    font-weight: bold;
+    font-size: 30px;
+}
+.data-content {
+    padding-left: 10%;
+    padding-right: 10%;
+}
+.download-data-sample-button {
+    height: 80px;
+    cursor: pointer;
+}
+
+.privacy-and-security {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+.privacy-and-security ul > li {
+    padding-top: 7px;
+}
+
+.typing-on-tablet-background {
+    padding-right: 0px;
+}
+
+.typing-on-tablet-background > img {
+    height: 485px;
+}

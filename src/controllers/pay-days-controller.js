@@ -29,10 +29,10 @@ function getPayDates() {
 }
 export default class PayDaysController {
     static getName() {
-        return 'Pay Days';
+        return 'Payroll';
     }
     static getUrl() {
-        return `${Util.rootUrl()}/pages/pay-days.html`;
+        return `${Util.rootUrl()}/pages/payroll.html`;
     }
     async init() {
         new AccountSettingsController().init(PayDaysView);
