@@ -19230,7 +19230,7 @@ async function init() {
   let usernameResponse;
 
   try {
-    if (!pageName.startsWith('login.html') && !pageName.startsWith('login-signup.html')) {
+    if (pageName && !pageName.startsWith('login.html') && !pageName.startsWith('login-signup.html')) {
       usernameResponse = await new DataClient().getBudget();
       $('#account-settings-view-cognito-user').text(usernameResponse.email);
       $('#account-settings-view-license-agreement').append(`Agreed to license on ${usernameResponse.licenseAgreement.agreementDateUtc} ` + `from IP ${usernameResponse.licenseAgreement.ipAddress}`);
@@ -19262,7 +19262,9 @@ async function init() {
   }
 
   try {
-    await controller.init();
+    if (controller) {
+      await controller.init();
+    }
   } catch (error) {
     Util.log(error);
   }

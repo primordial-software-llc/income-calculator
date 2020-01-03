@@ -22,7 +22,8 @@ async function init() {
     let pageName = window.location.href.split('/').pop().toLocaleLowerCase();
     let usernameResponse;
     try {
-        if (!pageName.startsWith('login.html') &&
+        if (pageName &&
+            !pageName.startsWith('login.html') &&
             !pageName.startsWith('login-signup.html')) {
             usernameResponse = await new DataClient().getBudget();
             $('#account-settings-view-cognito-user').text(usernameResponse.email);
@@ -55,7 +56,9 @@ async function init() {
         controller = new HomeController();
     }
     try {
-        await controller.init();
+        if (controller) {
+            await controller.init();
+        }
     } catch (error) {
         Util.log(error);
     }
