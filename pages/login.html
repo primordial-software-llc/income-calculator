@@ -12,16 +12,15 @@
     <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
     <script type="text/javascript" src="../app.bundle.js"></script>
 </head>
-<body>
-<h1>Income Calculator <span id="command-buttons-container"></span></h1>
-<div id="header" class="container">
-    <div id="output"></div>
-</div>
-<div class="tab-nav-bar"></div>
-<div class="container">
+<body class="container">
+    <div class="imago-header">
+        <div class="header-overlay">
+            <div class="header-text">Login</div>
+        </div>
+    </div>
     <div id="messageAlert" class="hide alert" role="alert"></div>
     <div id="qr-code-container" class="text-center"></div>
-    <form class="login-form">
+    <div class="login-form p-15">
         <div class="form-group username-group">
             <label for="login-username">Username</label>
             <input type="email" class="form-control" id="login-username">
@@ -34,7 +33,7 @@
         <div class="pull-right">
             <a href="login-signup.html">Create New Account</a>
         </div>
-    </form>
+    </div>
     <div class="mfa-form hide">
         <div class="form-group sign-in-mfa-code-container">
             <label for="mfaCode">MFA Code</label>
@@ -49,7 +48,7 @@
         </div>
         <button id="mfa-confirm-button" type="button" class="btn btn-primary">Sign In</button>
     </div>
-    <form class="form-additional-fields hide">
+    <div class="form-additional-fields hide">
         <div class="form-group password-group">
             <label for="login-new-password">New Password</label>
             <input type="password" class="form-control" id="login-new-password">
@@ -71,7 +70,18 @@
             <input type="email" class="form-control" id="login-address">
         </div>
         <button id="additional-fields-button" type="button" class="btn btn-primary">Sign In</button>
-    </form>
-</div>
+    </div>
+    <div class="imago-footer-public imago-bg-blue text-center">
+        <div class="footer-text-group">
+            Contact us at Support@Primordial-software.com
+        </div>
+        <div class="footer-text-group">
+            Copyright 2019-2020 &copy; All Rights Reserved | Primordial Software, LLC | 7361 HUNTERS GREENE CIRCLE LAKELAND, FL 33810
+        </div>
+        <div class="footer-text-group">
+            By viewing this site you agree to our
+            <a target="_blank" href="https://www.primordial-software.com/LICENSE.txt">license</a>
+        </div>
+    </div>
 </body>
 </html>

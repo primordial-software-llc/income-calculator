@@ -447,6 +447,9 @@ h4 {
 }
 .imago-header {
     height: 140px;
+    background-image: url(https://www.primordial-software.com/images/calculator-and-spreadsheets.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 .header-text {
     color: white;
