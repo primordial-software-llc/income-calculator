@@ -2,7 +2,7 @@ const AccountSettingsController = require('./account-settings-controller');
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 const Currency = require('currency.js');
 const DataClient = require('../data-client');
-const LoanViewModel = require('../views/balance-sheet/loan-view-model');
+import LoanViewModel from '../views/balance-sheet/loan-view-model';
 const Util = require('../util');
 
 async function refresh() {

@@ -19841,6 +19841,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _loanViewModel = _interopRequireDefault(require("../views/balance-sheet/loan-view-model"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const AccountSettingsController = require('./account-settings-controller');
 
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
@@ -19848,8 +19852,6 @@ const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 const Currency = require('currency.js');
 
 const DataClient = require('../data-client');
-
-const LoanViewModel = require('../views/balance-sheet/loan-view-model');
 
 const Util = require('../util');
 
@@ -19933,7 +19935,7 @@ class BalanceSheetController {
     }
 
     $('#add-new-balance').click(function () {
-      $('#balance-input-group').append(new LoanViewModel().getView({
+      $('#balance-input-group').append(new _loanViewModel.default().getView({
         name: 'New Loan',
         rate: '.00',
         amount: '0',
@@ -21132,11 +21134,9 @@ var _cashViewModel = _interopRequireDefault(require("./cash-view-model"));
 
 var _propertyPlantAndEquipmentViewModel = _interopRequireDefault(require("./property-plant-and-equipment-view-model"));
 
+var _loanViewModel = _interopRequireDefault(require("./loan-view-model"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const LoanViewModel = require('./loan-view-model');
-
-const EquityViewModel = require('./equity-view-model');
 
 const BondViewModel = require('./bond-view-model');
 
@@ -21144,13 +21144,15 @@ const cal = require('../../calculators/calendar');
 
 const Currency = require('currency.js');
 
+const EquityViewModel = require('./equity-view-model');
+
 const Util = require('../../util');
 
 const Moment = require('moment');
 
 exports.getModel = function () {
   return {
-    balances: new LoanViewModel().getModels()
+    balances: new _loanViewModel.default().getModels()
   };
 };
 
@@ -21187,7 +21189,7 @@ exports.setView = function (budget, obfuscate) {
 
   for (let loan of budget.balances) {
     debtTotal = debtTotal.add(loan.amount);
-    let loanView = new LoanViewModel().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
+    let loanView = new _loanViewModel.default().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
     $('#balance-input-group').append(loanView);
   }
 
@@ -21617,68 +21619,78 @@ function ExpenseViewModel() {
 }
 module.exports = ExpenseViewModel;
 },{}],94:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 const cal = require('../../calculators/calendar');
+
 const PayoffDateCalculator = require('../../calculators/payoff-date-calculator');
+
 const payoffDateCalculator = new PayoffDateCalculator();
+
 const Util = require('../../util');
+
 const Currency = require('currency.js');
-function LoanViewModel() {
+
+class LoanViewModel {
+  getModels() {
+    let balances = [];
     let self = this;
-    this.getModels = function() {
-        var balances = [];
-        $('.balance-item.editable').each(function () {
-            balances.push(self.getModel(this));
+    $('.balance-item.editable').each(function () {
+      balances.push(self.getModel(this));
+    });
+    return balances;
+  }
+
+  getModel(target) {
+    return {
+      "amount": $(target).find('input.amount').val().trim(),
+      "name": $(target).find('input.name').val().trim(),
+      "rate": $(target).find('input.rate').val().trim()
+    };
+  }
+
+  getView(debt, weeklyAmount, disable) {
+    let payOffDateText;
+    let totalInterestText;
+    let lifetimeInterestText;
+
+    if (weeklyAmount) {
+      try {
+        let balanceStatement = payoffDateCalculator.getPayoffDate({
+          startTime: Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()),
+          totalAmount: debt.amount,
+          payment: weeklyAmount,
+          DayOfTheWeek: cal.FRIDAY,
+          rate: debt.rate
         });
-        return balances;
-    };
-    this.getModel = function (target) {
-        return {
-            "amount": $(target).find('input.amount').val().trim(),
-            "name": $(target).find('input.name').val().trim(),
-            "rate": $(target).find('input.rate').val().trim()
-        };
-    };
-    this.getView = function (debt, weeklyAmount, disable) {
-        let payOffDateText;
-        let totalInterestText;
-        let lifetimeInterestText;
-        if (weeklyAmount) {
-            try {
-                let balanceStatement = payoffDateCalculator.getPayoffDate({
-                    startTime: Date.UTC(
-                        new Date().getUTCFullYear(),
-                        new Date().getUTCMonth(),
-                        new Date().getUTCDate()
-                    ),
-                    totalAmount: debt.amount,
-                    payment: weeklyAmount,
-                    DayOfTheWeek: cal.FRIDAY,
-                    rate: debt.rate
-                });
-                payOffDateText = balanceStatement.date.getUTCFullYear() + '-' +
-                    (balanceStatement.date.getUTCMonth() + 1) + '-' +
-                    balanceStatement.date.getUTCDate();
-                totalInterestText = Util.format(Math.ceil(balanceStatement.totalInterest));
-            } catch (err) {
-                payOffDateText = err;
-                totalInterestText = err;
-            }
-            lifetimeInterestText = Currency(totalInterestText).divide(debt.amount).multiply(100).toString() + '%';
-        } else {
-            let isCreditCard = debt.type === 'credit';
-            payOffDateText = isCreditCard ? 'no payment specified' : 'WARNING: no payment specified'; // Warning is intended for long-term loans.
-            let infinitySymbol = '&#8734;';
-            totalInterestText = isCreditCard ? 'N/A' : infinitySymbol;
-            lifetimeInterestText = isCreditCard ? 'N/A' : infinitySymbol;
-        }
-        let icon = debt.isAuthoritative
-            ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`
-            : '';
-        let view = $(`<div class="balance-item row transaction-input-view ${debt.isAuthoritative ? 'read-only' : 'editable'}">
+        payOffDateText = balanceStatement.date.getUTCFullYear() + '-' + (balanceStatement.date.getUTCMonth() + 1) + '-' + balanceStatement.date.getUTCDate();
+        totalInterestText = Util.format(Math.ceil(balanceStatement.totalInterest));
+      } catch (err) {
+        payOffDateText = err;
+        totalInterestText = err;
+      }
+
+      lifetimeInterestText = Currency(totalInterestText).divide(debt.amount).multiply(100).toString() + '%';
+    } else {
+      let isCreditCard = debt.type === 'credit';
+      payOffDateText = isCreditCard ? 'no payment specified' : 'WARNING: no payment specified'; // Warning is intended for long-term loans.
+
+      let infinitySymbol = '&#8734;';
+      totalInterestText = isCreditCard ? 'N/A' : infinitySymbol;
+      lifetimeInterestText = isCreditCard ? 'N/A' : infinitySymbol;
+    }
+
+    let icon = debt.isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
+    let view = $(`<div class="balance-item row transaction-input-view ${debt.isAuthoritative ? 'read-only' : 'editable'}">
                     <div class="col-xs-2">
                         <div class="input-group">
                             <div class="input-group-addon ">$</div>
-                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount || ''}" />
+                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount || '0'}" />
                         </div>
                     </div>
                     <div class="col-xs-3">
@@ -21693,23 +21705,27 @@ function LoanViewModel() {
                     <div class="col-xs-1 text-right vertical-align amount-description-column">${lifetimeInterestText}</div>
                     </div>
         `);
-        if (!debt.isAuthoritative) {
-            let removeButtonHtml = `<div class="col-xs-1">
+
+    if (!debt.isAuthoritative) {
+      let removeButtonHtml = `<div class="col-xs-1">
                                 <button ${disable ? 'disabled="disabled"' : ''} class="btn remove add-remove-btn" title="Remove Loan">
                                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                                 </button>
                             </div>`;
-            let removeButton = $(removeButtonHtml);
-            removeButton.click(function () {
-                view.remove();
-            });
-            view.append(removeButton);
-        }
-        return view;
-    };
+      let removeButton = $(removeButtonHtml);
+      removeButton.click(function () {
+        view.remove();
+      });
+      view.append(removeButton);
+    }
+
+    return view;
+  }
+
 }
 
-module.exports = LoanViewModel;
+exports.default = LoanViewModel;
+
 },{"../../calculators/calendar":65,"../../calculators/payoff-date-calculator":68,"../../util":87,"currency.js":26}],95:[function(require,module,exports){
 "use strict";
 

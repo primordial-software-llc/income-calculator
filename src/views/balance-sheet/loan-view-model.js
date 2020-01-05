@@ -3,23 +3,23 @@ const PayoffDateCalculator = require('../../calculators/payoff-date-calculator')
 const payoffDateCalculator = new PayoffDateCalculator();
 const Util = require('../../util');
 const Currency = require('currency.js');
-function LoanViewModel() {
-    let self = this;
-    this.getModels = function() {
-        var balances = [];
+export default class LoanViewModel {
+    getModels() {
+        let balances = [];
+        let self = this;
         $('.balance-item.editable').each(function () {
             balances.push(self.getModel(this));
         });
         return balances;
-    };
-    this.getModel = function (target) {
+    }
+    getModel(target) {
         return {
             "amount": $(target).find('input.amount').val().trim(),
             "name": $(target).find('input.name').val().trim(),
             "rate": $(target).find('input.rate').val().trim()
         };
-    };
-    this.getView = function (debt, weeklyAmount, disable) {
+    }
+    getView(debt, weeklyAmount, disable) {
         let payOffDateText;
         let totalInterestText;
         let lifetimeInterestText;
@@ -59,7 +59,7 @@ function LoanViewModel() {
                     <div class="col-xs-2">
                         <div class="input-group">
                             <div class="input-group-addon ">$</div>
-                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount || ''}" />
+                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount || '0'}" />
                         </div>
                     </div>
                     <div class="col-xs-3">
@@ -87,7 +87,5 @@ function LoanViewModel() {
             view.append(removeButton);
         }
         return view;
-    };
+    }
 }
-
-module.exports = LoanViewModel;

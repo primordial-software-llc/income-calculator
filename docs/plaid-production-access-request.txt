@@ -2,13 +2,13 @@ Your project
 =====================
 My goal is to build low-cost financial services products for individuals and small businesses. My product will have two main components: budgeting and asset tracking.
 
+My goal is to build low-cost financial services products for individuals and small businesses. My product will have two main components: budgeting and asset tracking.
+
 BUDGETING
 I intend to draw people in through the budgeting software which I have made as simple as possible to get people to build a monthly budget. Once a budget is setup I allow people to view their budget on a calendar for any given month. A budget can become more detailed by specifying accounts that income is deposited into and expenses are withdrawn from. If accounts are specified for monthly income and expenses you can see the totals for the month by account.
 
 ASSET TRACKING
-Once people have made a budget and stuck to it, then they have a need for the asset tracking component. The asset tracking portion of the software is meant to ensure funds exist for the current month and help a person create a well rounded balance sheet. Even for personal use I am trying to get people to think of themselves like a business and think about everything they do financially from the perspective of a balance sheet, without having any accounting experience. The product's purpose is to allow people to not have to know or think about accounting. The product will guide people to describe their assets and liabilities then build a balance sheet with varying levels of depth that can be read by someone with little to no accounting experience.
-
-I have been working on this product since 2016. I'm at the point in my life where I can now commit time and capital. I want to connect the product to the test network by the end of 2019 and connect it to production banks in 2020, but I need a partner to get me access to production banks.
+Once people have made a budget and stuck to it, then they have a need for the asset tracking component. The asset tracking portion of the software is meant to ensure funds exist for the current month and help a person create a well rounded balance sheet. The product's purpose is to allow people to not have to know or think about accounting. The product will guide people to describe their assets and liabilities then build a balance sheet with varying levels of depth that can be read by someone with little to no accounting experience.
 
 Industry
 =====================================
@@ -20,7 +20,7 @@ Financial technology
 How will each product be used
 ==========================================
 BALANCE
-For the past 3 years I have used the application in a disconnected state and have been manually updating the balances. More than anything I need access to account balances for the budgeting component. I also need to keep the cash balances up to date in the asset tracking component.
+I need access to account balances to help build a persons balance sheet. I want to show all of a persons bank and credit card balances in one place.
 
 TRANSACTIONS
-Transaction data will allow me to show budgeted and unbudgeted income and expenses on a persons monthly budget calendar. Tracking budgeted and unbudgeted expenses is actually one of the most complex pieces of the software and I haven't done this piece with even manually entered data, because even missing a single transaction will throw off the entire end of month balance. I need an up to date authoritative source of bank transactions so I can show people throughout the month how well their budget is being adhered to.
+I need access to transaction to show all of a persons transactions across many banks in one place so they can review them for legitimacy. I may use transactions to show budgeted and un-budgeted income and expenses.
