@@ -19224,6 +19224,7 @@ const Util = require('./util');
 async function init() {
   'use strict';
 
+  $('body').append(_footerView.default.getLoadingIndicatorView());
   let obfuscate = Util.obfuscate();
   $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView(obfuscate));
   let pageName = window.location.href.split('/').pop().toLocaleLowerCase();
@@ -22105,6 +22106,15 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 
 class FooterView {
+  static getLoadingIndicatorView() {
+    return `<div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
+              <div class="modal-dialog">
+                <div class="loader"></div>
+              </div>
+          </div>
+        <div class="loader-group hide modal-backdrop fade in"></div>`;
+  }
+
   static getView(navHtml) {
     return `
         <div class="imago-footer-public imago-bg-blue text-center">
@@ -22166,12 +22176,6 @@ class FooterView {
                 </div>
             </div>
         </div>
-        <div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
-              <div class="modal-dialog">
-                <div class="loader"></div>
-              </div>
-          </div>
-        <div class="loader-group hide modal-backdrop fade in"></div>
         <div id="debug-console" class="no-print"></div>`;
   }
 

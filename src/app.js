@@ -17,6 +17,7 @@ const Util = require('./util');
 
 async function init() {
     'use strict';
+    $('body').append(FooterView.getLoadingIndicatorView());
     let obfuscate = Util.obfuscate();
     $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView(obfuscate));
     let pageName = window.location.href.split('/').pop().toLocaleLowerCase();

@@ -407,6 +407,9 @@ h4 {
 .bg-color-imago-cream {
     background-color: #FFFACD;
 }
+.text-decoration-underline {
+    text-decoration: underline;
+}
 .link-color-white a {
     color: #FFF
 }
