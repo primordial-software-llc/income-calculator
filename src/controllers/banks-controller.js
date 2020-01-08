@@ -10,11 +10,14 @@ export default class BanksController {
     }
     async init() {
         new AccountSettingsController().init({});
+        let environment = window.location.hostname.toLowerCase() === 'www.primordial-software.com'
+            ? 'production'
+            : 'development';
         $('#link-button').on('click', function(e) {
             let selectedProducts = ['transactions'];
             let handler = Plaid.create({
                 clientName: 'My App',
-                env: 'development',
+                env: environment,
                 key: '7e6391ab6cbcc3b212440b5821bfa7',
                 product: selectedProducts,
                 onSuccess: async function(public_token, metadata) {
@@ -73,7 +76,7 @@ export default class BanksController {
                 }
                 let handler = Plaid.create({
                     clientName: 'My App',
-                    env: 'development',
+                    env: environment,
                     key: '7e6391ab6cbcc3b212440b5821bfa7',
                     product: ['transactions'],
                     token: result['public_token'],

@@ -20047,11 +20047,12 @@ class BanksController {
 
   async init() {
     new AccountSettingsController().init({});
+    let environment = window.location.hostname.toLowerCase() === 'www.primordial-software.com' ? 'production' : 'development';
     $('#link-button').on('click', function (e) {
       let selectedProducts = ['transactions'];
       let handler = Plaid.create({
         clientName: 'My App',
-        env: 'development',
+        env: environment,
         key: '7e6391ab6cbcc3b212440b5821bfa7',
         product: selectedProducts,
         onSuccess: async function (public_token, metadata) {
@@ -20117,7 +20118,7 @@ class BanksController {
 
         let handler = Plaid.create({
           clientName: 'My App',
-          env: 'development',
+          env: environment,
           key: '7e6391ab6cbcc3b212440b5821bfa7',
           product: ['transactions'],
           token: result['public_token'],
@@ -20674,11 +20675,11 @@ class PayDaysController {
   }
 
   async init() {
+    const max401kContribution = 19500;
     new AccountSettingsController().init(PayDaysView);
     let data = await new DataClient().getBudget();
     $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
     $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
-    const max401kContribution = 19000;
     $('#max-401k-contribution').text(Util.format(max401kContribution));
     let payDates = getPayDates();
     payDates.forEach((paymentDate, index) => {
@@ -21422,7 +21423,7 @@ class CashViewModel {
 
     let currentBalanceIncludingPending = _currentBalanceCalculator.default.getCurrentBalance(currentAssetAccount.name, startingCurrentBalance.toString(), pending, currentAssetAccount.type, currentAssetAccount.id);
 
-    let currentBalanceView = Util.format(startingCurrentBalance.toString()) === Util.format(currentBalanceIncludingPending.toString()) ? Util.format(currentBalanceIncludingPending.toString()) : `<a href="${`${Util.rootUrl()}/pages/accounts.html`}">${Util.format(currentBalanceIncludingPending)}</a>`;
+    let currentBalanceView = Util.format(startingCurrentBalance.toString()) === Util.format(currentBalanceIncludingPending.toString()) ? Util.format(currentBalanceIncludingPending.toString()) : `<a href="${`${Util.rootUrl()}/pages/transfers.html`}">${Util.format(currentBalanceIncludingPending)}</a>`;
     let icon = currentAssetAccount.isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
     let view = $(`
             <div class="dotted-underline-row row transaction-input-view">

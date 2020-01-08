@@ -48,7 +48,7 @@ export default class CashViewModel {
             currentAssetAccount.id);
         let currentBalanceView = Util.format(startingCurrentBalance.toString()) === Util.format(currentBalanceIncludingPending.toString())
             ? Util.format(currentBalanceIncludingPending.toString())
-            : `<a href="${`${Util.rootUrl()}/pages/accounts.html`}">${Util.format(currentBalanceIncludingPending)}</a>`;
+            : `<a href="${`${Util.rootUrl()}/pages/transfers.html`}">${Util.format(currentBalanceIncludingPending)}</a>`;
         let icon = currentAssetAccount.isAuthoritative
             ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`
             : '';

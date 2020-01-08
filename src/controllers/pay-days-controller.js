@@ -35,11 +35,11 @@ export default class PayDaysController {
         return `${Util.rootUrl()}/pages/payroll.html`;
     }
     async init() {
+        const max401kContribution = 19500;
         new AccountSettingsController().init(PayDaysView);
         let data = await new DataClient().getBudget();
         $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
         $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
-        const max401kContribution = 19000;
         $('#max-401k-contribution').text(Util.format(max401kContribution));
         let payDates = getPayDates();
         payDates.forEach((paymentDate, index) => {
