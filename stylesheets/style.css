@@ -40,10 +40,6 @@ h2, h3, h4 {
     font-weight: 700;
 }
 
-h3, h4 {
-    color: #885c13;
-}
-
 h2, .month-heading {
     font-size: 2em;
     margin-top: 15px;
@@ -319,11 +315,11 @@ h4 {
     display: flex;
 }
 
-.transaction-input-view.budget-expense-item input.amount {
+.transaction-input-view.budget-expense-item .amount {
     background-color: #f2dede;
 }
 
-.transaction-input-view.budget-income-item input.amount {
+.transaction-input-view.budget-income-item .amount {
     background-color: #ccffb6
 }
 
@@ -416,6 +412,9 @@ h4 {
 .color-white {
     color: #FFF;
 }
+.color-black {
+    color: #000;
+}
 .color-imago-blue {
     color: #032b4f;
 }
@@ -464,6 +463,7 @@ h4 {
 
 .imago-footer-public {
     height: 130px;
+    border-top: 1px solid white;
 }
 .footer-text-group {
     padding-top: 10px;

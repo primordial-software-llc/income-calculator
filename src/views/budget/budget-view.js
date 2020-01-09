@@ -7,7 +7,7 @@ function sortByAmount(a,b) {
 }
 function getTransactionModel(target) {
     return {
-        amount: Util.cleanseNumericString($(target).find('.amount').val().trim()),
+        amount: Util.cleanseNumericString($(target).find('.amount').text().trim()),
         date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
         name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
         type: $(target).find('.transaction-type').val() || $(target).data().txntype,
@@ -67,11 +67,11 @@ export default class BudgetView {
             : '';
         let view = $(`
         <div class="row transaction-input-view ${viewType.iteration}-budget-item budget-${transaction.type}-item display-flex" data-txntype="${transaction.type}">
-            <div class="col-xs-4 display-flex-valign-center">
-                <div class="input-group">
-                    <div class="input-group-addon ">$</div>
-                    <input class="amount form-control text-right" type="text" value="${transaction.amount ? Util.formatShares(transaction.amount) : Util.format(0)}" />
-                </div>
+            <div class="col-xs-2 display-flex-valign-center capitalize">
+                ${transaction.type}
+            </div>
+            <div class="col-xs-2 display-flex-valign-center text-right amount color-black">
+                $${transaction.amount ? Util.formatShares(transaction.amount) : Util.format(0)}
             </div>
             <div class="col-xs-3 display-flex-valign-center"><span class="date" data-date="${date}">${new viewType().getDateText(date)}</span></div>
             <div class="col-xs-4 display-flex-valign-center"><span class="name">${transaction.name || ''}</span>${paidByHtml}</div>
