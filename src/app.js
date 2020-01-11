@@ -27,10 +27,6 @@ async function init() {
             !pageName.startsWith('login.html') &&
             !pageName.startsWith('login-signup.html')) {
             usernameResponse = await new DataClient().getBudget();
-            $('#account-settings-view-cognito-user').text(usernameResponse.email);
-            $('#account-settings-view-license-agreement').append(
-                `Agreed to license on ${usernameResponse.licenseAgreement.agreementDateUtc} ` +
-                `from IP ${usernameResponse.licenseAgreement.ipAddress}`);
         }
     } catch (err) {
         Util.log(err);
@@ -49,6 +45,12 @@ async function init() {
     if (controllerType) {
         controller = new controllerType();
         $('body').append(FooterView.getView(navItemHtml.join('')));
+        if (usernameResponse) {
+            $('#account-settings-view-cognito-user').text(usernameResponse.email);
+            $('#account-settings-view-license-agreement').append(
+                `Agreed to license on ${usernameResponse.licenseAgreement.agreementDateUtc} ` +
+                `from IP ${usernameResponse.licenseAgreement.ipAddress}`);
+        }
     } else if (pageName.startsWith('login.html')) {
         controller = new LoginController();
     } else if (pageName.startsWith('login-signup.html')) {

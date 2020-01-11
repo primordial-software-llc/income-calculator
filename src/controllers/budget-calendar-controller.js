@@ -1,5 +1,5 @@
 const AccountSettingsController = require('./account-settings-controller');
-const CalendarView = require('../calendar-view');
+const CalendarView = require('../views/calendar-view');
 const DataClient = require('../data-client');
 const Util = require('../util');
 export default class BudgetCalendarController {

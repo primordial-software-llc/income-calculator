@@ -1,6 +1,6 @@
 export default class FooterView {
     static getLoadingIndicatorView() {
-        return `<div class="loader-container loader-group hide modal fade in" id="account-settings-view" role="dialog" style="display: block; padding-right: 17px;">
+        return `<div class="loader-container loader-group hide modal fade in" role="dialog" style="display: block; padding-right: 17px;">
               <div class="modal-dialog">
                 <div class="loader"></div>
               </div>

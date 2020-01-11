@@ -24,7 +24,7 @@ h1, .tab-nav-bar, .container {
     text-align: center;
     text-decoration: underline;
 }
-h1, h2, h3, .month-heading {
+h1, h2, h3 {
     font-family: "Trebuchet MS";
 }
 
@@ -40,7 +40,7 @@ h2, h3, h4 {
     font-weight: 700;
 }
 
-h2, .month-heading {
+h2 {
     font-size: 2em;
     margin-top: 15px;
     margin-bottom: 15px;
@@ -88,6 +88,9 @@ h4 {
 .total,
 .total-amount {
     border-bottom: 6px double;
+}
+.white-subtotal-line {
+    border-bottom: 1px solid #FFF;
 }
 .subtotal-line {
     border-bottom: 1px solid black;
@@ -218,13 +221,6 @@ h4 {
 }
 
 /* calendar */
-.month-heading {
-    font-size: 2em;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    clear: both;
-    color: #885c13;
-}
 
 .month-heading-total {
     font-weight: bold;
@@ -338,6 +334,10 @@ h4 {
 
 /* balance sheet */
 
+.white-dotted-underline {
+    border-bottom: 1px dotted #FFF;
+}
+
 .dotted-underline {
     border-bottom: 1px dotted black;
 }
@@ -429,6 +429,9 @@ h4 {
 }
 .p-15 {
     padding: 15px;
+}
+.clear-fix {
+    clear: both;
 }
 .font-subheading1 {
     font-size: 28px;
