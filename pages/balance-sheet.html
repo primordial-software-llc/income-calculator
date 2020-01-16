@@ -11,7 +11,7 @@
       <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
       <script type="text/javascript" src="../app.bundle.js"></script>
   </head>
-  <body class="container">
+  <body class="container-fluid">
   <div class="bg-color-imago-cream no-print" id="command-buttons-container"></div>
   <div class="tab-nav-bar bg-color-imago-blue link-color-white w-100"></div>
   <div class="imago-header">
@@ -19,15 +19,10 @@
           <div class="header-text">Balance Sheet</div>
       </div>
   </div>
-  <div id="input-form" class="container-fluid form">
+  <div id="input-form" class="p-15 form bg-color-imago-blue color-white">
       <div class="row group-row">
           <div class="col-xs-11">
-              <h3>
-                  <span id="tree-view-loans" class="tree-view">
-                      <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
-                  </span>
-                  Loans
-              </h3>
+              <h3 class="color-imago-cream">Loans</h3>
           </div>
           <div class="col-xs-1 remove-button-container">
               <button id="add-new-balance" type="button" class="btn btn-success pull-right remove-button-container add-remove-btn" title="Add Loan">
@@ -36,7 +31,7 @@
           </div>
       </div>
       <div id="loans-container">
-          <div class="row table-header-row">
+          <div class="row table-header-row color-imago-cream">
               <div class="col-xs-2">Amount</div>
               <div class="col-xs-3">Name</div>
               <div class="col-xs-1">Rate</div>
@@ -47,54 +42,45 @@
           <div id="balance-input-group" class="form-group"></div>
       </div>
       <div id="loan-total-amount">
-          <div class="subtotal">
+          <div class="subtotal color-imago-cream">
               Loans<span id="loan-total-amount-value" class="pull-right amount"></span>
           </div>
       </div>
       <div class="row group-row">
           <div class="col-xs-11">
-              <h3>
-                <span id="tree-view-cash" class="tree-view">
-                    <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
-                </span>
-                  Cash
-              </h3>
+              <h3 class="color-imago-cream">Cash</h3>
           </div>
       </div>
       <div id="cash-container">
           <div class="cash-header-container"></div>
           <div id="cash-input-group" class="form-group"></div>
       </div>
-      <div id="cash-allocation"></div>
-      <div id="cash-total-amount"></div>
+      <div class="font-bold imago-cream-underline color-imago-cream">
+          Percent of Non-Tangible Assets in Cash<span id="cash-allocation" class="pull-right amount"></span>
+      </div>
+      <div class="subtotal color-imago-cream">Total Cash<span id="cash-total-amount" class="pull-right amount"></span></div>
       <div class="row group-row">
           <div class="col-xs-11">
-              <h3>
-                <span id="tree-view-cash-or-stock" class="tree-view">
-                    <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
-                </span>
-                  Equities
-              </h3>
+              <h3 class="color-imago-cream">Equities</h3>
           </div>
       </div>
       <div id="assets-container">
           <div class="assets-header-container"></div>
           <div id="asset-input-group" class="form-group"></div>
       </div>
-      <div id="cash-and-stocks-allocation"></div>
-      <div id="cash-and-stocks-total-amount"></div>
+      <div class="font-bold imago-cream-underline color-imago-cream">
+          Percent of Non-Tangible Assets in Equities<span id="cash-and-stocks-allocation" class="pull-right amount"></span>
+      </div>
+      <div class="subtotal color-imago-cream">
+          Total Equities<span id="cash-and-stocks-total-amount" class="pull-right amount"></span>
+      </div>
       <div class="row group-row">
           <div class="col-xs-12">
-              <h3>
-                  <span id="tree-view-bonds" class="tree-view">
-                      <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
-                  </span>
-                  Bonds
-                  </h3>
+              <h3 class="color-imago-cream">Bonds</h3>
           </div>
       </div>
       <div id="bond-container">
-          <div class="row table-header-row">
+          <div class="row table-header-row color-imago-cream">
               <div class="col-xs-2">Face Value</div>
               <div class="col-xs-4">Issue Date</div>
               <div class="col-xs-3">Time to Maturity</div>
@@ -103,16 +89,19 @@
           </div>
           <div id="bond-input-group" class="form-group"></div>
       </div>
-      <div id="bond-allocation"></div>
-      <div id="bond-total-amount"></div>
+      <div id="bond-allocation">
+          <div class="font-bold imago-cream-underline color-imago-cream">
+              Percent of Non-Tangible Assets in Bonds
+              <span class="pull-right amount font-bold imago-cream-underline" id="bond-allocation-content"></span>
+          </div>
+      </div>
+      <div class="subtotal color-imago-cream">
+          Total Bonds<span id="bond-total-amount" class="pull-right amount"></span>
+      </div>
       <div id="assets-total-amount"></div>
       <div class="row group-row">
           <div class="col-xs-11">
-              <h3>
-                <span id="tree-view-property-pant-and-equipment" class="tree-view">
-                    <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
-                </span>
-                  Property, Plant and Equipment
+              <h3 class="color-imago-cream">Property, Plant and Equipment
               </h3>
           </div>
       </div>
@@ -120,15 +109,12 @@
           <div class="property-plant-and-equipment-header-container"></div>
           <div id="property-plant-and-equipment-input-group" class="form-group"></div>
       </div>
-      <div id="property-plant-and-equipment-total-amount"></div>
+      <div class="subtotal color-imago-cream">
+          Total Property, Plant and Equipment<span id="property-plant-and-equipment-total-amount" class="pull-right amount"></span>
+      </div>
       <div class="row group-row">
           <div class="col-xs-11">
-              <h3>
-                <span id="tree-view-totals-row" class="tree-view">
-                    <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
-                </span>
-                  Totals
-              </h3>
+              <h3 class="color-imago-cream">Totals</h3>
           </div>
       </div>
       <div id="totals-row">
@@ -142,7 +128,7 @@
               Total Debt<span id="total-debt" class="pull-right amount"></span>
           </div>
       </div>
-      <div class="total">Net<span id="net-total" class="pull-right amount"></span></div>
+      <div class="total color-imago-cream">Net<span id="net-total" class="pull-right amount"></span></div>
       <input id="save" type="button" value="Save" class="btn btn-primary" />
   </div>
   </body>

@@ -17,7 +17,7 @@ export default class PropertyPlantAndEquipmentViewModel {
            </div>`);
     }
     getReadOnlyHeaderView() {
-        return $(`<div class="row table-header-row">
+        return $(`<div class="row table-header-row color-imago-cream">
                <div class="col-xs-8">Name</div>
                <div class="col-xs-3">Value</div>
                <div class="col-xs-1">Liquidate</div>

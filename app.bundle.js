@@ -21013,20 +21013,6 @@ exports.getModel = function () {
   };
 };
 
-function setupToggle(container, detail) {
-  $(container).click(function () {
-    $(container).empty();
-
-    if ($(detail).is(':visible')) {
-      $(detail).hide();
-      $(container).append($('<span class="glyphicon glyphicon-expand" aria-hidden="true"></span>'));
-    } else {
-      $(detail).show();
-      $(container).append($('<span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>'));
-    }
-  });
-}
-
 function getWeeklyAmount(budget, debtName) {
   let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
   let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
@@ -21089,28 +21075,19 @@ exports.setView = function (budget, obfuscate) {
   }
 
   $('#loan-total-amount-value').text(`(${Util.format(debtTotal.toString())})`);
-  let ppeTotalView = $(`<div class="subtotal">Total Property, Plant and Equipment<span class="pull-right amount">${Util.format(totalPropertyPlantAndEquipment.toString())}</span></div>`);
-  $('#property-plant-and-equipment-total-amount').append(ppeTotalView);
-  $('#cash-total-amount').append($(`<div class="subtotal">Total Cash<span class="pull-right amount">${Util.format(totalDemandDepositsAndCash.toString())}</span></div>`));
-  $('#cash-and-stocks-total-amount').append($(`<div class="subtotal">Total Equities<span class="pull-right amount">${Util.format(totalEquities.toString())}</span></div>`));
-  $('#bond-total-amount').append(`<div class="subtotal">Total Bonds<span class="pull-right amount">${Util.format(totalBonds.toString())}</span></div>`);
+  $('#property-plant-and-equipment-total-amount').text(Util.format(totalPropertyPlantAndEquipment.toString()));
+  $('#cash-total-amount').text(Util.format(totalDemandDepositsAndCash.toString()));
+  $('#cash-and-stocks-total-amount').text(Util.format(totalEquities.toString()));
+  $('#bond-total-amount').text(Util.format(totalBonds.toString()));
   let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults()).add(totalDemandDepositsAndCash).add(totalEquities).add(totalBonds);
-  $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
-  $('#cash-and-stocks-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Equities<span class="pull-right amount">
-            ${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
-  $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
-            ${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString()}</span></div>`));
+  $('#bond-allocation-content').text(new EquityViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString());
+  $('#cash-and-stocks-allocation').text(new EquityViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString());
+  $('#cash-allocation').text(new EquityViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString());
   $('#total-tangible-assets').text(Util.format(totalPropertyPlantAndEquipment));
   $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets.toString()));
   $('#total-debt').text(`(${Util.format(debtTotal)})`);
   let net = Currency(0, Util.getCurrencyDefaults()).subtract(debtTotal).add(totalPropertyPlantAndEquipment).add(totalNonTangibleAssets);
   $('#net-total').text(Util.format(net.toString()));
-  setupToggle('#tree-view-loans', '#loans-container');
-  setupToggle('#tree-view-cash', '#cash-container');
-  setupToggle('#tree-view-property-pant-and-equipment', '#property-plant-and-equipment-container');
-  setupToggle('#tree-view-cash-or-stock', '#assets-container');
-  setupToggle('#tree-view-bonds', '#bond-container');
-  setupToggle('#tree-view-totals-row', '#totals-row');
 
   if (budget.licenseAgreement && budget.licenseAgreement.agreedToLicense) {
     $('#acceptLicense').prop('checked', true);
@@ -21266,7 +21243,7 @@ class CashViewModel {
   }
 
   getReadOnlyHeaderView() {
-    return $(`<div class="row table-header-row">
+    return $(`<div class="row table-header-row color-imago-cream">
               <div class="col-xs-5">Name</div>
               <div class="col-xs-3">Available Balance</div>
               <div class="col-xs-3">Current Balance</div>
@@ -21372,7 +21349,7 @@ function EquityViewModel() {
     }).toString() + "%";
   };
 
-  this.getReadOnlyHeaderView = () => $(`<div class="row table-header-row">
+  this.getReadOnlyHeaderView = () => $(`<div class="row table-header-row color-imago-cream">
               <div class="col-xs-2">Shares</div>
               <div class="col-xs-2">Share Price</div>
               <div class="col-xs-3">Current Value</div>
@@ -21394,7 +21371,7 @@ function EquityViewModel() {
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${Util.formatShares(equity.shares)}</div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${Util.format(equity.sharePrice)}</div>
                     <div class="col-xs-3 text-right vertical-align amount-description-column">${Util.format(amount)}</div>
-                    <div class="col-xs-2 text-center vertical-align amount-description-column asset-name" >
+                    <div class="col-xs-2 text-center vertical-align amount-description-column asset-name link-color-white" >
                         <a target="_blank" href="https://finance.yahoo.com/quote/${equity.name}" title="View Chart">${equity.name}</a>
                     </div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${allocation.toString()}</div>
@@ -21623,7 +21600,7 @@ class PropertyPlantAndEquipmentViewModel {
   }
 
   getReadOnlyHeaderView() {
-    return $(`<div class="row table-header-row">
+    return $(`<div class="row table-header-row color-imago-cream">
                <div class="col-xs-8">Name</div>
                <div class="col-xs-3">Value</div>
                <div class="col-xs-1">Liquidate</div>

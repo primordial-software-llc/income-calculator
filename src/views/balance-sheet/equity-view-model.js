@@ -18,7 +18,7 @@ function EquityViewModel() {
         return Currency(allocation, {precision: 2}).toString() + "%";
     };
     this.getReadOnlyHeaderView = () =>
-        $(`<div class="row table-header-row">
+        $(`<div class="row table-header-row color-imago-cream">
               <div class="col-xs-2">Shares</div>
               <div class="col-xs-2">Share Price</div>
               <div class="col-xs-3">Current Value</div>
@@ -35,7 +35,7 @@ function EquityViewModel() {
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${Util.formatShares(equity.shares)}</div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${Util.format(equity.sharePrice)}</div>
                     <div class="col-xs-3 text-right vertical-align amount-description-column">${Util.format(amount)}</div>
-                    <div class="col-xs-2 text-center vertical-align amount-description-column asset-name" >
+                    <div class="col-xs-2 text-center vertical-align amount-description-column asset-name link-color-white" >
                         <a target="_blank" href="https://finance.yahoo.com/quote/${equity.name}" title="View Chart">${equity.name}</a>
                     </div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${allocation.toString()}</div>

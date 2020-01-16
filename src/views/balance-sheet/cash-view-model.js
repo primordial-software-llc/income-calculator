@@ -29,7 +29,7 @@ export default class CashViewModel {
           </div>`);
     }
     getReadOnlyHeaderView() {
-        return $(`<div class="row table-header-row">
+        return $(`<div class="row table-header-row color-imago-cream">
               <div class="col-xs-5">Name</div>
               <div class="col-xs-3">Available Balance</div>
               <div class="col-xs-3">Current Balance</div>

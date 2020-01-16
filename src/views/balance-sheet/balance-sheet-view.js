@@ -10,18 +10,6 @@ const Moment = require('moment');
 exports.getModel = function () {
     return { balances: new LoanViewModel().getModels() };
 };
-function setupToggle(container, detail) {
-    $(container).click(function () {
-        $(container).empty();
-        if ($(detail).is(':visible')) {
-            $(detail).hide();
-            $(container).append($('<span class="glyphicon glyphicon-expand" aria-hidden="true"></span>'));
-        } else {
-            $(detail).show();
-            $(container).append($('<span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>'));
-        }
-    });
-}
 function getWeeklyAmount(budget, debtName) {
     let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
     let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
@@ -76,26 +64,18 @@ exports.setView = function (budget, obfuscate) {
         $('#bond-input-group').append(new BondViewModel().getReadOnlyView(bond, obfuscate));
     }
     $('#loan-total-amount-value').text(`(${Util.format(debtTotal.toString())})`);
-    let ppeTotalView = $(`<div class="subtotal">Total Property, Plant and Equipment<span class="pull-right amount">${Util.format(totalPropertyPlantAndEquipment.toString())}</span></div>`);
-    $('#property-plant-and-equipment-total-amount').append(ppeTotalView);
-    $('#cash-total-amount').append(
-        $(`<div class="subtotal">Total Cash<span class="pull-right amount">${Util.format(totalDemandDepositsAndCash.toString())}</span></div>`)
-    );
-    $('#cash-and-stocks-total-amount').append(
-        $(`<div class="subtotal">Total Equities<span class="pull-right amount">${Util.format(totalEquities.toString())}</span></div>`)
-    );
-    $('#bond-total-amount').append(
-        (`<div class="subtotal">Total Bonds<span class="pull-right amount">${Util.format(totalBonds.toString())}</span></div>`)
-    );
+    $('#property-plant-and-equipment-total-amount').text(Util.format(totalPropertyPlantAndEquipment.toString()));
+    $('#cash-total-amount').text(Util.format(totalDemandDepositsAndCash.toString()));
+    $('#cash-and-stocks-total-amount').text(Util.format(totalEquities.toString()));
+
+    $('#bond-total-amount').text(Util.format(totalBonds.toString()));
     let totalNonTangibleAssets = Currency(0, Util.getCurrencyDefaults())
         .add(totalDemandDepositsAndCash)
         .add(totalEquities)
         .add(totalBonds);
-    $('#bond-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Bonds<span class="pull-right amount">${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString()}</span></div>`));
-    $('#cash-and-stocks-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Equities<span class="pull-right amount">
-            ${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString()}</span></div>`));
-    $('#cash-allocation').append($(`<div class="allocation">Percent of Non-Tangible Assets in Cash<span class="pull-right amount">
-            ${new EquityViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString()}</span></div>`));
+    $('#bond-allocation-content').text(new EquityViewModel().getAllocation(totalNonTangibleAssets, totalBonds.toString()).toString());
+    $('#cash-and-stocks-allocation').text(new EquityViewModel().getAllocation(totalNonTangibleAssets, totalEquities).toString());
+    $('#cash-allocation').text(new EquityViewModel().getAllocation(totalNonTangibleAssets, totalDemandDepositsAndCash).toString());
     $('#total-tangible-assets').text(Util.format(totalPropertyPlantAndEquipment));
     $('#total-non-tangible-assets').text(Util.format(totalNonTangibleAssets.toString()));
     $('#total-debt').text(`(${Util.format(debtTotal)})`);
@@ -104,12 +84,6 @@ exports.setView = function (budget, obfuscate) {
         .add(totalPropertyPlantAndEquipment)
         .add(totalNonTangibleAssets);
     $('#net-total').text(Util.format(net.toString()));
-    setupToggle('#tree-view-loans','#loans-container');
-    setupToggle('#tree-view-cash', '#cash-container');
-    setupToggle('#tree-view-property-pant-and-equipment', '#property-plant-and-equipment-container');
-    setupToggle('#tree-view-cash-or-stock','#assets-container');
-    setupToggle('#tree-view-bonds','#bond-container');
-    setupToggle('#tree-view-totals-row','#totals-row');
     if (budget.licenseAgreement && budget.licenseAgreement.agreedToLicense) {
         $('#acceptLicense').prop('checked', true);
         $('#acceptLicense').prop('disabled', true);
