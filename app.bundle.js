@@ -20427,8 +20427,19 @@ function LoginSignupController() {
         if ($('#login-username').val().trim().length < 1) {
             issues.push('Email is required');
         }
-        if ($('#login-password').val().trim().length < 1) {
+        let password = $('#login-password').val().trim();
+        if (password.length < 1) {
             issues.push('Password is required');
+        } else if (password.length < 8) {
+            issues.push('Password must be at least 8 characters');
+        } if (!new RegExp(/[A-Z]/).test(password)) {
+            issues.push('Password must contain at least one uppercase character');
+        } else if (!new RegExp(/[a-z]/).test(password)) {
+            issues.push('Password must contain at least one lowercase character');
+        } else if (!new RegExp(/[0-9]/).test(password)) {
+            issues.push('Password must contain at least one number');
+        } else if (!new RegExp(/[\.!@#\$%\^&\*\(\)_\+]/).test(password)) {
+            issues.push('Password must contain at least one of the following special characters: .!@#$%^&*()_+');
         }
         if (!$('#acceptLicense').is(':checked')) {
             issues.push('You must agree to the license to proceed');
@@ -21272,7 +21283,7 @@ class CashViewModel {
                         </div>
                     </div>
                     <div class="col-xs-3 text-right vertical-align amount-description-column">
-                        <div class="dotted-underline">${currentBalanceView}</div>
+                        <div class="dotted-underline link-color-white-always-underline">${currentBalanceView}</div>
                     </div>
             </div>
         `);
@@ -22243,7 +22254,7 @@ exports.getHeaderView = () =>
 exports.getView = (name, sharePrice) =>
     $(`<div>
             <div class="prices-item row transaction-input-view">
-                <div class="col-xs-6"><input class="input-name name form-control" type="text" value="${name || ''}" /></div>
+                <div class="col-xs-6"><input disabled="disabled" class="input-name name form-control" type="text" value="${name || ''}" /></div>
                 <div class="col-xs-6">
                     <div class="input-group">
                         <div class="input-group-addon ">$</div>

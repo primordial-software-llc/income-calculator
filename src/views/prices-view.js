@@ -31,7 +31,7 @@ exports.getHeaderView = () =>
 exports.getView = (name, sharePrice) =>
     $(`<div>
             <div class="prices-item row transaction-input-view">
-                <div class="col-xs-6"><input class="input-name name form-control" type="text" value="${name || ''}" /></div>
+                <div class="col-xs-6"><input disabled="disabled" class="input-name name form-control" type="text" value="${name || ''}" /></div>
                 <div class="col-xs-6">
                     <div class="input-group">
                         <div class="input-group-addon ">$</div>

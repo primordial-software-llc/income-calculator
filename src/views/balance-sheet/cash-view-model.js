@@ -69,7 +69,7 @@ export default class CashViewModel {
                         </div>
                     </div>
                     <div class="col-xs-3 text-right vertical-align amount-description-column">
-                        <div class="dotted-underline">${currentBalanceView}</div>
+                        <div class="dotted-underline link-color-white-always-underline">${currentBalanceView}</div>
                     </div>
             </div>
         `);
