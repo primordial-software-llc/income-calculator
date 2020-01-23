@@ -2,7 +2,7 @@ const BondViewModel = require('./bond-view-model');
 const cal = require('../../calculators/calendar');
 import CashViewModel from './cash-view-model';
 const Currency = require('currency.js');
-const EquityViewModel = require('./equity-view-model');
+import EquityViewModel from './equity-view-model';
 import PropertyPlantAndEquipmentViewModel from './property-plant-and-equipment-view-model';
 import LoanViewModel from './loan-view-model';
 const Util = require('../../util');
@@ -41,12 +41,11 @@ exports.setView = function (budget, obfuscate) {
         $('#property-plant-and-equipment-input-group').append(new PropertyPlantAndEquipmentViewModel().getReadOnlyView(
             tangibleAsset, obfuscate));
     }
-    let equityViewModel = new EquityViewModel();
     for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
         totalEquities = totalEquities.add(Util.getAmount(equity));
     }
     for (let equity of (budget.assets || []).filter(x => x.shares && x.sharePrice)) {
-        let view = equityViewModel.getReadOnlyView(equity, totalEquities.toString(), obfuscate);
+        let view = new EquityViewModel().getReadOnlyView(equity, totalEquities.toString(), obfuscate);
         $('#asset-input-group').append(view);
     }
     let sortedBonds = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === 'bond');

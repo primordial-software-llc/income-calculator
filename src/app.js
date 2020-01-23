@@ -1,8 +1,8 @@
-const AccountSettingsView = require('./views/account-settings-view');
 import BalanceSheetController from './controllers/balance-sheet-controller';
 import BanksController from './controllers/banks-controller';
 import BudgetCalendarController from './controllers/budget-calendar-controller';
 import BudgetController from './controllers/budget-controller';
+import CommandButtonsView from './views/command-buttons-view';
 const DataClient = require('./data-client');
 import DepositController from './controllers/deposit-controller';
 import FooterView from './views/footer-view';
@@ -19,7 +19,7 @@ async function init() {
     'use strict';
     $('body').append(FooterView.getLoadingIndicatorView());
     let obfuscate = Util.obfuscate();
-    $('#command-buttons-container').append(AccountSettingsView.getCommandButtonsContainerView(obfuscate));
+    $('#command-buttons-container').append(CommandButtonsView.getCommandButtonsView(obfuscate));
     let pageName = window.location.href.split('/').pop().toLocaleLowerCase();
     let usernameResponse;
     try {

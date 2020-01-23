@@ -1,10 +1,10 @@
-import CurrentBalanceCalculator from '../../calculators/current-balance-calculator';
-const Util = require('../../util');
-const ExpenseViewModel = require('./expense-view-model');
-import PropertyPlantAndEquipmentViewModel from './property-plant-and-equipment-view-model';
 const BondViewModel = require('./bond-view-model');
+import CurrentBalanceCalculator from '../../calculators/current-balance-calculator';
+const ExpenseViewModel = require('./expense-view-model');
+import EquityViewModel from './equity-view-model';
+import PropertyPlantAndEquipmentViewModel from './property-plant-and-equipment-view-model';
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
-const EquityViewModel = require('./equity-view-model');
+const Util = require('../../util');
 export default class CashViewModel {
     getViewDescription() { return 'Cash' };
     getViewType() { return 'cash' };

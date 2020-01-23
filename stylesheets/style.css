@@ -6,7 +6,7 @@ body p,
 body input.form-control,
 body select.form-control,
 body textarea.form-control {
-    font-size: 16px;
+    font-size: 18px;
 }
 h1, .tab-nav-bar, .container {
     min-width: 640px;
@@ -441,7 +441,7 @@ h4 {
     background-color: #032b4f;
 }
 .bg-color-image-light-gray {
-    background-color: #d1d3d4;
+    background-color: #dbdcde;
 }
 .w-100 {
     width: 100%;

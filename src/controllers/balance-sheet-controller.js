@@ -42,10 +42,33 @@ function getViewModel(data, bankData) {
     viewModel.assets = viewModel.assets || [];
     viewModel.balances = viewModel.balances || [];
     for (let bankAccount of bankData.allAccounts || []) {
-        for (let account of bankAccount.accounts.filter(x => x.type === 'depository')) {
+        for (let account of bankAccount.accounts.filter(x =>
+            x.type !== 'credit' &&
+            (
+                x.subtype === 'retirement' ||
+                x.subtype === '401k' ||
+                x.subtype === 'hsa'
+            ))) {
+            viewModel.assets.push({
+                type: 'property-plant-and-equipment',
+                name: [bankAccount.item.institution.name, account.subtype, account.mask]
+                    .filter(x => x)
+                    .join(' - '),
+                amount: account.balances.current,
+                id: account['account_id'],
+                isAuthoritative: true
+            });
+        }
+        for (let account of bankAccount.accounts.filter(x =>
+                x.type !== 'credit' &&
+                x.subtype !== 'retirement' &&
+                x.subtype !== '401k' &&
+                x.subtype !== 'hsa')) {
             viewModel.assets.push({
                 type: 'cash',
-                name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
+                name: [bankAccount.item.institution.name, account.subtype, account.mask]
+                    .filter(x => x)
+                    .join(' - '),
                 amount: account.balances.available,
                 currentBalance: account.balances.current,
                 id: account['account_id'],

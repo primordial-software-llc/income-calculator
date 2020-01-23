@@ -2,7 +2,7 @@ import CashViewModel from './cash-view-model';
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 const Util = require('../../util');
 export default class PropertyPlantAndEquipmentViewModel {
-    getViewDescription() { return 'Property plant and equipment' };
+    getViewDescription() { return 'Non-Liquid Assets' };
     getViewType() { return 'property-plant-and-equipment' };
     getModel(target) {
         return {
