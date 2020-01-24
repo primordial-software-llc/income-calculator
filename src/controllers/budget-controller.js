@@ -1,9 +1,10 @@
+const AccountSettingsController = require('./account-settings-controller');
+import BalanceSheetViewModel from '../view-models/balance-sheet-view-model';
 import BudgetView from '../views/budget/budget-view';
 import WeeklyView from '../views/budget/weekly-view';
 import MonthlyView from '../views/budget/monthly-view';
 import BiweeklyView from '../views/budget/biweekly-view';
 const DataClient = require('../data-client');
-const AccountSettingsController = require('./account-settings-controller');
 const Util = require('../util');
 
 export default class BudgetController {
@@ -14,34 +15,39 @@ export default class BudgetController {
         return `${Util.rootUrl()}/pages/budget.html`;
     }
     constructor() {
-        this.dataClient = {};
         this.homeView = {};
     }
     async refresh() {
         try {
-            let data = await this.dataClient.getBudget();
+            let data = await new DataClient().getBudget();
             this.homeView.setView(data, Util.obfuscate());
         } catch (err) {
             Util.log(err);
         }
     }
+    async getAccounts() {
+        let budget = await new DataClient().getBudget();
+        let bankData = await new DataClient().get('accountBalance');
+        let viewModel = BalanceSheetViewModel.getViewModel(budget, bankData, Util.obfuscate());
+        let creditableAccounts = (viewModel.assets || []).filter(x => x.name && x.type === 'cash').map(x => x.name);
+        return creditableAccounts.concat((viewModel.balances || []).filter(x => x.type ==='credit').map(x => x.name));
+    }
     async init() {
         this.homeView = new BudgetView();
-        this.dataClient = new DataClient();
         new AccountSettingsController().init(this.homeView);
-        let self = this;
         $('.add-new-budget-item').prop('disabled', true);
-        $('#add-new-biweekly').click(function () {
+        let self = this;
+        $('#add-new-biweekly').click(async function () {
             $(this).hide();
-            $('.new-biweekly-container').prepend(self.homeView.getEditableTransactionView(BiweeklyView));
+            $('.new-biweekly-container').prepend(BudgetView.getEditableTransactionView(BiweeklyView, await self.getAccounts()));
         });
-        $('#add-new-monthly').click(function () {
+        $('#add-new-monthly').click(async function () {
             $(this).hide();
-            $('.new-monthly-container').prepend(self.homeView.getEditableTransactionView(MonthlyView));
+            $('.new-monthly-container').prepend(BudgetView.getEditableTransactionView(MonthlyView, await self.getAccounts()));
         });
-        $('#add-new-weekly').click(function () {
+        $('#add-new-weekly').click(async function () {
             $(this).hide();
-            $('.new-weekly-container').prepend(self.homeView.getEditableTransactionView(WeeklyView));
+            $('.new-weekly-container').prepend(BudgetView.getEditableTransactionView(WeeklyView, await self.getAccounts()));
         });
         await this.refresh();
     };

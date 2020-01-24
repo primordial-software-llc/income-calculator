@@ -19278,7 +19278,7 @@ $(document).ready(function () {
   init();
 });
 
-},{"./controllers/balance-sheet-controller":72,"./controllers/banks-controller":74,"./controllers/budget-calendar-controller":75,"./controllers/budget-controller":76,"./controllers/deposit-controller":77,"./controllers/home-controller":78,"./controllers/login-controller":79,"./controllers/login-signup-controller":80,"./controllers/pay-days-controller":81,"./controllers/prices-controller":82,"./controllers/transfers-controller":83,"./data-client":84,"./nav":85,"./util":86,"./views/command-buttons-view":101,"./views/footer-view":102}],63:[function(require,module,exports){
+},{"./controllers/balance-sheet-controller":72,"./controllers/banks-controller":74,"./controllers/budget-calendar-controller":75,"./controllers/budget-controller":76,"./controllers/deposit-controller":77,"./controllers/home-controller":78,"./controllers/login-controller":79,"./controllers/login-signup-controller":80,"./controllers/pay-days-controller":81,"./controllers/prices-controller":82,"./controllers/transfers-controller":83,"./data-client":84,"./nav":85,"./util":86,"./views/command-buttons-view":102,"./views/footer-view":103}],63:[function(require,module,exports){
 const CalendarSearch = require('./calendar-search');
 const Currency = require('currency.js');
 const Util = require('../util');
@@ -19699,6 +19699,8 @@ exports.default = void 0;
 
 var _loanViewModel = _interopRequireDefault(require("../views/balance-sheet/loan-view-model"));
 
+var _balanceSheetViewModel = _interopRequireDefault(require("../view-models/balance-sheet-view-model"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const AccountSettingsController = require('./account-settings-controller');
@@ -19716,72 +19718,14 @@ async function refresh() {
     let data = await new DataClient().getBudget();
     let bankData = await new DataClient().get('accountBalance'); // Synchronous so there are no uncaught promises if authentication fails. Call to budget is fast anyway.
 
-    let viewModel = getViewModel(data, bankData);
+    let obfuscate = Util.obfuscate();
 
-    if (Util.obfuscate()) {
-      obfuscate(viewModel);
-    }
+    let viewModel = _balanceSheetViewModel.default.getViewModel(data, bankData, obfuscate);
 
-    balanceSheetView.setView(viewModel, Util.obfuscate());
+    balanceSheetView.setView(viewModel, obfuscate);
   } catch (err) {
     Util.log(err);
   }
-}
-
-function obfuscate(viewModel) {
-  for (let asset of viewModel.assets) {
-    if (asset.shares) {
-      asset.shares = Currency(asset.shares, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
-    }
-
-    if (asset.amount) {
-      asset.amount = Currency(asset.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
-    }
-  }
-
-  for (let debt of viewModel.balances) {
-    debt.amount = Currency(debt.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
-  }
-}
-
-function getViewModel(data, bankData) {
-  let viewModel = JSON.parse(JSON.stringify(data));
-  viewModel.assets = viewModel.assets || [];
-  viewModel.balances = viewModel.balances || [];
-
-  for (let bankAccount of bankData.allAccounts || []) {
-    for (let account of bankAccount.accounts.filter(x => x.type !== 'credit' && (x.subtype === 'retirement' || x.subtype === '401k' || x.subtype === 'hsa'))) {
-      viewModel.assets.push({
-        type: 'property-plant-and-equipment',
-        name: [bankAccount.item.institution.name, account.subtype, account.mask].filter(x => x).join(' - '),
-        amount: account.balances.current,
-        id: account['account_id'],
-        isAuthoritative: true
-      });
-    }
-
-    for (let account of bankAccount.accounts.filter(x => x.type !== 'credit' && x.subtype !== 'retirement' && x.subtype !== '401k' && x.subtype !== 'hsa')) {
-      viewModel.assets.push({
-        type: 'cash',
-        name: [bankAccount.item.institution.name, account.subtype, account.mask].filter(x => x).join(' - '),
-        amount: account.balances.available,
-        currentBalance: account.balances.current,
-        id: account['account_id'],
-        isAuthoritative: true
-      });
-    }
-
-    for (let account of bankAccount.accounts.filter(x => x.type === 'credit')) {
-      viewModel.balances.push({
-        type: account.type,
-        name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
-        amount: account.balances.current,
-        isAuthoritative: true
-      });
-    }
-  }
-
-  return viewModel;
 }
 
 class BalanceSheetController {
@@ -19815,7 +19759,7 @@ class BalanceSheetController {
 
 exports.default = BalanceSheetController;
 
-},{"../data-client":84,"../util":86,"../views/balance-sheet/balance-sheet-view":87,"../views/balance-sheet/loan-view-model":92,"./account-settings-controller":71,"currency.js":26}],73:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../view-models/balance-sheet-view-model":87,"../views/balance-sheet/balance-sheet-view":88,"../views/balance-sheet/loan-view-model":93,"./account-settings-controller":71,"currency.js":26}],73:[function(require,module,exports){
 const DataClient = require('../../data-client');
 const Moment = require('moment/moment');
 const TransferView = require('../../views/balance-sheet/transfer-view');
@@ -19888,7 +19832,7 @@ function TransferController() {
 
 module.exports = TransferController;
 
-},{"../../data-client":84,"../../util":86,"../../views/balance-sheet/transfer-view":94,"moment/moment":31}],74:[function(require,module,exports){
+},{"../../data-client":84,"../../util":86,"../../views/balance-sheet/transfer-view":95,"moment/moment":31}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20082,13 +20026,15 @@ class BudgetCalendarController {
 
 exports.default = BudgetCalendarController;
 
-},{"../data-client":84,"../util":86,"../views/calendar-view":100,"./account-settings-controller":71}],76:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../views/calendar-view":101,"./account-settings-controller":71}],76:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+
+var _balanceSheetViewModel = _interopRequireDefault(require("../view-models/balance-sheet-view-model"));
 
 var _budgetView = _interopRequireDefault(require("../views/budget/budget-view"));
 
@@ -20100,9 +20046,9 @@ var _biweeklyView = _interopRequireDefault(require("../views/budget/biweekly-vie
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const DataClient = require('../data-client');
-
 const AccountSettingsController = require('./account-settings-controller');
+
+const DataClient = require('../data-client');
 
 const Util = require('../util');
 
@@ -20116,36 +20062,44 @@ class BudgetController {
   }
 
   constructor() {
-    this.dataClient = {};
     this.homeView = {};
   }
 
   async refresh() {
     try {
-      let data = await this.dataClient.getBudget();
+      let data = await new DataClient().getBudget();
       this.homeView.setView(data, Util.obfuscate());
     } catch (err) {
       Util.log(err);
     }
   }
 
+  async getAccounts() {
+    let budget = await new DataClient().getBudget();
+    let bankData = await new DataClient().get('accountBalance');
+
+    let viewModel = _balanceSheetViewModel.default.getViewModel(budget, bankData, Util.obfuscate());
+
+    let creditableAccounts = (viewModel.assets || []).filter(x => x.name && x.type === 'cash').map(x => x.name);
+    return creditableAccounts.concat((viewModel.balances || []).filter(x => x.type === 'credit').map(x => x.name));
+  }
+
   async init() {
     this.homeView = new _budgetView.default();
-    this.dataClient = new DataClient();
     new AccountSettingsController().init(this.homeView);
-    let self = this;
     $('.add-new-budget-item').prop('disabled', true);
-    $('#add-new-biweekly').click(function () {
+    let self = this;
+    $('#add-new-biweekly').click(async function () {
       $(this).hide();
-      $('.new-biweekly-container').prepend(self.homeView.getEditableTransactionView(_biweeklyView.default));
+      $('.new-biweekly-container').prepend(_budgetView.default.getEditableTransactionView(_biweeklyView.default, (await self.getAccounts())));
     });
-    $('#add-new-monthly').click(function () {
+    $('#add-new-monthly').click(async function () {
       $(this).hide();
-      $('.new-monthly-container').prepend(self.homeView.getEditableTransactionView(_monthlyView.default));
+      $('.new-monthly-container').prepend(_budgetView.default.getEditableTransactionView(_monthlyView.default, (await self.getAccounts())));
     });
-    $('#add-new-weekly').click(function () {
+    $('#add-new-weekly').click(async function () {
       $(this).hide();
-      $('.new-weekly-container').prepend(self.homeView.getEditableTransactionView(_weeklyView.default));
+      $('.new-weekly-container').prepend(_budgetView.default.getEditableTransactionView(_weeklyView.default, (await self.getAccounts())));
     });
     await this.refresh();
   }
@@ -20154,7 +20108,7 @@ class BudgetController {
 
 exports.default = BudgetController;
 
-},{"../data-client":84,"../util":86,"../views/budget/biweekly-view":95,"../views/budget/budget-view":96,"../views/budget/monthly-view":97,"../views/budget/weekly-view":98,"./account-settings-controller":71}],77:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../view-models/balance-sheet-view-model":87,"../views/budget/biweekly-view":96,"../views/budget/budget-view":97,"../views/budget/monthly-view":98,"../views/budget/weekly-view":99,"./account-settings-controller":71}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20577,7 +20531,7 @@ class PayDaysController {
 
 exports.default = PayDaysController;
 
-},{"../calculators/calendar":65,"../calculators/utc-day":69,"../data-client":84,"../util":86,"../views/pay-days-view":103,"./account-settings-controller":71,"currency.js":26,"moment/moment":31}],82:[function(require,module,exports){
+},{"../calculators/calendar":65,"../calculators/utc-day":69,"../data-client":84,"../util":86,"../views/pay-days-view":104,"./account-settings-controller":71,"currency.js":26,"moment/moment":31}],82:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20621,7 +20575,7 @@ class PricesController {
 
 exports.default = PricesController;
 
-},{"../data-client":84,"../util":86,"../views/prices-view":104,"./account-settings-controller":71}],83:[function(require,module,exports){
+},{"../data-client":84,"../util":86,"../views/prices-view":105,"./account-settings-controller":71}],83:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -20762,7 +20716,7 @@ class TransfersController {
 
 exports.default = TransfersController;
 
-},{"../data-client":84,"../nav":85,"../util":86,"../views/balance-sheet/balance-sheet-view":87,"../views/transfer-view":105,"./account-settings-controller":71,"currency.js":26}],84:[function(require,module,exports){
+},{"../data-client":84,"../nav":85,"../util":86,"../views/balance-sheet/balance-sheet-view":88,"../views/transfer-view":106,"./account-settings-controller":71,"currency.js":26}],84:[function(require,module,exports){
 const Util = require('./util');
 const Currency = require('currency.js');
 function DataClient() {
@@ -20991,6 +20945,85 @@ exports.getApiUrl = () => 'https://api.primordial-software.com/';
 },{"currency.js":26}],87:[function(require,module,exports){
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function obfuscate(viewModel) {
+  for (let asset of viewModel.assets) {
+    if (asset.shares) {
+      asset.shares = Currency(asset.shares, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+    }
+
+    if (asset.amount) {
+      asset.amount = Currency(asset.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+    }
+  }
+
+  for (let debt of viewModel.balances) {
+    debt.amount = Currency(debt.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+  }
+}
+
+function mergeModels(data, bankData) {
+  let viewModel = JSON.parse(JSON.stringify(data));
+  viewModel.assets = viewModel.assets || [];
+  viewModel.balances = viewModel.balances || [];
+
+  for (let bankAccount of bankData.allAccounts || []) {
+    for (let account of bankAccount.accounts.filter(x => x.type !== 'credit' && (x.subtype === 'retirement' || x.subtype === '401k' || x.subtype === 'hsa'))) {
+      viewModel.assets.push({
+        type: 'property-plant-and-equipment',
+        name: [bankAccount.item.institution.name, account.subtype, account.mask].filter(x => x).join(' - '),
+        amount: account.balances.current,
+        id: account['account_id'],
+        isAuthoritative: true
+      });
+    }
+
+    for (let account of bankAccount.accounts.filter(x => x.type !== 'credit' && x.subtype !== 'retirement' && x.subtype !== '401k' && x.subtype !== 'hsa')) {
+      viewModel.assets.push({
+        type: 'cash',
+        name: [bankAccount.item.institution.name, account.subtype, account.mask].filter(x => x).join(' - '),
+        amount: account.balances.available,
+        currentBalance: account.balances.current,
+        id: account['account_id'],
+        isAuthoritative: true
+      });
+    }
+
+    for (let account of bankAccount.accounts.filter(x => x.type === 'credit')) {
+      viewModel.balances.push({
+        type: account.type,
+        name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
+        amount: account.balances.current,
+        isAuthoritative: true
+      });
+    }
+  }
+
+  return viewModel;
+}
+
+class BalanceSheetViewModel {
+  static getViewModel(budget, bankData, obfuscate) {
+    let mergedModel = mergeModels(budget, bankData);
+
+    if (obfuscate) {
+      obfuscate(mergedModel);
+    }
+
+    return mergedModel;
+  }
+
+}
+
+exports.default = BalanceSheetViewModel;
+
+},{}],88:[function(require,module,exports){
+"use strict";
+
 var _cashViewModel = _interopRequireDefault(require("./cash-view-model"));
 
 var _equityViewModel = _interopRequireDefault(require("./equity-view-model"));
@@ -21098,7 +21131,7 @@ exports.setView = function (budget, obfuscate) {
   }
 };
 
-},{"../../calculators/calendar":65,"../../util":86,"./bond-view-model":88,"./cash-view-model":89,"./equity-view-model":90,"./loan-view-model":92,"./property-plant-and-equipment-view-model":93,"currency.js":26,"moment":31}],88:[function(require,module,exports){
+},{"../../calculators/calendar":65,"../../util":86,"./bond-view-model":89,"./cash-view-model":90,"./equity-view-model":91,"./loan-view-model":93,"./property-plant-and-equipment-view-model":94,"currency.js":26,"moment":31}],89:[function(require,module,exports){
 "use strict";
 
 var _cashViewModel = _interopRequireDefault(require("./cash-view-model"));
@@ -21187,7 +21220,7 @@ function BondViewModel() {
 
 module.exports = BondViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":86,"./cash-view-model":89,"moment/moment":31}],89:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":86,"./cash-view-model":90,"moment/moment":31}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21314,7 +21347,7 @@ class CashViewModel {
 
 exports.default = CashViewModel;
 
-},{"../../calculators/current-balance-calculator":66,"../../controllers/balance-sheet/transfer-controller":73,"../../util":86,"./bond-view-model":88,"./equity-view-model":90,"./expense-view-model":91,"./property-plant-and-equipment-view-model":93}],90:[function(require,module,exports){
+},{"../../calculators/current-balance-calculator":66,"../../controllers/balance-sheet/transfer-controller":73,"../../util":86,"./bond-view-model":89,"./equity-view-model":91,"./expense-view-model":92,"./property-plant-and-equipment-view-model":94}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21433,7 +21466,7 @@ class EquityViewModel {
 
 exports.default = EquityViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":86,"./cash-view-model":89,"currency.js":26}],91:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":86,"./cash-view-model":90,"currency.js":26}],92:[function(require,module,exports){
 function ExpenseViewModel() {
     this.getViewDescription = () => 'Expense';
     this.getViewType = () => 'expense';
@@ -21464,7 +21497,7 @@ function ExpenseViewModel() {
            </div>`);
 }
 module.exports = ExpenseViewModel;
-},{}],92:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21572,7 +21605,7 @@ class LoanViewModel {
 
 exports.default = LoanViewModel;
 
-},{"../../calculators/calendar":65,"../../calculators/payoff-date-calculator":68,"../../util":86,"currency.js":26}],93:[function(require,module,exports){
+},{"../../calculators/calendar":65,"../../calculators/payoff-date-calculator":68,"../../util":86,"currency.js":26}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21658,7 +21691,7 @@ class PropertyPlantAndEquipmentViewModel {
 
 exports.default = PropertyPlantAndEquipmentViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":86,"./cash-view-model":89}],94:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":86,"./cash-view-model":90}],95:[function(require,module,exports){
 const Moment = require('moment/moment');
 function TransferView() {
     this.getView = function (name, allowableTransferViewModels) {
@@ -21696,7 +21729,7 @@ function TransferView() {
 
 module.exports = TransferView;
 
-},{"moment/moment":31}],95:[function(require,module,exports){
+},{"moment/moment":31}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21725,7 +21758,7 @@ class BiweeklyView {
 
 exports.default = BiweeklyView;
 
-},{}],96:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21749,7 +21782,7 @@ function sortByAmount(a, b) {
 
 function getTransactionModel(target) {
   return {
-    amount: Util.cleanseNumericString($(target).find('.amount').text().trim()),
+    amount: Util.cleanseNumericString($(target).find('.amount').text().trim()) || Util.cleanseNumericString($(target).find('.amount').val().trim()),
     date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
     name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
     type: $(target).find('.transaction-type').val() || $(target).data().txntype,
@@ -21762,11 +21795,11 @@ class BudgetView {
     this.data = {};
   }
 
-  getEditableTransactionView(viewType) {
+  static getEditableTransactionView(viewType, accounts) {
     let iteration = viewType.iteration;
     let paymentSourceHtml = '';
 
-    for (let paymentSource of this.data.paymentSources || []) {
+    for (let paymentSource of accounts) {
       paymentSourceHtml += `<option value='${paymentSource}'>${paymentSource}</option>`;
     }
 
@@ -21875,7 +21908,7 @@ class BudgetView {
 
 exports.default = BudgetView;
 
-},{"../../util":86,"./biweekly-view":95,"./monthly-view":97,"./weekly-view":98}],97:[function(require,module,exports){
+},{"../../util":86,"./biweekly-view":96,"./monthly-view":98,"./weekly-view":99}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21914,7 +21947,7 @@ class MonthlyView {
 
 exports.default = MonthlyView;
 
-},{"../../calculators/calendar":65}],98:[function(require,module,exports){
+},{"../../calculators/calendar":65}],99:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21959,7 +21992,7 @@ class WeeklyView {
 
 exports.default = WeeklyView;
 
-},{"../../calculators/calendar":65}],99:[function(require,module,exports){
+},{"../../calculators/calendar":65}],100:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21998,7 +22031,7 @@ class CalendarMonthlyTotalsView {
 
 exports.default = CalendarMonthlyTotalsView;
 
-},{}],100:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 "use strict";
 
 var _calendarMonthlyTotalsView = _interopRequireDefault(require("./calendar-monthly-totals-view"));
@@ -22126,7 +22159,7 @@ exports.load = function (budgetSettings, start, end) {
   });
 };
 
-},{"../calculators/calendar":65,"../calculators/calendar-aggregator":63,"../calculators/net-income-calculator":67,"../calendar-calculator":70,"../util":86,"./calendar-monthly-totals-view":99}],101:[function(require,module,exports){
+},{"../calculators/calendar":65,"../calculators/calendar-aggregator":63,"../calculators/net-income-calculator":67,"../calendar-calculator":70,"../util":86,"./calendar-monthly-totals-view":100}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22157,7 +22190,7 @@ class CommandButtonsView {
 
 exports.default = CommandButtonsView;
 
-},{}],102:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22243,7 +22276,7 @@ class FooterView {
 
 exports.default = FooterView;
 
-},{}],103:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 const Currency = require('currency.js');
 
 exports.getModel = function () {
@@ -22252,7 +22285,7 @@ exports.getModel = function () {
     model['401k-contribution-per-pay-check'] = Currency($('#401k-contribution-per-pay-check').val().trim()).toString();
     return model;
 };
-},{"currency.js":26}],104:[function(require,module,exports){
+},{"currency.js":26}],105:[function(require,module,exports){
 const DataClient = require('../data-client');
 exports.getModel = async function () {
     let prices = [];
@@ -22296,7 +22329,7 @@ exports.getView = (name, sharePrice) =>
                 </div>
               </div>
           </div>`);
-},{"../data-client":84}],105:[function(require,module,exports){
+},{"../data-client":84}],106:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

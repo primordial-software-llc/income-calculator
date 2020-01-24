@@ -7,7 +7,8 @@ function sortByAmount(a,b) {
 }
 function getTransactionModel(target) {
     return {
-        amount: Util.cleanseNumericString($(target).find('.amount').text().trim()),
+        amount: Util.cleanseNumericString($(target).find('.amount').text().trim()) ||
+                Util.cleanseNumericString($(target).find('.amount').val().trim()),
         date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
         name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
         type: $(target).find('.transaction-type').val() || $(target).data().txntype,
@@ -18,10 +19,10 @@ export default class BudgetView {
     constructor() {
         this.data = {};
     }
-    getEditableTransactionView(viewType) {
+    static getEditableTransactionView(viewType, accounts) {
         let iteration = viewType.iteration;
         let paymentSourceHtml = '';
-        for (let paymentSource of this.data.paymentSources || []) {
+        for (let paymentSource of accounts) {
             paymentSourceHtml += `<option value='${paymentSource}'>${paymentSource}</option>`;
         }
         return `<h4>New ${iteration.charAt(0).toUpperCase()}${iteration.slice(1)} Transaction</h4>
