@@ -184,7 +184,7 @@ h4 {
 }
 
 .form-control:disabled {
-    color: #444;
+    color: #222;
     background-color: #ddd;
     opacity: 1;
 }
@@ -440,7 +440,7 @@ h4 {
 .bg-color-imago-blue {
     background-color: #032b4f;
 }
-.bg-color-image-light-gray {
+.bg-color-imago-light-gray {
     background-color: #dbdcde;
 }
 .w-100 {
@@ -484,15 +484,13 @@ h4 {
 }
 
 .imago-footer-public {
-    height: 130px;
+    padding-top: 5px;
+    padding-bottom: 15px;
     border-top: 1px solid white;
 }
 .footer-text-group {
     padding-top: 10px;
     text-align: center;
-}
-.footer-text-group:first-child {
-    padding-top: 20px;
 }
 .authenticated-sitemap-footer {
     background-color: #3d3f41;
