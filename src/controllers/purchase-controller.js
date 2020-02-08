@@ -53,7 +53,10 @@ export default class PricesController {
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <p class="mb-0">Purchase successful. Your card has been charged and will continue to be charged each month until you cancel.</p>
+                        <p class="mb-0">
+                            Purchase successful, you now have access to the <a href="/pages/banks.html">Banks</a> page.
+                            Your card has been charged and will continue to be charged each month until you cancel.
+                        </p>
                     </div>`);
             }
         });

@@ -19244,7 +19244,7 @@ async function init() {
     authenticatedControllers.push(_payDaysController.default);
   }
 
-  if (!(usernameResponse || {}).hasPurchased) {
+  if (!(usernameResponse || {}).billingAgreement || !(usernameResponse || {}).billingAgreement.agreedToBillingTerms) {
     authenticatedControllers.push(_purchaseController.default);
   } else {
     authenticatedControllers.push(_banksController.default);
@@ -20634,24 +20634,23 @@ class PricesController {
         $('.billing-terms-field').removeClass('required-field-validation');
         $('#message-container').html(``);
         $('#submit-purchase').prop('disabled', true);
-        /*
-        await new DataClient().post('purchase',
-            {
-                agreedToBillingTerms: $('#agreedToBillingTerms').is(':checked'),
-                cardCvc: $('#cardCvc').val().trim(),
-                cardNumber: $('#cardNumber').val().trim(),
-                cardExpirationMonth: $('#cardExpirationMonth').val().trim(),
-                cardExpirationYear: $('#cardExpirationYear').val().trim()
-            });
-         */
-
+        await new DataClient().post('purchase', {
+          agreedToBillingTerms: $('#agreedToBillingTerms').is(':checked'),
+          cardCvc: $('#cardCvc').val().trim(),
+          cardNumber: $('#cardNumber').val().trim(),
+          cardExpirationMonth: $('#cardExpirationMonth').val().trim(),
+          cardExpirationYear: $('#cardExpirationYear').val().trim()
+        });
         $('.purchase-form').hide();
         $('#message-container').html(`
                     <div class="alert alert-success" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <p class="mb-0">Purchase successful. Your card has been charged and will continue to be charged each month until you cancel.</p>
+                        <p class="mb-0">
+                            Purchase successful, you now have access to the <a href="/pages/banks.html">Banks</a> page.
+                            Your card has been charged and will continue to be charged each month until you cancel.
+                        </p>
                     </div>`);
       }
     });

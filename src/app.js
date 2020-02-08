@@ -36,7 +36,7 @@ async function init() {
     if ((usernameResponse || {}).email === 'timg456789@yahoo.com') {
         authenticatedControllers.push(PayDaysController);
     }
-    if (!(usernameResponse || {}).hasPurchased) {
+    if (!(usernameResponse || {}).billingAgreement || !(usernameResponse || {}).billingAgreement.agreedToBillingTerms) {
         authenticatedControllers.push(PurchaseController);
     } else {
         authenticatedControllers.push(BanksController);
