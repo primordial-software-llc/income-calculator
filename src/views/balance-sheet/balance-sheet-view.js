@@ -17,6 +17,17 @@ function getWeeklyAmount(budget, debtName) {
         : weeklyTxn ? weeklyTxn.amount : 0;
 }
 exports.setView = function (budget, obfuscate) {
+    if (budget.failed && budget.failed.length > 0) {
+        $('#message-container').html(`<div class="alert alert-warning" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <p class="mb-0">
+                    Failed to get accounts from ${budget.failed.length} financial institutions. Check console for more details.
+                </p>
+            </div>`);
+        console.log('Failed to get accounts from the following financial institutions: ' + JSON.stringify(budget.failed, 0, 4));
+    }
     $('#balance-input-group').empty();
     $('.cash-header-container').append(new CashViewModel().getReadOnlyHeaderView());
     $('.assets-header-container').append(new EquityViewModel().getReadOnlyHeaderView());
@@ -83,9 +94,4 @@ exports.setView = function (budget, obfuscate) {
         .add(totalPropertyPlantAndEquipment)
         .add(totalNonTangibleAssets);
     $('#net-total').text(Util.format(net.toString()));
-    if (budget.licenseAgreement && budget.licenseAgreement.agreedToLicense) {
-        $('#acceptLicense').prop('checked', true);
-        $('#acceptLicense').prop('disabled', true);
-        $('.licenseAgreementDetails').append(`agreed to license on ${budget.licenseAgreement.agreementDateUtc} from IP ${budget.licenseAgreement.ipAddress}`);
-    }
 };

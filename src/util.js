@@ -32,9 +32,6 @@ exports.updateQueryStringParameter = function (uri, key, value) {
 };
 exports.formatShares = (shares) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 }).format(shares);
 exports.format = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }).format(amount);
-exports.hasAgreedToLicense = function() { // SHOULD REMOVE THIS
-    return exports.getParameterByName('agreedToLicense') === 'true';
-};
 exports.rootUrl = () => `${document.location.origin}`;
 exports.guid = function () {
     function s4() {

@@ -11,12 +11,12 @@ const LoginController = require('./controllers/login-controller');
 import LoginSignupController from './controllers/login-signup-controller';
 import Navigation from './nav';
 import PayDaysController from './controllers/pay-days-controller';
+import PurchaseController from './controllers/purchase-controller';
 import PricesController from './controllers/prices-controller';
 import TransfersController from './controllers/transfers-controller';
 const Util = require('./util');
 
 async function init() {
-    'use strict';
     $('body').append(FooterView.getLoadingIndicatorView());
     let obfuscate = Util.obfuscate();
     $('#command-buttons-container').append(CommandButtonsView.getCommandButtonsView(obfuscate));
@@ -32,9 +32,14 @@ async function init() {
         Util.log(err);
     }
     let authenticatedControllers = [ BudgetController, BudgetCalendarController, BalanceSheetController,
-        TransfersController, DepositController, PricesController, BanksController ];
+        TransfersController, DepositController, PricesController ];
     if ((usernameResponse || {}).email === 'timg456789@yahoo.com') {
         authenticatedControllers.push(PayDaysController);
+    }
+    if (!(usernameResponse || {}).hasPurchased) {
+        authenticatedControllers.push(PurchaseController);
+    } else {
+        authenticatedControllers.push(BanksController);
     }
     let navItemHtml = authenticatedControllers.map(controllerType =>
         Navigation.getNavItemView(controllerType.getUrl(), controllerType.getName())
@@ -65,6 +70,7 @@ async function init() {
     } catch (error) {
         Util.log(error);
     }
+
 }
 
 $(document).ready(function () {

@@ -1,6 +1,5 @@
 const AccountSettingsController = require('./account-settings-controller');
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
-const Currency = require('currency.js');
 const DataClient = require('../data-client');
 import LoanViewModel from '../views/balance-sheet/loan-view-model';
 import BalanceSheetViewModel from '../view-models/balance-sheet-view-model';

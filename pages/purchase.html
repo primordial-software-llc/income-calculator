@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
+    <title>Net Income Calculator</title>
+    <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../app.bundle.js"></script>
+</head>
+<body class="container-fluid">
+<div class="bg-color-imago-cream no-print" id="command-buttons-container"></div>
+<div class="no-print tab-nav-bar bg-color-imago-blue link-color-white w-100"></div>
+<div class="imago-header">
+    <div class="header-overlay">
+        <div class="header-text">Deposit</div>
+    </div>
+</div>
+<div id="input-form" class="form p-15">
+    <div id="message-container"></div>
+    <div class="p-15">
+        <p>
+            Link up to 5 financial institutions to automatically populate your balance sheet for $10.00 USD per month.
+            There are no commitments and you can cancel at anytime.
+        </p>
+        <p>
+            You can link any of the account types below.
+            <ul>
+                <li>Credit Cards</li>
+                <li>Checking Accounts</li>
+                <li>Savings Accounts</li>
+                <li>Brokerage Accounts</li>
+                <li>Health Savings Accounts</li>
+                <li>401k</li>
+                <li>Roth IRA</li>
+            </ul>
+        </p>
+    </div>
+</div>
+<div class="bg-color-imago-light-gray p-15 purchase-form">
+    <div class="form-group row">
+        <label class="col-xs-3 col-form-label col-form-label-lg">Credit Card Number</label>
+        <div class="col-xs-9">
+            <input class="form-control" type="text" id="cardNumber">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-xs-3 col-form-label col-form-label-lg">Expiration Month</label>
+        <div class="col-xs-3">
+            <input class="form-control" type="text" placeholder="MM" id="cardExpirationMonth">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-xs-3 col-form-label col-form-label-lg">Expiration Year</label>
+        <div class="col-xs-3">
+            <input class="form-control" type="text" placeholder="YYYY" id="cardExpirationYear">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-xs-3 col-form-label col-form-label-lg">CVC</label>
+        <div class="col-xs-3">
+            <input class="form-control" type="text" id="cardCvc">
+        </div>
+    </div>
+    <div class="form-group billing-terms-field">
+        <input type="checkbox" id="agreedToBillingTerms">
+        I agree to have $10.00 USD per month automatically withdrawn from the provided billing method each month
+    </div>
+    <input id="submit-purchase" type="button" value="Purchase" class="btn btn-primary">
+</div>
+</body>
+</html>

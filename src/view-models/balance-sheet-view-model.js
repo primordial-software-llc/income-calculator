@@ -21,6 +21,7 @@ function mergeModels(data, bankData) {
     let viewModel = JSON.parse(JSON.stringify(data));
     viewModel.assets = viewModel.assets || [];
     viewModel.balances = viewModel.balances || [];
+    viewModel.failed = bankData.failedAccounts;
     for (let bankAccount of bankData.allAccounts || []) {
         for (let account of bankAccount.accounts.filter(x =>
             x.type !== 'credit' &&
