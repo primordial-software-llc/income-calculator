@@ -20591,6 +20591,8 @@ const AccountSettingsController = require('./account-settings-controller');
 
 const DataClient = require('../data-client');
 
+const Moment = require('moment');
+
 const PricesView = require('../views/prices-view');
 
 const Util = require('../util');
@@ -20606,18 +20608,7 @@ class PricesController {
 
   async init() {
     new AccountSettingsController().init(PricesView);
-    let dataClient = new DataClient();
-    let data = await dataClient.getBudget();
-
-    if (data.assets) {
-      $('#prices-input-group').empty();
-      $('#prices-input-group').append(PricesView.getHeaderView());
-
-      for (let asset of data.assets.filter(x => x.sharePrice)) {
-        $('#prices-input-group').append(PricesView.getView(asset.name, asset.sharePrice));
-      }
-    }
-
+    $('#billing-start-date').text(Moment().format('MMMM Do YYYY'));
     $('#submit-purchase').click(async function () {
       if (!$('#agreedToBillingTerms').is(':checked')) {
         $('#message-container').html(`
@@ -20649,7 +20640,7 @@ class PricesController {
                         </button>
                         <p class="mb-0">
                             Purchase successful, you now have access to the <a href="/pages/banks.html">Banks</a> page.
-                            Your card has been charged and will continue to be charged each month until you cancel.
+                            Your card has been charged.
                         </p>
                     </div>`);
       }
@@ -20660,7 +20651,7 @@ class PricesController {
 
 exports.default = PricesController;
 
-},{"../data-client":85,"../util":87,"../views/prices-view":106,"./account-settings-controller":71}],84:[function(require,module,exports){
+},{"../data-client":85,"../util":87,"../views/prices-view":106,"./account-settings-controller":71,"moment":31}],84:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

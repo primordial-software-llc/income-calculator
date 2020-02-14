@@ -66,8 +66,14 @@
         </div>
     </div>
     <div class="form-group billing-terms-field">
-        <input type="checkbox" id="agreedToBillingTerms">
-        I agree to have $10.00 USD per month automatically withdrawn from the provided billing method each month
+        <label>Billing Terms</label>
+        <p>
+            <strong>$10.00 USD</strong> will automatically be withdrawn from the provided billing method
+            <strong>each month starting <span id="billing-start-date"></span></strong>
+            until you send an email to Support@Primordial-software.com
+            requesting to cancel your subscription.
+        </p>
+        <input type="checkbox" id="agreedToBillingTerms"> I agree to the Billing Terms
     </div>
     <input id="submit-purchase" type="button" value="Purchase" class="btn btn-primary">
 </div>
