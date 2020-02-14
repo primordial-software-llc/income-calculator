@@ -21616,9 +21616,9 @@ class LoanViewModel {
 
   getModel(target) {
     return {
-      "amount": $(target).find('input.amount').val().trim(),
+      "amount": Util.cleanseNumericString($(target).find('input.amount').val().trim()),
       "name": $(target).find('input.name').val().trim(),
-      "rate": $(target).find('input.rate').val().trim()
+      "rate": Util.cleanseNumericString($(target).find('input.rate').val().trim())
     };
   }
 
@@ -21656,10 +21656,11 @@ class LoanViewModel {
     let icon = debt.isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
     let view = $(`<div class="balance-item row transaction-input-view ${debt.isAuthoritative ? 'read-only' : 'editable'}">
                     <div class="col-xs-2">
-                        <div class="input-group">
-                            <div class="input-group-addon ">$</div>
-                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount || '0'}" />
-                        </div>
+                        <input
+                            ${debt.isAuthoritative ? 'disabled=disabled' : ''}
+                            class="amount form-control text-right"
+                            type="text"
+                            value="${Util.format(debt.amount || '0')}" />
                     </div>
                     <div class="col-xs-3">
                         <div class="input-group">
@@ -21742,20 +21743,26 @@ class PropertyPlantAndEquipmentViewModel {
   }
 
   getReadOnlyView(model, disable) {
-    let view = $(`<div>
-                <div class="dotted-underline-row row transaction-input-view">
-                        <div class="col-xs-8 vertical-align amount-description-column">
-                            <div class="dotted-underline">${model.name}</div></div>
-                        <div class="col-xs-3 text-right vertical-align amount-description-column">
-                            <div class="dotted-underline">${Util.format(model.amount)}</div>
-                        </div>
-                        <div class="col-xs-1 transfer-button">
-                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
-                                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
-                            </button>
-                          </div>
+    let icon = model.isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
+    let view = $(`
+        <div>
+            <div class="dotted-underline-row row transaction-input-view">
+                <div class="col-xs-8 vertical-align amount-description-column">
+                    <div class="dotted-underline">
+                        ${icon}
+                        ${model.name}
+                    </div>
                 </div>
-            </div>`);
+                <div class="col-xs-3 text-right vertical-align amount-description-column">
+                    <div class="dotted-underline">${Util.format(model.amount)}</div>
+                </div>
+                <div class="col-xs-1 transfer-button">
+                    <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
+                        <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+                    </button>
+                  </div>
+            </div>
+        </div>`);
     new TransferController().init(view.find('.transfer-button'), view, model.name, [new _cashViewModel.default()], model.id);
     return view;
   }

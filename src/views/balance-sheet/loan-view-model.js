@@ -14,9 +14,9 @@ export default class LoanViewModel {
     }
     getModel(target) {
         return {
-            "amount": $(target).find('input.amount').val().trim(),
+            "amount": Util.cleanseNumericString($(target).find('input.amount').val().trim()),
             "name": $(target).find('input.name').val().trim(),
-            "rate": $(target).find('input.rate').val().trim()
+            "rate": Util.cleanseNumericString($(target).find('input.rate').val().trim())
         };
     }
     getView(debt, weeklyAmount, disable) {
@@ -57,10 +57,11 @@ export default class LoanViewModel {
             : '';
         let view = $(`<div class="balance-item row transaction-input-view ${debt.isAuthoritative ? 'read-only' : 'editable'}">
                     <div class="col-xs-2">
-                        <div class="input-group">
-                            <div class="input-group-addon ">$</div>
-                            <input ${debt.isAuthoritative ? 'disabled=disabled' : ''} class="amount form-control text-right" type="text" value="${debt.amount || '0'}" />
-                        </div>
+                        <input
+                            ${debt.isAuthoritative ? 'disabled=disabled' : ''}
+                            class="amount form-control text-right"
+                            type="text"
+                            value="${Util.format(debt.amount || '0')}" />
                     </div>
                     <div class="col-xs-3">
                         <div class="input-group">
