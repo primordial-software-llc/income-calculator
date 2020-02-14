@@ -58,7 +58,7 @@ function LoginController() {
                     idToken: result.getIdToken().getJwtToken(),
                     refreshToken: result.getRefreshToken().token
                 });
-                window.location=`${Util.rootUrl()}`;
+                window.location=`${Util.rootUrl()}/pages/budget.html`;
             },
             onFailure: function(err) {
                 setMessage('');

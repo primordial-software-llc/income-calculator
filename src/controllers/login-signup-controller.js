@@ -37,8 +37,8 @@ function LoginSignupController() {
             issues.push('Password must contain at least one lowercase character');
         } else if (!new RegExp(/[0-9]/).test(password)) {
             issues.push('Password must contain at least one number');
-        } else if (!new RegExp(/[\.!@#\$%\^&\*\(\)_\+]/).test(password)) {
-            issues.push('Password must contain at least one of the following special characters: .!@#$%^&*()_+');
+        } else if (!new RegExp(/[\.!@#\$%\^&\*\(\)_]/).test(password)) {
+            issues.push('Password must contain at least one of the following special characters: .!@#$%^&*()_');
         }
         if (!$('#acceptLicense').is(':checked')) {
             issues.push('You must agree to the license to proceed');
