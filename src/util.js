@@ -86,6 +86,3 @@ exports.getPoolData = () => {
     };
 };
 exports.getApiUrl = () => 'https://api.primordial-software.com/';
-// I exposed the origin at some point, so I need to deploy the api to a new endpoint.
-// Or block traffic from non-cloudflare IP's.
-// I should have something to block traffic for non-cloudflare IP's from the gallery project.
