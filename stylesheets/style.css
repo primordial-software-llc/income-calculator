@@ -297,6 +297,9 @@ h4 {
 }
 
 /* bootstrap 4 */
+select.form-control {
+    padding: 0px 0px 0px 6px;
+}
 .col-form-label-lg {
     padding-top: calc(.5rem + 1px);
     padding-bottom: calc(.5rem + 1px);

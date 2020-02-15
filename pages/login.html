@@ -18,58 +18,60 @@
             <div class="header-text">Login</div>
         </div>
     </div>
-    <div id="messageAlert" class="hide alert" role="alert"></div>
-    <div id="qr-code-container" class="text-center"></div>
-    <div class="login-form p-15">
-        <div class="form-group username-group">
-            <label for="login-username">Username</label>
-            <input type="email" class="form-control" id="login-username">
+    <div class="p-15">
+        <div id="messageAlert" class="hide alert" role="alert"></div>
+        <div id="qr-code-container" class="text-center"></div>
+        <div class="login-form">
+            <div class="form-group username-group">
+                <label for="login-username">Username</label>
+                <input type="email" class="form-control" id="login-username">
+            </div>
+            <div class="form-group password-group">
+                <label for="login-password">Password</label>
+                <input type="password" class="form-control" id="login-password">
+            </div>
+            <button id="sign-in-button" type="button" class="btn btn-primary">Sign In</button>
+            <div class="pull-right">
+                <a href="login-signup.html">Create New Account</a>
+            </div>
         </div>
-        <div class="form-group password-group">
-            <label for="login-password">Password</label>
-            <input type="password" class="form-control" id="login-password">
+        <div class="mfa-form hide">
+            <div class="form-group sign-in-mfa-code-container">
+                <label for="mfaCode">MFA Code</label>
+                <input type="text" class="form-control" id="mfaCode">
+            </div>
+            <button id="mfa-button" type="button" class="btn btn-primary">Sign In</button>
         </div>
-        <button id="sign-in-button" type="button" class="btn btn-primary">Sign In</button>
-        <div class="pull-right">
-            <a href="login-signup.html">Create New Account</a>
+        <div class="mfa-confirm-form hide">
+            <div class="form-group sign-in-mfa-code-container">
+                <label for="mfaCode">MFA Code</label>
+                <input type="text" class="form-control" id="mfa-confirm-code">
+            </div>
+            <button id="mfa-confirm-button" type="button" class="btn btn-primary">Sign In</button>
         </div>
-    </div>
-    <div class="mfa-form hide">
-        <div class="form-group sign-in-mfa-code-container">
-            <label for="mfaCode">MFA Code</label>
-            <input type="text" class="form-control" id="mfaCode">
+        <div class="form-additional-fields hide">
+            <div class="form-group password-group">
+                <label for="login-new-password">New Password</label>
+                <input type="password" class="form-control" id="login-new-password">
+            </div>
+            <div class="form-group username-group">
+                <label for="login-firstname">First Name</label>
+                <input type="text" class="form-control" id="login-firstname">
+            </div>
+            <div class="form-group username-group">
+                <label for="login-lastname">Last Name</label>
+                <input type="text" class="form-control" id="login-lastname">
+            </div>
+            <div class="form-group username-group">
+                <label for="login-phone">Phone Number</label>
+                <input placeholder="+15555555" type="email" class="form-control" id="login-phone">
+            </div>
+            <div class="form-group username-group">
+                <label for="login-address">Address</label>
+                <input type="email" class="form-control" id="login-address">
+            </div>
+            <button id="additional-fields-button" type="button" class="btn btn-primary">Sign In</button>
         </div>
-        <button id="mfa-button" type="button" class="btn btn-primary">Sign In</button>
-    </div>
-    <div class="mfa-confirm-form hide">
-        <div class="form-group sign-in-mfa-code-container">
-            <label for="mfaCode">MFA Code</label>
-            <input type="text" class="form-control" id="mfa-confirm-code">
-        </div>
-        <button id="mfa-confirm-button" type="button" class="btn btn-primary">Sign In</button>
-    </div>
-    <div class="form-additional-fields hide">
-        <div class="form-group password-group">
-            <label for="login-new-password">New Password</label>
-            <input type="password" class="form-control" id="login-new-password">
-        </div>
-        <div class="form-group username-group">
-            <label for="login-firstname">First Name</label>
-            <input type="text" class="form-control" id="login-firstname">
-        </div>
-        <div class="form-group username-group">
-            <label for="login-lastname">Last Name</label>
-            <input type="text" class="form-control" id="login-lastname">
-        </div>
-        <div class="form-group username-group">
-            <label for="login-phone">Phone Number</label>
-            <input placeholder="+15555555" type="email" class="form-control" id="login-phone">
-        </div>
-        <div class="form-group username-group">
-            <label for="login-address">Address</label>
-            <input type="email" class="form-control" id="login-address">
-        </div>
-        <button id="additional-fields-button" type="button" class="btn btn-primary">Sign In</button>
     </div>
     <div class="imago-footer-public imago-bg-blue text-center">
         <div class="footer-text-group">

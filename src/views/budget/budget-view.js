@@ -63,8 +63,9 @@ export default class BudgetView {
     getTransactionView(transaction, viewType, disable) {
         let date = transaction.date || '';
         transaction.type = transaction.type || 'expense';
+        let paidReceivedVerbiage = transaction.type.toLowerCase() === 'expense' ? 'paid by' : 'received at';
         let paidByHtml = transaction.paymentSource ?
-            ` <span class="payment-source-appended-to-name">paid by <span class="transaction-payment-source">${transaction.paymentSource}</span></span>`
+            ` <div class="payment-source-appended-to-name">${paidReceivedVerbiage} <span class="transaction-payment-source">${transaction.paymentSource}</span></div>`
             : '';
         let view = $(`
         <div class="row transaction-input-view ${viewType.iteration}-budget-item budget-${transaction.type}-item display-flex" data-txntype="${transaction.type}">
