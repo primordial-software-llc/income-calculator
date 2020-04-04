@@ -21096,19 +21096,25 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-function obfuscate(viewModel) {
+var _currency = _interopRequireDefault(require("currency.js"));
+
+var _util = _interopRequireDefault(require("../util"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function obfuscateViewModel(viewModel) {
   for (let asset of viewModel.assets) {
     if (asset.shares) {
-      asset.shares = Currency(asset.shares, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+      asset.shares = (0, _currency.default)(asset.shares, _util.default.getCurrencyDefaults()).multiply(_util.default.obfuscationAmount()).toString();
     }
 
     if (asset.amount) {
-      asset.amount = Currency(asset.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+      asset.amount = (0, _currency.default)(asset.amount, _util.default.getCurrencyDefaults()).multiply(_util.default.obfuscationAmount()).toString();
     }
   }
 
   for (let debt of viewModel.balances) {
-    debt.amount = Currency(debt.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+    debt.amount = (0, _currency.default)(debt.amount, _util.default.getCurrencyDefaults()).multiply(_util.default.obfuscationAmount()).toString();
   }
 }
 
@@ -21158,7 +21164,7 @@ class BalanceSheetViewModel {
     let mergedModel = mergeModels(budget, bankData);
 
     if (obfuscate) {
-      obfuscate(mergedModel);
+      obfuscateViewModel(mergedModel);
     }
 
     return mergedModel;
@@ -21168,7 +21174,7 @@ class BalanceSheetViewModel {
 
 exports.default = BalanceSheetViewModel;
 
-},{}],90:[function(require,module,exports){
+},{"../util":88,"currency.js":26}],90:[function(require,module,exports){
 "use strict";
 
 var _cashViewModel = _interopRequireDefault(require("./cash-view-model"));

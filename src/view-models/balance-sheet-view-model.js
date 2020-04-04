@@ -1,4 +1,6 @@
-function obfuscate(viewModel) {
+import Currency from 'currency.js';
+import Util from '../util';
+function obfuscateViewModel(viewModel) {
     for (let asset of viewModel.assets) {
         if (asset.shares) {
             asset.shares = Currency(asset.shares, Util.getCurrencyDefaults()).multiply(
@@ -71,7 +73,7 @@ export default class BalanceSheetViewModel {
     static getViewModel(budget, bankData, obfuscate) {
         let mergedModel = mergeModels(budget, bankData);
         if (obfuscate) {
-            obfuscate(mergedModel);
+            obfuscateViewModel(mergedModel);
         }
         return mergedModel;
     }
