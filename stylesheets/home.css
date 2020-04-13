@@ -29,9 +29,6 @@
     font-size: 24px;
     font-weight: bold;
 }
-.home-content-blue-budget-calendar {
-    font-size: 18px;
-}
 
 .home-row-balance-sheet-bank-integration {
     padding: 30px;
@@ -43,6 +40,10 @@
     padding: 5px;
     margin-top: 10px;
     display: inline-block;
+}
+.pricing-banner-column {
+    padding-left: 0px;
+    padding-right: 0px;
 }
 .pricing-banner {
     margin-top: 20px;

@@ -1,11 +1,14 @@
-const BondViewModel = require('./bond-view-model');
+import BondViewModel from './bond-view-model';
 import CurrentBalanceCalculator from '../../calculators/current-balance-calculator';
 const ExpenseViewModel = require('./expense-view-model');
 import EquityViewModel from './equity-view-model';
 import PropertyPlantAndEquipmentViewModel from './property-plant-and-equipment-view-model';
+import AssetViewModel from "./asset-view-model";
+import InventoryViewModel from "./inventory-view-model";
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 const Util = require('../../util');
-export default class CashViewModel {
+export default class CashViewModel extends AssetViewModel {
+    isCurrentAsset() { return true; }
     getViewDescription() { return 'Cash' };
     getViewType() { return 'cash' };
     getModel(target) {
@@ -36,7 +39,7 @@ export default class CashViewModel {
               <div class="col-xs-1">Transfer</div>
           </div>`);
     }
-    getReadOnlyView(currentAssetAccount, disable, pending) {
+    getReadOnlyView(currentAssetAccount, totalOfType, disable, pending) {
         let startingCurrentBalance = currentAssetAccount.currentBalance === null || currentAssetAccount.currentBalance === undefined
             ? currentAssetAccount.amount
             : currentAssetAccount.currentBalance;
@@ -90,7 +93,8 @@ export default class CashViewModel {
                 new EquityViewModel(),
                 new ExpenseViewModel(),
                 new PropertyPlantAndEquipmentViewModel(),
-                new BondViewModel()
+                new BondViewModel(),
+                new InventoryViewModel()
             ],
             currentAssetAccount.id
         );

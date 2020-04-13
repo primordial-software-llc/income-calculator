@@ -1,11 +1,11 @@
 import CashViewModel from './cash-view-model';
-import AssetViewModel from "./asset-view-model";
+import AssetViewModel from './asset-view-model';
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 const Util = require('../../util');
-export default class PropertyPlantAndEquipmentViewModel extends AssetViewModel {
-    isCurrentAsset() { return false; }
-    getViewDescription() { return 'Non-Liquid Assets' };
-    getViewType() { return 'property-plant-and-equipment' };
+export default class InventoryViewModel extends AssetViewModel {
+    isCurrentAsset() { return true; }
+    getViewDescription() { return 'Inventory' };
+    getViewType() { return 'inventory' };
     getReadOnlyView(model, totalOfType, disable) {
         let icon = model.isAuthoritative
             ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`

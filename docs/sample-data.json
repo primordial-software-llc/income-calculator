@@ -1,0 +1,58 @@
+{
+    "email": "timg456789@yahoo.com",
+    "licenseAgreement": {
+        "agreedToLicense": true,
+        "ipAddress": "173.170.243.12",
+        "agreementDateUtc": "2020-04-04T21:21:31.4296070Z"
+    },
+    "bankLinks": null,
+    "401k-contribution-for-year": null,
+    "401k-contribution-per-pay-check": null,
+    "assets": [
+        {
+            "name": "Cash",
+            "amount": "531.000",
+            "id": "d0f4da0b-b5d1-6947-1944-d54ba35d4e2f",
+            "type": "cash"
+        },
+        {
+            "name": "House",
+            "amount": "100",
+            "id": "8916cda2-027d-6255-40af-2ac3ff832f8b",
+            "type": "property-plant-and-equipment"
+        },
+        {
+            "name": "FXAIX",
+            "shares": "1.5",
+            "sharePrice": "100",
+            "id": "1c190cf5-9b22-72d1-67f0-85f2e97306f7",
+            "type": "cash-or-stock"
+        },
+        {
+            "name": "BRKB",
+            "shares": "1",
+            "sharePrice": "99",
+            "id": "f9bd9302-f09d-46e0-6ccd-31cd52818f8c",
+            "type": "cash-or-stock"
+        },
+        {
+            "amount": "100",
+            "id": "57fad612-2974-31e7-22c2-14415c77692f",
+            "daysToMaturation": "182",
+            "issueDate": "2020-04-11T04:00:00Z",
+            "type": "bond"
+        },
+        {
+            "name": "ear muffs",
+            "amount": "120",
+            "id": "adc6e6a8-826f-3150-e2b4-6ac71d88ca2a",
+            "type": "inventory"
+        }
+    ],
+    "balances": null,
+    "biweekly": [],
+    "monthlyRecurringExpenses": [],
+    "pending": [],
+    "propertyPlantAndEquipment": null,
+    "weeklyRecurringExpenses": []
+}

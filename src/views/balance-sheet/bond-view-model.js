@@ -1,11 +1,24 @@
 import CashViewModel from'./cash-view-model';
+import AssetViewModel from './asset-view-model';
 const Moment = require('moment/moment');
 const Util = require('../../util');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
-function BondViewModel() {
-    this.getViewDescription = () => 'Bond';
-    this.getViewType = () => 'bond';
-    this.getModel = function (target) {
+export default class BondViewModel extends AssetViewModel {
+    isCurrentAsset() { return true; }
+    getViewDescription() { return 'Bond' };
+    getViewType() { return 'bond' };
+    sort(items) {
+        items.sort(function(a, b) {
+            if (a.issueDate && b.issueDate) {
+                let maturityDateA = Moment(a.issueDate).add(a.daysToMaturation, 'days').valueOf();
+                let maturityDateB = Moment(b.issueDate).add(b.daysToMaturation, 'days').valueOf();
+                return maturityDateA - maturityDateB;
+            } else {
+                return 0;
+            }
+        });
+    }
+    getModel(target) {
         return {
             amount: $(target).find('input.amount').val().trim(),
             issueDate: Moment($(target).find('input.issue-date').val().trim(), 'YYYY-MM-DD UTC Z'),
@@ -13,14 +26,23 @@ function BondViewModel() {
             creditAccount: 'bond'
         };
     };
-    this.getHeaderView = function () {
+    getHeaderView() {
         return $(`<div class="row table-header-row">
               <div class="col-xs-4">Face Value</div>
               <div class="col-xs-4">Issue Date</div>
               <div class="col-xs-4">Time to Maturity</div>
           </div>`);
     };
-    this.getReadOnlyView = function(bond, disable) {
+    getReadOnlyHeaderView() {
+        return $(`<div class="row table-header-row color-imago-cream">
+              <div class="col-xs-2">Face Value</div>
+              <div class="col-xs-4">Issue Date</div>
+              <div class="col-xs-3">Time to Maturity</div>
+              <div class="col-xs-2">Maturity Date</div>
+              <div class="col-xs-1">Liquidate</div>
+          </div>`);
+    }
+    getReadOnlyView(bond, totalOfType, disable) {
         bond = bond || {};
         let maturityDateText = bond.issueDate
             ? Moment(bond.issueDate).add(bond.daysToMaturation, 'days').format('YYYY-MM-DD')
@@ -58,7 +80,7 @@ function BondViewModel() {
             bond.amount);
         return viewContainer;
     };
-    this.getView = function (readOnlyAmount) {
+    getView(readOnlyAmount) {
         return $(`<div class="bond-item transaction-input-view row">
                     <div class="col-xs-4">
                         <div class="input-group">
@@ -79,6 +101,5 @@ function BondViewModel() {
                         </select>
                     </div>`);
     };
-}
 
-module.exports = BondViewModel;
+}

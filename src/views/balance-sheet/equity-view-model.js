@@ -1,14 +1,12 @@
 import CashViewModel from './cash-view-model';
+import AssetViewModel from './asset-view-model';
 const Currency = require('currency.js');
 const Util = require('../../util');
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
-export default class EquityViewModel {
-    getViewDescription() {
-        return 'Stock';
-    }
-    getViewType() {
-        return 'cash-or-stock'
-    }
+export default class EquityViewModel extends AssetViewModel {
+    isCurrentAsset() { return true; }
+    getViewDescription() { return 'Stock'; }
+    getViewType() { return 'cash-or-stock'; }
     getTotal(name, amount) {
         return $(`<div class="subtotal">Total ${name}<span class="pull-right">${Util.format(amount)}</span></div>`);
     }
@@ -33,10 +31,10 @@ export default class EquityViewModel {
               <div class="col-xs-1">Liquidate</div>
           </div>`);
     }
-    getReadOnlyView(equity, total, disable) {
+    getReadOnlyView(equity, totalOfType, disable) {
         let amount = Util.getAmount({"sharePrice": equity.sharePrice, "shares": equity.shares});
         equity.name = equity.name || '';
-        let allocation = this.getAllocation(total, amount);
+        let allocation = this.getAllocation(totalOfType, amount);
         let view = $(`<div class="asset-item row transaction-input-view">
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${Util.formatShares(equity.shares)}</div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column">${Util.format(equity.sharePrice)}</div>
