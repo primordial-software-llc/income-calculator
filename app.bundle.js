@@ -23092,7 +23092,7 @@ exports.setView = function (budget, obfuscate) {
   $('#loan-total-amount-value').text(`(${Util.format(debtTotal.toString())})`);
   let currentAssetTotal = Currency(0, Util.getCurrencyDefaults());
   let nonCurrentAssetTotal = Currency(0, Util.getCurrencyDefaults());
-  let viewModels = [new _cashViewModel.default(), new _inventoryViewModel.default(), new _equityViewModel.default(), new _propertyPlantAndEquipmentViewModel.default(), new _bondViewModel.default()];
+  let viewModels = [new _cashViewModel.default(), new _bondViewModel.default(), new _inventoryViewModel.default(), new _equityViewModel.default(), new _propertyPlantAndEquipmentViewModel.default()];
 
   for (let viewModel of viewModels) {
     let assetTypeTotal = Currency(0, Util.getCurrencyDefaults());

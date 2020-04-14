@@ -40,8 +40,12 @@ exports.setView = function (budget, obfuscate) {
 
     let currentAssetTotal = Currency(0, Util.getCurrencyDefaults());
     let nonCurrentAssetTotal = Currency(0, Util.getCurrencyDefaults());
-    let viewModels = [ new CashViewModel(), new InventoryViewModel(), new EquityViewModel(),
-        new PropertyPlantAndEquipmentViewModel(), new BondViewModel()];
+    let viewModels = [
+        new CashViewModel(),
+        new BondViewModel(),
+        new InventoryViewModel(),
+        new EquityViewModel(),
+        new PropertyPlantAndEquipmentViewModel()];
     for (let viewModel of viewModels) {
         let assetTypeTotal = Currency(0, Util.getCurrencyDefaults());
         let assetsOfType = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === viewModel.getViewType().toLowerCase());
