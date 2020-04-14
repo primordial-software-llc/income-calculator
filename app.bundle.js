@@ -21666,19 +21666,21 @@ class BanksController {
 
   async init() {
     new AccountSettingsController().init({});
+    let environment = window.location.hostname.toLowerCase() === 'www.primordial-software.com' ? 'production' : 'development';
     $('#link-button').on('click', function (e) {
-      let selectedProducts = ['transactions' // 'auth' // Will be an issue, because not all accounts can do transfers
-      ];
+      let selectedProducts = ['transactions'];
       let handler = Plaid.create({
         clientName: 'My App',
-        env: Util.getBankIntegrationEnvironment(),
+        env: environment,
         key: '7e6391ab6cbcc3b212440b5821bfa7',
         product: selectedProducts,
-        onSuccess: async function (public_token, plaidAuth) {
+        onSuccess: async function (public_token, metadata) {
           let dataClient = new DataClient();
 
           try {
-            let result = await dataClient.post('link-access-token', plaidAuth);
+            let result = await dataClient.post('link-access-token', {
+              publicToken: public_token
+            });
             window.location.reload();
           } catch (err) {
             Util.log(err);
@@ -21695,7 +21697,17 @@ class BanksController {
           // Storing this information can be helpful for support.
 
         },
-        onEvent: function (eventName, metadata) {}
+        onEvent: function (eventName, metadata) {// Optionally capture Link flow events, streamed through
+          // this callback as your users connect an Item to Plaid.
+          // For example:
+          // eventName = "TRANSITION_VIEW"
+          // metadata  = {
+          //   link_session_id: "123-abc",
+          //   mfa_type:        "questions",
+          //   timestamp:       "2017-09-14T14:42:19.350Z",
+          //   view_name:       "MFA",
+          // }
+        }
       });
       handler.open();
     });
@@ -21725,7 +21737,7 @@ class BanksController {
 
         let handler = Plaid.create({
           clientName: 'My App',
-          env: Util.getBankIntegrationEnvironment(),
+          env: environment,
           key: '7e6391ab6cbcc3b212440b5821bfa7',
           product: ['transactions'],
           token: result['public_token'],
@@ -22866,22 +22878,21 @@ exports.obfuscate = () => exports.getCookie('obfuscate') === 'true';
 exports.obfuscationAmount = () => Math.random()/10;
 // ENVIRONMENT
 // Test
-exports.getPoolData = () => {
-    return {
-        UserPoolId : 'us-east-1_NYq3IeehH',
-        ClientId : '4kmegumipojp1rj7g6ho58knho'
-    };
-};
-exports.getBankIntegrationEnvironment = () => "sandbox";
-exports.getApiUrl = () => 'https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production/';
-// Production
 //exports.getPoolData = () => {
 //    return {
-//        UserPoolId : 'us-east-1_rHS4WOhz6',
-//        ClientId : '2js93kg56gbvp0huq66fbh0gap'
+//        UserPoolId : 'us-east-1_CJmKMk0Fw',
+//        ClientId : '1alsnsg84noq81e7f2v5vru7m7'
 //    };
 //};
-//exports.getApiUrl = () => 'https://api.primordial-software.com/';
+//exports.getApiUrl = () => 'https://9hls6nao82.execute-api.us-east-1.amazonaws.com/production/';
+// Production
+exports.getPoolData = () => {
+    return {
+        UserPoolId : 'us-east-1_rHS4WOhz6',
+        ClientId : '2js93kg56gbvp0huq66fbh0gap'
+    };
+};
+exports.getApiUrl = () => 'https://api.primordial-software.com/';
 },{"currency.js":27}],90:[function(require,module,exports){
 "use strict";
 
