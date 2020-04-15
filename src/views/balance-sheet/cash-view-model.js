@@ -58,7 +58,7 @@ export default class CashViewModel extends AssetViewModel {
         let view = $(`
             <div class="dotted-underline-row row transaction-input-view">
                     <div class="col-xs-5 vertical-align amount-description-column">
-                        <div class="dotted-underline">
+                        <div class="dotted-underline truncate-with-ellipsis">
                             ${icon}
                             ${currentAssetAccount.name}
                         </div>

@@ -14,7 +14,7 @@ export default class PropertyPlantAndEquipmentViewModel extends AssetViewModel {
         <div>
             <div class="dotted-underline-row row transaction-input-view">
                 <div class="col-xs-8 vertical-align amount-description-column">
-                    <div class="dotted-underline">
+                    <div class="dotted-underline truncate-with-ellipsis">
                         ${icon}
                         ${model.name}
                     </div>

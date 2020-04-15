@@ -507,6 +507,12 @@ select.form-control {
     text-align: center;
 }
 
+.truncate-with-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* behind login */
 #command-buttons-container {
     height: 57px;

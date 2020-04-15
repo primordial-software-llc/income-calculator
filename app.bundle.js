@@ -23342,7 +23342,7 @@ class CashViewModel extends _assetViewModel.default {
     let view = $(`
             <div class="dotted-underline-row row transaction-input-view">
                     <div class="col-xs-5 vertical-align amount-description-column">
-                        <div class="dotted-underline">
+                        <div class="dotted-underline truncate-with-ellipsis">
                             ${icon}
                             ${currentAssetAccount.name}
                         </div>
@@ -23771,7 +23771,7 @@ class PropertyPlantAndEquipmentViewModel extends _assetViewModel.default {
         <div>
             <div class="dotted-underline-row row transaction-input-view">
                 <div class="col-xs-8 vertical-align amount-description-column">
-                    <div class="dotted-underline">
+                    <div class="dotted-underline truncate-with-ellipsis">
                         ${icon}
                         ${model.name}
                     </div>
