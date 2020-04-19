@@ -31,7 +31,13 @@ exports.updateQueryStringParameter = function (uri, key, value) {
     }
 };
 exports.formatShares = (shares) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 }).format(shares);
-exports.format = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }).format(amount);
+exports.format = (amount) => {
+    let formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }).format(amount);
+    if (amount < 0) {
+        formatted = '(' + formatted + ')';
+    }
+    return formatted;
+}
 exports.rootUrl = () => `${document.location.origin}`;
 exports.guid = function () {
     function s4() {

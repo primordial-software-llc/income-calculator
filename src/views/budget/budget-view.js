@@ -12,7 +12,10 @@ function getTransactionModel(target) {
         date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
         name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
         type: $(target).find('.transaction-type').val() || $(target).data().txntype,
-        paymentSource: $(target).find('select.transaction-payment-source').val() || $(target).find('span.transaction-payment-source').text()
+        paymentSource: $(target).find('select.transaction-payment-source').val() ||
+            $(target).find('span.transaction-payment-source').text() ||
+            $(target).find('.name').text() ||
+            $(target).find('.name').val()
     };
 }
 export default class BudgetView {

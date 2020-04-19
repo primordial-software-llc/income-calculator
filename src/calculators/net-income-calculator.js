@@ -14,13 +14,13 @@ function NetIncomeCalculator() {
                 getWeeklyExpenses(wre, current, breakdown);
             }
             for (let biweeklyItem of (config.biweekly || [])
-                    .filter(x => utcDay.getDayDiff(x.date.getTime(), current.getTime()) % cal.BIWEEKLY_INTERVAL === 0)) {
+                    .filter(x => utcDay.getDayDiff(new Date(x.date).getTime(), current.getTime()) % cal.BIWEEKLY_INTERVAL === 0)) {
                 breakdown.push({
                     'name': biweeklyItem.name,
                     'amount': biweeklyItem.amount,
                     'date': new Date(current.getTime()),
                     'type': biweeklyItem.type,
-                    'paymentSource': ''
+                    'paymentSource': biweeklyItem.paymentSource
                 });
             }
             current.setUTCDate(current.getUTCDate() + 1);
@@ -32,7 +32,7 @@ function NetIncomeCalculator() {
         for (let txn of monthly) {
             let shouldAdd =
                 (current.getUTCDate() === cal.SAFE_LAST_DAY_OF_MONTH && !txn.date) ||
-                (txn.date && txn.date.getUTCDate() === current.getUTCDate());
+                (new Date(txn.date).getUTCDate() === current.getUTCDate());
             if (shouldAdd) {
                 breakdown.push({
                     'name': txn.name,
@@ -58,7 +58,7 @@ function NetIncomeCalculator() {
     function getWeeklyExpenses(wre, current, breakdown) {
         let currentDay = current.getUTCDay();
         for (let txn of wre) {
-            let dt = typeof txn.date === "object" ? txn.date : new Date(txn.date);
+            let dt = new Date(txn.date);
             if (matchesDefaultWeekly(dt, current) ||
                 matchesSpecifiedWeekly(dt, currentDay)) {
                 let endDate = new Date(current.getTime());

@@ -21089,65 +21089,7 @@ $(document).ready(function () {
   init();
 });
 
-},{"./controllers/balance-sheet-controller":73,"./controllers/banks-controller":75,"./controllers/budget-calendar-controller":76,"./controllers/budget-controller":77,"./controllers/deposit-controller":78,"./controllers/home-controller":79,"./controllers/login-controller":80,"./controllers/login-signup-controller":81,"./controllers/pay-days-controller":83,"./controllers/prices-controller":84,"./controllers/purchase-controller":85,"./controllers/transfers-controller":86,"./data-client":87,"./nav":88,"./util":89,"./views/command-buttons-view":107,"./views/footer-view":108}],64:[function(require,module,exports){
-const CalendarSearch = require('./calendar-search');
-const Currency = require('currency.js');
-const Util = require('../util');
-
-function CalendarAggregator() {
-    const calendarSearch = new CalendarSearch();
-    this.getSummary = function (startTime, endTime, budget) {
-        let summary = {};
-        summary.budgetItems = calendarSearch.find(startTime, endTime, budget);
-        let debits = summary.budgetItems
-                .filter(x => x.type === 'expense')
-                .map(x => x.amount)
-                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount), 0);
-        let credits =  summary.budgetItems
-                .filter(x => x.type !== 'expense')
-                .map(x => x.amount)
-                .reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount), 0);
-        summary.debits = Currency(debits, {precision: 2}).toString();
-        summary.credits = Currency(credits, {precision: 2}).toString();
-        summary.net = Currency(credits - debits, {precision: 2}).toString();
-        let paymentSources = new Set(summary.budgetItems.map(x => (x.paymentSource || '').toLowerCase()));
-        summary.debitsByPaymentSource = [];
-        summary.creditsByPaymentSource = [];
-        for (let p of paymentSources) {
-            let credits = summary.budgetItems.filter(x => (x.paymentSource || '').toLowerCase() === p
-                && x.type === 'expense');
-            let debits = summary.budgetItems.filter(x => (x.paymentSource || '').toLowerCase() === p
-                && x.type !== 'expense');
-            let creditsTotal = Currency(0, Util.getCurrencyDefaults());
-            for (let credit of credits) {
-                creditsTotal = creditsTotal.add(credit.amount);
-            }
-            let debitsTotal = Currency(0, Util.getCurrencyDefaults());
-            for (let debit of debits) {
-                debitsTotal = debitsTotal.add(debit.amount);
-            }
-            if (credits.length) {
-                summary.creditsByPaymentSource.push({
-                    paymentSource: p,
-                    amount: creditsTotal.toString(),
-                    transactions: credits
-                });
-            }
-            if (debits.length) {
-                summary.debitsByPaymentSource.push({
-                    paymentSource: p,
-                    amount: debitsTotal.toString(),
-                    transactions: debits
-                });
-            }
-        }
-        return summary;
-    };
-}
-
-module.exports = CalendarAggregator;
-
-},{"../util":89,"./calendar-search":65,"currency.js":27}],65:[function(require,module,exports){
+},{"./controllers/balance-sheet-controller":72,"./controllers/banks-controller":74,"./controllers/budget-calendar-controller":75,"./controllers/budget-controller":76,"./controllers/deposit-controller":77,"./controllers/home-controller":78,"./controllers/login-controller":79,"./controllers/login-signup-controller":80,"./controllers/pay-days-controller":82,"./controllers/prices-controller":83,"./controllers/purchase-controller":84,"./controllers/transfers-controller":85,"./data-client":86,"./nav":87,"./util":88,"./views/command-buttons-view":105,"./views/footer-view":106}],64:[function(require,module,exports){
 function CalendarSearch() {
 
     this.find = function (startTime, endTime, transactions) {
@@ -21168,7 +21110,7 @@ function CalendarSearch() {
 }
 
 module.exports = CalendarSearch;
-},{}],66:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 exports.JANUARY = 0;
 exports.FEBRUARY = 1;
 exports.MARCH = 2;
@@ -21202,7 +21144,7 @@ exports.DAY_NAMES = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 
 exports.DAY_NAME_ABBRS = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
 
-},{}],67:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21229,7 +21171,7 @@ class CurrentBalanceCalculator {
 
 exports.default = CurrentBalanceCalculator;
 
-},{"../util":89,"currency.js":27}],68:[function(require,module,exports){
+},{"../util":88,"currency.js":27}],67:[function(require,module,exports){
 const cal = require('./calendar');
 const UtcDay = require('./utc-day');
 function NetIncomeCalculator() {
@@ -21246,13 +21188,13 @@ function NetIncomeCalculator() {
                 getWeeklyExpenses(wre, current, breakdown);
             }
             for (let biweeklyItem of (config.biweekly || [])
-                    .filter(x => utcDay.getDayDiff(x.date.getTime(), current.getTime()) % cal.BIWEEKLY_INTERVAL === 0)) {
+                    .filter(x => utcDay.getDayDiff(new Date(x.date).getTime(), current.getTime()) % cal.BIWEEKLY_INTERVAL === 0)) {
                 breakdown.push({
                     'name': biweeklyItem.name,
                     'amount': biweeklyItem.amount,
                     'date': new Date(current.getTime()),
                     'type': biweeklyItem.type,
-                    'paymentSource': ''
+                    'paymentSource': biweeklyItem.paymentSource
                 });
             }
             current.setUTCDate(current.getUTCDate() + 1);
@@ -21264,7 +21206,7 @@ function NetIncomeCalculator() {
         for (let txn of monthly) {
             let shouldAdd =
                 (current.getUTCDate() === cal.SAFE_LAST_DAY_OF_MONTH && !txn.date) ||
-                (txn.date && txn.date.getUTCDate() === current.getUTCDate());
+                (new Date(txn.date).getUTCDate() === current.getUTCDate());
             if (shouldAdd) {
                 breakdown.push({
                     'name': txn.name,
@@ -21290,7 +21232,7 @@ function NetIncomeCalculator() {
     function getWeeklyExpenses(wre, current, breakdown) {
         let currentDay = current.getUTCDay();
         for (let txn of wre) {
-            let dt = typeof txn.date === "object" ? txn.date : new Date(txn.date);
+            let dt = new Date(txn.date);
             if (matchesDefaultWeekly(dt, current) ||
                 matchesSpecifiedWeekly(dt, currentDay)) {
                 let endDate = new Date(current.getTime());
@@ -21310,7 +21252,7 @@ function NetIncomeCalculator() {
 }
 
 module.exports = NetIncomeCalculator;
-},{"./calendar":66,"./utc-day":70}],69:[function(require,module,exports){
+},{"./calendar":65,"./utc-day":69}],68:[function(require,module,exports){
 const Calendar = require('./calendar');
 
 function PayoffDateCalculator() {
@@ -21360,7 +21302,7 @@ function PayoffDateCalculator() {
 
 module.exports = PayoffDateCalculator;
 
-},{"./calendar":66}],70:[function(require,module,exports){
+},{"./calendar":65}],69:[function(require,module,exports){
 exports.UTC_DAY_MILLISECONDS = 86400000;
 
 function UtcDay() {
@@ -21374,7 +21316,7 @@ function UtcDay() {
 }
 
 module.exports = UtcDay;
-},{}],71:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 
 function CalendarCalculator() {
 
@@ -21425,7 +21367,7 @@ function CalendarCalculator() {
 }
 
 module.exports = CalendarCalculator;
-},{}],72:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 const DataClient = require('../data-client');
 const Util = require('../util');
 function AccountSettingsController() {
@@ -21500,7 +21442,7 @@ function AccountSettingsController() {
 }
 
 module.exports = AccountSettingsController;
-},{"../data-client":87,"../util":89}],73:[function(require,module,exports){
+},{"../data-client":86,"../util":88}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21568,7 +21510,7 @@ class BalanceSheetController {
 
 exports.default = BalanceSheetController;
 
-},{"../data-client":87,"../util":89,"../view-models/balance-sheet-view-model":90,"../views/balance-sheet/balance-sheet-view":92,"../views/balance-sheet/loan-view-model":98,"./account-settings-controller":72}],74:[function(require,module,exports){
+},{"../data-client":86,"../util":88,"../view-models/balance-sheet-view-model":89,"../views/balance-sheet/balance-sheet-view":91,"../views/balance-sheet/loan-view-model":97,"./account-settings-controller":71}],73:[function(require,module,exports){
 const DataClient = require('../../data-client');
 const Moment = require('moment/moment');
 const TransferView = require('../../views/balance-sheet/transfer-view');
@@ -21641,7 +21583,7 @@ function TransferController() {
 
 module.exports = TransferController;
 
-},{"../../data-client":87,"../../util":89,"../../views/balance-sheet/transfer-view":100,"moment/moment":32}],75:[function(require,module,exports){
+},{"../../data-client":86,"../../util":88,"../../views/balance-sheet/transfer-view":99,"moment/moment":32}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21772,7 +21714,7 @@ class BanksController {
 
 exports.default = BanksController;
 
-},{"../data-client":87,"../util":89,"./account-settings-controller":72}],76:[function(require,module,exports){
+},{"../data-client":86,"../util":88,"./account-settings-controller":71}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21788,6 +21730,14 @@ const DataClient = require('../data-client');
 
 const Util = require('../util');
 
+const NetIncomeCalculator = require('../calculators/net-income-calculator');
+
+const netIncomeCalculator = new NetIncomeCalculator();
+
+const CalendarSearch = require('../calculators/calendar-search');
+
+const Currency = require('currency.js');
+
 class BudgetCalendarController {
   static getName() {
     return 'Budget Calendar';
@@ -21797,33 +21747,91 @@ class BudgetCalendarController {
     return `${Util.rootUrl()}/pages/budget-calendar.html`;
   }
 
+  loadAccountSummary(summary) {
+    $('.month-heading-totals-values').first().before(CalendarView.getMonthlyAccountSummaryView(summary));
+
+    for (let transaction of summary.transactions) {
+      $('.month-heading-totals-values').first().before(CalendarView.getTransactionForAccountView(transaction));
+    }
+  }
+
+  loadCalendar(data, year, month) {
+    const calendarSearch = new CalendarSearch();
+    let start = new Date(Date.UTC(new Date().getUTCFullYear(), month, 1));
+    let end = new Date(start.getTime());
+    end.setUTCMonth(end.getUTCMonth() + 1);
+    let budget = netIncomeCalculator.getBudget(data, start.getTime(), end.getTime());
+    let budgetItems = calendarSearch.find(start.getTime(), end.getTime(), budget);
+
+    for (let budgetItem of budgetItems) {
+      let view = CalendarView.getTransactionView(budgetItem.name, budgetItem.amount, budgetItem.type);
+      $('.' + CalendarView.getDayTarget(budgetItem.date)).append(view);
+    }
+
+    let debits = budgetItems.filter(x => x.type === 'expense');
+    let credits = budgetItems.filter(x => x.type !== 'expense');
+    let debitsTotal = debits.map(x => x.amount).reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount), 0);
+    let creditsTotal = credits.map(x => x.amount).reduce((total, amount) => Currency(total, Util.getCurrencyDefaults()).add(amount), 0);
+    $('#month-credits-header-value').append(Util.format(creditsTotal.toString()));
+    $('#month-debits-header-value').append(Util.format(debitsTotal.toString()));
+    $('#month-net-header-value').append(Util.format(Currency(creditsTotal - debitsTotal, Util.getCurrencyDefaults()).toString()));
+    $('.show-breakdown-by-source').unbind();
+    let self = this;
+    $('.show-breakdown-by-source').click(function () {
+      self.showingTotals = true;
+      $('.month-heading-total-description').text('Account');
+      let paymentSources = new Set(budgetItems.map(x => (x.paymentSource || '').toLowerCase()));
+
+      for (let p of paymentSources) {
+        let creditsForAccount = budgetItems.filter(x => x.type !== 'expense' && (x.paymentSource || '').toLowerCase() === p);
+
+        if (creditsForAccount.length) {
+          self.loadAccountSummary({
+            paymentSource: p,
+            amount: creditsForAccount.reduce((accumulator, credit) => accumulator.add(credit.amount), Currency(0, Util.getCurrencyDefaults())).toString(),
+            transactions: creditsForAccount
+          });
+        }
+
+        let debitsForAccount = budgetItems.filter(x => x.type === 'expense' && (x.paymentSource || '').toLowerCase() === p);
+
+        if (debitsForAccount.length) {
+          self.loadAccountSummary({
+            paymentSource: p,
+            amount: debitsForAccount.reduce((accumulator, debit) => accumulator.add(debit.amount), Currency(0, Util.getCurrencyDefaults())).toString(),
+            transactions: debitsForAccount
+          });
+        }
+      }
+
+      $(this).prop('disabled', true);
+    });
+    self.showingTotals = false;
+  }
+
   async load() {
+    let self = this;
+    let data = await new DataClient().getBudget();
     $('#calendar-date-select').val(new Date().getUTCMonth());
     $('#calendar-date-select').change(function () {
-      let month = $(this).val();
-      let start = new Date(Date.UTC(new Date().getUTCFullYear(), month, 1));
-      let end = new Date(start.getTime());
-      end.setUTCMonth(end.getUTCMonth() + 1);
-      CalendarView.build(new Date().getUTCFullYear(), month);
-      CalendarView.load(data, start, end);
+      self.loadCalendar(data, new Date().getUTCFullYear(), $(this).val());
+      $('.show-transactions-for-account').prop('disabled', false);
+      $('.show-breakdown-by-source').prop('disabled', false);
     });
-    let data = await new DataClient().getBudget();
-
-    for (let mre of data.monthlyRecurringExpenses) {
-      mre.date = new Date(mre.date);
-    }
-
-    for (let biweekly of data.biweekly) {
-      biweekly.date = new Date(biweekly.date);
-    }
-
     let year = new Date().getUTCFullYear();
     let month = new Date().getUTCMonth();
     let start = new Date(Date.UTC(year, month, 1));
-    let end = new Date(start.getTime());
-    end.setUTCMonth(end.getUTCMonth() + 1);
     CalendarView.build(year, month);
-    CalendarView.load(data, start, end);
+    this.loadCalendar(data, year, month);
+    $('.show-transactions-for-account').click(function () {
+      if (!self.showingTotals) {
+        $('.show-breakdown-by-source').click();
+      }
+
+      $('.account-transaction-container').removeClass('hide');
+      $('.month-heading-account-total').addClass('font-bold');
+      $(this).prop('disabled', true);
+    });
   }
 
   async init() {
@@ -21835,7 +21843,7 @@ class BudgetCalendarController {
 
 exports.default = BudgetCalendarController;
 
-},{"../data-client":87,"../util":89,"../views/calendar-view":106,"./account-settings-controller":72}],77:[function(require,module,exports){
+},{"../calculators/calendar-search":64,"../calculators/net-income-calculator":67,"../data-client":86,"../util":88,"../views/calendar-view":104,"./account-settings-controller":71,"currency.js":27}],76:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21917,7 +21925,7 @@ class BudgetController {
 
 exports.default = BudgetController;
 
-},{"../data-client":87,"../util":89,"../view-models/balance-sheet-view-model":90,"../views/budget/biweekly-view":101,"../views/budget/budget-view":102,"../views/budget/monthly-view":103,"../views/budget/weekly-view":104,"./account-settings-controller":72}],78:[function(require,module,exports){
+},{"../data-client":86,"../util":88,"../view-models/balance-sheet-view-model":89,"../views/budget/biweekly-view":100,"../views/budget/budget-view":101,"../views/budget/monthly-view":102,"../views/budget/weekly-view":103,"./account-settings-controller":71}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21985,7 +21993,7 @@ class DepositController {
 
 exports.default = DepositController;
 
-},{"../data-client":87,"../util":89,"./account-settings-controller":72}],79:[function(require,module,exports){
+},{"../data-client":86,"../util":88,"./account-settings-controller":71}],78:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22002,7 +22010,7 @@ class HomeController {
 
 exports.default = HomeController;
 
-},{}],80:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 "use strict";
 
 var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
@@ -22184,7 +22192,7 @@ function LoginController() {
 
 module.exports = LoginController;
 
-},{"../data-client":87,"../util":89,"./account-settings-controller":72,"./message-view-controller":82,"amazon-cognito-identity-js":17,"otpauth":33,"qrcode":34}],81:[function(require,module,exports){
+},{"../data-client":86,"../util":88,"./account-settings-controller":71,"./message-view-controller":81,"amazon-cognito-identity-js":17,"otpauth":33,"qrcode":34}],80:[function(require,module,exports){
 const AccountSettingsController = require('./account-settings-controller');
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const DataClient = require('../data-client');
@@ -22267,7 +22275,7 @@ function LoginSignupController() {
 }
 
 module.exports = LoginSignupController;
-},{"../data-client":87,"../util":89,"./account-settings-controller":72,"amazon-cognito-identity-js":17}],82:[function(require,module,exports){
+},{"../data-client":86,"../util":88,"./account-settings-controller":71,"amazon-cognito-identity-js":17}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22311,7 +22319,7 @@ class MessageViewController {
 
 exports.default = MessageViewController;
 
-},{}],83:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22397,7 +22405,7 @@ class PayDaysController {
 
 exports.default = PayDaysController;
 
-},{"../calculators/calendar":66,"../calculators/utc-day":70,"../data-client":87,"../util":89,"../views/pay-days-view":109,"./account-settings-controller":72,"currency.js":27,"moment/moment":32}],84:[function(require,module,exports){
+},{"../calculators/calendar":65,"../calculators/utc-day":69,"../data-client":86,"../util":88,"../views/pay-days-view":107,"./account-settings-controller":71,"currency.js":27,"moment/moment":32}],83:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22441,7 +22449,7 @@ class PricesController {
 
 exports.default = PricesController;
 
-},{"../data-client":87,"../util":89,"../views/prices-view":110,"./account-settings-controller":72}],85:[function(require,module,exports){
+},{"../data-client":86,"../util":88,"../views/prices-view":108,"./account-settings-controller":71}],84:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22532,7 +22540,7 @@ class PricesController {
 
 exports.default = PricesController;
 
-},{"../data-client":87,"../util":89,"../views/prices-view":110,"./account-settings-controller":72,"./message-view-controller":82,"moment":32}],86:[function(require,module,exports){
+},{"../data-client":86,"../util":88,"../views/prices-view":108,"./account-settings-controller":71,"./message-view-controller":81,"moment":32}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22673,7 +22681,7 @@ class TransfersController {
 
 exports.default = TransfersController;
 
-},{"../data-client":87,"../nav":88,"../util":89,"../views/balance-sheet/balance-sheet-view":92,"../views/transfer-view":111,"./account-settings-controller":72,"currency.js":27}],87:[function(require,module,exports){
+},{"../data-client":86,"../nav":87,"../util":88,"../views/balance-sheet/balance-sheet-view":91,"../views/transfer-view":109,"./account-settings-controller":71,"currency.js":27}],86:[function(require,module,exports){
 const Util = require('./util');
 const Currency = require('currency.js');
 function DataClient() {
@@ -22785,7 +22793,7 @@ function DataClient() {
 
 module.exports = DataClient;
 
-},{"./util":89,"currency.js":27}],88:[function(require,module,exports){
+},{"./util":88,"currency.js":27}],87:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22804,7 +22812,7 @@ class Navigation {
 
 exports.default = Navigation;
 
-},{}],89:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 const Currency = require('currency.js');
 exports.log = function (error) {
     console.log(error);
@@ -22838,7 +22846,13 @@ exports.updateQueryStringParameter = function (uri, key, value) {
     }
 };
 exports.formatShares = (shares) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 }).format(shares);
-exports.format = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }).format(amount);
+exports.format = (amount) => {
+    let formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 3 }).format(amount);
+    if (amount < 0) {
+        formatted = '(' + formatted + ')';
+    }
+    return formatted;
+}
 exports.rootUrl = () => `${document.location.origin}`;
 exports.guid = function () {
     function s4() {
@@ -22893,7 +22907,7 @@ exports.getPoolData = () => {
     };
 };
 exports.getApiUrl = () => 'https://api.primordial-software.com/';
-},{"currency.js":27}],90:[function(require,module,exports){
+},{"currency.js":27}],89:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22979,7 +22993,7 @@ class BalanceSheetViewModel {
 
 exports.default = BalanceSheetViewModel;
 
-},{"../util":89,"currency.js":27}],91:[function(require,module,exports){
+},{"../util":88,"currency.js":27}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23030,7 +23044,7 @@ class AssetViewModel {
 
 exports.default = AssetViewModel;
 
-},{}],92:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 "use strict";
 
 var _bondViewModel = _interopRequireDefault(require("./bond-view-model"));
@@ -23131,7 +23145,7 @@ exports.setView = function (budget, obfuscate) {
   $('#net-total').text(Util.format(net.toString()));
 };
 
-},{"../../calculators/calendar":66,"../../util":89,"./bond-view-model":93,"./cash-view-model":94,"./equity-view-model":95,"./inventory-view-model":97,"./loan-view-model":98,"./property-plant-and-equipment-view-model":99,"currency.js":27,"moment":32}],93:[function(require,module,exports){
+},{"../../calculators/calendar":65,"../../util":88,"./bond-view-model":92,"./cash-view-model":93,"./equity-view-model":94,"./inventory-view-model":96,"./loan-view-model":97,"./property-plant-and-equipment-view-model":98,"currency.js":27,"moment":32}],92:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23258,7 +23272,7 @@ class BondViewModel extends _assetViewModel.default {
 
 exports.default = BondViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":74,"../../util":89,"./asset-view-model":91,"./cash-view-model":94,"moment/moment":32}],94:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":88,"./asset-view-model":90,"./cash-view-model":93,"moment/moment":32}],93:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23393,7 +23407,7 @@ class CashViewModel extends _assetViewModel.default {
 
 exports.default = CashViewModel;
 
-},{"../../calculators/current-balance-calculator":67,"../../controllers/balance-sheet/transfer-controller":74,"../../util":89,"./asset-view-model":91,"./bond-view-model":93,"./equity-view-model":95,"./expense-view-model":96,"./inventory-view-model":97,"./property-plant-and-equipment-view-model":99}],95:[function(require,module,exports){
+},{"../../calculators/current-balance-calculator":66,"../../controllers/balance-sheet/transfer-controller":73,"../../util":88,"./asset-view-model":90,"./bond-view-model":92,"./equity-view-model":94,"./expense-view-model":95,"./inventory-view-model":96,"./property-plant-and-equipment-view-model":98}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23518,7 +23532,7 @@ class EquityViewModel extends _assetViewModel.default {
 
 exports.default = EquityViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":74,"../../util":89,"./asset-view-model":91,"./cash-view-model":94,"currency.js":27}],96:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":88,"./asset-view-model":90,"./cash-view-model":93,"currency.js":27}],95:[function(require,module,exports){
 function ExpenseViewModel() {
     this.getViewDescription = () => 'Expense';
     this.getViewType = () => 'expense';
@@ -23549,7 +23563,7 @@ function ExpenseViewModel() {
            </div>`);
 }
 module.exports = ExpenseViewModel;
-},{}],97:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23625,7 +23639,7 @@ class InventoryViewModel extends _assetViewModel.default {
 
 exports.default = InventoryViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":74,"../../util":89,"./asset-view-model":91,"./cash-view-model":94}],98:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":88,"./asset-view-model":90,"./cash-view-model":93}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23734,7 +23748,7 @@ class LoanViewModel {
 
 exports.default = LoanViewModel;
 
-},{"../../calculators/calendar":66,"../../calculators/payoff-date-calculator":69,"../../util":89,"currency.js":27}],99:[function(require,module,exports){
+},{"../../calculators/calendar":65,"../../calculators/payoff-date-calculator":68,"../../util":88,"currency.js":27}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23810,7 +23824,7 @@ class PropertyPlantAndEquipmentViewModel extends _assetViewModel.default {
 
 exports.default = PropertyPlantAndEquipmentViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":74,"../../util":89,"./asset-view-model":91,"./cash-view-model":94}],100:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":88,"./asset-view-model":90,"./cash-view-model":93}],99:[function(require,module,exports){
 const Moment = require('moment/moment');
 function TransferView() {
     this.getView = function (name, allowableTransferViewModels) {
@@ -23848,7 +23862,7 @@ function TransferView() {
 
 module.exports = TransferView;
 
-},{"moment/moment":32}],101:[function(require,module,exports){
+},{"moment/moment":32}],100:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23877,7 +23891,7 @@ class BiweeklyView {
 
 exports.default = BiweeklyView;
 
-},{}],102:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23905,7 +23919,7 @@ function getTransactionModel(target) {
     date: $(target).find('.date').val().trim() || $(target).find('.date').data().date,
     name: $(target).find('.name').val().trim() || $(target).find('.name').text().trim(),
     type: $(target).find('.transaction-type').val() || $(target).data().txntype,
-    paymentSource: $(target).find('select.transaction-payment-source').val() || $(target).find('span.transaction-payment-source').text()
+    paymentSource: $(target).find('select.transaction-payment-source').val() || $(target).find('span.transaction-payment-source').text() || $(target).find('.name').text() || $(target).find('.name').val()
   };
 }
 
@@ -24028,7 +24042,7 @@ class BudgetView {
 
 exports.default = BudgetView;
 
-},{"../../util":89,"./biweekly-view":101,"./monthly-view":103,"./weekly-view":104}],103:[function(require,module,exports){
+},{"../../util":88,"./biweekly-view":100,"./monthly-view":102,"./weekly-view":103}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24067,7 +24081,7 @@ class MonthlyView {
 
 exports.default = MonthlyView;
 
-},{"../../calculators/calendar":66}],104:[function(require,module,exports){
+},{"../../calculators/calendar":65}],103:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24112,174 +24126,128 @@ class WeeklyView {
 
 exports.default = WeeklyView;
 
-},{"../../calculators/calendar":66}],105:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-class CalendarMonthlyTotalsView {
-  static getView(monthContainerId, monthName, year) {
-    return `
-        <div class="month-heading-totals-container color-white">
-            <div class="month-heading font-subheading1 color-imago-cream">${monthName} ${year}</div>
-            <div class="month-heading-totals-headers row color-imago-cream">
-                <div class="col-xs-3 text-center"><span class="month-heading-total-description">&nbsp;</span></div>
-                <div class="col-xs-2 text-center">Income</div>
-                <div class="col-xs-2 text-center">Expenses</div>
-                <div class="col-xs-5"><button type="button" class="btn btn-info show-breakdown-by-source no-print">Show Account Totals</button></div>
-            </div>
-            <div class="month-heading-totals-values row">
-                <div class="col-xs-3 white-subtotal-line">Subtotal</div>
-                <div class="col-xs-2 white-subtotal-line month-heading-total text-right"><span id="month-credits-header-value"></span></div>
-                <div class="col-xs-2 white-subtotal-line month-heading-total text-right"><span id="month-debits-header-value"></span></div>
-                <div class="col-xs-5">&nbsp;</div>
-            </div>
-            <div class="row">
-                <div class="col-xs-3 total">Total</div>
-                <div class="col-xs-2 total text-right">&nbsp;</div>
-                <div class="col-xs-2 total month-heading-total text-right"><span id="month-net-header-value"></span></div>
-                <div class="col-xs-5">&nbsp;</div>
-            </div>
-        </div>
-        <div class="items-container-for-month" id="${monthContainerId}"></div>`.trim();
-  }
-
-}
-
-exports.default = CalendarMonthlyTotalsView;
-
-},{}],106:[function(require,module,exports){
-"use strict";
-
-var _calendarMonthlyTotalsView = _interopRequireDefault(require("./calendar-monthly-totals-view"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+},{"../../calculators/calendar":65}],104:[function(require,module,exports){
 const cal = require('../calculators/calendar');
-
 const CalendarCalculator = require('../calendar-calculator');
-
 const Util = require('../util');
-
 const calCalc = new CalendarCalculator();
 
-const NetIncomeCalculator = require('../calculators/net-income-calculator');
-
-const netIncomeCalculator = new NetIncomeCalculator();
-
-const CalendarAggregator = require('../calculators/calendar-aggregator');
-
-const calendarAggregator = new CalendarAggregator();
-
-function getTransactionView(name, amount, type) {
-  return `<div class="transaction-view ${type}"> 
+exports.getTransactionView = function(name, amount, type) {
+    return `<div class="transaction-view ${type}"> 
                 <div class="name">${name}</div>
                 <div class="amount">$${amount}</div>
             </div>`;
 }
 
 function getDateTarget(date) {
-  return `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}`;
+    return `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}`;
 }
 
-function getDayTarget(date) {
-  return `day-of-${getDateTarget(date)}`;
+exports.getDayTarget = function(date) {
+    return `day-of-${getDateTarget(date)}`;
 }
 
 function getDayView(date, inMonth) {
-  let css = !inMonth ? 'out-of-month' : '';
-  css += ' day-view';
-  css = css.trim();
-  let dayViewHtml = `<div class="${css} bg-color-imago-cream day-col col-xs-1 ${getDayTarget(date)}">
+    let css = !inMonth ? 'out-of-month' : '';
+    css += ' day-view';
+    css = css.trim();
+    let dayViewHtml = `<div class="${css} bg-color-imago-cream day-col col-xs-1 ${exports.getDayTarget(date)}">
             <span class="calendar-day-number">
             ${date.getUTCDate()}</div>`;
-  return dayViewHtml;
-}
-
-function addMonthContainer(monthContainerId, date) {
-  $('#months-container').append(_calendarMonthlyTotalsView.default.getView(monthContainerId, cal.MONTH_NAMES[date.getUTCMonth()], date.getUTCFullYear()));
-}
-
-function addWeekAbbreviationHeaders(monthTarget) {
-  for (let day of cal.DAY_NAME_ABBRS) {
-    $(monthTarget + '>' + '.weeks').append(`<div class="day-col col-xs-1 week-name">${day}</div>`);
-  }
+    return dayViewHtml;
 }
 
 function addMonth(year, month) {
-  let date = calCalc.createByMonth(year, month);
-  $('#months-container').empty();
-  let monthContainerId = `items-container-for-month-${date.getFullYear()}-${date.getMonth()}`;
-  addMonthContainer(monthContainerId, date);
-  let monthTarget = '#' + monthContainerId;
-  $(monthTarget).append('<div class="weeks row color-imago-cream"></div>');
-  addWeekAbbreviationHeaders(monthTarget);
-  return monthContainerId;
+    let date = calCalc.createByMonth(year, month);
+    $('#months-container').empty();
+    let monthContainerId = `items-container-for-month-${date.getFullYear()}-${date.getMonth()}`;
+
+    $('#months-container').append(
+        getMonthlyTotalsView(
+            monthContainerId,
+            cal.MONTH_NAMES[date.getUTCMonth()],
+            date.getUTCFullYear()));
+
+    let monthTarget = '#' + monthContainerId;
+    $(monthTarget).append('<div class="weeks row color-imago-cream"></div>');
+    for (let day of cal.DAY_NAME_ABBRS) {
+        $(monthTarget + '>' + '.weeks').append(`<div class="day-col col-xs-1 week-name">${day}</div>`);
+    }
+    return monthContainerId;
+}
+
+function getMonthlyTotalsView(monthContainerId, monthName, year) {
+    return `
+        <div class="month-heading-totals-container color-white">
+            <div class="month-heading font-subheading1 color-imago-cream">${monthName} ${year}</div>
+            <div class="month-heading-totals-headers row color-imago-cream">
+                <div class="col-xs-9 text-center"><span class="month-heading-total-description">&nbsp;</span></div>
+                <div class="col-xs-3 text-center">Amount</div>
+            </div>
+            <div class="month-heading-totals-values row">
+                <div class="col-xs-9 white-subtotal-line">Total Income</div>
+                <div class="col-xs-3 white-subtotal-line month-heading-total text-right"><span id="month-credits-header-value"></span></div>
+            </div>
+            <div class="month-heading-totals-values row">
+                <div class="col-xs-9 white-subtotal-line">Total Expenses</div>
+                <div class="col-xs-3 white-subtotal-line month-heading-total text-right"><span id="month-debits-header-value"></span></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-8 total">Net Income</div>
+                <div class="col-xs-2 total text-right">&nbsp;</div>
+                <div class="col-xs-2 total month-heading-total text-right"><span id="month-net-header-value"></span></div>
+            </div>
+        </div>
+        <div class="items-container-for-month" id="${monthContainerId}"></div>`.trim();
+}
+
+exports.getMonthlyAccountSummaryView = function(summary) {
+    let monthlyAccountSummary = $('<div class="display-flex row"></div>');
+    let accountType = summary.transactions[0].type === 'expense' ? 'Expense' : 'Income';
+    let accountName = summary.paymentSource ? `${summary.paymentSource} - ${accountType}` : 'Unspecified';
+    monthlyAccountSummary.append(`<div class="col-xs-9 display-flex-valign-bottom capitalize-first white-subtotal-line">${accountName}</div>`);
+    monthlyAccountSummary.append(`<div class="col-xs-3 month-heading-account-total display-flex-valign-bottom white-subtotal-line text-right">
+        ${getDisplayAmount(summary.amount, summary.transactions[0].type)}</div>`);
+    return monthlyAccountSummary;
+}
+
+exports.getTransactionForAccountView = function(transaction) {
+    return `<div class="display-flex row account-transaction-container hide">
+                    <div class="col-xs-9 display-flex-valign-bottom white-dotted-underline text-lowercase">&nbsp;&nbsp;&nbsp;&nbsp;${transaction.name}</div>
+                    <div class="col-xs-3 display-flex-valign-bottom white-dotted-underline text-right">
+                        ${getDisplayAmount(transaction.amount, transaction.type)}
+                    </div>
+                </div>`;
 }
 
 exports.build = function (year, month) {
-  'use strict';
-
-  let monthContainerId = addMonth(year, month);
-  let dayViewContainer;
-  let transactionsForWeekTarget;
-  calCalc.getMonthAdjustedByWeek(year, month, function (currentDate) {
-    let dayView = getDayView(currentDate, month.toString() === currentDate.getUTCMonth().toString());
-    $('.' + transactionsForWeekTarget).append(dayView);
-  }, function (currentDate) {
-    transactionsForWeekTarget = 'week-of-' + getDateTarget(currentDate);
-    dayViewContainer = `<div class="transactions-for-week row ${transactionsForWeekTarget}"></div>`;
-    $('#' + monthContainerId).append(dayViewContainer);
-  });
+    'use strict';
+    let monthContainerId = addMonth(year, month);
+    let dayViewContainer;
+    let transactionsForWeekTarget;
+    calCalc.getMonthAdjustedByWeek(
+        year,
+        month,
+        function (currentDate) {
+            let dayView = getDayView(currentDate, month.toString() === currentDate.getUTCMonth().toString());
+            $('.' + transactionsForWeekTarget).append(dayView);
+        },
+        function (currentDate) {
+            transactionsForWeekTarget = 'week-of-' + getDateTarget(currentDate);
+            dayViewContainer = (`<div class="transactions-for-week row ${transactionsForWeekTarget}"></div>`);
+            $('#' + monthContainerId).append(dayViewContainer);
+        });
 };
 
-function loadTransactions(items) {
-  for (let budgetItem of items) {
-    let view = getTransactionView(budgetItem.name, budgetItem.amount, budgetItem.type);
-    $('.' + getDayTarget(budgetItem.date)).append(view);
-  }
+function getDisplayAmount(amount, type) {
+    let displayAmount = amount;
+    if (type === 'expense') {
+        displayAmount *= -1;
+    }
+    displayAmount = Util.format(displayAmount);
+    return displayAmount;
 }
-
-exports.load = function (budgetSettings, start, end) {
-  let budget = netIncomeCalculator.getBudget(budgetSettings, start.getTime(), end.getTime());
-  let summary = calendarAggregator.getSummary(start.getTime(), end.getTime(), budget);
-  loadTransactions(summary.budgetItems);
-  $('#month-credits-header-value').append(Util.format(summary.credits));
-  $('#month-debits-header-value').append(Util.format(summary.debits));
-  $('#month-net-header-value').append(Util.format(summary.net));
-  $('.show-breakdown-by-source').click(function () {
-    $('.month-heading-total-description').text('Account');
-
-    for (let debitSummary of summary.debitsByPaymentSource) {
-      $('.month-heading-totals-values').before(`
-            <div class="display-flex row">
-                <div class="col-xs-3 display-flex-valign-bottom white-dotted-underline">${debitSummary.paymentSource || 'Unspecified'}</div>
-                <div class="col-xs-2 display-flex-valign-bottom white-dotted-underline text-right">${Util.format(debitSummary.amount)}</div>
-                <div class="col-xs-2">&nbsp;</div>
-                <div class="col-xs-2">&nbsp;</div>
-                <div class="col-xs-3 text-center">&nbsp;</div>
-            </div>`);
-    }
-
-    for (let creditSummary of summary.creditsByPaymentSource) {
-      $('.month-heading-totals-values').before(`
-            <div class="display-flex row">
-                <div class="col-xs-3 display-flex-valign-bottom white-dotted-underline">${creditSummary.paymentSource || 'Unspecified'}</div>
-                <div class="col-xs-2 white-dotted-underline">&nbsp;</div>
-                <div class="col-xs-2 display-flex-valign-bottom white-dotted-underline text-right">${Util.format(creditSummary.amount)}</div>
-                <div class="col-xs-2">&nbsp;</div>
-                <div class="col-xs-3 text-center">&nbsp;</div>
-            </div>`);
-    }
-
-    $(this).prop('disabled', true);
-  });
-};
-
-},{"../calculators/calendar":66,"../calculators/calendar-aggregator":64,"../calculators/net-income-calculator":68,"../calendar-calculator":71,"../util":89,"./calendar-monthly-totals-view":105}],107:[function(require,module,exports){
+},{"../calculators/calendar":65,"../calendar-calculator":70,"../util":88}],105:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24310,7 +24278,7 @@ class CommandButtonsView {
 
 exports.default = CommandButtonsView;
 
-},{}],108:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24339,7 +24307,7 @@ class FooterView {
             </div>
             <div class="footer-text-group">
                 By viewing this site you agree to our
-                <a target="_blank" href="https://www.primordial-software.com/LICENSE.txt">license</a>
+                <a target="_blank" href="https://www.primordial-software.com/src/LICENSE.txt">license</a>
             </div>
         </div>
         <div class="authenticated-sitemap-footer">
@@ -24396,7 +24364,7 @@ class FooterView {
 
 exports.default = FooterView;
 
-},{}],109:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 const Currency = require('currency.js');
 
 exports.getModel = function () {
@@ -24405,7 +24373,7 @@ exports.getModel = function () {
     model['401k-contribution-per-pay-check'] = Currency($('#401k-contribution-per-pay-check').val().trim()).toString();
     return model;
 };
-},{"currency.js":27}],110:[function(require,module,exports){
+},{"currency.js":27}],108:[function(require,module,exports){
 const DataClient = require('../data-client');
 exports.getModel = async function () {
     let prices = [];
@@ -24449,7 +24417,7 @@ exports.getView = (name, sharePrice) =>
                 </div>
               </div>
           </div>`);
-},{"../data-client":87}],111:[function(require,module,exports){
+},{"../data-client":86}],109:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24495,4 +24463,4 @@ class TransferView {
 
 exports.default = TransferView;
 
-},{"../util":89,"currency.js":27,"moment":32}]},{},[63]);
+},{"../util":88,"currency.js":27,"moment":32}]},{},[63]);

@@ -18,7 +18,7 @@ export default class FooterView {
             </div>
             <div class="footer-text-group">
                 By viewing this site you agree to our
-                <a target="_blank" href="https://www.primordial-software.com/LICENSE.txt">license</a>
+                <a target="_blank" href="https://www.primordial-software.com/src/LICENSE.txt">license</a>
             </div>
         </div>
         <div class="authenticated-sitemap-footer">
