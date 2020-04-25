@@ -1,5 +1,3 @@
-import Navigation from "../nav";
-
 const AccountSettingsController = require('./account-settings-controller');
 import TransferView from '../views/transfer-view';
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');

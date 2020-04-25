@@ -21608,21 +21608,18 @@ class BanksController {
 
   async init() {
     new AccountSettingsController().init({});
-    let environment = window.location.hostname.toLowerCase() === 'www.primordial-software.com' ? 'production' : 'development';
     $('#link-button').on('click', function (e) {
       let selectedProducts = ['transactions'];
       let handler = Plaid.create({
         clientName: 'My App',
-        env: environment,
+        env: Util.getBankIntegrationEnvironment(),
         key: '7e6391ab6cbcc3b212440b5821bfa7',
         product: selectedProducts,
-        onSuccess: async function (public_token, metadata) {
+        onSuccess: async function (public_token, plaidAuth) {
           let dataClient = new DataClient();
 
           try {
-            let result = await dataClient.post('link-access-token', {
-              publicToken: public_token
-            });
+            let result = await dataClient.post('link-access-token', plaidAuth);
             window.location.reload();
           } catch (err) {
             Util.log(err);
@@ -21639,17 +21636,7 @@ class BanksController {
           // Storing this information can be helpful for support.
 
         },
-        onEvent: function (eventName, metadata) {// Optionally capture Link flow events, streamed through
-          // this callback as your users connect an Item to Plaid.
-          // For example:
-          // eventName = "TRANSITION_VIEW"
-          // metadata  = {
-          //   link_session_id: "123-abc",
-          //   mfa_type:        "questions",
-          //   timestamp:       "2017-09-14T14:42:19.350Z",
-          //   view_name:       "MFA",
-          // }
-        }
+        onEvent: function (eventName, metadata) {}
       });
       handler.open();
     });
@@ -21679,7 +21666,7 @@ class BanksController {
 
         let handler = Plaid.create({
           clientName: 'My App',
-          env: environment,
+          env: Util.getBankIntegrationEnvironment(),
           key: '7e6391ab6cbcc3b212440b5821bfa7',
           product: ['transactions'],
           token: result['public_token'],
@@ -21819,9 +21806,7 @@ class BudgetCalendarController {
       $('.show-transactions-for-account').prop('disabled', false);
       $('.show-breakdown-by-source').prop('disabled', false);
     });
-    let year = new Date().getUTCFullYear();
-    let month = new Date().getUTCMonth();
-    this.loadCalendar(data, year, month);
+    this.loadCalendar(data, new Date().getUTCFullYear(), new Date().getUTCMonth());
     $('.show-transactions-for-account').click(function () {
       if (!self.showingTotals) {
         $('.show-breakdown-by-source').click();
@@ -22547,8 +22532,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _nav = _interopRequireDefault(require("../nav"));
-
 var _transferView = _interopRequireDefault(require("../views/transfer-view"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -22680,7 +22663,7 @@ class TransfersController {
 
 exports.default = TransfersController;
 
-},{"../data-client":86,"../nav":87,"../util":88,"../views/balance-sheet/balance-sheet-view":91,"../views/transfer-view":109,"./account-settings-controller":71,"currency.js":27}],86:[function(require,module,exports){
+},{"../data-client":86,"../util":88,"../views/balance-sheet/balance-sheet-view":91,"../views/transfer-view":109,"./account-settings-controller":71,"currency.js":27}],86:[function(require,module,exports){
 const Util = require('./util');
 const Currency = require('currency.js');
 function DataClient() {

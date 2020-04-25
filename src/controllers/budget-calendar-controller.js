@@ -82,9 +82,7 @@ export default class BudgetCalendarController {
             $('.show-transactions-for-account').prop('disabled', false);
             $('.show-breakdown-by-source').prop('disabled', false);
         });
-        let year = new Date().getUTCFullYear();
-        let month = new Date().getUTCMonth();
-        this.loadCalendar(data, year, month);
+        this.loadCalendar(data, new Date().getUTCFullYear(), new Date().getUTCMonth());
         $('.show-transactions-for-account').click(function () {
             if (!self.showingTotals) {
                 $('.show-breakdown-by-source').click();
