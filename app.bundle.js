@@ -21756,6 +21756,7 @@ class BudgetCalendarController {
   }
 
   loadCalendar(data, year, month) {
+    CalendarView.build(year, month);
     const calendarSearch = new CalendarSearch();
     let start = new Date(Date.UTC(new Date().getUTCFullYear(), month, 1));
     let end = new Date(start.getTime());
@@ -21820,8 +21821,6 @@ class BudgetCalendarController {
     });
     let year = new Date().getUTCFullYear();
     let month = new Date().getUTCMonth();
-    let start = new Date(Date.UTC(year, month, 1));
-    CalendarView.build(year, month);
     this.loadCalendar(data, year, month);
     $('.show-transactions-for-account').click(function () {
       if (!self.showingTotals) {
@@ -24429,8 +24428,6 @@ const Moment = require('moment');
 
 const Util = require('../util');
 
-const Currency = require('currency.js');
-
 class TransferView {
   getTransferView(transfer) {
     return $(`<div class="row account-row">
@@ -24463,4 +24460,4 @@ class TransferView {
 
 exports.default = TransferView;
 
-},{"../util":88,"currency.js":27,"moment":32}]},{},[63]);
+},{"../util":88,"moment":32}]},{},[63]);

@@ -1,6 +1,5 @@
 const Moment = require('moment');
 const Util = require('../util');
-const Currency = require('currency.js');
 export default class TransferView {
     getTransferView(transfer) {
         return $(`<div class="row account-row">
