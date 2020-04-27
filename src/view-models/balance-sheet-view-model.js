@@ -63,7 +63,8 @@ function mergeModels(data, bankData) {
                 type: account.type,
                 name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
                 amount: account.balances.current,
-                isAuthoritative: true
+                isAuthoritative: true,
+                isCurrent: true
             });
         }
     }

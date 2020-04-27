@@ -77,9 +77,12 @@ h4 {
 .subtotal-amount {
     font-weight: bold;
     border-bottom: 1px solid #FFFACD;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 .subtotal-amount,
+.totals-row > .total {
+    margin-bottom: 20px;
+}
 .total-amount{
     text-align: right;
 }

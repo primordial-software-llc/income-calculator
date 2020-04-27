@@ -30,16 +30,23 @@ exports.setView = function (budget, obfuscate) {
         console.log('Failed to get accounts from the following financial institutions: ' + JSON.stringify(budget.failed, 0, 4));
     }
     $('#balance-input-group').empty();
-    let debtTotal = Currency(0, Util.getCurrencyDefaults());
-    for (let loan of budget.balances) {
-        debtTotal = debtTotal.add(loan.amount);
-        let loanView = new LoanViewModel().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
-        $('#balance-input-group').append(loanView);
-    }
-    $('#loan-total-amount-value').text(`(${Util.format(debtTotal.toString())})`);
+
+    let currentLiabilitiesTotal = Currency(0, Util.getCurrencyDefaults());
+    let nonCurrentLiabilitiesTotal = Currency(0, Util.getCurrencyDefaults());
 
     let currentAssetTotal = Currency(0, Util.getCurrencyDefaults());
     let nonCurrentAssetTotal = Currency(0, Util.getCurrencyDefaults());
+    for (let loan of budget.balances) {
+        console.log(loan);
+        if (loan.isCurrent) {
+            currentLiabilitiesTotal = currentLiabilitiesTotal.add(loan.amount);
+        } else {
+            nonCurrentLiabilitiesTotal = nonCurrentLiabilitiesTotal.add(loan.amount);
+        }
+        let loanView = new LoanViewModel().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
+        $('#balance-input-group').append(loanView);
+    }
+
     let viewModels = [
         new CashViewModel(),
         new BondViewModel(),
@@ -70,12 +77,25 @@ exports.setView = function (budget, obfuscate) {
         $(`#${viewModel.getViewType().toLowerCase()}-total-amount`).text(Util.format(assetTypeTotal.toString()));
     }
 
+    let assetsTotal = currentAssetTotal.add(nonCurrentAssetTotal);
+    let liabilitiesTotal = currentLiabilitiesTotal.add(nonCurrentLiabilitiesTotal);
+    let currentNet = currentAssetTotal.subtract(currentLiabilitiesTotal);
+    let nonCurrentNet = nonCurrentAssetTotal.subtract(nonCurrentLiabilitiesTotal);
+
+    $('#loan-total-amount-value').text(`(${Util.format(liabilitiesTotal.toString())})`);
+    $('#total-current-liabilities').text(Util.format(currentLiabilitiesTotal));
+    $('#total-current-net').text(Util.format(currentNet))
+    $('#total-non-current-liabilities').text(Util.format(nonCurrentLiabilitiesTotal));
+    $('#total-non-current-net').text(Util.format(nonCurrentNet));
     $('#total-tangible-assets').text(Util.format(nonCurrentAssetTotal));
     $('#total-non-tangible-assets').text(Util.format(currentAssetTotal.toString()));
-    $('#total-debt').text(`(${Util.format(debtTotal)})`);
+    $('#total-debt').text(`(${Util.format(liabilitiesTotal)})`);
     let net = Currency(0, Util.getCurrencyDefaults())
-        .subtract(debtTotal)
+        .subtract(liabilitiesTotal)
         .add(currentAssetTotal)
         .add(nonCurrentAssetTotal);
-    $('#net-total').text(Util.format(net.toString()));
+
+    $('#total-assets').text(Util.format(assetsTotal));
+    $('#total-liabilities').text(Util.format(liabilitiesTotal));
+    $('#net-total').text(Util.format(net));
 };
