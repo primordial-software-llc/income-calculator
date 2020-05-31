@@ -22889,6 +22889,9 @@ exports.getPoolData = () => {
     };
 };
 exports.getApiUrl = () => 'https://api.primordial-software.com/';
+exports.getBankIntegrationEnvironment = () => window.location.hostname.toLowerCase() === 'www.primordial-software.com'
+    ? 'production'
+    : 'development';
 },{"currency.js":27}],89:[function(require,module,exports){
 "use strict";
 
