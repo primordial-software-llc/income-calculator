@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
+    <style>
+      .imago-header {
+          background-image: url(https://www.primordial-software.com/docs/imago-design/budget-smallest.jpg);
+          background-position: 0px -211px;
+          background-repeat: no-repeat;
+          background-size: cover;
+      }
+    </style>
+    <title>Net Income Calculator</title>
+      <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
+      <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
+      <script type="text/javascript" src="../app.bundle.js"></script>
+  </head>
+  <body class="container-fluid">
+  <div class="bg-color-imago-cream no-print" id="command-buttons-container"></div>
+  <div class="tab-nav-bar bg-color-imago-blue link-color-white w-100"></div>
+  <div class="imago-header">
+      <div class="header-overlay">
+          <div class="header-text">Property Point of Sale</div>
+      </div>
+  </div>
+  <div class="bg-color-imago-light-gray">
+      <form id="input-form" class="p-15 form">
+          <div class="form-group row">
+              <label class="col-xs-3 col-form-label col-form-label-lg">Date</label>
+              <div class="col-xs-9">
+                  <input id="sale-date" class="form-control text-right" type="text" value="">
+              </div>
+          </div>
+          <div class="form-group row">
+              <label class="col-xs-3 col-form-label col-form-label-lg">Vendor</label>
+              <div class="col-xs-9">
+                  <input id="sale-vendor" class="form-control text-right" type="text" value="">
+              </div>
+          </div>
+          <div class="form-group row">
+              <label class="col-xs-3 col-form-label col-form-label-lg">Balance</label>
+              <div class="col-xs-9">
+                  <input id="sale-balance" class="form-control text-right" type="text" value="">
+              </div>
+          </div>
+          <div class="form-group row">
+              <label class="col-xs-3 col-form-label col-form-label-lg">Amount</label>
+              <div class="col-xs-9">
+                  <div class="input-group">
+                      <div class="input-group-addon">$</div>
+                      <input id="sale-amount" class="form-control text-right" type="text" value="">
+                  </div>
+              </div>
+          </div>
+          <input id="save" type="button" value="Save" class="btn btn-primary" />
+      </form>
+  </div>
+  </body>
+</html>

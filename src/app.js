@@ -11,6 +11,7 @@ const LoginController = require('./controllers/login-controller');
 import LoginSignupController from './controllers/login-signup-controller';
 import Navigation from './nav';
 import PayDaysController from './controllers/pay-days-controller';
+import PropertyPointOfSaleController from './controllers/property-point-of-sale-controller';
 import PurchaseController from './controllers/purchase-controller';
 import PricesController from './controllers/prices-controller';
 import TransfersController from './controllers/transfers-controller';
@@ -35,6 +36,7 @@ async function init() {
         TransfersController, DepositController, PricesController ];
     if ((usernameResponse || {}).email === 'timg456789@yahoo.com') {
         authenticatedControllers.push(PayDaysController);
+        authenticatedControllers.push(PropertyPointOfSaleController);
     }
     if (!(usernameResponse || {}).billingAgreement || !(usernameResponse || {}).billingAgreement.agreedToBillingTerms) {
         authenticatedControllers.push(PurchaseController);
