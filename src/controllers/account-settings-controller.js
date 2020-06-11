@@ -1,22 +1,23 @@
+import FooterView from '../views/footer-view';
+import Navigation from '../nav';
 const DataClient = require('../data-client');
 const Util = require('../util');
-function AccountSettingsController() {
-    'use strict';
-    let dataClient;
-    let view;
-    async function save() {
-        let data = await view.getModel();
+
+export default class AccountSettingsController {
+    async save() {
+        let data = await this.view.getModel();
         try {
+            let dataClient = new DataClient();
             let response = await dataClient.patch(data);
             window.location.reload();
         } catch (err) {
             Util.log(err);
         }
     }
-    this.init = function (viewIn) {
-        view = viewIn;
-        dataClient = new DataClient();
-        $('#save').click(save);
+    init (viewIn, usernameResponse, injectFooter) {
+        this.view = viewIn;
+        let dataClient = new DataClient();
+        $('#save').click(this.save);
         $('#obfuscate-data').click(() => {
             if (Util.obfuscate()) {
                 document.cookie = 'obfuscate=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
@@ -68,7 +69,15 @@ function AccountSettingsController() {
                 downloadLink.click();
             }
         });
+
+        let authenticatedControllers = Navigation.getAuthenticatedControllers(usernameResponse)
+        let navItemHtml = authenticatedControllers.map(controllerType =>
+            Navigation.getNavItemView(controllerType.getUrl(), controllerType.getName())
+        );
+        $('.tab-nav-bar').append(navItemHtml.join(''));
+
+        if (injectFooter) {
+            $('body').append(FooterView.getView(navItemHtml.join('')));
+        }
     };
 }
-
-module.exports = AccountSettingsController;

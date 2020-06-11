@@ -1,4 +1,4 @@
-const AccountSettingsController = require('./account-settings-controller');
+import AccountSettingsController from './account-settings-controller';
 const DataClient = require('../data-client');
 const PricesView = require('../views/prices-view');
 const Util = require('../util');

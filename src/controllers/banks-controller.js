@@ -1,4 +1,4 @@
-const AccountSettingsController = require('./account-settings-controller');
+import AccountSettingsController from './account-settings-controller';
 const DataClient = require('../data-client');
 const Util = require('../util');
 export default class BanksController {
@@ -8,8 +8,8 @@ export default class BanksController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/banks.html`;
     }
-    async init() {
-        new AccountSettingsController().init({});
+    async init(usernameResponse) {
+        new AccountSettingsController().init({}, usernameResponse);
         $('#link-button').on('click', function(e) {
             let selectedProducts = ['transactions'];
             let handler = Plaid.create({

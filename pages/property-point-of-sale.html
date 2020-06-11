@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
     <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/point-of-sale.css">
     <style>
       .imago-header {
           background-image: url(https://www.primordial-software.com/docs/imago-design/budget-smallest.jpg);
@@ -19,44 +20,84 @@
       <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
       <script type="text/javascript" src="../app.bundle.js"></script>
   </head>
-  <body class="container-fluid">
-  <div class="bg-color-imago-cream no-print" id="command-buttons-container"></div>
-  <div class="tab-nav-bar bg-color-imago-blue link-color-white w-100"></div>
-  <div class="imago-header">
-      <div class="header-overlay">
-          <div class="header-text">Property Point of Sale</div>
+  <body>
+  <div class="print-only">
+      <div class="text-center">
+          Lakeland Mi Pueblo
+          <br />
+          Flea Market
+          <br/>
+          <span id="sale-timestamp"></span>
+      </div>
+      <br />
+      <div>Rental Date:<br /><span id="sale-date-text"></span></div>
+      <div class="receipt-data-group">Vendor:<div id="sale-vendor-text"></div></div>
+      <div class="receipt-data-group">Amount of Account:<div id="sale-amount-of-account-text"></div></div>
+      <div class="receipt-data-group">Rental Amount:<div id="sale-rental-amount-text"></div></div>
+      <div class="receipt-data-group">This Payment:<div id="sale-payment-text"></div></div>
+      <div class="receipt-data-group">Balance Due: <br /><span id="sale-balance-due-text"></span></div>
+      <br />
+      <div class="text-center">
+          2701 Swindell Rd, Lakeland, FL 33805
+          (863) 682-4809
       </div>
   </div>
-  <div class="bg-color-imago-light-gray">
+  <div class="bg-color-imago-light-gray no-print">
       <form id="input-form" class="p-15 form">
           <div class="form-group row">
-              <label class="col-xs-3 col-form-label col-form-label-lg">Date</label>
+              <label class="col-xs-3 col-form-label col-form-label-lg">Rental Date</label>
               <div class="col-xs-9">
-                  <input id="sale-date" class="form-control text-right" type="text" value="">
+                  <input id="sale-date" class="form-control" type="date">
               </div>
           </div>
           <div class="form-group row">
               <label class="col-xs-3 col-form-label col-form-label-lg">Vendor</label>
               <div class="col-xs-9">
-                  <input id="sale-vendor" class="form-control text-right" type="text" value="">
+                  <input id="sale-vendor" class="form-control" type="text" list="sale-vendor-list">
+                  <datalist id="sale-vendor-list">
+                  </datalist>
               </div>
           </div>
           <div class="form-group row">
-              <label class="col-xs-3 col-form-label col-form-label-lg">Balance</label>
+              <label class="col-xs-3 col-form-label col-form-label-lg">Phone</label>
               <div class="col-xs-9">
-                  <input id="sale-balance" class="form-control text-right" type="text" value="">
+                  <input id="sale-phone" class="form-control" type="tel">
               </div>
           </div>
           <div class="form-group row">
-              <label class="col-xs-3 col-form-label col-form-label-lg">Amount</label>
+              <label class="col-xs-3 col-form-label col-form-label-lg">Amount of Account</label>
               <div class="col-xs-9">
                   <div class="input-group">
                       <div class="input-group-addon">$</div>
-                      <input id="sale-amount" class="form-control text-right" type="text" value="">
+                      <input id="sale-amount-of-account" class="form-control text-right" type="number">
                   </div>
               </div>
           </div>
-          <input id="save" type="button" value="Save" class="btn btn-primary" />
+          <div class="form-group row">
+              <label class="col-xs-3 col-form-label col-form-label-lg">Rental Amount</label>
+              <div class="col-xs-9">
+                  <div class="input-group">
+                      <div class="input-group-addon">$</div>
+                      <input id="sale-rental-amount" class="form-control text-right" type="number" placeholder="0.00">
+                  </div>
+              </div>
+          </div>
+          <div class="form-group row">
+              <label class="col-xs-3 col-form-label col-form-label-lg">This Payment</label>
+              <div class="col-xs-9">
+                  <div class="input-group">
+                      <div class="input-group-addon">$</div>
+                      <input id="sale-payment" class="form-control text-right" type="number" placeholder="0.00" />
+                  </div>
+              </div>
+          </div>
+          <div class="form-group row">
+              <label class="col-xs-3 col-form-label col-form-label-lg">Memo</label>
+              <div class="col-xs-9">
+                  <textarea id="sale-memo" class="form-control" rows="3"></textarea>
+              </div>
+          </div>
+          <input id="sale-save" type="button" value="Save &amp; Print" class="btn btn-primary" />
       </form>
   </div>
   </body>

@@ -1,4 +1,4 @@
-const AccountSettingsController = require('./account-settings-controller');
+import AccountSettingsController from './account-settings-controller';
 import TransferView from '../views/transfer-view';
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 const Currency = require('currency.js');

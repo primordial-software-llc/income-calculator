@@ -20992,17 +20992,7 @@ arguments[4][30][0].apply(exports,arguments)
 },{"dup":30}],63:[function(require,module,exports){
 "use strict";
 
-var _balanceSheetController = _interopRequireDefault(require("./controllers/balance-sheet-controller"));
-
-var _banksController = _interopRequireDefault(require("./controllers/banks-controller"));
-
-var _budgetCalendarController = _interopRequireDefault(require("./controllers/budget-calendar-controller"));
-
-var _budgetController = _interopRequireDefault(require("./controllers/budget-controller"));
-
 var _commandButtonsView = _interopRequireDefault(require("./views/command-buttons-view"));
-
-var _depositController = _interopRequireDefault(require("./controllers/deposit-controller"));
 
 var _footerView = _interopRequireDefault(require("./views/footer-view"));
 
@@ -21011,16 +21001,6 @@ var _homeController = _interopRequireDefault(require("./controllers/home-control
 var _loginSignupController = _interopRequireDefault(require("./controllers/login-signup-controller"));
 
 var _nav = _interopRequireDefault(require("./nav"));
-
-var _payDaysController = _interopRequireDefault(require("./controllers/pay-days-controller"));
-
-var _propertyPointOfSaleController = _interopRequireDefault(require("./controllers/property-point-of-sale-controller"));
-
-var _purchaseController = _interopRequireDefault(require("./controllers/purchase-controller"));
-
-var _pricesController = _interopRequireDefault(require("./controllers/prices-controller"));
-
-var _transfersController = _interopRequireDefault(require("./controllers/transfers-controller"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21045,33 +21025,21 @@ async function init() {
     Util.log(err);
   }
 
-  let authenticatedControllers = [_budgetController.default, _budgetCalendarController.default, _balanceSheetController.default, _transfersController.default, _depositController.default, _pricesController.default];
+  let authenticatedControllers = _nav.default.getAuthenticatedControllers(usernameResponse);
 
-  if ((usernameResponse || {}).email === 'timg456789@yahoo.com') {
-    authenticatedControllers.push(_payDaysController.default);
-    authenticatedControllers.push(_propertyPointOfSaleController.default);
-  }
-
-  if (!(usernameResponse || {}).billingAgreement || !(usernameResponse || {}).billingAgreement.agreedToBillingTerms) {
-    authenticatedControllers.push(_purchaseController.default);
-  } else {
-    authenticatedControllers.push(_banksController.default);
-  }
-
-  let navItemHtml = authenticatedControllers.map(controllerType => _nav.default.getNavItemView(controllerType.getUrl(), controllerType.getName()));
-  $('.tab-nav-bar').append(navItemHtml.join(''));
   let controller;
   let controllerType = authenticatedControllers.find(x => pageName.startsWith(x.getUrl().split('/').pop()));
 
   if (controllerType) {
     controller = new controllerType();
-    $('body').append(_footerView.default.getView(navItemHtml.join('')));
 
     if (usernameResponse) {
       $('#account-settings-view-cognito-user').text(usernameResponse.email);
       $('#account-settings-view-license-agreement').append(`Agreed to license on ${usernameResponse.licenseAgreement.agreementDateUtc} ` + `from IP ${usernameResponse.licenseAgreement.ipAddress}`);
     }
-  } else if (pageName.startsWith('login.html')) {
+  }
+
+  if (pageName.startsWith('login.html')) {
     controller = new LoginController();
   } else if (pageName.startsWith('login-signup.html')) {
     controller = new _loginSignupController.default();
@@ -21081,7 +21049,7 @@ async function init() {
 
   try {
     if (controller) {
-      await controller.init();
+      await controller.init(usernameResponse);
     }
   } catch (error) {
     Util.log(error);
@@ -21092,7 +21060,7 @@ $(document).ready(function () {
   init();
 });
 
-},{"./controllers/balance-sheet-controller":72,"./controllers/banks-controller":74,"./controllers/budget-calendar-controller":75,"./controllers/budget-controller":76,"./controllers/deposit-controller":77,"./controllers/home-controller":78,"./controllers/login-controller":79,"./controllers/login-signup-controller":80,"./controllers/pay-days-controller":82,"./controllers/prices-controller":83,"./controllers/property-point-of-sale-controller":84,"./controllers/purchase-controller":85,"./controllers/transfers-controller":86,"./data-client":87,"./nav":88,"./util":89,"./views/command-buttons-view":106,"./views/footer-view":107}],64:[function(require,module,exports){
+},{"./controllers/home-controller":78,"./controllers/login-controller":79,"./controllers/login-signup-controller":80,"./data-client":87,"./nav":88,"./util":89,"./views/command-buttons-view":106,"./views/footer-view":107}],64:[function(require,module,exports){
 function CalendarSearch() {
 
     this.find = function (startTime, endTime, transactions) {
@@ -21371,81 +21339,6 @@ function CalendarCalculator() {
 
 module.exports = CalendarCalculator;
 },{}],71:[function(require,module,exports){
-const DataClient = require('../data-client');
-const Util = require('../util');
-function AccountSettingsController() {
-    'use strict';
-    let dataClient;
-    let view;
-    async function save() {
-        let data = await view.getModel();
-        try {
-            let response = await dataClient.patch(data);
-            window.location.reload();
-        } catch (err) {
-            Util.log(err);
-        }
-    }
-    this.init = function (viewIn) {
-        view = viewIn;
-        dataClient = new DataClient();
-        $('#save').click(save);
-        $('#obfuscate-data').click(() => {
-            if (Util.obfuscate()) {
-                document.cookie = 'obfuscate=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
-            } else {
-                document.cookie = `obfuscate=true;Secure;path=/`;
-            }
-            window.location.reload();
-        });
-        $('#account-settings-button').click(() => {
-            $('#account-settings-view').modal({backdrop: 'static'});
-        });
-        $('#log-out-button').click(async () => {
-            try {
-                await dataClient.post('signout', {});
-                window.location=`${Util.rootUrl()}/pages/login.html`;
-            } catch (error) {
-                Util.log(error);
-            }
-        });
-        $('#view-raw-data-button').click(async () => {
-            let data;
-            try {
-                data = await dataClient.getBudget();
-            } catch (error) {
-                Util.log(error);
-                return;
-            }
-            $('#raw-data-view .modal-body').empty();
-            $('#raw-data-view .modal-body').append(`<pre>${JSON.stringify(data, 0, 4)}</pre>`);
-            $('#raw-data-view').modal({backdrop: 'static' });
-        });
-        $('#budget-download').click(async function () {
-            let data;
-            try {
-                data = await dataClient.getBudget();
-            } catch (err) {
-                Util.log(err);
-                return;
-            }
-            let downloadLink = document.createElement('a');
-            downloadLink.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, 0, 4)));
-            downloadLink.setAttribute('download', 'data.json');
-            if (document.createEvent) {
-                let event = document.createEvent('MouseEvents');
-                event.initEvent('click', true, true);
-                downloadLink.dispatchEvent(event);
-            }
-            else {
-                downloadLink.click();
-            }
-        });
-    };
-}
-
-module.exports = AccountSettingsController;
-},{"../data-client":87,"../util":89}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21453,13 +21346,123 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _footerView = _interopRequireDefault(require("../views/footer-view"));
+
+var _nav = _interopRequireDefault(require("../nav"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const DataClient = require('../data-client');
+
+const Util = require('../util');
+
+class AccountSettingsController {
+  async save() {
+    let data = await this.view.getModel();
+
+    try {
+      let dataClient = new DataClient();
+      let response = await dataClient.patch(data);
+      window.location.reload();
+    } catch (err) {
+      Util.log(err);
+    }
+  }
+
+  init(viewIn, usernameResponse, injectFooter) {
+    this.view = viewIn;
+    let dataClient = new DataClient();
+    $('#save').click(this.save);
+    $('#obfuscate-data').click(() => {
+      if (Util.obfuscate()) {
+        document.cookie = 'obfuscate=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
+      } else {
+        document.cookie = `obfuscate=true;Secure;path=/`;
+      }
+
+      window.location.reload();
+    });
+    $('#account-settings-button').click(() => {
+      $('#account-settings-view').modal({
+        backdrop: 'static'
+      });
+    });
+    $('#log-out-button').click(async () => {
+      try {
+        await dataClient.post('signout', {});
+        window.location = `${Util.rootUrl()}/pages/login.html`;
+      } catch (error) {
+        Util.log(error);
+      }
+    });
+    $('#view-raw-data-button').click(async () => {
+      let data;
+
+      try {
+        data = await dataClient.getBudget();
+      } catch (error) {
+        Util.log(error);
+        return;
+      }
+
+      $('#raw-data-view .modal-body').empty();
+      $('#raw-data-view .modal-body').append(`<pre>${JSON.stringify(data, 0, 4)}</pre>`);
+      $('#raw-data-view').modal({
+        backdrop: 'static'
+      });
+    });
+    $('#budget-download').click(async function () {
+      let data;
+
+      try {
+        data = await dataClient.getBudget();
+      } catch (err) {
+        Util.log(err);
+        return;
+      }
+
+      let downloadLink = document.createElement('a');
+      downloadLink.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, 0, 4)));
+      downloadLink.setAttribute('download', 'data.json');
+
+      if (document.createEvent) {
+        let event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        downloadLink.dispatchEvent(event);
+      } else {
+        downloadLink.click();
+      }
+    });
+
+    let authenticatedControllers = _nav.default.getAuthenticatedControllers(usernameResponse);
+
+    let navItemHtml = authenticatedControllers.map(controllerType => _nav.default.getNavItemView(controllerType.getUrl(), controllerType.getName()));
+    $('.tab-nav-bar').append(navItemHtml.join(''));
+
+    if (injectFooter) {
+      $('body').append(_footerView.default.getView(navItemHtml.join('')));
+    }
+  }
+
+}
+
+exports.default = AccountSettingsController;
+
+},{"../data-client":87,"../nav":88,"../util":89,"../views/footer-view":107}],72:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
 var _loanViewModel = _interopRequireDefault(require("../views/balance-sheet/loan-view-model"));
 
 var _balanceSheetViewModel = _interopRequireDefault(require("../view-models/balance-sheet-view-model"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const AccountSettingsController = require('./account-settings-controller');
 
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 
@@ -21491,8 +21494,8 @@ class BalanceSheetController {
     return `${Util.rootUrl()}/pages/balance-sheet.html`;
   }
 
-  async init() {
-    new AccountSettingsController().init(balanceSheetView);
+  async init(usernameResponse) {
+    new _accountSettingsController.default().init(balanceSheetView, usernameResponse);
 
     if (Util.obfuscate()) {
       $('#add-new-balance').prop('disabled', true);
@@ -21594,7 +21597,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-const AccountSettingsController = require('./account-settings-controller');
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const DataClient = require('../data-client');
 
@@ -21609,8 +21614,8 @@ class BanksController {
     return `${Util.rootUrl()}/pages/banks.html`;
   }
 
-  async init() {
-    new AccountSettingsController().init({});
+  async init(usernameResponse) {
+    new _accountSettingsController.default().init({}, usernameResponse);
     $('#link-button').on('click', function (e) {
       let selectedProducts = ['transactions'];
       let handler = Plaid.create({
@@ -21712,7 +21717,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-const AccountSettingsController = require('./account-settings-controller');
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const CalendarView = require('../views/calendar-view');
 
@@ -21821,8 +21828,8 @@ class BudgetCalendarController {
     });
   }
 
-  async init() {
-    new AccountSettingsController().init();
+  async init(usernameResponse) {
+    new _accountSettingsController.default().init({}, usernameResponse);
     await this.load();
   }
 
@@ -21838,6 +21845,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
 var _balanceSheetViewModel = _interopRequireDefault(require("../view-models/balance-sheet-view-model"));
 
 var _budgetView = _interopRequireDefault(require("../views/budget/budget-view"));
@@ -21849,8 +21858,6 @@ var _monthlyView = _interopRequireDefault(require("../views/budget/monthly-view"
 var _biweeklyView = _interopRequireDefault(require("../views/budget/biweekly-view"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const AccountSettingsController = require('./account-settings-controller');
 
 const DataClient = require('../data-client');
 
@@ -21888,9 +21895,9 @@ class BudgetController {
     return creditableAccounts.concat((viewModel.balances || []).filter(x => x.type === 'credit').map(x => x.name));
   }
 
-  async init() {
+  async init(usernameResponse) {
     this.homeView = new _budgetView.default();
-    new AccountSettingsController().init(this.homeView);
+    new _accountSettingsController.default().init(this.homeView, usernameResponse);
     $('.add-new-budget-item').prop('disabled', true);
     let self = this;
     $('#add-new-biweekly').click(async function () {
@@ -21920,7 +21927,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-const AccountSettingsController = require('./account-settings-controller');
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const DataClient = require('../data-client');
 
@@ -21964,7 +21973,7 @@ class DepositController {
   }
 
   async init() {
-    new AccountSettingsController().init();
+    new _accountSettingsController.default().init();
 
     if (Util.obfuscate()) {
       $('#submit-transfer').prop('disabled', true);
@@ -22000,11 +22009,11 @@ exports.default = HomeController;
 },{}],79:[function(require,module,exports){
 "use strict";
 
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
 var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const AccountSettingsController = require('./account-settings-controller');
 
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 
@@ -22170,7 +22179,7 @@ function LoginController() {
   }
 
   this.init = function () {
-    new AccountSettingsController().init();
+    new _accountSettingsController.default().init();
     initAsync().catch(err => {
       Util.log(err);
     });
@@ -22180,89 +22189,112 @@ function LoginController() {
 module.exports = LoginController;
 
 },{"../data-client":87,"../util":89,"./account-settings-controller":71,"./message-view-controller":81,"amazon-cognito-identity-js":17,"otpauth":33,"qrcode":34}],80:[function(require,module,exports){
-const AccountSettingsController = require('./account-settings-controller');
-const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+"use strict";
+
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const DataClient = require('../data-client');
+
 const Util = require('../util');
 
 function LoginSignupController() {
-    'use strict';
-    function setError(errorMessage) {
-        errorMessage = errorMessage || '';
-        if (Array.isArray(errorMessage)) {
-            for (let errorMessageItem of errorMessage) {
-                console.log(errorMessageItem);
-                $('#errorMessageAlert').append($(`<div>&bull;&nbsp;${errorMessageItem}</div>`));
-            }
-        } else {
-            $('#errorMessageAlert').text(errorMessage);
-        }
-        if (errorMessage.length < 1) {
-            $('#errorMessageAlert').addClass('hide');
-        } else {
-            $('#errorMessageAlert').removeClass('hide');
-        }
+  'use strict';
+
+  function setError(errorMessage) {
+    errorMessage = errorMessage || '';
+
+    if (Array.isArray(errorMessage)) {
+      for (let errorMessageItem of errorMessage) {
+        console.log(errorMessageItem);
+        $('#errorMessageAlert').append($(`<div>&bull;&nbsp;${errorMessageItem}</div>`));
+      }
+    } else {
+      $('#errorMessageAlert').text(errorMessage);
     }
-    function getFieldValidation() {
-        let issues = [];
-        if ($('#login-username').val().trim().length < 1) {
-            issues.push('Email is required');
-        }
-        let password = $('#login-password').val().trim();
-        if (password.length < 1) {
-            issues.push('Password is required');
-        } else if (password.length < 8) {
-            issues.push('Password must be at least 8 characters');
-        } if (!new RegExp(/[A-Z]/).test(password)) {
-            issues.push('Password must contain at least one uppercase character');
-        } else if (!new RegExp(/[a-z]/).test(password)) {
-            issues.push('Password must contain at least one lowercase character');
-        } else if (!new RegExp(/[0-9]/).test(password)) {
-            issues.push('Password must contain at least one number');
-        } else if (!new RegExp(/[\.!@#\$%\^&\*\(\)_]/).test(password)) {
-            issues.push('Password must contain at least one of the following special characters: .!@#$%^&*()_');
-        }
-        if (!$('#acceptLicense').is(':checked')) {
-            issues.push('You must agree to the license to proceed');
-        }
-        return issues;
+
+    if (errorMessage.length < 1) {
+      $('#errorMessageAlert').addClass('hide');
+    } else {
+      $('#errorMessageAlert').removeClass('hide');
     }
-    async function signupUser() {
-        setError('');
-        let validation = getFieldValidation();
-        if (validation.length > 0) {
-            setError(validation);
-            return;
-        }
-        let dataClient = new DataClient();
-        let response = await dataClient.post('unauthenticated/signup',
-            {
-                email: $('#login-username').val().trim(),
-                password: $('#login-password').val().trim(),
-                agreedToLicense: $('#acceptLicense').is(':checked')
-            });
-        setError('');
-        $('.signup-form').addClass('hide');
-        $('#successMessageAlert').removeClass('hide');
-        $('#successMessageAlert').text(response.status);
+  }
+
+  function getFieldValidation() {
+    let issues = [];
+
+    if ($('#login-username').val().trim().length < 1) {
+      issues.push('Email is required');
     }
-    async function initAsync() {
-        $('#sign-up-button').click(async function () {
-            try {
-                await signupUser();
-            } catch (error) {
-                setError(JSON.stringify(error));
-            }
-        });
+
+    let password = $('#login-password').val().trim();
+
+    if (password.length < 1) {
+      issues.push('Password is required');
+    } else if (password.length < 8) {
+      issues.push('Password must be at least 8 characters');
     }
-    this.init = function () {
-        new AccountSettingsController().init();
-        initAsync().catch(err => { Util.log(err); });
-    };
+
+    if (!new RegExp(/[A-Z]/).test(password)) {
+      issues.push('Password must contain at least one uppercase character');
+    } else if (!new RegExp(/[a-z]/).test(password)) {
+      issues.push('Password must contain at least one lowercase character');
+    } else if (!new RegExp(/[0-9]/).test(password)) {
+      issues.push('Password must contain at least one number');
+    } else if (!new RegExp(/[\.!@#\$%\^&\*\(\)_]/).test(password)) {
+      issues.push('Password must contain at least one of the following special characters: .!@#$%^&*()_');
+    }
+
+    if (!$('#acceptLicense').is(':checked')) {
+      issues.push('You must agree to the license to proceed');
+    }
+
+    return issues;
+  }
+
+  async function signupUser() {
+    setError('');
+    let validation = getFieldValidation();
+
+    if (validation.length > 0) {
+      setError(validation);
+      return;
+    }
+
+    let dataClient = new DataClient();
+    let response = await dataClient.post('unauthenticated/signup', {
+      email: $('#login-username').val().trim(),
+      password: $('#login-password').val().trim(),
+      agreedToLicense: $('#acceptLicense').is(':checked')
+    });
+    setError('');
+    $('.signup-form').addClass('hide');
+    $('#successMessageAlert').removeClass('hide');
+    $('#successMessageAlert').text(response.status);
+  }
+
+  async function initAsync() {
+    $('#sign-up-button').click(async function () {
+      try {
+        await signupUser();
+      } catch (error) {
+        setError(JSON.stringify(error));
+      }
+    });
+  }
+
+  this.init = function () {
+    new _accountSettingsController.default().init();
+    initAsync().catch(err => {
+      Util.log(err);
+    });
+  };
 }
 
 module.exports = LoginSignupController;
-},{"../data-client":87,"../util":89,"./account-settings-controller":71,"amazon-cognito-identity-js":17}],81:[function(require,module,exports){
+
+},{"../data-client":87,"../util":89,"./account-settings-controller":71}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22314,6 +22346,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const moment = require('moment/moment');
 
 const cal = require('../calculators/calendar');
@@ -22323,8 +22359,6 @@ const UtcDay = require('../calculators/utc-day');
 const DataClient = require('../data-client');
 
 const Currency = require('currency.js');
-
-const AccountSettingsController = require('./account-settings-controller');
 
 const PayDaysView = require('../views/pay-days-view');
 
@@ -22368,7 +22402,7 @@ class PayDaysController {
 
   async init() {
     const max401kContribution = 19500;
-    new AccountSettingsController().init(PayDaysView);
+    new _accountSettingsController.default().init(PayDaysView);
     let data = await new DataClient().getBudget();
     $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
     $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
@@ -22400,7 +22434,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-const AccountSettingsController = require('./account-settings-controller');
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const DataClient = require('../data-client');
 
@@ -22418,7 +22454,7 @@ class PricesController {
   }
 
   async init() {
-    new AccountSettingsController().init(PricesView);
+    new _accountSettingsController.default().init(PricesView);
     let dataClient = new DataClient();
     let data = await dataClient.getBudget();
 
@@ -22444,17 +22480,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-const moment = require('moment/moment');
+var _currency = _interopRequireDefault(require("currency.js"));
 
-const cal = require('../calculators/calendar');
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
-const UtcDay = require('../calculators/utc-day');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const Moment = require('moment/moment');
 
 const DataClient = require('../data-client');
-
-const Currency = require('currency.js');
-
-const AccountSettingsController = require('./account-settings-controller');
 
 const PayDaysView = require('../views/pay-days-view');
 
@@ -22467,27 +22501,7 @@ function getView(paymentNumber, payDate) {
                 </div>`;
 }
 
-function getPayDates() {
-  let paymentDates = [];
-  let current = moment().utc().startOf('day');
-  let end = moment().utc().endOf('year');
-  let firstPayDateTime = moment('2019-04-12T00:00:00.000Z', moment.ISO_8601);
-
-  while (current < end) {
-    let diffFromFirstPayDate = new UtcDay().getDayDiff(firstPayDateTime, current.valueOf());
-    let modulusIntervalsFromFirstPayDate = diffFromFirstPayDate % cal.BIWEEKLY_INTERVAL;
-
-    if (modulusIntervalsFromFirstPayDate === 0) {
-      paymentDates.push(current.toISOString());
-    }
-
-    current = current.add(1, 'day');
-  }
-
-  return paymentDates;
-}
-
-class PayDaysController {
+class PropertyPointOfSaleController {
   static getName() {
     return 'Property';
   }
@@ -22496,33 +22510,56 @@ class PayDaysController {
     return `${Util.rootUrl()}/pages/property-point-of-sale.html`;
   }
 
-  async init() {
-    const max401kContribution = 19500;
-    new AccountSettingsController().init(PayDaysView);
-    let data = await new DataClient().getBudget();
-    $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
-    $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
-    $('#max-401k-contribution').text(Util.format(max401kContribution));
-    let payDates = getPayDates();
-    payDates.forEach((paymentDate, index) => {
-      $('.pay-days-container').append(getView(index + 1, paymentDate));
+  initForm() {
+    $('#sale-has-paid').prop('checked', true);
+    $('#sale-date').val(Moment().format('YYYY-MM-DD'));
+    $('#sale-phone').val('');
+  }
+
+  async init(usernameResponse) {
+    this.initForm();
+    new _accountSettingsController.default().init(PayDaysView, usernameResponse, false);
+    this.customers = await new DataClient().get('point-of-sale/customers');
+    let customers = this.customers;
+
+    for (let customer of this.customers) {
+      $('#sale-vendor-list').append(`<option>${customer.DisplayName}</option>`);
+    }
+
+    $("#sale-vendor").on('input', function () {
+      let input = this.value;
+      let customerMatch = customers.find(x => (x.DisplayName || '').toLocaleLowerCase() === (input || '').toLowerCase());
+
+      if (customerMatch) {
+        $('#sale-amount-of-account').val(customerMatch.Balance);
+
+        if (customerMatch.PrimaryPhone) {
+          $('#sale-phone').val(customerMatch.PrimaryPhone.FreeFormNumber || '');
+        }
+      }
     });
-    let projectedContributionForYear = Currency(data['401k-contribution-for-year']).add(Currency(data['401k-contribution-per-pay-check']).multiply(payDates.length));
-    $('#projected-contribution-for-year').text(Util.format(projectedContributionForYear.toString()));
-    $('#paychecks-remaining').text(payDates.length);
-    let shouldContributePerPaycheck = Currency(max401kContribution).subtract(data['401k-contribution-for-year']).divide(payDates.length);
-    let remainingShouldContribute = shouldContributePerPaycheck.multiply(payDates.length);
-    let totalShouldContribute = remainingShouldContribute.add(data['401k-contribution-for-year']);
-    $('#should-contribute-for-max').text(Util.format(shouldContributePerPaycheck.toString()));
-    $('#remaining-should-contribute-for-year').text(Util.format(remainingShouldContribute.toString()));
-    $('#total-should-contribute-for-year').text(Util.format(totalShouldContribute.toString()));
+    $('#sale-save').click(function () {
+      $('#sale-timestamp').text(Moment().format('L LT'));
+      $('#sale-date-text').text($('#sale-date').val());
+      $('#sale-vendor-text').text($('#sale-vendor').val());
+      let amountOfAccount = (0, _currency.default)($('#sale-amount-of-account').val(), Util.getCurrencyDefaults());
+      let rentalAmount = (0, _currency.default)($('#sale-rental-amount').val(), Util.getCurrencyDefaults());
+      $('#sale-amount-of-account-text').text(Util.format(amountOfAccount.toString()));
+      $('#sale-rental-amount-text').text(Util.format(rentalAmount.toString()));
+      /*
+      let balanceDue = amountOfAccount.subtract(payment);
+      $('#sale-balance-due-text').text(Util.format(balanceDue.toString()));
+      */
+
+      window.print();
+    }); //console.log(data);
   }
 
 }
 
-exports.default = PayDaysController;
+exports.default = PropertyPointOfSaleController;
 
-},{"../calculators/calendar":65,"../calculators/utc-day":69,"../data-client":87,"../util":89,"../views/pay-days-view":108,"./account-settings-controller":71,"currency.js":27,"moment/moment":32}],85:[function(require,module,exports){
+},{"../data-client":87,"../util":89,"../views/pay-days-view":108,"./account-settings-controller":71,"currency.js":27,"moment/moment":32}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22530,11 +22567,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
 var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const AccountSettingsController = require('./account-settings-controller');
 
 const DataClient = require('../data-client');
 
@@ -22554,7 +22591,7 @@ class PricesController {
   }
 
   async init() {
-    new AccountSettingsController().init(PricesView);
+    new _accountSettingsController.default().init(PricesView);
     $('#billing-start-date').text(Moment().format('MMMM Do YYYY'));
     $('#submit-purchase').click(async function () {
       if (!$('#agreedToBillingTerms').is(':checked')) {
@@ -22621,11 +22658,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
 var _transferView = _interopRequireDefault(require("../views/transfer-view"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const AccountSettingsController = require('./account-settings-controller');
 
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 
@@ -22744,7 +22781,7 @@ class TransfersController {
   }
 
   async init() {
-    new AccountSettingsController().init(balanceSheetView);
+    new _accountSettingsController.default().init(balanceSheetView);
     this.refresh();
   }
 
@@ -22872,6 +22909,28 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _budgetController = _interopRequireDefault(require("./controllers/budget-controller"));
+
+var _budgetCalendarController = _interopRequireDefault(require("./controllers/budget-calendar-controller"));
+
+var _balanceSheetController = _interopRequireDefault(require("./controllers/balance-sheet-controller"));
+
+var _transfersController = _interopRequireDefault(require("./controllers/transfers-controller"));
+
+var _depositController = _interopRequireDefault(require("./controllers/deposit-controller"));
+
+var _pricesController = _interopRequireDefault(require("./controllers/prices-controller"));
+
+var _payDaysController = _interopRequireDefault(require("./controllers/pay-days-controller"));
+
+var _propertyPointOfSaleController = _interopRequireDefault(require("./controllers/property-point-of-sale-controller"));
+
+var _purchaseController = _interopRequireDefault(require("./controllers/purchase-controller"));
+
+var _banksController = _interopRequireDefault(require("./controllers/banks-controller"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 class Navigation {
   static getNavItemView(url, name) {
     return `<a class="tab-nav-item" href="${url}" title="${name}">
@@ -22879,11 +22938,28 @@ class Navigation {
               </a>`;
   }
 
+  static getAuthenticatedControllers(usernameResponse) {
+    let authenticatedControllers = [_budgetController.default, _budgetCalendarController.default, _balanceSheetController.default, _transfersController.default, _depositController.default, _pricesController.default];
+
+    if ((usernameResponse || {}).email === 'timg456789@yahoo.com') {
+      authenticatedControllers.push(_payDaysController.default);
+      authenticatedControllers.push(_propertyPointOfSaleController.default);
+    }
+
+    if (!(usernameResponse || {}).billingAgreement || !(usernameResponse || {}).billingAgreement.agreedToBillingTerms) {
+      authenticatedControllers.push(_purchaseController.default);
+    } else {
+      authenticatedControllers.push(_banksController.default);
+    }
+
+    return authenticatedControllers;
+  }
+
 }
 
 exports.default = Navigation;
 
-},{}],89:[function(require,module,exports){
+},{"./controllers/balance-sheet-controller":72,"./controllers/banks-controller":74,"./controllers/budget-calendar-controller":75,"./controllers/budget-controller":76,"./controllers/deposit-controller":77,"./controllers/pay-days-controller":82,"./controllers/prices-controller":83,"./controllers/property-point-of-sale-controller":84,"./controllers/purchase-controller":85,"./controllers/transfers-controller":86}],89:[function(require,module,exports){
 const Currency = require('currency.js');
 exports.log = function (error) {
     console.log(error);

@@ -1,4 +1,4 @@
-const AccountSettingsController = require('./account-settings-controller');
+import AccountSettingsController from './account-settings-controller';
 import BalanceSheetViewModel from '../view-models/balance-sheet-view-model';
 import BudgetView from '../views/budget/budget-view';
 import WeeklyView from '../views/budget/weekly-view';
@@ -32,9 +32,9 @@ export default class BudgetController {
         let creditableAccounts = (viewModel.assets || []).filter(x => x.name && x.type === 'cash').map(x => x.name);
         return creditableAccounts.concat((viewModel.balances || []).filter(x => x.type ==='credit').map(x => x.name));
     }
-    async init() {
+    async init(usernameResponse) {
         this.homeView = new BudgetView();
-        new AccountSettingsController().init(this.homeView);
+        new AccountSettingsController().init(this.homeView, usernameResponse);
         $('.add-new-budget-item').prop('disabled', true);
         let self = this;
         $('#add-new-biweekly').click(async function () {

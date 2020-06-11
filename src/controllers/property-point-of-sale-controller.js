@@ -1,9 +1,7 @@
-const moment = require('moment/moment');
-const cal = require('../calculators/calendar');
-const UtcDay = require('../calculators/utc-day');
+import Currency from 'currency.js';
+const Moment = require('moment/moment');
 const DataClient = require('../data-client');
-const Currency = require('currency.js');
-const AccountSettingsController = require('./account-settings-controller');
+import AccountSettingsController from './account-settings-controller';
 const PayDaysView = require('../views/pay-days-view');
 const Util = require('../util');
 function getView(paymentNumber, payDate) {
@@ -12,51 +10,61 @@ function getView(paymentNumber, payDate) {
                     <div class="col-xs-11">${payDate}</div>
                 </div>`;
 }
-function getPayDates() {
-    let paymentDates = [];
-    let current = moment().utc().startOf('day');
-    let end = moment().utc().endOf('year');
-    let firstPayDateTime = moment('2019-04-12T00:00:00.000Z', moment.ISO_8601);
-    while (current < end) {
-        let diffFromFirstPayDate = new UtcDay().getDayDiff(firstPayDateTime, current.valueOf());
-        let modulusIntervalsFromFirstPayDate = diffFromFirstPayDate % cal.BIWEEKLY_INTERVAL;
-        if (modulusIntervalsFromFirstPayDate === 0) {
-            paymentDates.push(current.toISOString());
-        }
-        current = current.add(1, 'day');
-    }
-    return paymentDates;
-}
-export default class PayDaysController {
+export default class PropertyPointOfSaleController {
     static getName() {
         return 'Property';
     }
     static getUrl() {
         return `${Util.rootUrl()}/pages/property-point-of-sale.html`;
     }
-    async init() {
-        const max401kContribution = 19500;
-        new AccountSettingsController().init(PayDaysView);
-        let data = await new DataClient().getBudget();
-        $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
-        $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
-        $('#max-401k-contribution').text(Util.format(max401kContribution));
-        let payDates = getPayDates();
-        payDates.forEach((paymentDate, index) => {
-            $('.pay-days-container').append(getView(index + 1, paymentDate));
+    initForm() {
+        $('#sale-has-paid').prop('checked', true);
+        $('#sale-date').val(Moment().format('YYYY-MM-DD'));
+        $('#sale-phone').val('');
+    }
+    async init(usernameResponse) {
+        this.initForm();
+        new AccountSettingsController().init(PayDaysView, usernameResponse, false);
+        this.customers = await new DataClient().get('point-of-sale/customers');
+        let customers = this.customers;
+
+        for (let customer of this.customers) {
+            $('#sale-vendor-list').append(`<option>${customer.DisplayName}</option>`);
+        }
+
+        $("#sale-vendor").on('input', function () {
+            let input = this.value;
+            let customerMatch = customers.find(x =>
+                (x.DisplayName || '').toLocaleLowerCase() === (input || '').toLowerCase());
+            if (customerMatch) {
+                $('#sale-amount-of-account').val(customerMatch.Balance);
+                if (customerMatch.PrimaryPhone) {
+                    $('#sale-phone').val(customerMatch.PrimaryPhone.FreeFormNumber || '');
+                }
+            }
         });
-        let projectedContributionForYear = Currency(data['401k-contribution-for-year']).add(
-            Currency(data['401k-contribution-per-pay-check']).multiply(payDates.length)
-        );
-        $('#projected-contribution-for-year').text(Util.format(projectedContributionForYear.toString()));
-        $('#paychecks-remaining').text(payDates.length);
-        let shouldContributePerPaycheck = Currency(max401kContribution)
-            .subtract(data['401k-contribution-for-year'])
-            .divide(payDates.length);
-        let remainingShouldContribute = shouldContributePerPaycheck.multiply(payDates.length);
-        let totalShouldContribute = remainingShouldContribute.add(data['401k-contribution-for-year']);
-        $('#should-contribute-for-max').text(Util.format(shouldContributePerPaycheck.toString()));
-        $('#remaining-should-contribute-for-year').text(Util.format(remainingShouldContribute.toString()));
-        $('#total-should-contribute-for-year').text(Util.format(totalShouldContribute.toString()));
+
+        $('#sale-save').click(function() {
+
+            $('#sale-timestamp').text(Moment().format('L LT'));
+
+            $('#sale-date-text').text($('#sale-date').val());
+            $('#sale-vendor-text').text($('#sale-vendor').val());
+            let amountOfAccount = Currency($('#sale-amount-of-account').val(), Util.getCurrencyDefaults());
+            let rentalAmount = Currency($('#sale-rental-amount').val(), Util.getCurrencyDefaults());
+            let payment = Currency($('#sale-payment').val(), Util.getCurrencyDefaults());
+            $('#sale-amount-of-account-text').text(Util.format(amountOfAccount.toString()));
+            $('#sale-rental-amount-text').text(Util.format(rentalAmount.toString()));
+            $('#sale-payment-text').text(Util.format(payment.toString()));
+
+            let balanceDue = amountOfAccount.add(rentalAmount);
+            balanceDue = balanceDue.subtract(payment);
+
+            $('#sale-balance-due-text').text(Util.format(balanceDue.toString()));
+
+            window.print();
+        });
+
+        //console.log(data);
     }
 }

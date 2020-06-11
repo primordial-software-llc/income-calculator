@@ -1,4 +1,4 @@
-const AccountSettingsController = require('./account-settings-controller');
+import AccountSettingsController from './account-settings-controller';
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 const DataClient = require('../data-client');
 import LoanViewModel from '../views/balance-sheet/loan-view-model';
@@ -23,8 +23,8 @@ export default class BalanceSheetController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/balance-sheet.html`;
     }
-    async init() {
-        new AccountSettingsController().init(balanceSheetView);
+    async init(usernameResponse) {
+        new AccountSettingsController().init(balanceSheetView, usernameResponse);
         if (Util.obfuscate()) {
             $('#add-new-balance').prop('disabled', true);
         }

@@ -1,5 +1,4 @@
-const AccountSettingsController = require('./account-settings-controller');
-const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
+import AccountSettingsController from './account-settings-controller';
 const DataClient = require('../data-client');
 const Util = require('../util');
 

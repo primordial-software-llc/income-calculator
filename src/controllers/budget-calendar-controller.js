@@ -1,4 +1,4 @@
-const AccountSettingsController = require('./account-settings-controller');
+import AccountSettingsController from './account-settings-controller';
 const CalendarView = require('../views/calendar-view');
 const DataClient = require('../data-client');
 const Util = require('../util');
@@ -93,8 +93,8 @@ export default class BudgetCalendarController {
         });
     }
 
-    async init() {
-        new AccountSettingsController().init();
+    async init(usernameResponse) {
+        new AccountSettingsController().init({}, usernameResponse);
         await this.load();
     }
 }
