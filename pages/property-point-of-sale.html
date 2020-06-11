@@ -7,14 +7,6 @@
     <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/point-of-sale.css">
-    <style>
-      .imago-header {
-          background-image: url(https://www.primordial-software.com/docs/imago-design/budget-smallest.jpg);
-          background-position: 0px -211px;
-          background-repeat: no-repeat;
-          background-size: cover;
-      }
-    </style>
     <title>Net Income Calculator</title>
       <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
       <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
@@ -35,7 +27,8 @@
       <div class="receipt-data-group">Amount of Account:<div id="sale-amount-of-account-text"></div></div>
       <div class="receipt-data-group">Rental Amount:<div id="sale-rental-amount-text"></div></div>
       <div class="receipt-data-group">This Payment:<div id="sale-payment-text"></div></div>
-      <div class="receipt-data-group">Balance Due: <br /><span id="sale-balance-due-text"></span></div>
+      <div class="receipt-data-group">Balance Due:<div id="sale-balance-due-text"></div></div>
+      <div class="receipt-data-group memo-receipt-group">Memo:<div id="sale-memo-text"></div></div>
       <br />
       <div class="text-center">
           2701 Swindell Rd, Lakeland, FL 33805
@@ -98,6 +91,7 @@
               </div>
           </div>
           <input id="sale-save" type="button" value="Save &amp; Print" class="btn btn-primary" />
+          <input id="sale-new" type="button" value="New Receipt" class="btn btn-primary" />
       </form>
   </div>
   </body>

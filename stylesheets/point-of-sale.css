@@ -1,0 +1,35 @@
+body label.col-form-label-lg,
+.input-group-addon,
+body textarea.form-control,
+body input.form-control {
+    font-size: 30px;
+}
+
+body input.form-control {
+    height: 50px;
+}
+
+.form-check-input {
+    height: 35px;
+    width: 35px;
+}
+
+.btn {
+    font-size: 30px;
+}
+
+@media print {
+    span, div {
+        font-size: 12px !important;
+        font-weight: bold;
+    }
+    .receipt-data-group {
+        margin-top: 10px;
+    }
+}
+
+@media screen {
+    .print-only, .print-only * {
+        display: none !important;
+    }
+}

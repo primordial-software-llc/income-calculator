@@ -2,14 +2,7 @@ import Currency from 'currency.js';
 const Moment = require('moment/moment');
 const DataClient = require('../data-client');
 import AccountSettingsController from './account-settings-controller';
-const PayDaysView = require('../views/pay-days-view');
 const Util = require('../util');
-function getView(paymentNumber, payDate) {
-    return `<div class="row">
-                    <div class="col-xs-1 text-right">${paymentNumber}</div>
-                    <div class="col-xs-11">${payDate}</div>
-                </div>`;
-}
 export default class PropertyPointOfSaleController {
     static getName() {
         return 'Property';
@@ -18,23 +11,25 @@ export default class PropertyPointOfSaleController {
         return `${Util.rootUrl()}/pages/property-point-of-sale.html`;
     }
     initForm() {
-        $('#sale-has-paid').prop('checked', true);
-        $('#sale-date').val(Moment().format('YYYY-MM-DD'));
-        $('#sale-phone').val('');
+        $('#sale-date').prop('disabled', false).val(Moment().format('YYYY-MM-DD'));
+        $('#sale-vendor').prop('disabled', false).val('');
+        $('#sale-phone').prop('disabled', false).val('');
+        $('#sale-amount-of-account').prop('disabled', false).val('');
+        $('#sale-rental-amount').prop('disabled', false).val('');
+        $('#sale-payment').prop('disabled', false).val('');
+        $('#sale-memo').prop('disabled', false).val('');
     }
     async init(usernameResponse) {
+        let self = this;
         this.initForm();
-        new AccountSettingsController().init(PayDaysView, usernameResponse, false);
+        new AccountSettingsController().init({}, usernameResponse, false);
         this.customers = await new DataClient().get('point-of-sale/customers');
-        let customers = this.customers;
-
         for (let customer of this.customers) {
             $('#sale-vendor-list').append(`<option>${customer.DisplayName}</option>`);
         }
-
         $("#sale-vendor").on('input', function () {
             let input = this.value;
-            let customerMatch = customers.find(x =>
+            let customerMatch = self.customers.find(x =>
                 (x.DisplayName || '').toLocaleLowerCase() === (input || '').toLowerCase());
             if (customerMatch) {
                 $('#sale-amount-of-account').val(customerMatch.Balance);
@@ -45,9 +40,7 @@ export default class PropertyPointOfSaleController {
         });
 
         $('#sale-save').click(function() {
-
             $('#sale-timestamp').text(Moment().format('L LT'));
-
             $('#sale-date-text').text($('#sale-date').val());
             $('#sale-vendor-text').text($('#sale-vendor').val());
             let amountOfAccount = Currency($('#sale-amount-of-account').val(), Util.getCurrencyDefaults());
@@ -56,15 +49,26 @@ export default class PropertyPointOfSaleController {
             $('#sale-amount-of-account-text').text(Util.format(amountOfAccount.toString()));
             $('#sale-rental-amount-text').text(Util.format(rentalAmount.toString()));
             $('#sale-payment-text').text(Util.format(payment.toString()));
-
             let balanceDue = amountOfAccount.add(rentalAmount);
             balanceDue = balanceDue.subtract(payment);
-
             $('#sale-balance-due-text').text(Util.format(balanceDue.toString()));
+            let memo = $('#sale-memo').val().trim();
+            $('.memo-receipt-group').toggle(!!memo);
+            $('#sale-memo-text').text(memo);
+
+            $('#sale-date').prop('disabled', true);
+            $('#sale-vendor').prop('disabled', true);
+            $('#sale-phone').prop('disabled', true);
+            $('#sale-amount-of-account').prop('disabled', true);
+            $('#sale-rental-amount').prop('disabled', true);
+            $('#sale-payment').prop('disabled', true);
+            $('#sale-memo').prop('disabled', true);
 
             window.print();
         });
 
-        //console.log(data);
+        $('#sale-new').click(function() {
+            self.initForm();
+        });
     }
 }
