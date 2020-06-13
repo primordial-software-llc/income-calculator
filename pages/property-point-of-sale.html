@@ -20,11 +20,13 @@
           Flea Market
           <br/>
           <span id="sale-timestamp"></span>
+          <br/>
+          Receipt ID: <span id="sale-id"></span>
       </div>
       <br />
       <div>Rental Date:<br /><span id="sale-date-text"></span></div>
       <div class="receipt-data-group">Vendor:<div id="sale-vendor-text"></div></div>
-      <div class="receipt-data-group">Amount of Account:<div id="sale-amount-of-account-text"></div></div>
+      <div class="receipt-data-group amount-of-account-receipt-group">Amount of Account:<div id="sale-amount-of-account-text"></div></div>
       <div class="receipt-data-group">Rental Amount:<div id="sale-rental-amount-text"></div></div>
       <div class="receipt-data-group">This Payment:<div id="sale-payment-text"></div></div>
       <div class="receipt-data-group">Balance Due:<div id="sale-balance-due-text"></div></div>
@@ -49,12 +51,6 @@
                   <input id="sale-vendor" class="form-control" type="text" list="sale-vendor-list">
                   <datalist id="sale-vendor-list">
                   </datalist>
-              </div>
-          </div>
-          <div class="form-group row">
-              <label class="col-xs-3 col-form-label col-form-label-lg">Phone</label>
-              <div class="col-xs-9">
-                  <input id="sale-phone" class="form-control" type="tel">
               </div>
           </div>
           <div class="form-group row">

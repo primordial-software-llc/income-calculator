@@ -1,0 +1,15 @@
+Property Point of Sale
+
+A. Taking a payment on a previous sale.
+	1. A new payment will be created causing the customers balance to decrease.
+	2. The payment should be applied manually in quickbooks at a later time.
+
+B. Making a sale, but not taking a payment.
+	1. A new invoice will be created with no payment causing the customers balance to increase.
+
+C. Making a sale and taking a payment.
+	1. When a payment is made greater than a new sale, two payments will be made. One payment will be made to the new sales invoice and the second payment will be made and not applied to any invoice.
+
+D. Error occurs.
+	1. When an error occurs you can attempt to save a new receipt, but note in the memo that an error occurred and you are retrying in order to distinguish duplicates from attempting to create two receipts.
+	2. If the errors can't be fixed by retrying revert to paper receipts.
