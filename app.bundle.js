@@ -21357,6 +21357,10 @@ const DataClient = require('../data-client');
 const Util = require('../util');
 
 class AccountSettingsController {
+  constructor() {
+    this.save = this.save.bind(this);
+  }
+
   async save() {
     let data = await this.view.getModel();
 
@@ -22315,7 +22319,7 @@ class MessageViewController {
     message = message || '';
 
     if (Array.isArray(message)) {
-      for (let messageItem of errorMessage) {
+      for (let messageItem of message) {
         console.log(messageItem);
         $('#messageAlert').append($(`<div>&bull;&nbsp;${messageItem}</div>`));
       }
@@ -22330,6 +22334,7 @@ class MessageViewController {
     if (message.length < 1) {
       $('#messageAlert').addClass('hide');
     } else {
+      $('#messageAlert')[0].scrollIntoView();
       $('#messageAlert').removeClass('hide');
     }
   }
@@ -22484,6 +22489,8 @@ var _currency = _interopRequireDefault(require("currency.js"));
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
+var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const Moment = require('moment/moment');
@@ -22532,9 +22539,16 @@ class PropertyPointOfSaleController {
       }
     });
     $('#sale-save').click(async function () {
+      _messageViewController.default.setMessage('');
+
+      let vendor = $("#sale-vendor").val().trim();
+      let customerMatch = self.getCustomer(vendor);
       let receipt = {
         rentalDate: $('#sale-date').val().trim(),
-        customerId: self.getCustomer($("#sale-vendor").val().trim()).Id,
+        customer: {
+          id: customerMatch ? customerMatch.Id : '',
+          name: vendor
+        },
         amountOfAccount: $('#sale-amount-of-account').val().trim(),
         rentalAmount: $('#sale-rental-amount').val().trim(),
         thisPayment: $('#sale-payment').val().trim(),
@@ -22543,11 +22557,18 @@ class PropertyPointOfSaleController {
 
       try {
         let receiptResult = await new DataClient().post('point-of-sale/receipt', receipt);
+
+        if (receiptResult.error) {
+          _messageViewController.default.setMessage(receiptResult.error, 'alert-danger');
+
+          return;
+        }
+
         $('#sale-id').text(receiptResult.receipt.id);
         let timestamp = Moment(receiptResult.receipt.timestamp);
         $('#sale-timestamp').text(timestamp.format('L LT'));
         $('#sale-date-text').text(receipt.rentalDate);
-        $('#sale-vendor-text').text($('#sale-vendor').val().trim());
+        $('#sale-vendor-text').text(receipt.customer.name);
         let amountOfAccount = (0, _currency.default)(receipt.amountOfAccount, Util.getCurrencyDefaults());
         $('.amount-of-account-receipt-group').toggle(!!receipt.amountOfAccount);
         let rentalAmount = (0, _currency.default)(receipt.rentalAmount, Util.getCurrencyDefaults());
@@ -22566,9 +22587,10 @@ class PropertyPointOfSaleController {
         $('#sale-rental-amount').prop('disabled', true);
         $('#sale-payment').prop('disabled', true);
         $('#sale-memo').prop('disabled', true);
+        $('#sale-save').prop('disabled', true);
         window.print();
       } catch (error) {
-        alert(error);
+        Util.log(error);
       }
     });
     $('#sale-new').click(function () {
@@ -22581,7 +22603,7 @@ class PropertyPointOfSaleController {
 
 exports.default = PropertyPointOfSaleController;
 
-},{"../data-client":87,"../util":89,"./account-settings-controller":71,"currency.js":27,"moment/moment":32}],85:[function(require,module,exports){
+},{"../data-client":87,"../util":89,"./account-settings-controller":71,"./message-view-controller":81,"currency.js":27,"moment/moment":32}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23274,8 +23296,6 @@ exports.setView = function (budget, obfuscate) {
   let nonCurrentAssetTotal = Currency(0, Util.getCurrencyDefaults());
 
   for (let loan of budget.balances) {
-    console.log(loan);
-
     if (loan.isCurrent) {
       currentLiabilitiesTotal = currentLiabilitiesTotal.add(loan.amount);
     } else {

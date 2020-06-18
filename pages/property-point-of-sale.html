@@ -26,7 +26,7 @@
       <br />
       <div>Rental Date:<br /><span id="sale-date-text"></span></div>
       <div class="receipt-data-group">Vendor:<div id="sale-vendor-text"></div></div>
-      <div class="receipt-data-group amount-of-account-receipt-group">Amount of Account:<div id="sale-amount-of-account-text"></div></div>
+      <div class="receipt-data-group amount-of-account-receipt-group">Prior Amount of Account:<div id="sale-amount-of-account-text"></div></div>
       <div class="receipt-data-group">Rental Amount:<div id="sale-rental-amount-text"></div></div>
       <div class="receipt-data-group">This Payment:<div id="sale-payment-text"></div></div>
       <div class="receipt-data-group">Balance Due:<div id="sale-balance-due-text"></div></div>
@@ -39,6 +39,7 @@
   </div>
   <div class="bg-color-imago-light-gray no-print">
       <form id="input-form" class="p-15 form">
+          <div id="messageAlert" class="hide alert" role="alert"></div>
           <div class="form-group row">
               <label class="col-xs-3 col-form-label col-form-label-lg">Rental Date</label>
               <div class="col-xs-9">

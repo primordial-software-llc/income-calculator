@@ -37,7 +37,6 @@ exports.setView = function (budget, obfuscate) {
     let currentAssetTotal = Currency(0, Util.getCurrencyDefaults());
     let nonCurrentAssetTotal = Currency(0, Util.getCurrencyDefaults());
     for (let loan of budget.balances) {
-        console.log(loan);
         if (loan.isCurrent) {
             currentLiabilitiesTotal = currentLiabilitiesTotal.add(loan.amount);
         } else {

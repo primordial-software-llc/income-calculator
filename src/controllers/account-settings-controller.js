@@ -4,6 +4,9 @@ const DataClient = require('../data-client');
 const Util = require('../util');
 
 export default class AccountSettingsController {
+    constructor() {
+        this.save = this.save.bind(this);
+    }
     async save() {
         let data = await this.view.getModel();
         try {

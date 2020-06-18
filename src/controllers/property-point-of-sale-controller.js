@@ -2,6 +2,7 @@ import Currency from 'currency.js';
 const Moment = require('moment/moment');
 const DataClient = require('../data-client');
 import AccountSettingsController from './account-settings-controller';
+import MessageViewController from './message-view-controller';
 const Util = require('../util');
 export default class PropertyPointOfSaleController {
     static getName() {
@@ -36,25 +37,32 @@ export default class PropertyPointOfSaleController {
                 $('#sale-amount-of-account').val(customer.Balance);
             }
         });
-
         $('#sale-save').click(async function() {
-
+            MessageViewController.setMessage('');
+            let vendor = $("#sale-vendor").val().trim();
+            let customerMatch = self.getCustomer(vendor);
             let receipt = {
                 rentalDate: $('#sale-date').val().trim(),
-                customerId: self.getCustomer($("#sale-vendor").val().trim()).Id,
+                customer: {
+                    id: customerMatch ? customerMatch.Id : '',
+                    name: vendor
+                },
                 amountOfAccount: $('#sale-amount-of-account').val().trim(),
                 rentalAmount: $('#sale-rental-amount').val().trim(),
                 thisPayment: $('#sale-payment').val().trim(),
                 memo: $('#sale-memo').val().trim()
             };
-
             try {
                 let receiptResult = await new DataClient().post('point-of-sale/receipt', receipt);
+                if (receiptResult.error) {
+                    MessageViewController.setMessage(receiptResult.error, 'alert-danger');
+                    return;
+                }
                 $('#sale-id').text(receiptResult.receipt.id);
                 let timestamp = Moment(receiptResult.receipt.timestamp);
                 $('#sale-timestamp').text(timestamp.format('L LT'));
                 $('#sale-date-text').text(receipt.rentalDate);
-                $('#sale-vendor-text').text($('#sale-vendor').val().trim());
+                $('#sale-vendor-text').text(receipt.customer.name);
                 let amountOfAccount = Currency(receipt.amountOfAccount, Util.getCurrencyDefaults());
                 $('.amount-of-account-receipt-group').toggle(!!receipt.amountOfAccount);
                 let rentalAmount = Currency(receipt.rentalAmount, Util.getCurrencyDefaults());
@@ -67,20 +75,18 @@ export default class PropertyPointOfSaleController {
                 $('#sale-balance-due-text').text(Util.format(balanceDue.toString()));
                 $('.memo-receipt-group').toggle(!!receipt.memo);
                 $('#sale-memo-text').text(receipt.memo);
-
                 $('#sale-date').prop('disabled', true);
                 $('#sale-vendor').prop('disabled', true);
                 $('#sale-amount-of-account').prop('disabled', true);
                 $('#sale-rental-amount').prop('disabled', true);
                 $('#sale-payment').prop('disabled', true);
                 $('#sale-memo').prop('disabled', true);
-
+                $('#sale-save').prop('disabled', true);
                 window.print();
             } catch (error) {
-                alert(error);
+                Util.log(error);
             }
         });
-
         $('#sale-new').click(function() {
             // self.initForm(); // should refresh fields only, but I need an accurate balance returned from post receipt.
             window.location.reload();

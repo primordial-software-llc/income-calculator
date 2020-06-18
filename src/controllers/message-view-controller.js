@@ -10,7 +10,7 @@ export default class MessageViewController {
         $('#messageAlert').addClass(messageType);
         message = message || '';
         if (Array.isArray(message)) {
-            for (let messageItem of errorMessage) {
+            for (let messageItem of message) {
                 console.log(messageItem);
                 $('#messageAlert').append($(`<div>&bull;&nbsp;${messageItem}</div>`));
             }
@@ -24,6 +24,7 @@ export default class MessageViewController {
         if (message.length < 1) {
             $('#messageAlert').addClass('hide');
         } else {
+            $('#messageAlert')[0].scrollIntoView();
             $('#messageAlert').removeClass('hide');
         }
     }
