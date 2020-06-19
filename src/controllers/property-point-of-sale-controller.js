@@ -19,9 +19,16 @@ export default class PropertyPointOfSaleController {
         $('#sale-payment').prop('disabled', false).val('');
         $('#sale-memo').prop('disabled', false).val('');
     }
-    getCustomer(displayName) {
+    getCustomerDescription(customer) {
+        let fullName = `${customer.GivenName || ''} ${customer.FamilyName || ''}`.trim();
+        if (fullName) {
+            fullName = ' : ' + fullName;
+        }
+        return `${customer.DisplayName}${fullName}`;
+    }
+    getCustomer(customerDescription) {
         return this.customers.find(x =>
-            (x.DisplayName || '').toLocaleLowerCase() === (displayName || '').toLowerCase());
+            this.getCustomerDescription(x).toLocaleLowerCase() === customerDescription.toLowerCase());
     }
     async init(usernameResponse) {
         let self = this;
@@ -29,7 +36,7 @@ export default class PropertyPointOfSaleController {
         new AccountSettingsController().init({}, usernameResponse, false);
         this.customers = await new DataClient().get('point-of-sale/customers');
         for (let customer of this.customers) {
-            $('#sale-vendor-list').append(`<option>${customer.DisplayName}</option>`);
+            $('#sale-vendor-list').append(`<option>${this.getCustomerDescription(customer)}</option>`);
         }
         $("#sale-vendor").on('input', function () {
             let customer = self.getCustomer(this.value);

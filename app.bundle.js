@@ -22517,8 +22517,18 @@ class PropertyPointOfSaleController {
     $('#sale-memo').prop('disabled', false).val('');
   }
 
-  getCustomer(displayName) {
-    return this.customers.find(x => (x.DisplayName || '').toLocaleLowerCase() === (displayName || '').toLowerCase());
+  getCustomerDescription(customer) {
+    let fullName = `${customer.GivenName || ''} ${customer.FamilyName || ''}`.trim();
+
+    if (fullName) {
+      fullName = ' : ' + fullName;
+    }
+
+    return `${customer.DisplayName}${fullName}`;
+  }
+
+  getCustomer(customerDescription) {
+    return this.customers.find(x => this.getCustomerDescription(x).toLocaleLowerCase() === customerDescription.toLowerCase());
   }
 
   async init(usernameResponse) {
@@ -22528,7 +22538,7 @@ class PropertyPointOfSaleController {
     this.customers = await new DataClient().get('point-of-sale/customers');
 
     for (let customer of this.customers) {
-      $('#sale-vendor-list').append(`<option>${customer.DisplayName}</option>`);
+      $('#sale-vendor-list').append(`<option>${this.getCustomerDescription(customer)}</option>`);
     }
 
     $("#sale-vendor").on('input', function () {
