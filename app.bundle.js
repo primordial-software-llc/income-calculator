@@ -22511,7 +22511,7 @@ class PropertyPointOfSaleController {
   initForm() {
     $('#sale-date').prop('disabled', false).val(Moment().format('YYYY-MM-DD'));
     $('#sale-vendor').prop('disabled', false).val('');
-    $('#sale-amount-of-account').prop('disabled', false).val('');
+    $('#sale-prior-balance').prop('disabled', false).val('');
     $('#sale-rental-amount').prop('disabled', false).val('');
     $('#sale-payment').prop('disabled', false).val('');
     $('#sale-memo').prop('disabled', false).val('');
@@ -22535,7 +22535,7 @@ class PropertyPointOfSaleController {
       let customer = self.getCustomer(this.value);
 
       if (customer) {
-        $('#sale-amount-of-account').val(customer.Balance);
+        $('#sale-prior-balance').val(customer.Balance);
       }
     });
     $('#sale-save').click(async function () {
@@ -22549,7 +22549,7 @@ class PropertyPointOfSaleController {
           id: customerMatch ? customerMatch.Id : '',
           name: vendor
         },
-        amountOfAccount: $('#sale-amount-of-account').val().trim(),
+        amountOfAccount: $('#sale-prior-balance').val().trim(),
         rentalAmount: $('#sale-rental-amount').val().trim(),
         thisPayment: $('#sale-payment').val().trim(),
         memo: $('#sale-memo').val().trim()
@@ -22578,20 +22578,20 @@ class PropertyPointOfSaleController {
         $('#sale-date-text').text(receipt.rentalDate);
         $('#sale-vendor-text').text(receipt.customer.name);
         let amountOfAccount = (0, _currency.default)(receipt.amountOfAccount, Util.getCurrencyDefaults());
-        $('.amount-of-account-receipt-group').toggle(!!receipt.amountOfAccount);
+        $('.prior-balance-receipt-group').toggle(!!receipt.amountOfAccount);
         let rentalAmount = (0, _currency.default)(receipt.rentalAmount, Util.getCurrencyDefaults());
         let payment = (0, _currency.default)(receipt.thisPayment, Util.getCurrencyDefaults());
-        $('#sale-amount-of-account-text').text(Util.format(amountOfAccount.toString()));
+        $('#sale-prior-balance-text').text(Util.format(amountOfAccount.toString()));
         $('#sale-rental-amount-text').text(Util.format(rentalAmount.toString()));
         $('#sale-payment-text').text(Util.format(payment.toString()));
         let balanceDue = amountOfAccount.add(rentalAmount);
         balanceDue = balanceDue.subtract(payment);
-        $('#sale-balance-due-text').text(Util.format(balanceDue.toString()));
+        $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
         $('.memo-receipt-group').toggle(!!receipt.memo);
         $('#sale-memo-text').text(receipt.memo);
         $('#sale-date').prop('disabled', true);
         $('#sale-vendor').prop('disabled', true);
-        $('#sale-amount-of-account').prop('disabled', true);
+        $('#sale-prior-balance').prop('disabled', true);
         $('#sale-rental-amount').prop('disabled', true);
         $('#sale-payment').prop('disabled', true);
         $('#sale-memo').prop('disabled', true);
@@ -22599,6 +22599,8 @@ class PropertyPointOfSaleController {
         window.print();
       } catch (error) {
         Util.log(error);
+
+        _messageViewController.default.setMessage(JSON.stringify(error), 'alert-danger');
       }
     });
     $('#sale-new').click(function () {
