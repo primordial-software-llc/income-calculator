@@ -58,6 +58,11 @@ export default class PropertyPointOfSaleController {
                     MessageViewController.setMessage(receiptResult.error, 'alert-danger');
                     return;
                 }
+                if (!receiptResult.receipt && !receiptResult.receipt.id) {
+                    Util.log(receiptResult);
+                    MessageViewController.setMessage(JSON.stringify(receiptResult), 'alert-danger');
+                    return;
+                }
                 $('#sale-id').text(receiptResult.receipt.id);
                 let timestamp = Moment(receiptResult.receipt.timestamp);
                 $('#sale-timestamp').text(timestamp.format('L LT'));
@@ -85,6 +90,7 @@ export default class PropertyPointOfSaleController {
                 window.print();
             } catch (error) {
                 Util.log(error);
+                MessageViewController.setMessage(JSON.stringify(error), 'alert-danger');
             }
         });
         $('#sale-new').click(function() {

@@ -22564,6 +22564,14 @@ class PropertyPointOfSaleController {
           return;
         }
 
+        if (!receiptResult.receipt && !receiptResult.receipt.id) {
+          Util.log(receiptResult);
+
+          _messageViewController.default.setMessage(JSON.stringify(receiptResult), 'alert-danger');
+
+          return;
+        }
+
         $('#sale-id').text(receiptResult.receipt.id);
         let timestamp = Moment(receiptResult.receipt.timestamp);
         $('#sale-timestamp').text(timestamp.format('L LT'));
