@@ -65,13 +65,25 @@ export default class PropertyPointOfSaleController {
                     MessageViewController.setMessage(receiptResult.error, 'alert-danger');
                     return;
                 }
-                if (!receiptResult.receipt && !receiptResult.receipt.id) {
+                if (!receiptResult.id) {
                     Util.log(receiptResult);
                     MessageViewController.setMessage(JSON.stringify(receiptResult), 'alert-danger');
                     return;
                 }
-                $('#sale-id').text(receiptResult.receipt.id);
-                let timestamp = Moment(receiptResult.receipt.timestamp);
+                $('#sale-id').text(receiptResult.id);
+                let receiptNumber = '';
+                if (receiptResult.invoice) {
+                    receiptNumber += `I${receiptResult.invoice.Id}`;
+                }
+                if (receiptResult.paymentAppliedToInvoice) {
+                    receiptNumber += `AP${receiptResult.paymentAppliedToInvoice.Id}`;
+                }
+                if (receiptResult.unappliedPayment) {
+                    receiptNumber += `UP${receiptResult.unappliedPayment.Id}`;
+                }
+                $('#receipt-number').text(receiptNumber);
+                $('#sale-by').text(usernameResponse.email);
+                let timestamp = Moment(receiptResult.timestamp);
                 $('#sale-timestamp').text(timestamp.format('L LT'));
                 $('#sale-date-text').text(receipt.rentalDate);
                 $('#sale-vendor-text').text(receipt.customer.name);
