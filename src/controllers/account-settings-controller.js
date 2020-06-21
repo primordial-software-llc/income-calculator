@@ -17,7 +17,7 @@ export default class AccountSettingsController {
             Util.log(err);
         }
     }
-    init (viewIn, usernameResponse, injectFooter) {
+    init (viewIn, user, injectFooter) {
         this.view = viewIn;
         let dataClient = new DataClient();
         $('#save').click(this.save);
@@ -73,7 +73,7 @@ export default class AccountSettingsController {
             }
         });
 
-        let authenticatedControllers = Navigation.getAuthenticatedControllers(usernameResponse)
+        let authenticatedControllers = Navigation.getAuthenticatedControllers(user)
         let navItemHtml = authenticatedControllers.map(controllerType =>
             Navigation.getNavItemView(controllerType.getUrl(), controllerType.getName())
         );
@@ -82,5 +82,16 @@ export default class AccountSettingsController {
         if (injectFooter) {
             $('body').append(FooterView.getView(navItemHtml.join('')));
         }
+
+        if (user) {
+            $('#account-settings-view-cognito-user').text(user.email);
+            $('#account-settings-view-license-agreement').append(
+                `Agreed to license on ${user.licenseAgreement.agreementDateUtc}`
+                // Leave this out until the origin ip issue is used instead of the content delivery ip // + `from IP ${user.licenseAgreement.ipAddress}`
+            );
+            $('#account-settings-view-first-name').text(user.firstName);
+            $('#account-settings-view-last-name').text(user.lastName);
+        }
+
     };
 }

@@ -34,7 +34,7 @@ export default class BudgetController {
     }
     async init(usernameResponse) {
         this.homeView = new BudgetView();
-        new AccountSettingsController().init(this.homeView, usernameResponse);
+        new AccountSettingsController().init(this.homeView, usernameResponse, true);
         $('.add-new-budget-item').prop('disabled', true);
         let self = this;
         $('#add-new-biweekly').click(async function () {

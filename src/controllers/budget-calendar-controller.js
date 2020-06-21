@@ -94,7 +94,7 @@ export default class BudgetCalendarController {
     }
 
     async init(usernameResponse) {
-        new AccountSettingsController().init({}, usernameResponse);
+        new AccountSettingsController().init({}, usernameResponse, true);
         await this.load();
     }
 }

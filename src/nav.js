@@ -15,14 +15,14 @@ export default class Navigation {
                   <span class="ac-gn-link-text">${name}</span>
               </a>`;
     }
-    static getAuthenticatedControllers(usernameResponse) {
+    static getAuthenticatedControllers(user) {
         let authenticatedControllers = [ BudgetController, BudgetCalendarController, BalanceSheetController,
             TransfersController, DepositController, PricesController ];
-        if ((usernameResponse || {}).email === 'timg456789@yahoo.com') {
+        if ((user || {}).email === 'timg456789@yahoo.com') {
             authenticatedControllers.push(PayDaysController);
             authenticatedControllers.push(PropertyPointOfSaleController);
         }
-        if (!(usernameResponse || {}).billingAgreement || !(usernameResponse || {}).billingAgreement.agreedToBillingTerms) {
+        if (!(user || {}).billingAgreement || !(user || {}).billingAgreement.agreedToBillingTerms) {
             authenticatedControllers.push(PurchaseController);
         } else {
             authenticatedControllers.push(BanksController);

@@ -35,8 +35,16 @@ export default class FooterView {
                       <div class="modal-body">
                           <form>
                               <div class="form-group">
-                                  <label for="account-settings-view-cognito-user">User</label>
+                                  <label for="account-settings-view-cognito-user">Email</label>
                                   <div id="account-settings-view-cognito-user"></div>
+                              </div>
+                              <div class="form-group">
+                                  <label for="account-settings-view-first-name">First Name</label>
+                                  <div id="account-settings-view-first-name"></div>
+                              </div>
+                              <div class="form-group">
+                                  <label for="account-settings-view-last-name">Last Name</label>
+                                  <div id="account-settings-view-last-name"></div>
                               </div>
                               <div class="form-group">
                                   <label for="account-settings-view-cognito-user">License Agreement</label>

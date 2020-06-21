@@ -31,8 +31,8 @@ export default class DepositController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/deposit.html`;
     }
-    async init() {
-        new AccountSettingsController().init();
+    async init(usernameResponse) {
+        new AccountSettingsController().init({}, usernameResponse, true);
         if (Util.obfuscate()) {
             $('#submit-transfer').prop('disabled', true);
         }

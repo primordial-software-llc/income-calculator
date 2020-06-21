@@ -34,9 +34,9 @@ export default class PayDaysController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/payroll.html`;
     }
-    async init() {
+    async init(usernameResponse) {
         const max401kContribution = 19500;
-        new AccountSettingsController().init(PayDaysView);
+        new AccountSettingsController().init(PayDaysView, usernameResponse, true);
         let data = await new DataClient().getBudget();
         $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
         $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);

@@ -9,7 +9,7 @@ export default class BanksController {
         return `${Util.rootUrl()}/pages/banks.html`;
     }
     async init(usernameResponse) {
-        new AccountSettingsController().init({}, usernameResponse);
+        new AccountSettingsController().init({}, usernameResponse, true);
         $('#link-button').on('click', function(e) {
             let selectedProducts = ['transactions'];
             let handler = Plaid.create({

@@ -11,8 +11,8 @@ export default class PricesController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/purchase.html`;
     }
-    async init() {
-        new AccountSettingsController().init(PricesView);
+    async init(usernameResponse) {
+        new AccountSettingsController().init(PricesView, usernameResponse, true);
         $('#billing-start-date').text(Moment().format('MMMM Do YYYY'));
         $('#submit-purchase').click(async function() {
             if (!$('#agreedToBillingTerms').is(':checked')) {

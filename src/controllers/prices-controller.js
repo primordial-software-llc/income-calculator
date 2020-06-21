@@ -9,8 +9,8 @@ export default class PricesController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/prices.html`;
     }
-    async init() {
-        new AccountSettingsController().init(PricesView);
+    async init(usernameResponse) {
+        new AccountSettingsController().init(PricesView, usernameResponse, true);
         let dataClient = new DataClient();
         let data = await dataClient.getBudget();
         if (data.assets) {

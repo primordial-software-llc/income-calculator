@@ -23,16 +23,10 @@ async function init() {
         Util.log(err);
     }
     let authenticatedControllers = Navigation.getAuthenticatedControllers(usernameResponse);
-    let controller;
     let controllerType = authenticatedControllers.find(x => pageName.startsWith(x.getUrl().split('/').pop()));
+    let controller;
     if (controllerType) {
         controller = new controllerType();
-        if (usernameResponse) {
-            $('#account-settings-view-cognito-user').text(usernameResponse.email);
-            $('#account-settings-view-license-agreement').append(
-                `Agreed to license on ${usernameResponse.licenseAgreement.agreementDateUtc} ` +
-                `from IP ${usernameResponse.licenseAgreement.ipAddress}`);
-        }
     }
     if (pageName.startsWith('login.html')) {
         controller = new LoginController();

@@ -21027,16 +21027,11 @@ async function init() {
 
   let authenticatedControllers = _nav.default.getAuthenticatedControllers(usernameResponse);
 
-  let controller;
   let controllerType = authenticatedControllers.find(x => pageName.startsWith(x.getUrl().split('/').pop()));
+  let controller;
 
   if (controllerType) {
     controller = new controllerType();
-
-    if (usernameResponse) {
-      $('#account-settings-view-cognito-user').text(usernameResponse.email);
-      $('#account-settings-view-license-agreement').append(`Agreed to license on ${usernameResponse.licenseAgreement.agreementDateUtc} ` + `from IP ${usernameResponse.licenseAgreement.ipAddress}`);
-    }
   }
 
   if (pageName.startsWith('login.html')) {
@@ -21373,7 +21368,7 @@ class AccountSettingsController {
     }
   }
 
-  init(viewIn, usernameResponse, injectFooter) {
+  init(viewIn, user, injectFooter) {
     this.view = viewIn;
     let dataClient = new DataClient();
     $('#save').click(this.save);
@@ -21438,13 +21433,21 @@ class AccountSettingsController {
       }
     });
 
-    let authenticatedControllers = _nav.default.getAuthenticatedControllers(usernameResponse);
+    let authenticatedControllers = _nav.default.getAuthenticatedControllers(user);
 
     let navItemHtml = authenticatedControllers.map(controllerType => _nav.default.getNavItemView(controllerType.getUrl(), controllerType.getName()));
     $('.tab-nav-bar').append(navItemHtml.join(''));
 
     if (injectFooter) {
       $('body').append(_footerView.default.getView(navItemHtml.join('')));
+    }
+
+    if (user) {
+      $('#account-settings-view-cognito-user').text(user.email);
+      $('#account-settings-view-license-agreement').append(`Agreed to license on ${user.licenseAgreement.agreementDateUtc}` // Leave this out until the origin ip issue is used instead of the content delivery ip // + `from IP ${user.licenseAgreement.ipAddress}`
+      );
+      $('#account-settings-view-first-name').text(user.firstName);
+      $('#account-settings-view-last-name').text(user.lastName);
     }
   }
 
@@ -21499,7 +21502,7 @@ class BalanceSheetController {
   }
 
   async init(usernameResponse) {
-    new _accountSettingsController.default().init(balanceSheetView, usernameResponse);
+    new _accountSettingsController.default().init(balanceSheetView, usernameResponse, true);
 
     if (Util.obfuscate()) {
       $('#add-new-balance').prop('disabled', true);
@@ -21619,7 +21622,7 @@ class BanksController {
   }
 
   async init(usernameResponse) {
-    new _accountSettingsController.default().init({}, usernameResponse);
+    new _accountSettingsController.default().init({}, usernameResponse, true);
     $('#link-button').on('click', function (e) {
       let selectedProducts = ['transactions'];
       let handler = Plaid.create({
@@ -21833,7 +21836,7 @@ class BudgetCalendarController {
   }
 
   async init(usernameResponse) {
-    new _accountSettingsController.default().init({}, usernameResponse);
+    new _accountSettingsController.default().init({}, usernameResponse, true);
     await this.load();
   }
 
@@ -21901,7 +21904,7 @@ class BudgetController {
 
   async init(usernameResponse) {
     this.homeView = new _budgetView.default();
-    new _accountSettingsController.default().init(this.homeView, usernameResponse);
+    new _accountSettingsController.default().init(this.homeView, usernameResponse, true);
     $('.add-new-budget-item').prop('disabled', true);
     let self = this;
     $('#add-new-biweekly').click(async function () {
@@ -21976,8 +21979,8 @@ class DepositController {
     return `${Util.rootUrl()}/pages/deposit.html`;
   }
 
-  async init() {
-    new _accountSettingsController.default().init();
+  async init(usernameResponse) {
+    new _accountSettingsController.default().init({}, usernameResponse, true);
 
     if (Util.obfuscate()) {
       $('#submit-transfer').prop('disabled', true);
@@ -22183,7 +22186,7 @@ function LoginController() {
   }
 
   this.init = function () {
-    new _accountSettingsController.default().init();
+    new _accountSettingsController.default().init({}, {}, true);
     initAsync().catch(err => {
       Util.log(err);
     });
@@ -22289,7 +22292,7 @@ function LoginSignupController() {
   }
 
   this.init = function () {
-    new _accountSettingsController.default().init();
+    new _accountSettingsController.default().init({}, {}, true);
     initAsync().catch(err => {
       Util.log(err);
     });
@@ -22405,9 +22408,9 @@ class PayDaysController {
     return `${Util.rootUrl()}/pages/payroll.html`;
   }
 
-  async init() {
+  async init(usernameResponse) {
     const max401kContribution = 19500;
-    new _accountSettingsController.default().init(PayDaysView);
+    new _accountSettingsController.default().init(PayDaysView, usernameResponse, true);
     let data = await new DataClient().getBudget();
     $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
     $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
@@ -22458,8 +22461,8 @@ class PricesController {
     return `${Util.rootUrl()}/pages/prices.html`;
   }
 
-  async init() {
-    new _accountSettingsController.default().init(PricesView);
+  async init(usernameResponse) {
+    new _accountSettingsController.default().init(PricesView, usernameResponse, true);
     let dataClient = new DataClient();
     let data = await dataClient.getBudget();
 
@@ -22670,8 +22673,8 @@ class PricesController {
     return `${Util.rootUrl()}/pages/purchase.html`;
   }
 
-  async init() {
-    new _accountSettingsController.default().init(PricesView);
+  async init(usernameResponse) {
+    new _accountSettingsController.default().init(PricesView, usernameResponse, true);
     $('#billing-start-date').text(Moment().format('MMMM Do YYYY'));
     $('#submit-purchase').click(async function () {
       if (!$('#agreedToBillingTerms').is(':checked')) {
@@ -22860,8 +22863,8 @@ class TransfersController {
     }
   }
 
-  async init() {
-    new _accountSettingsController.default().init(balanceSheetView);
+  async init(usernameResponse) {
+    new _accountSettingsController.default().init(balanceSheetView, usernameResponse, true);
     this.refresh();
   }
 
@@ -23018,15 +23021,15 @@ class Navigation {
               </a>`;
   }
 
-  static getAuthenticatedControllers(usernameResponse) {
+  static getAuthenticatedControllers(user) {
     let authenticatedControllers = [_budgetController.default, _budgetCalendarController.default, _balanceSheetController.default, _transfersController.default, _depositController.default, _pricesController.default];
 
-    if ((usernameResponse || {}).email === 'timg456789@yahoo.com') {
+    if ((user || {}).email === 'timg456789@yahoo.com') {
       authenticatedControllers.push(_payDaysController.default);
       authenticatedControllers.push(_propertyPointOfSaleController.default);
     }
 
-    if (!(usernameResponse || {}).billingAgreement || !(usernameResponse || {}).billingAgreement.agreedToBillingTerms) {
+    if (!(user || {}).billingAgreement || !(user || {}).billingAgreement.agreedToBillingTerms) {
       authenticatedControllers.push(_purchaseController.default);
     } else {
       authenticatedControllers.push(_banksController.default);
@@ -24571,8 +24574,16 @@ class FooterView {
                       <div class="modal-body">
                           <form>
                               <div class="form-group">
-                                  <label for="account-settings-view-cognito-user">User</label>
+                                  <label for="account-settings-view-cognito-user">Email</label>
                                   <div id="account-settings-view-cognito-user"></div>
+                              </div>
+                              <div class="form-group">
+                                  <label for="account-settings-view-first-name">First Name</label>
+                                  <div id="account-settings-view-first-name"></div>
+                              </div>
+                              <div class="form-group">
+                                  <label for="account-settings-view-last-name">Last Name</label>
+                                  <div id="account-settings-view-last-name"></div>
                               </div>
                               <div class="form-group">
                                   <label for="account-settings-view-cognito-user">License Agreement</label>

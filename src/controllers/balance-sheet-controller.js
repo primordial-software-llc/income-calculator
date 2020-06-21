@@ -24,7 +24,7 @@ export default class BalanceSheetController {
         return `${Util.rootUrl()}/pages/balance-sheet.html`;
     }
     async init(usernameResponse) {
-        new AccountSettingsController().init(balanceSheetView, usernameResponse);
+        new AccountSettingsController().init(balanceSheetView, usernameResponse, true);
         if (Util.obfuscate()) {
             $('#add-new-balance').prop('disabled', true);
         }

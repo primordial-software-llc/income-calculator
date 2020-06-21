@@ -98,8 +98,8 @@ export default class TransfersController {
             Util.log(err);
         }
     }
-    async init() {
-        new AccountSettingsController().init(balanceSheetView);
+    async init(usernameResponse) {
+        new AccountSettingsController().init(balanceSheetView, usernameResponse, true);
         this.refresh();
     }
 }
