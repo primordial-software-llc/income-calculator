@@ -22534,10 +22534,10 @@ class PropertyPointOfSaleController {
     return this.customers.find(x => this.getCustomerDescription(x).toLocaleLowerCase() === customerDescription.toLowerCase());
   }
 
-  async init(usernameResponse) {
+  async init(user) {
     let self = this;
     this.initForm();
-    new _accountSettingsController.default().init({}, usernameResponse, false);
+    new _accountSettingsController.default().init({}, user, false);
     this.customers = await new DataClient().get('point-of-sale/customers');
 
     for (let customer of this.customers) {
@@ -22601,7 +22601,8 @@ class PropertyPointOfSaleController {
         }
 
         $('#receipt-number').text(receiptNumber);
-        $('#sale-by').text(usernameResponse.email);
+        let saleBy = `${user.firstName} ${user.lastName}`.trim() || user.email;
+        $('#sale-by').text(saleBy);
         let timestamp = Moment(receiptResult.timestamp);
         $('#sale-timestamp').text(timestamp.format('L LT'));
         $('#sale-date-text').text(receipt.rentalDate);
