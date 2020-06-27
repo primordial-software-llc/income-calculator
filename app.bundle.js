@@ -22186,7 +22186,7 @@ function LoginController() {
   }
 
   this.init = function () {
-    new _accountSettingsController.default().init({}, {}, true);
+    new _accountSettingsController.default().init({}, null, true);
     initAsync().catch(err => {
       Util.log(err);
     });
@@ -22292,7 +22292,7 @@ function LoginSignupController() {
   }
 
   this.init = function () {
-    new _accountSettingsController.default().init({}, {}, true);
+    new _accountSettingsController.default().init({}, null, true);
     initAsync().catch(err => {
       Util.log(err);
     });

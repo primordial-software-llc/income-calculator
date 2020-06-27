@@ -73,7 +73,7 @@ function LoginSignupController() {
         });
     }
     this.init = function () {
-        new AccountSettingsController().init({}, {}, true);
+        new AccountSettingsController().init({}, null, true);
         initAsync().catch(err => { Util.log(err); });
     };
 }
