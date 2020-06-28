@@ -113,6 +113,9 @@ export default class PropertyPointOfSaleController {
                 MessageViewController.setMessage(JSON.stringify(error), 'alert-danger');
             }
         });
+        $('#sale-print').click(function () {
+            window.print();
+        });
         $('#sale-new').click(function() {
             // self.initForm(); // should refresh fields only, but I need an accurate balance returned from post receipt.
             window.location.reload();
