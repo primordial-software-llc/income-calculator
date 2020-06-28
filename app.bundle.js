@@ -22531,7 +22531,7 @@ class PropertyPointOfSaleController {
   }
 
   getCustomer(customerDescription) {
-    return this.customers.find(x => this.getCustomerDescription(x).toLowerCase() === customerDescription.toLowerCase());
+    return this.customers.find(x => this.getCustomerDescription(x).toLowerCase().replace(/\s+/g, " ") === customerDescription.toLowerCase().replace(/\s+/g, " ")); // Data list and input automatically replace multiple whitespaces with a single white space
   }
 
   async init(user) {
