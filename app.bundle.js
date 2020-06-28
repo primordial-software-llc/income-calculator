@@ -22531,7 +22531,7 @@ class PropertyPointOfSaleController {
   }
 
   getCustomer(customerDescription) {
-    return this.customers.find(x => this.getCustomerDescription(x).toLocaleLowerCase() === customerDescription.toLowerCase());
+    return this.customers.find(x => this.getCustomerDescription(x).toLowerCase() === customerDescription.toLowerCase());
   }
 
   async init(user) {
