@@ -29,12 +29,12 @@ export default class PropertyCustomerBalancesController {
         for (let customer of this.customers.filter(x => x.Balance > 0)) {
             $('.customer-balance-container').append(`
                 <div class="row dotted-underline-row customer-balance-row">
-                    <div class="col-xs-9 vertical-align amount-description-column">
+                    <div class="col-xs-9 vertical-align customer-balance-column">
                         <div class="black-dotted-underline truncate-with-ellipsis">
                             ${this.getCustomerDescription(customer)}
                         </div>
                     </div>
-                    <div class="col-xs-3 text-right vertical-align amount-description-column">
+                    <div class="col-xs-3 text-right vertical-align customer-balance-column">
                         <div class="black-dotted-underline">
                             ${Util.format(customer.Balance)}
                         </div>

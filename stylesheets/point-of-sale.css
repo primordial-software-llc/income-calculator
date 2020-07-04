@@ -34,6 +34,14 @@ body .property-nav .property-nav-item {
     font-size: 36px;
 }
 
+.dotted-underline-row > div.customer-balance-column:first-child {
+    padding-right: 0;
+}
+
+.dotted-underline-row > div.customer-balance-column:nth-child(2) {
+    padding-left: 0;
+}
+
 @media print {
     span, div {
         font-size: 12px !important;
