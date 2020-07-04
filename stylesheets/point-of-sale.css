@@ -26,12 +26,7 @@ body input.form-control {
     margin-bottom: 10px;
 }
 
-.property-nav {
-    padding: 10px;
-    min-width: 640px;
-}
-
-.property-nav .property-nav-item {
+body .property-nav .property-nav-item {
     margin-left: 20px;
     margin-right: 20px;
     color: blue;
