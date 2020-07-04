@@ -32,10 +32,11 @@ body input.form-control {
 }
 
 .property-nav .property-nav-item {
-    margin-left: 15px;
-    margin-right: 15px;
+    margin-left: 20px;
+    margin-right: 20px;
     color: blue;
     text-decoration: underline;
+    font-size: 36px;
 }
 
 @media print {
