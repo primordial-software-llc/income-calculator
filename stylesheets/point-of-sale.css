@@ -9,6 +9,10 @@ body input.form-control {
     height: 50px;
 }
 
+.white-background {
+    background-color: #FFF;
+}
+
 .form-check-input {
     height: 35px;
     width: 35px;
@@ -16,6 +20,22 @@ body input.form-control {
 
 .btn {
     font-size: 30px;
+}
+
+.customer-balance-row {
+    margin-bottom: 10px;
+}
+
+.property-nav {
+    padding: 10px;
+    min-width: 640px;
+}
+
+.property-nav .property-nav-item {
+    margin-left: 15px;
+    margin-right: 15px;
+    color: blue;
+    text-decoration: underline;
 }
 
 @media print {

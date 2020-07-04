@@ -5,7 +5,8 @@ import TransfersController from "./controllers/transfers-controller";
 import DepositController from "./controllers/deposit-controller";
 import PricesController from "./controllers/prices-controller";
 import PayDaysController from "./controllers/pay-days-controller";
-import PropertyPointOfSaleController from "./controllers/property-point-of-sale-controller";
+import PropertyPointOfSaleController from './controllers/property-point-of-sale-controller';
+import PropertyCustomerBalancesController from './controllers/property-customer-balances-controller';
 import PurchaseController from "./controllers/purchase-controller";
 import BanksController from "./controllers/banks-controller";
 
@@ -21,6 +22,7 @@ export default class Navigation {
         if ((user || {}).email === 'timg456789@yahoo.com') {
             authenticatedControllers.push(PayDaysController);
             authenticatedControllers.push(PropertyPointOfSaleController);
+            authenticatedControllers.push(PropertyCustomerBalancesController);
         }
         if (!(user || {}).billingAgreement || !(user || {}).billingAgreement.agreedToBillingTerms) {
             authenticatedControllers.push(PurchaseController);

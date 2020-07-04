@@ -6,7 +6,7 @@ import MessageViewController from './message-view-controller';
 const Util = require('../util');
 export default class PropertyPointOfSaleController {
     static getName() {
-        return 'Property';
+        return 'Receipts';
     }
     static getUrl() {
         return `${Util.rootUrl()}/pages/property-point-of-sale.html`;

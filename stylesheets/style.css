@@ -360,6 +360,10 @@ select.form-control {
     border-bottom: 1px dotted #FFF;
 }
 
+.black-dotted-underline {
+    border-bottom: 1px dotted #000;
+}
+
 .dotted-underline {
     border-bottom: 1px dotted #FFF;
 }
