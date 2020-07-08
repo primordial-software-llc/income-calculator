@@ -19,18 +19,11 @@ export default class PropertyCustomerBalancesController {
         let self = this;
         new AccountSettingsController().init({}, user, false);
         this.customers = await new DataClient().get('point-of-sale/customers');
-
-        $('.customer-balance-container')
-            .append(`<div class="row table-header-row">
-               <div class="col-xs-9">Vendor</div>
-               <div class="col-xs-3">Balance Owed</div>
-           </div>`);
-
         for (let customer of this.customers.filter(x => x.Balance > 0)) {
             $('.customer-balance-container').append(`
                 <div class="row dotted-underline-row customer-balance-row">
                     <div class="col-xs-9 vertical-align customer-balance-column">
-                        <div class="black-dotted-underline truncate-with-ellipsis">
+                        <div class="black-dotted-underline">
                             ${this.getCustomerDescription(customer)}
                         </div>
                     </div>

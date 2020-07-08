@@ -7,6 +7,7 @@ import PricesController from "./controllers/prices-controller";
 import PayDaysController from "./controllers/pay-days-controller";
 import PropertyPointOfSaleController from './controllers/property-point-of-sale-controller';
 import PropertyCustomerBalancesController from './controllers/property-customer-balances-controller';
+import PropertyCustomersController from './controllers/property-customers-controller';
 import PurchaseController from "./controllers/purchase-controller";
 import BanksController from "./controllers/banks-controller";
 
@@ -18,11 +19,12 @@ export default class Navigation {
     }
     static getAuthenticatedControllers(user) {
         let authenticatedControllers = [ BudgetController, BudgetCalendarController, BalanceSheetController,
-            TransfersController, DepositController, PricesController ];
+            TransfersController, DepositController, PricesController, PropertyCustomersController ];
         if ((user || {}).email === 'timg456789@yahoo.com') {
             authenticatedControllers.push(PayDaysController);
             authenticatedControllers.push(PropertyPointOfSaleController);
             authenticatedControllers.push(PropertyCustomerBalancesController);
+            authenticatedControllers.push(PropertyCustomersController);
         }
         if (!(user || {}).billingAgreement || !(user || {}).billingAgreement.agreedToBillingTerms) {
             authenticatedControllers.push(PurchaseController);

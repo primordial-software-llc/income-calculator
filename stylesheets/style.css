@@ -368,16 +368,16 @@ select.form-control {
     border-bottom: 1px dotted #FFF;
 }
 
-.dotted-underline-row > div.amount-description-column:first-child {
+.dotted-underline-row > div:first-child {
     padding-right: 0;
 }
 
-.dotted-underline-row > div.amount-description-column:nth-child(2) {
+.dotted-underline-row > div {
     padding-left: 0;
     padding-right: 0;
 }
 
-.dotted-underline-row > div.amount-description-column:nth-child(3) {
+.dotted-underline-row > div:last-child {
     padding-left: 0;
 }
 

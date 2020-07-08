@@ -24,6 +24,8 @@ body input.form-control {
 
 .customer-balance-row {
     margin-bottom: 10px;
+    display: flex;
+    align-items: flex-end;
 }
 
 body .property-nav .property-nav-item {
@@ -32,14 +34,6 @@ body .property-nav .property-nav-item {
     color: blue;
     text-decoration: underline;
     font-size: 36px;
-}
-
-.dotted-underline-row > div.customer-balance-column:first-child {
-    padding-right: 0;
-}
-
-.dotted-underline-row > div.customer-balance-column:nth-child(2) {
-    padding-left: 0;
 }
 
 @media print {
