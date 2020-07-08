@@ -22560,7 +22560,7 @@ const Util = require('../util');
 
 class PropertyCustomersController {
   static getName() {
-    return 'Balances';
+    return 'Vendors';
   }
 
   static getUrl() {
@@ -22578,28 +22578,29 @@ class PropertyCustomersController {
   }
 
   getView(customerPaymentSetting) {
-    return `<div class="row dotted-underline-row customer-balance-row">
-        <div class="col-xs-5 vertical-align customer-balance-column">
-            <div class="black-dotted-underline">
-                ${this.getCustomerDescription(customerPaymentSetting.customer)}
-            </div>
-        </div>
-        <div class="col-xs-2 text-right vertical-align customer-balance-column">
-            <div class="black-dotted-underline">
-                ${customerPaymentSetting.vendor ? customerPaymentSetting.vendor.paymentFrequency || '' : ''}
-            </div>
-        </div>
-        <div class="col-xs-2 text-right vertical-align customer-balance-column">
-            <div class="black-dotted-underline">
-                ${customerPaymentSetting.vendor && customerPaymentSetting.vendor.rentPrice ? Util.format(customerPaymentSetting.vendor.rentPrice) : ''}
-            </div>
-        </div>
-        <div class="col-xs-3 text-right vertical-align customer-balance-column">
-            <div class="black-dotted-underline">
-                ${customerPaymentSetting.vendor ? customerPaymentSetting.vendor.memo || '' : ''}
-            </div>
-        </div>
-    </div>`;
+    return `
+            <div class="row dotted-underline-row customer-balance-row">
+                <div class="col-xs-5 vertical-align customer-balance-column">
+                    <div class="black-dotted-underline">
+                        ${this.getCustomerDescription(customerPaymentSetting.customer)}
+                    </div>
+                </div>
+                <div class="col-xs-2 text-right vertical-align customer-balance-column">
+                    <div class="black-dotted-underline">
+                        ${customerPaymentSetting.vendor ? customerPaymentSetting.vendor.paymentFrequency || '' : ''}
+                    </div>
+                </div>
+                <div class="col-xs-2 text-right vertical-align customer-balance-column">
+                    <div class="black-dotted-underline">
+                        ${customerPaymentSetting.vendor && customerPaymentSetting.vendor.rentPrice ? Util.format(customerPaymentSetting.vendor.rentPrice) : ''}
+                    </div>
+                </div>
+                <div class="col-xs-3 text-right vertical-align customer-balance-column">
+                    <div class="black-dotted-underline">
+                        ${customerPaymentSetting.vendor ? customerPaymentSetting.vendor.memo || '' : ''}
+                    </div>
+                </div>
+            </div>`;
   }
 
   async init(user) {
@@ -22609,30 +22610,6 @@ class PropertyCustomersController {
 
     for (let customer of this.customerPaymentSettings) {
       $('.customers-container').append(this.getView(customer));
-    }
-
-    console.log(this.customerPaymentSettings);
-    return;
-    $('.customer-balance-container').append(`<div class="row table-header-row">
-               <div class="col-xs-9">Vendor</div>
-               <div class="col-xs-3">Balance Owed</div>
-           </div>`);
-
-    for (let customer of this.customers.filter(x => x.Balance > 0)) {
-      $('.customer-balance-container').append(`
-                <div class="row dotted-underline-row customer-balance-row">
-                    <div class="col-xs-9 vertical-align customer-balance-column">
-                        <div class="black-dotted-underline">
-                            ${this.getCustomerDescription(customer)}
-                        </div>
-                    </div>
-                    <div class="col-xs-3 text-right vertical-align customer-balance-column">
-                        <div class="black-dotted-underline">
-                            ${Util.format(customer.Balance)}
-                        </div>
-                    </div>
-                </div>
-            `);
     }
   }
 
@@ -23190,7 +23167,7 @@ class Navigation {
   }
 
   static getAuthenticatedControllers(user) {
-    let authenticatedControllers = [_budgetController.default, _budgetCalendarController.default, _balanceSheetController.default, _transfersController.default, _depositController.default, _pricesController.default, _propertyCustomersController.default];
+    let authenticatedControllers = [_budgetController.default, _budgetCalendarController.default, _balanceSheetController.default, _transfersController.default, _depositController.default, _pricesController.default];
 
     if ((user || {}).email === 'timg456789@yahoo.com') {
       authenticatedControllers.push(_payDaysController.default);

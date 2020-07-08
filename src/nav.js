@@ -19,7 +19,7 @@ export default class Navigation {
     }
     static getAuthenticatedControllers(user) {
         let authenticatedControllers = [ BudgetController, BudgetCalendarController, BalanceSheetController,
-            TransfersController, DepositController, PricesController, PropertyCustomersController ];
+            TransfersController, DepositController, PricesController ];
         if ((user || {}).email === 'timg456789@yahoo.com') {
             authenticatedControllers.push(PayDaysController);
             authenticatedControllers.push(PropertyPointOfSaleController);

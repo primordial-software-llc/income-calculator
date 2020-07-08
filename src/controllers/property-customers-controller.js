@@ -3,7 +3,7 @@ import AccountSettingsController from './account-settings-controller';
 const Util = require('../util');
 export default class PropertyCustomersController {
     static getName() {
-        return 'Balances';
+        return 'Vendors';
     }
     static getUrl() {
         return `${Util.rootUrl()}/pages/property-customers.html`;
