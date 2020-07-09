@@ -22567,38 +22567,35 @@ class PropertyCustomersController {
     return `${Util.rootUrl()}/pages/property-customers.html`;
   }
 
-  getCustomerDescription(customer) {
-    let fullName = `${customer.GivenName || ''} ${customer.FamilyName || ''}`.trim();
+  getCustomerDescription(customerPaymentSetting) {
+    let fullName = `${customerPaymentSetting.firstName || ''} ${customerPaymentSetting.lastName || ''}`.trim();
 
     if (fullName) {
       fullName = ' : ' + fullName;
     }
 
-    return `${customer.DisplayName}${fullName}`;
+    return `${customerPaymentSetting.displayName}${fullName}`;
   }
 
   getView(customerPaymentSetting) {
+    let paymentFrequency = customerPaymentSetting.paymentFrequency || '&nbsp;';
+    let amount = customerPaymentSetting.rentPrice ? Util.format(customerPaymentSetting.rentPrice) : '&nbsp;';
+    let memo = customerPaymentSetting.memo || '&nbsp;';
     return `
-            <div class="row dotted-underline-row customer-balance-row">
+            <div class="row dotted-underline-row customer-row">
                 <div class="col-xs-5 vertical-align customer-balance-column">
                     <div class="black-dotted-underline">
-                        ${this.getCustomerDescription(customerPaymentSetting.customer)}
+                        <a class="customer-link" href="./property-customer-edit.html?id=${customerPaymentSetting.id}">${this.getCustomerDescription(customerPaymentSetting)}</a>
                     </div>
                 </div>
-                <div class="col-xs-2 text-right vertical-align customer-balance-column">
-                    <div class="black-dotted-underline">
-                        ${customerPaymentSetting.vendor ? customerPaymentSetting.vendor.paymentFrequency || '' : ''}
-                    </div>
+                <div class="col-xs-2 vertical-align">
+                    <div class="black-dotted-underline p-left-15">${paymentFrequency}</div>
                 </div>
-                <div class="col-xs-2 text-right vertical-align customer-balance-column">
-                    <div class="black-dotted-underline">
-                        ${customerPaymentSetting.vendor && customerPaymentSetting.vendor.rentPrice ? Util.format(customerPaymentSetting.vendor.rentPrice) : ''}
-                    </div>
+                <div class="col-xs-2 text-right vertical-align">
+                    <div class="black-dotted-underline p-left-15">${amount}</div>
                 </div>
-                <div class="col-xs-3 text-right vertical-align customer-balance-column">
-                    <div class="black-dotted-underline">
-                        ${customerPaymentSetting.vendor ? customerPaymentSetting.vendor.memo || '' : ''}
-                    </div>
+                <div class="col-xs-3 vertical-align">
+                    <div class="black-dotted-underline p-left-15">${memo}</div>
                 </div>
             </div>`;
   }

@@ -1,0 +1,29 @@
+body label.col-form-label-lg,
+.input-group-addon,
+body textarea.form-control,
+body input.form-control,
+body .customers-container
+{
+    font-size: 30px;
+}
+
+body .property-nav .property-nav-item {
+    margin-left: 20px;
+    margin-right: 20px;
+    color: blue;
+    text-decoration: underline;
+    font-size: 36px;
+}
+
+body .form-control {
+    height: 50px;
+}
+
+.form-check-input {
+    height: 35px;
+    width: 35px;
+}
+
+.btn {
+    font-size: 30px;
+}

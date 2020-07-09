@@ -1,12 +1,18 @@
 body label.col-form-label-lg,
 .input-group-addon,
 body textarea.form-control,
-body input.form-control {
+body input.form-control,
+body .customers-container
+{
     font-size: 30px;
 }
 
-body input.form-control {
+body .form-control {
     height: 50px;
+}
+
+#sale-memo {
+    height: 150px;
 }
 
 .white-background {
