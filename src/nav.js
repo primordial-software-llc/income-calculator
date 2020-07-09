@@ -22,6 +22,9 @@ export default class Navigation {
             TransfersController, DepositController, PricesController ];
         if ((user || {}).email === 'timg456789@yahoo.com') {
             authenticatedControllers.push(PayDaysController);
+        }
+        if ((user || {}).email === 'timg456789@yahoo.com' ||
+            (user || {}).email === 'taniagkocher@gmail.com') {
             authenticatedControllers.push(PropertyPointOfSaleController);
             authenticatedControllers.push(PropertyCustomerBalancesController);
             authenticatedControllers.push(PropertyCustomersController);
