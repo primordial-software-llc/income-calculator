@@ -20,11 +20,11 @@ export default class Navigation {
     static getAuthenticatedControllers(user) {
         let authenticatedControllers = [ BudgetController, BudgetCalendarController, BalanceSheetController,
             TransfersController, DepositController, PricesController ];
-        if ((user || {}).email === 'timg456789@yahoo.com') {
+        if (((user || {}).email || '').toLowerCase() === 'timg456789@yahoo.com') {
             authenticatedControllers.push(PayDaysController);
         }
-        if ((user || {}).email === 'timg456789@yahoo.com' ||
-            (user || {}).email === 'taniagkocher@gmail.com') {
+        if (((user || {}).email || '').toLowerCase() === 'timg456789@yahoo.com' ||
+            ((user || {}).email || '').toLowerCase() === 'taniagkocher@gmail.com') {
             authenticatedControllers.push(PropertyPointOfSaleController);
             authenticatedControllers.push(PropertyCustomerBalancesController);
             authenticatedControllers.push(PropertyCustomersController);

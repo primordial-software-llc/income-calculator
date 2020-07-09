@@ -23166,11 +23166,11 @@ class Navigation {
   static getAuthenticatedControllers(user) {
     let authenticatedControllers = [_budgetController.default, _budgetCalendarController.default, _balanceSheetController.default, _transfersController.default, _depositController.default, _pricesController.default];
 
-    if ((user || {}).email === 'timg456789@yahoo.com') {
+    if (((user || {}).email || '').toLowerCase() === 'timg456789@yahoo.com') {
       authenticatedControllers.push(_payDaysController.default);
     }
 
-    if ((user || {}).email === 'timg456789@yahoo.com' || (user || {}).email === 'taniagkocher@gmail.com') {
+    if (((user || {}).email || '').toLowerCase() === 'timg456789@yahoo.com' || ((user || {}).email || '').toLowerCase() === 'taniagkocher@gmail.com') {
       authenticatedControllers.push(_propertyPointOfSaleController.default);
       authenticatedControllers.push(_propertyCustomerBalancesController.default);
       authenticatedControllers.push(_propertyCustomersController.default);
