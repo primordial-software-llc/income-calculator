@@ -54,7 +54,7 @@ function TransferController() {
                     transferModel.debitId = debitId;
                     patch.pending.push(transferModel);
 
-                    await dataClient.patch(patch);
+                    await dataClient.patch('budget', patch);
                     window.location.reload();
                 } catch (error) {
                     Util.log(err);

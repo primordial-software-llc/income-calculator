@@ -27,3 +27,7 @@ body .form-control {
 .btn {
     font-size: 30px;
 }
+
+#memo {
+    height: 100px;
+}

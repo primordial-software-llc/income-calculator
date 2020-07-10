@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
     <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/property-point-of-sale.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/property-customer-edit.css">
     <title>Net Income Calculator</title>
     <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
@@ -24,13 +24,13 @@
         <div class="form-group row">
             <label class="col-xs-3 col-form-label col-form-label-lg">Vendor</label>
             <div class="col-xs-9">
-                <input id="customer-vendor" class="form-control" type="text">
+                <span id="customer-vendor"></span>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-xs-3 col-form-label col-form-label-lg">Payment Frequency</label>
             <div class="col-xs-9">
-                <select class="form-control">
+                <select id="payment-frequency" class="form-control">
                     <option value=""></option>
                     <option value="monthly">Monthly</option>
                     <option value="weekly">Weekly</option>
@@ -42,17 +42,17 @@
             <div class="col-xs-9">
                 <div class="input-group">
                     <div class="input-group-addon">$</div>
-                    <input id="sale-rental-amount" class="form-control text-right" type="number" placeholder="0.00">
+                    <input id="rental-amount" class="form-control text-right" type="number" placeholder="0.00">
                 </div>
             </div>
         </div>
         <div class="form-group row">
             <label class="col-xs-3 col-form-label col-form-label-lg">Memo</label>
             <div class="col-xs-9">
-                <textarea id="sale-memo" class="form-control"></textarea>
+                <textarea id="memo" class="form-control"></textarea>
             </div>
         </div>
-        <input id="customer-edit-save" type="button" value="Save" class="btn btn-primary" />
+        <input id="vendor-save" type="button" value="Save" class="btn btn-primary" />
     </form>
 </div>
 </body>

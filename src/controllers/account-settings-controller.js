@@ -11,7 +11,7 @@ export default class AccountSettingsController {
         let data = await this.view.getModel();
         try {
             let dataClient = new DataClient();
-            let response = await dataClient.patch(data);
+            let response = await dataClient.patch('budget', data);
             window.location.reload();
         } catch (err) {
             Util.log(err);
@@ -20,7 +20,7 @@ export default class AccountSettingsController {
     init (viewIn, user, injectFooter) {
         this.view = viewIn;
         let dataClient = new DataClient();
-        $('#save').click(this.save);
+        $('#save').click(this.save); // Should get rid of this it's difficult to see this functionality is in place.
         $('#obfuscate-data').click(() => {
             if (Util.obfuscate()) {
                 document.cookie = 'obfuscate=;Secure;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC';
@@ -74,7 +74,9 @@ export default class AccountSettingsController {
         });
 
         let authenticatedControllers = Navigation.getAuthenticatedControllers(user)
-        let navItemHtml = authenticatedControllers.map(controllerType =>
+        let navItemHtml = authenticatedControllers
+            .filter(controllerType => !controllerType.hideInNav || !controllerType.hideInNav())
+            .map(controllerType =>
             Navigation.getNavItemView(controllerType.getUrl(), controllerType.getName())
         );
         $('.tab-nav-bar').append(navItemHtml.join(''));

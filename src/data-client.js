@@ -3,7 +3,7 @@ const Currency = require('currency.js');
 function DataClient() {
     const FETCH_MODE = 'cors';
     const FETCH_CREDENTIALS = 'include';
-    this.patch = async function (data) {
+    this.patch = async function (endpoint, data) {
         let requestParams = {
             method: 'PATCH',
             mode: FETCH_MODE,
@@ -11,7 +11,7 @@ function DataClient() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         };
-        return await this.sendRequestInner('budget', requestParams)
+        return await this.sendRequestInner(endpoint, requestParams)
     };
     this.post = async function (endpoint, data, isRetryFromRefresh) {
         let requestParams = {

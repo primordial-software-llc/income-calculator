@@ -15,7 +15,7 @@ async function deposit(amount) {
         data.assets.push(cashAsset);
     }
     cashAsset.amount = Util.add(cashAsset.amount, amount);
-    await new DataClient().patch({ assets: data.assets });
+    await new DataClient().patch('budget', { assets: data.assets });
     $('#transfer-amount').val('');
     $('#message-container').html(`<div class="alert alert-success" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">

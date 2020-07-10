@@ -17,7 +17,7 @@ export default class TransfersController {
             let data = await dataClient.getBudget();
             let patch = {};
             patch.pending = data.pending.filter(x => x.id !== transferId);
-            await dataClient.patch(patch);
+            await dataClient.patch('budget', patch);
             window.location.reload();
         } catch (error) {
             Util.log(error);
@@ -67,7 +67,7 @@ export default class TransfersController {
         }
         patch.assets = patch.assets.filter(x => Currency(Util.getAmount(x)).intValue > 0);
         try {
-            await dataClient.patch(patch);
+            await dataClient.patch('budget', patch);
             window.location.reload();
         } catch (err) {
             Util.log(err);
