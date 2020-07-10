@@ -22603,7 +22603,6 @@ class PropertyCustomersController {
       }
 
       let newRentalAmount = $('#rental-amount').val().trim();
-      newRentalAmount = parseFloat(newRentalAmount);
 
       if (customer.rentPrice !== newRentalAmount) {
         if (newRentalAmount !== Util.cleanseNumericString(newRentalAmount)) {
@@ -22612,7 +22611,7 @@ class PropertyCustomersController {
           return;
         }
 
-        updates.rentPrice = newRentalAmount;
+        updates.rentPrice = parseFloat(newRentalAmount);
       }
 
       let newMemo = $('#memo').val().trim();

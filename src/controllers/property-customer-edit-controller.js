@@ -39,13 +39,12 @@ export default class PropertyCustomersController {
                 updates.paymentFrequency = newPaymentFrequency;
             }
             let newRentalAmount = $('#rental-amount').val().trim();
-            newRentalAmount = parseFloat(newRentalAmount);
             if (customer.rentPrice !== newRentalAmount) {
                 if (newRentalAmount !== Util.cleanseNumericString(newRentalAmount)) {
                     MessageViewController.setMessage('Rental amount isn\'t a valid amount', 'alert-danger');
                     return;
                 }
-                updates.rentPrice = newRentalAmount;
+                updates.rentPrice = parseFloat(newRentalAmount);
             }
             let newMemo = $('#memo').val().trim();
             if (customer.memo !== newMemo) {
