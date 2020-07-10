@@ -22627,9 +22627,15 @@ class PropertyCustomersController {
         updates.memo = newMemo;
       }
 
-      let vendor = await new DataClient().patch(`point-of-sale/vendor`, updates);
+      try {
+        let vendor = await new DataClient().patch(`point-of-sale/vendor`, updates);
 
-      _messageViewController.default.setMessage('Vendor saved', 'alert-success');
+        _messageViewController.default.setMessage('Vendor saved', 'alert-success');
+      } catch (error) {
+        Util.log(error);
+
+        _messageViewController.default.setMessage(JSON.stringify(error, 0, 4), 'alert-danger');
+      }
     });
   }
 
