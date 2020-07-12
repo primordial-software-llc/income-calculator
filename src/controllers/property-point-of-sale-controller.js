@@ -56,7 +56,7 @@ export default class PropertyPointOfSaleController {
             let receipt = {
                 rentalDate: $('#sale-date').val().trim(),
                 customer: {
-                    id: customerMatch ? customerMatch.Id : '',
+                    id: customerMatch ? customerMatch.quickBooksOnlineId : '',
                     name: vendor
                 },
                 amountOfAccount: $('#sale-prior-balance').val().trim(),
