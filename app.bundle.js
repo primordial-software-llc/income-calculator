@@ -22755,13 +22755,13 @@ class PropertyPointOfSaleController {
   }
 
   getCustomerDescription(customer) {
-    let fullName = `${customer.GivenName || ''} ${customer.FamilyName || ''}`.trim();
+    let fullName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
 
     if (fullName) {
       fullName = ' : ' + fullName;
     }
 
-    return `${customer.DisplayName}${fullName}`;
+    return `${customer.displayName}${fullName}`;
   }
 
   getCustomer(customerDescription) {
@@ -22772,7 +22772,7 @@ class PropertyPointOfSaleController {
     let self = this;
     this.initForm();
     new _accountSettingsController.default().init({}, user, false);
-    this.customers = await new DataClient().get('point-of-sale/customers');
+    this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
 
     for (let customer of this.customers) {
       $('#sale-vendor-list').append(`<option>${this.getCustomerDescription(customer)}</option>`);
@@ -22782,7 +22782,11 @@ class PropertyPointOfSaleController {
       let customer = self.getCustomer(this.value);
 
       if (customer) {
-        $('#sale-prior-balance').val(customer.Balance);
+        $('#sale-prior-balance').val(customer.balance);
+        $('#sale-payment-frequency').text(customer.paymentFrequency);
+      } else {
+        $('#sale-prior-balance').val('');
+        $('#sale-payment-frequency').text('');
       }
     });
     $('#sale-save').click(async function () {

@@ -2,7 +2,7 @@ body label.col-form-label-lg,
 .input-group-addon,
 body textarea.form-control,
 body input.form-control,
-body .customers-container
+body #input-form
 {
     font-size: 30px;
 }
@@ -13,6 +13,10 @@ body .form-control {
 
 #sale-memo {
     height: 150px;
+}
+
+#sale-payment-frequency {
+    text-transform: capitalize;
 }
 
 .white-background {
