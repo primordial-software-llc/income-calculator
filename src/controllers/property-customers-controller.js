@@ -1,5 +1,7 @@
-const DataClient = require('../data-client');
 import AccountSettingsController from './account-settings-controller';
+const DataClient = require('../data-client');
+const Moment = require('moment');
+import MessageViewController from './message-view-controller';
 const Util = require('../util');
 export default class PropertyCustomersController {
     static getName() {
@@ -38,6 +40,34 @@ export default class PropertyCustomersController {
                 </div>
             </div>`;
     }
+    async createInvoices(frequency, date) {
+        MessageViewController.setMessage('');
+        let dataClient = new DataClient();
+        let invoiceParams = {
+            year: date.getFullYear(),
+            month: date.getMonth() + 1,
+            dayOfMonth: date.getDate()
+        };
+        let dateRange = await dataClient.get(`point-of-sale/recurring-invoice-date-range` +
+            `?year=${invoiceParams.year}&month=${invoiceParams.month}&dayOfMonth=${invoiceParams.dayOfMonth}&frequency=${frequency}`);
+        let start = Moment.utc(dateRange.start);
+        let end = Moment.utc(dateRange.end);
+        let message = `Are you sure you would like to create ${frequency} invoices for ${start.format('YYYY-MM-DD')} to ${end.format('YYYY-MM-DD')}`;
+        if (!confirm(message)) {
+            return;
+        }
+        try {
+            let invoices = await dataClient.post(`point-of-sale/create-${frequency}-invoices`, invoiceParams);
+            let messages = [`Created ${invoices.length} ${frequency} invoice${invoices.length === 1 ? '' : 's'} for ${start.format('YYYY-MM-DD')} to ${end.format('YYYY-MM-DD')}`];
+            for (let invoice of invoices) {
+                messages.push(`${invoice.CustomerRef.name} - ${Util.format(invoice.TotalAmt)}`);
+            }
+            MessageViewController.setMessage(messages, 'alert-success');
+        } catch (error) {
+            Util.log(error);
+            MessageViewController.setMessage('An error occurred when creating invoices. Invoices may still be getting created. Wait 10 minutes before attempting to create invoices again. ' + JSON.stringify(error), 'alert-danger');
+        }
+    }
     async init(user) {
         let self = this;
         new AccountSettingsController().init({}, user, false);
@@ -45,5 +75,13 @@ export default class PropertyCustomersController {
         for (let customer of this.customerPaymentSettings) {
             $('.customers-container').append(this.getView(customer));
         }
+        $('#create-weekly-invoices').click(async function() {
+            await self.createInvoices('weekly', new Date());
+        })
+        $('#create-monthly-invoices').click(async function() {
+            let today = new Date();
+            let date = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+            await self.createInvoices('monthly', date);
+        });
     }
 }
