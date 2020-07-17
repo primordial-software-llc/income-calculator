@@ -23938,7 +23938,7 @@ class CashViewModel extends _assetViewModel.default {
     return $(`<div>
                <div class="asset-item row transaction-input-view">
                    <div class="col-xs-9">
-                       <input class="name form-control text-right" type="text" />
+                       <input class="name form-control" type="text" />
                    </div>
                    <div class="col-xs-3">
                        <div class="input-group">
