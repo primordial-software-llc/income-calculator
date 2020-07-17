@@ -23944,7 +23944,7 @@ class CashViewModel extends _assetViewModel.default {
                        <div class="input-group">
                            <div class="input-group-addon ">$</div>
                            <input ${readOnlyAmount ? 'disabled="disabled"' : ''}
-                               class="amount form-control text-right"
+                               class="amount form-control"
                                type="text"
                                placeholder="0.00"
                                value="${readOnlyAmount ? Util.format(readOnlyAmount) : ''}" />
@@ -24174,7 +24174,7 @@ class InventoryViewModel extends _assetViewModel.default {
     return $(`<div>
                 <div class="asset-item row transaction-input-view">
                     <div class="col-xs-9">
-                        <input class="name form-control text-right" type="text" />
+                        <input class="name form-control" type="text" />
                     </div>
                     <div class="col-xs-3">
                         <div class="input-group">
@@ -24359,7 +24359,7 @@ class PropertyPlantAndEquipmentViewModel extends _assetViewModel.default {
     return $(`<div>
                 <div class="asset-item row transaction-input-view">
                     <div class="col-xs-9">
-                        <input class="name form-control text-right" type="text" />
+                        <input class="name form-control" type="text" />
                     </div>
                     <div class="col-xs-3">
                         <div class="input-group">

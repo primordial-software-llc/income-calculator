@@ -110,7 +110,7 @@ export default class CashViewModel extends AssetViewModel {
                        <div class="input-group">
                            <div class="input-group-addon ">$</div>
                            <input ${readOnlyAmount ? 'disabled="disabled"' : ''}
-                               class="amount form-control text-right"
+                               class="amount form-control"
                                type="text"
                                placeholder="0.00"
                                value="${readOnlyAmount ? Util.format(readOnlyAmount) : ''}" />
