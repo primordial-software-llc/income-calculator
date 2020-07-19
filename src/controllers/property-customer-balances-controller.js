@@ -44,7 +44,7 @@ export default class PropertyCustomerBalancesController {
                     </div>
                     <div class="col-xs-2 vertical-align customer-balance-column">
                         <div class="black-dotted-underline">
-                            ${customer.paymentFrequency}
+                            ${customer.paymentFrequency || ''}
                         </div>
                     </div>
                     <div class="col-xs-3 text-right vertical-align customer-balance-column">
