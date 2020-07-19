@@ -19,6 +19,21 @@ export default class PropertyCustomerBalancesController {
         let self = this;
         new AccountSettingsController().init({}, user, false);
         this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
+
+        this.customers.sort(function(a, b) {
+            var nameA = (a.paymentFrequency || '').toUpperCase(); // ignore upper and lowercase
+            var nameB = (b.paymentFrequency || '').toUpperCase(); // ignore upper and lowercase
+            if (nameA < nameB) {
+                return -1;
+            }
+            if (nameA > nameB) {
+                return 1;
+            }
+
+            // names must be equal
+            return 0;
+        });
+
         for (let customer of this.customers.filter(x => x.balance > 0)) {
             $('.customer-balance-container').append(`
                 <div class="row dotted-underline-row customer-balance-row">
