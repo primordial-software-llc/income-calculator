@@ -44,9 +44,11 @@ export default class PropertyPointOfSaleController {
             if (customer) {
                 $('#sale-prior-balance').val(customer.balance);
                 $('#sale-payment-frequency').text(customer.paymentFrequency);
+                $('#vendor-notes').text(customer.memo);
             } else {
                 $('#sale-prior-balance').val('');
                 $('#sale-payment-frequency').text('');
+                $('#vendor-notes').text('');
             }
         });
         $('#sale-save').click(async function() {
@@ -55,6 +57,7 @@ export default class PropertyPointOfSaleController {
             let customerMatch = self.getCustomer(vendor);
             let receipt = {
                 rentalDate: $('#sale-date').val().trim(),
+                transactionDate: Moment().format('YYYY-MM-DD'),
                 customer: {
                     id: customerMatch ? customerMatch.quickBooksOnlineId : '',
                     name: vendor
