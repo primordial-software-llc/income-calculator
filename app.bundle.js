@@ -22506,32 +22506,37 @@ class PropertyCustomerBalancesController {
     return `${Util.rootUrl()}/pages/property-customer-balances.html`;
   }
 
-  getCustomerDescription(customer) {
-    let fullName = `${customer.GivenName || ''} ${customer.FamilyName || ''}`.trim();
+  getCustomerDescription(customerPaymentSetting) {
+    let fullName = `${customerPaymentSetting.firstName || ''} ${customerPaymentSetting.lastName || ''}`.trim();
 
     if (fullName) {
       fullName = ' : ' + fullName;
     }
 
-    return `${customer.DisplayName}${fullName}`;
+    return `${customerPaymentSetting.displayName}${fullName}`;
   }
 
   async init(user) {
     let self = this;
     new _accountSettingsController.default().init({}, user, false);
-    this.customers = await new DataClient().get('point-of-sale/customers');
+    this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
 
-    for (let customer of this.customers.filter(x => x.Balance > 0)) {
+    for (let customer of this.customers.filter(x => x.balance > 0)) {
       $('.customer-balance-container').append(`
                 <div class="row dotted-underline-row customer-balance-row">
-                    <div class="col-xs-9 vertical-align customer-balance-column">
+                    <div class="col-xs-7 vertical-align customer-balance-column">
                         <div class="black-dotted-underline">
                             ${this.getCustomerDescription(customer)}
                         </div>
                     </div>
+                    <div class="col-xs-2 vertical-align customer-balance-column">
+                        <div class="black-dotted-underline">
+                            ${customer.paymentFrequency}
+                        </div>
+                    </div>
                     <div class="col-xs-3 text-right vertical-align customer-balance-column">
                         <div class="black-dotted-underline">
-                            ${Util.format(customer.Balance)}
+                            ${Util.format(customer.balance)}
                         </div>
                     </div>
                 </div>
