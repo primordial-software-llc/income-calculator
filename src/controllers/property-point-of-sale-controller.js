@@ -62,8 +62,6 @@ export default class PropertyPointOfSaleController {
                 $('#qr-scanner-preview').addClass('hide');
             });
             Instascan.Camera.getCameras().then(function (cameras) {
-                window.alert(cameras.length);
-                console.log(cameras.length);
                 if (cameras.length > 1) {
                     scanner.start(cameras[1]);
                 } else if (cameras.length > 0) {
