@@ -22882,8 +22882,8 @@ class PropertyPointOfSaleController {
         let isValid = !myRegEx.test(qrCodeMessage);
 
         if (isValid) {
-          console.log('is valid');
-          console.log(qrCodeMessage);
+          $("#sale-vendor").val((qrCodeMessage || '').trim());
+          $("#sale-vendor").trigger('input');
           html5Qrcode.stop();
         }
       }, errorMessage => {
