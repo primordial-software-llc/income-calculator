@@ -17,13 +17,11 @@ export default class PropertyPointOfSaleController {
         for (let camera of cameras) {
             $('#cameras').append(`<option value="${camera.id}">${camera.label}</option>`);
         }
-
         $('#start-scan').click(async function() {
-
             let html5Qrcode = new Html5Qrcode("reader");
             html5Qrcode.start(
                 $('#cameras').val(),
-                { fps: 10, qrbox: 250 },
+                { fps: 10, qrbox: 3000 },
                 async qrCodeMessage => {
                     let myRegEx  = /[^a-z\d: ]/i;
                     let isValid = !(myRegEx.test(qrCodeMessage));
@@ -33,9 +31,7 @@ export default class PropertyPointOfSaleController {
                         html5Qrcode.stop();
                     }
                 },
-                errorMessage => {
-                    //console.log(errorMessage);
-                }
+                errorMessage => { /* console.log(errorMessage);*/ }
             ).catch(error => {
                 console.log(error);
             });

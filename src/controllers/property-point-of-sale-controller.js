@@ -34,6 +34,18 @@ export default class PropertyPointOfSaleController {
     async init(user) {
         let self = this;
         this.initForm();
+        Html5Qrcode.getCameras()
+            .then(cameras => {
+                for (let camera of cameras) {
+                    $('#cameras').append(`<option value="${camera.id}">${camera.label}</option>`);
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            })
+
+
+
         new AccountSettingsController().init({}, user, false);
         this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
         for (let customer of this.customers) {
@@ -52,7 +64,24 @@ export default class PropertyPointOfSaleController {
             }
         });
         $('#scan-vendor').click(async function() {
-
+            window.location.hash = '#reader';
+            let html5Qrcode = new Html5Qrcode("reader");
+            html5Qrcode.start(
+                $('#cameras').val(),
+                { fps: 10, qrbox: 250 },
+                async qrCodeMessage => {
+                    let myRegEx  = /[^a-z\d: ]/i;
+                    let isValid = !(myRegEx.test(qrCodeMessage));
+                    if (isValid) {
+                        console.log('is valid');
+                        console.log(qrCodeMessage);
+                        html5Qrcode.stop();
+                    }
+                },
+                errorMessage => { /* console.log(errorMessage);*/ }
+            ).catch(error => {
+                console.log(error);
+            });
         });
         $('#sale-save').click(async function() {
             MessageViewController.setMessage('');
