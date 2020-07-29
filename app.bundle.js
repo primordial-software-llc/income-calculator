@@ -65825,7 +65825,7 @@ async function init() {
   let usernameResponse;
 
   try {
-    if (pageName && !pageName.startsWith('login.html') && !pageName.startsWith('login-signup.html')) {
+    if (pageName && !pageName.startsWith('login.html') && !pageName.startsWith('qr-test.html') && !pageName.startsWith('login-signup.html')) {
       usernameResponse = await new DataClient().getBudget();
     }
   } catch (err) {
