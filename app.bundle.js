@@ -67932,19 +67932,15 @@ class PropertyPointOfSaleController {
       scanner.stop();
       $('#qr-scanner-preview').addClass('hide');
     });
-    Instascan.Camera.getCameras().then(function (cameras) {
-      console.log($('#cameras').val());
-      console.log(cameras);
+    $('#start-scan').click(async function () {
+      let cameras = await Instascan.Camera.getCameras();
+      let selectedCamera = cameras.find(x => (x.name || '').toLowerCase() === $('#cameras').val().toLowerCase());
 
-      if (cameras.length > 1) {
-        scanner.start(cameras[1]);
-      } else if (cameras.length > 0) {
-        scanner.start(cameras[0]);
+      if (selectedCamera) {
+        scanner.start(selectedCamera);
       } else {
         console.error('No cameras found.');
       }
-    }).catch(function (e) {
-      console.error(e);
     });
   }
 
