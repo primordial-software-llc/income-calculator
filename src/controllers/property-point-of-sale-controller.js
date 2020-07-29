@@ -3,6 +3,7 @@ const Moment = require('moment/moment');
 const DataClient = require('../data-client');
 import AccountSettingsController from './account-settings-controller';
 import MessageViewController from './message-view-controller';
+import QRScanner from 'qr-code-scanner';
 const Util = require('../util');
 export default class PropertyPointOfSaleController {
     static getName() {
@@ -50,6 +51,20 @@ export default class PropertyPointOfSaleController {
                 $('#sale-payment-frequency').text('');
                 $('#vendor-notes').text('');
             }
+        });
+
+        $('#scan-vendor').click(async function() {
+
+            QRScanner.initiate({
+                onResult: function (result) {
+                    $("#sale-vendor").val((result || '').trim());
+                    $("#sale-vendor").trigger('input');
+                    console.info('Scanned vendor: ', result);
+                },
+                onError: function (err) { console.error('ERR :::: ', err); }, // optional
+                onTimeout: function () { console.warn('TIMEOUT'); } // optional
+            })
+
         });
         $('#sale-save').click(async function() {
             MessageViewController.setMessage('');

@@ -52,12 +52,16 @@
           </div>
           <div class="form-group row">
               <label class="col-xs-3 col-form-label col-form-label-lg">Vendor</label>
-              <div class="col-xs-9">
+              <div class="col-xs-8">
                   <input id="sale-vendor" class="form-control" type="text" list="sale-vendor-list">
                   <datalist id="sale-vendor-list">
                   </datalist>
               </div>
+              <div class="col-xs-1">
+                  <button type="button" id="scan-vendor">Scan</button>
+              </div>
           </div>
+          <div id="reader" width="600px"></div>
           <div class="form-group row">
               <label class="col-xs-3 col-form-label col-form-label-lg">Payment Frequency</label>
               <div class="col-xs-9">
