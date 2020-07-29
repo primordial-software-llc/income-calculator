@@ -5,6 +5,7 @@ import HomeController from './controllers/home-controller';
 const LoginController = require('./controllers/login-controller');
 import LoginSignupController from './controllers/login-signup-controller';
 import Navigation from './nav';
+import QrTestController from './controllers/qr-test-controller';
 const Util = require('./util');
 
 async function init() {
@@ -34,6 +35,8 @@ async function init() {
         controller = new LoginSignupController();
     } else if (pageName.startsWith('index.html')) {
         controller = new HomeController();
+    } else if (pageName.startsWith('qr-test.html')) {
+        controller = new QrTestController();
     }
     try {
         if (controller) {

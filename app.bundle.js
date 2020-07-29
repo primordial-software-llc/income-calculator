@@ -65807,6 +65807,8 @@ var _loginSignupController = _interopRequireDefault(require("./controllers/login
 
 var _nav = _interopRequireDefault(require("./nav"));
 
+var _qrTestController = _interopRequireDefault(require("./controllers/qr-test-controller"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const DataClient = require('./data-client');
@@ -65845,6 +65847,8 @@ async function init() {
     controller = new _loginSignupController.default();
   } else if (pageName.startsWith('index.html')) {
     controller = new _homeController.default();
+  } else if (pageName.startsWith('qr-test.html')) {
+    controller = new _qrTestController.default();
   }
 
   try {
@@ -65860,7 +65864,7 @@ $(document).ready(function () {
   init();
 });
 
-},{"./controllers/home-controller":582,"./controllers/login-controller":583,"./controllers/login-signup-controller":584,"./data-client":594,"./nav":595,"./util":596,"./views/command-buttons-view":613,"./views/footer-view":614}],568:[function(require,module,exports){
+},{"./controllers/home-controller":582,"./controllers/login-controller":583,"./controllers/login-signup-controller":584,"./controllers/qr-test-controller":593,"./data-client":595,"./nav":596,"./util":597,"./views/command-buttons-view":614,"./views/footer-view":615}],568:[function(require,module,exports){
 function CalendarSearch() {
 
     this.find = function (startTime, endTime, transactions) {
@@ -65942,7 +65946,7 @@ class CurrentBalanceCalculator {
 
 exports.default = CurrentBalanceCalculator;
 
-},{"../util":596,"currency.js":413}],571:[function(require,module,exports){
+},{"../util":597,"currency.js":413}],571:[function(require,module,exports){
 const cal = require('./calendar');
 const UtcDay = require('./utc-day');
 function NetIncomeCalculator() {
@@ -66261,7 +66265,7 @@ class AccountSettingsController {
 
 exports.default = AccountSettingsController;
 
-},{"../data-client":594,"../nav":595,"../util":596,"../views/footer-view":614}],576:[function(require,module,exports){
+},{"../data-client":595,"../nav":596,"../util":597,"../views/footer-view":615}],576:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66329,7 +66333,7 @@ class BalanceSheetController {
 
 exports.default = BalanceSheetController;
 
-},{"../data-client":594,"../util":596,"../view-models/balance-sheet-view-model":597,"../views/balance-sheet/balance-sheet-view":599,"../views/balance-sheet/loan-view-model":605,"./account-settings-controller":575}],577:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"../view-models/balance-sheet-view-model":598,"../views/balance-sheet/balance-sheet-view":600,"../views/balance-sheet/loan-view-model":606,"./account-settings-controller":575}],577:[function(require,module,exports){
 const DataClient = require('../../data-client');
 const Moment = require('moment/moment');
 const TransferView = require('../../views/balance-sheet/transfer-view');
@@ -66402,7 +66406,7 @@ function TransferController() {
 
 module.exports = TransferController;
 
-},{"../../data-client":594,"../../util":596,"../../views/balance-sheet/transfer-view":607,"moment/moment":483}],578:[function(require,module,exports){
+},{"../../data-client":595,"../../util":597,"../../views/balance-sheet/transfer-view":608,"moment/moment":483}],578:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66522,7 +66526,7 @@ class BanksController {
 
 exports.default = BanksController;
 
-},{"../data-client":594,"../util":596,"./account-settings-controller":575}],579:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"./account-settings-controller":575}],579:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66650,7 +66654,7 @@ class BudgetCalendarController {
 
 exports.default = BudgetCalendarController;
 
-},{"../calculators/calendar-search":568,"../calculators/net-income-calculator":571,"../data-client":594,"../util":596,"../views/calendar-view":612,"./account-settings-controller":575,"currency.js":413}],580:[function(require,module,exports){
+},{"../calculators/calendar-search":568,"../calculators/net-income-calculator":571,"../data-client":595,"../util":597,"../views/calendar-view":613,"./account-settings-controller":575,"currency.js":413}],580:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66732,7 +66736,7 @@ class BudgetController {
 
 exports.default = BudgetController;
 
-},{"../data-client":594,"../util":596,"../view-models/balance-sheet-view-model":597,"../views/budget/biweekly-view":608,"../views/budget/budget-view":609,"../views/budget/monthly-view":610,"../views/budget/weekly-view":611,"./account-settings-controller":575}],581:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"../view-models/balance-sheet-view-model":598,"../views/budget/biweekly-view":609,"../views/budget/budget-view":610,"../views/budget/monthly-view":611,"../views/budget/weekly-view":612,"./account-settings-controller":575}],581:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -66802,7 +66806,7 @@ class DepositController {
 
 exports.default = DepositController;
 
-},{"../data-client":594,"../util":596,"./account-settings-controller":575}],582:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"./account-settings-controller":575}],582:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67002,7 +67006,7 @@ function LoginController() {
 
 module.exports = LoginController;
 
-},{"../data-client":594,"../util":596,"./account-settings-controller":575,"./message-view-controller":585,"amazon-cognito-identity-js":17,"otpauth":484,"qrcode":504}],584:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"./account-settings-controller":575,"./message-view-controller":585,"amazon-cognito-identity-js":17,"otpauth":484,"qrcode":504}],584:[function(require,module,exports){
 "use strict";
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
@@ -67108,7 +67112,7 @@ function LoginSignupController() {
 
 module.exports = LoginSignupController;
 
-},{"../data-client":594,"../util":596,"./account-settings-controller":575}],585:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"./account-settings-controller":575}],585:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67241,7 +67245,7 @@ class PayDaysController {
 
 exports.default = PayDaysController;
 
-},{"../calculators/calendar":569,"../calculators/utc-day":573,"../data-client":594,"../util":596,"../views/pay-days-view":615,"./account-settings-controller":575,"currency.js":413,"moment/moment":483}],587:[function(require,module,exports){
+},{"../calculators/calendar":569,"../calculators/utc-day":573,"../data-client":595,"../util":597,"../views/pay-days-view":616,"./account-settings-controller":575,"currency.js":413,"moment/moment":483}],587:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67287,7 +67291,7 @@ class PricesController {
 
 exports.default = PricesController;
 
-},{"../data-client":594,"../util":596,"../views/prices-view":616,"./account-settings-controller":575}],588:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"../views/prices-view":617,"./account-settings-controller":575}],588:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67370,7 +67374,7 @@ class PropertyCustomerBalancesController {
 
 exports.default = PropertyCustomerBalancesController;
 
-},{"../data-client":594,"../util":596,"./account-settings-controller":575}],589:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"./account-settings-controller":575}],589:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67469,7 +67473,7 @@ class PropertyCustomersController {
 
 exports.default = PropertyCustomersController;
 
-},{"../data-client":594,"../util":596,"./account-settings-controller":575,"./message-view-controller":585}],590:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"./account-settings-controller":575,"./message-view-controller":585}],590:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67588,7 +67592,7 @@ class PropertyCustomersController {
 
 exports.default = PropertyCustomersController;
 
-},{"../data-client":594,"../util":596,"./account-settings-controller":575,"./message-view-controller":585,"moment":483}],591:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"./account-settings-controller":575,"./message-view-controller":585,"moment":483}],591:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67679,6 +67683,8 @@ class PropertyPointOfSaleController {
         $('#qr-scanner-preview').addClass('hide');
       });
       Instascan.Camera.getCameras().then(function (cameras) {
+        console.log(cameras);
+
         if (cameras.length > 1) {
           scanner.start(cameras[1]);
         } else if (cameras.length > 0) {
@@ -67786,7 +67792,7 @@ class PropertyPointOfSaleController {
 
 exports.default = PropertyPointOfSaleController;
 
-},{"../data-client":594,"../util":596,"./account-settings-controller":575,"./message-view-controller":585,"currency.js":413,"instascan":461,"moment/moment":483}],592:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"./account-settings-controller":575,"./message-view-controller":585,"currency.js":413,"instascan":461,"moment/moment":483}],592:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -67877,7 +67883,76 @@ class PricesController {
 
 exports.default = PricesController;
 
-},{"../data-client":594,"../util":596,"../views/prices-view":616,"./account-settings-controller":575,"./message-view-controller":585,"moment":483}],593:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"../views/prices-view":617,"./account-settings-controller":575,"./message-view-controller":585,"moment":483}],593:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _currency = _interopRequireDefault(require("currency.js"));
+
+var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
+
+var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const Moment = require('moment/moment');
+
+const DataClient = require('../data-client');
+
+const Instascan = require('instascan');
+
+const Util = require('../util');
+
+class PropertyPointOfSaleController {
+  static getName() {
+    return 'QR Test';
+  }
+
+  static getUrl() {
+    return `${Util.rootUrl()}/pages/qr-test.html`;
+  }
+
+  async init(user) {
+    let cameras = await Instascan.Camera.getCameras();
+
+    for (let camera of cameras) {
+      $('#cameras').append(`<option>${camera.name}</option>`);
+    }
+
+    let scanner = new Instascan.Scanner({
+      video: document.getElementById('qr-scanner-preview')
+    });
+    scanner.addListener('scan', function (content) {
+      $("#sale-vendor").val((content || '').trim());
+      $("#sale-vendor").trigger('input');
+      scanner.stop();
+      $('#qr-scanner-preview').addClass('hide');
+    });
+    Instascan.Camera.getCameras().then(function (cameras) {
+      console.log($('#cameras').val());
+      console.log(cameras);
+
+      if (cameras.length > 1) {
+        scanner.start(cameras[1]);
+      } else if (cameras.length > 0) {
+        scanner.start(cameras[0]);
+      } else {
+        console.error('No cameras found.');
+      }
+    }).catch(function (e) {
+      console.error(e);
+    });
+  }
+
+}
+
+exports.default = PropertyPointOfSaleController;
+
+},{"../data-client":595,"../util":597,"./account-settings-controller":575,"./message-view-controller":585,"currency.js":413,"instascan":461,"moment/moment":483}],594:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68016,7 +68091,7 @@ class TransfersController {
 
 exports.default = TransfersController;
 
-},{"../data-client":594,"../util":596,"../views/balance-sheet/balance-sheet-view":599,"../views/transfer-view":617,"./account-settings-controller":575,"currency.js":413}],594:[function(require,module,exports){
+},{"../data-client":595,"../util":597,"../views/balance-sheet/balance-sheet-view":600,"../views/transfer-view":618,"./account-settings-controller":575,"currency.js":413}],595:[function(require,module,exports){
 const Util = require('./util');
 const Currency = require('currency.js');
 function DataClient() {
@@ -68128,7 +68203,7 @@ function DataClient() {
 
 module.exports = DataClient;
 
-},{"./util":596,"currency.js":413}],595:[function(require,module,exports){
+},{"./util":597,"currency.js":413}],596:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68198,7 +68273,7 @@ class Navigation {
 
 exports.default = Navigation;
 
-},{"./controllers/balance-sheet-controller":576,"./controllers/banks-controller":578,"./controllers/budget-calendar-controller":579,"./controllers/budget-controller":580,"./controllers/deposit-controller":581,"./controllers/pay-days-controller":586,"./controllers/prices-controller":587,"./controllers/property-customer-balances-controller":588,"./controllers/property-customer-edit-controller":589,"./controllers/property-customers-controller":590,"./controllers/property-point-of-sale-controller":591,"./controllers/purchase-controller":592,"./controllers/transfers-controller":593}],596:[function(require,module,exports){
+},{"./controllers/balance-sheet-controller":576,"./controllers/banks-controller":578,"./controllers/budget-calendar-controller":579,"./controllers/budget-controller":580,"./controllers/deposit-controller":581,"./controllers/pay-days-controller":586,"./controllers/prices-controller":587,"./controllers/property-customer-balances-controller":588,"./controllers/property-customer-edit-controller":589,"./controllers/property-customers-controller":590,"./controllers/property-point-of-sale-controller":591,"./controllers/purchase-controller":592,"./controllers/transfers-controller":594}],597:[function(require,module,exports){
 const Currency = require('currency.js');
 exports.log = function (error) {
     console.log(error);
@@ -68296,7 +68371,7 @@ exports.getApiUrl = () => 'https://api.primordial-software.com/';
 exports.getBankIntegrationEnvironment = () => window.location.hostname.toLowerCase() === 'www.primordial-software.com'
     ? 'production'
     : 'development';
-},{"currency.js":413}],597:[function(require,module,exports){
+},{"currency.js":413}],598:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68383,7 +68458,7 @@ class BalanceSheetViewModel {
 
 exports.default = BalanceSheetViewModel;
 
-},{"../util":596,"currency.js":413}],598:[function(require,module,exports){
+},{"../util":597,"currency.js":413}],599:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68434,7 +68509,7 @@ class AssetViewModel {
 
 exports.default = AssetViewModel;
 
-},{}],599:[function(require,module,exports){
+},{}],600:[function(require,module,exports){
 "use strict";
 
 var _bondViewModel = _interopRequireDefault(require("./bond-view-model"));
@@ -68551,7 +68626,7 @@ exports.setView = function (budget, obfuscate) {
   $('#net-total').text(Util.format(net));
 };
 
-},{"../../calculators/calendar":569,"../../util":596,"./bond-view-model":600,"./cash-view-model":601,"./equity-view-model":602,"./inventory-view-model":604,"./loan-view-model":605,"./property-plant-and-equipment-view-model":606,"currency.js":413,"moment":483}],600:[function(require,module,exports){
+},{"../../calculators/calendar":569,"../../util":597,"./bond-view-model":601,"./cash-view-model":602,"./equity-view-model":603,"./inventory-view-model":605,"./loan-view-model":606,"./property-plant-and-equipment-view-model":607,"currency.js":413,"moment":483}],601:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68678,7 +68753,7 @@ class BondViewModel extends _assetViewModel.default {
 
 exports.default = BondViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":577,"../../util":596,"./asset-view-model":598,"./cash-view-model":601,"moment/moment":483}],601:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":577,"../../util":597,"./asset-view-model":599,"./cash-view-model":602,"moment/moment":483}],602:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68813,7 +68888,7 @@ class CashViewModel extends _assetViewModel.default {
 
 exports.default = CashViewModel;
 
-},{"../../calculators/current-balance-calculator":570,"../../controllers/balance-sheet/transfer-controller":577,"../../util":596,"./asset-view-model":598,"./bond-view-model":600,"./equity-view-model":602,"./expense-view-model":603,"./inventory-view-model":604,"./property-plant-and-equipment-view-model":606}],602:[function(require,module,exports){
+},{"../../calculators/current-balance-calculator":570,"../../controllers/balance-sheet/transfer-controller":577,"../../util":597,"./asset-view-model":599,"./bond-view-model":601,"./equity-view-model":603,"./expense-view-model":604,"./inventory-view-model":605,"./property-plant-and-equipment-view-model":607}],603:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -68938,7 +69013,7 @@ class EquityViewModel extends _assetViewModel.default {
 
 exports.default = EquityViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":577,"../../util":596,"./asset-view-model":598,"./cash-view-model":601,"currency.js":413}],603:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":577,"../../util":597,"./asset-view-model":599,"./cash-view-model":602,"currency.js":413}],604:[function(require,module,exports){
 function ExpenseViewModel() {
     this.getViewDescription = () => 'Expense';
     this.getViewType = () => 'expense';
@@ -68969,7 +69044,7 @@ function ExpenseViewModel() {
            </div>`);
 }
 module.exports = ExpenseViewModel;
-},{}],604:[function(require,module,exports){
+},{}],605:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69045,7 +69120,7 @@ class InventoryViewModel extends _assetViewModel.default {
 
 exports.default = InventoryViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":577,"../../util":596,"./asset-view-model":598,"./cash-view-model":601}],605:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":577,"../../util":597,"./asset-view-model":599,"./cash-view-model":602}],606:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69154,7 +69229,7 @@ class LoanViewModel {
 
 exports.default = LoanViewModel;
 
-},{"../../calculators/calendar":569,"../../calculators/payoff-date-calculator":572,"../../util":596,"currency.js":413}],606:[function(require,module,exports){
+},{"../../calculators/calendar":569,"../../calculators/payoff-date-calculator":572,"../../util":597,"currency.js":413}],607:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69230,7 +69305,7 @@ class PropertyPlantAndEquipmentViewModel extends _assetViewModel.default {
 
 exports.default = PropertyPlantAndEquipmentViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":577,"../../util":596,"./asset-view-model":598,"./cash-view-model":601}],607:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":577,"../../util":597,"./asset-view-model":599,"./cash-view-model":602}],608:[function(require,module,exports){
 const Moment = require('moment/moment');
 function TransferView() {
     this.getView = function (name, allowableTransferViewModels) {
@@ -69268,7 +69343,7 @@ function TransferView() {
 
 module.exports = TransferView;
 
-},{"moment/moment":483}],608:[function(require,module,exports){
+},{"moment/moment":483}],609:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69297,7 +69372,7 @@ class BiweeklyView {
 
 exports.default = BiweeklyView;
 
-},{}],609:[function(require,module,exports){
+},{}],610:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69448,7 +69523,7 @@ class BudgetView {
 
 exports.default = BudgetView;
 
-},{"../../util":596,"./biweekly-view":608,"./monthly-view":610,"./weekly-view":611}],610:[function(require,module,exports){
+},{"../../util":597,"./biweekly-view":609,"./monthly-view":611,"./weekly-view":612}],611:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69487,7 +69562,7 @@ class MonthlyView {
 
 exports.default = MonthlyView;
 
-},{"../../calculators/calendar":569}],611:[function(require,module,exports){
+},{"../../calculators/calendar":569}],612:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69532,7 +69607,7 @@ class WeeklyView {
 
 exports.default = WeeklyView;
 
-},{"../../calculators/calendar":569}],612:[function(require,module,exports){
+},{"../../calculators/calendar":569}],613:[function(require,module,exports){
 const cal = require('../calculators/calendar');
 const CalendarCalculator = require('../calendar-calculator');
 const Util = require('../util');
@@ -69653,7 +69728,7 @@ function getDisplayAmount(amount, type) {
     displayAmount = Util.format(displayAmount);
     return displayAmount;
 }
-},{"../calculators/calendar":569,"../calendar-calculator":574,"../util":596}],613:[function(require,module,exports){
+},{"../calculators/calendar":569,"../calendar-calculator":574,"../util":597}],614:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69684,7 +69759,7 @@ class CommandButtonsView {
 
 exports.default = CommandButtonsView;
 
-},{}],614:[function(require,module,exports){
+},{}],615:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69778,7 +69853,7 @@ class FooterView {
 
 exports.default = FooterView;
 
-},{}],615:[function(require,module,exports){
+},{}],616:[function(require,module,exports){
 const Currency = require('currency.js');
 
 exports.getModel = function () {
@@ -69787,7 +69862,7 @@ exports.getModel = function () {
     model['401k-contribution-per-pay-check'] = Currency($('#401k-contribution-per-pay-check').val().trim()).toString();
     return model;
 };
-},{"currency.js":413}],616:[function(require,module,exports){
+},{"currency.js":413}],617:[function(require,module,exports){
 const DataClient = require('../data-client');
 exports.getModel = async function () {
     let prices = [];
@@ -69831,7 +69906,7 @@ exports.getView = (name, sharePrice) =>
                 </div>
               </div>
           </div>`);
-},{"../data-client":594}],617:[function(require,module,exports){
+},{"../data-client":595}],618:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69875,4 +69950,4 @@ class TransferView {
 
 exports.default = TransferView;
 
-},{"../util":596,"moment":483}]},{},[567]);
+},{"../util":597,"moment":483}]},{},[567]);
