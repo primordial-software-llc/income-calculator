@@ -11,6 +11,7 @@
       <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
       <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
       <script type="text/javascript" src="../app.bundle.js"></script>
+      <script type="text/javascript" src="../javascript/webrtc-adapter.js"></script>
   </head>
   <body class="bg-color-imago-light-gray">
   <div class="no-print property-nav p-15">
@@ -61,7 +62,7 @@
                   <button type="button" id="scan-vendor">Scan</button>
               </div>
           </div>
-          <div id="reader" width="600px"></div>
+          <video class="hide" id="qr-scanner-preview"></video>
           <div class="form-group row">
               <label class="col-xs-3 col-form-label col-form-label-lg">Payment Frequency</label>
               <div class="col-xs-9">

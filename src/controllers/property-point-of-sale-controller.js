@@ -3,7 +3,7 @@ const Moment = require('moment/moment');
 const DataClient = require('../data-client');
 import AccountSettingsController from './account-settings-controller';
 import MessageViewController from './message-view-controller';
-import QRScanner from 'qr-code-scanner';
+const Instascan = require('instascan');
 const Util = require('../util');
 export default class PropertyPointOfSaleController {
     static getName() {
@@ -52,19 +52,27 @@ export default class PropertyPointOfSaleController {
                 $('#vendor-notes').text('');
             }
         });
-
         $('#scan-vendor').click(async function() {
-
-            QRScanner.initiate({
-                onResult: function (result) {
-                    $("#sale-vendor").val((result || '').trim());
-                    $("#sale-vendor").trigger('input');
-                    console.info('Scanned vendor: ', result);
-                },
-                onError: function (err) { console.error('ERR :::: ', err); }, // optional
-                onTimeout: function () { console.warn('TIMEOUT'); } // optional
-            })
-
+            $('#qr-scanner-preview').removeClass('hide');
+            let scanner = new Instascan.Scanner({ video: document.getElementById('qr-scanner-preview') });
+            scanner.addListener('scan', function (content) {
+                $("#sale-vendor").val((content || '').trim());
+                $("#sale-vendor").trigger('input');
+                scanner.stop();
+                $('#qr-scanner-preview').addClass('hide');
+            });
+            Instascan.Camera.getCameras().then(function (cameras) {
+                if (cameras.length > 1) {
+                    scanner.start(cameras[1]);
+                }
+                else if (cameras.length > 0) {
+                    scanner.start(cameras[0]);
+                } else {
+                    console.error('No cameras found.');
+                }
+            }).catch(function (e) {
+                console.error(e);
+            });
         });
         $('#sale-save').click(async function() {
             MessageViewController.setMessage('');
