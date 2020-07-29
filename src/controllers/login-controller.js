@@ -119,6 +119,7 @@ function LoginController() {
         };
     }
     async function login(username, password) {
+        username = (username || '').toLowerCase();
         let authenticationData = {
             Username : username,
             Password : password,
