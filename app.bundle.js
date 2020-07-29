@@ -67935,6 +67935,7 @@ class PropertyPointOfSaleController {
     $('#start-scan').click(async function () {
       let cameras = await Instascan.Camera.getCameras();
       let selectedCamera = cameras.find(x => (x.name || '').toLowerCase() === $('#cameras').val().toLowerCase());
+      alert('scanning with camera: ' + (selectedCamera || {}).name);
 
       if (selectedCamera) {
         scanner.start(selectedCamera);
