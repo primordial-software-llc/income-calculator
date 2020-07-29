@@ -63,10 +63,10 @@ export default class PropertyPointOfSaleController {
             });
             Instascan.Camera.getCameras().then(function (cameras) {
                 window.alert(cameras.length);
+                console.log(cameras.length);
                 if (cameras.length > 1) {
                     scanner.start(cameras[1]);
-                }
-                else if (cameras.length > 0) {
+                } else if (cameras.length > 0) {
                     scanner.start(cameras[0]);
                 } else {
                     console.error('No cameras found.');
