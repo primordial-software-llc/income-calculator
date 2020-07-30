@@ -22844,13 +22844,6 @@ class PropertyPointOfSaleController {
   async init(user) {
     let self = this;
     this.initForm();
-    Html5Qrcode.getCameras().then(cameras => {
-      for (let camera of cameras) {
-        $('#cameras').append(`<option value="${camera.id}">${camera.label}</option>`);
-      }
-    }).catch(error => {
-      console.log(error);
-    });
     new _accountSettingsController.default().init({}, user, false);
     this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
 
@@ -22872,6 +22865,15 @@ class PropertyPointOfSaleController {
       }
     });
     $('#scan-vendor').click(async function () {
+      if ($('#cameras').hasClass('hide')) {
+        $('#cameras').removeClass('hide');
+        let cameras = await Html5Qrcode.getCameras();
+
+        for (let camera of cameras) {
+          $('#cameras').append(`<option value="${camera.id}">${camera.label}</option>`);
+        }
+      }
+
       window.location.hash = '#reader';
       let html5Qrcode = new Html5Qrcode("reader");
       html5Qrcode.start($('#cameras').val(), {
