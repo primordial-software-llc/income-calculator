@@ -47,10 +47,25 @@ export default class PropertyPointOfSaleController {
                 $('#sale-prior-balance').val(customer.balance);
                 $('#sale-payment-frequency').text(customer.paymentFrequency);
                 $('#vendor-notes').text(customer.memo);
+                new DataClient()
+                    .get(`point-of-sale/customer-invoices?id=${customer.id}&start=${start}&end=${end}`)
+                    .then((invoices) => {
+                        for (let invoice of invoices) {
+                            let balance = invoice.Balance === '0' || invoice.Balance === 0 ? 'PAID' : Util.format(invoice.Balance);
+                            console.log(invoice.Balance);
+                            $('#invoices').append(`<div>${invoice.TxnDate} - ${balance}</div>`);
+                        }
+
+                    })
+                    .catch((error) => {
+                        alert(JSON.stringify(error) + " " + error);
+                        Util.log(error);
+                    });
             } else {
                 $('#sale-prior-balance').val('');
                 $('#sale-payment-frequency').text('');
                 $('#vendor-notes').text('');
+                $('#invoices').empty();
             }
         });
         $('#scan-vendor').click(async function() {
