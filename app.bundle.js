@@ -22858,11 +22858,13 @@ class PropertyPointOfSaleController {
         $('#sale-prior-balance').val(customer.balance);
         $('#sale-payment-frequency').text(customer.paymentFrequency);
         $('#vendor-notes').text(customer.memo);
+        let start = Moment().subtract('90', 'days').format('YYYY-MM-DD');
+        let end = Moment().add('30', 'days').format('YYYY-MM-DD');
         new DataClient().get(`point-of-sale/customer-invoices?id=${customer.id}&start=${start}&end=${end}`).then(invoices => {
           for (let invoice of invoices) {
             let balance = invoice.Balance === '0' || invoice.Balance === 0 ? 'PAID' : Util.format(invoice.Balance);
             console.log(invoice.Balance);
-            $('#invoices').append(`<div>${invoice.TxnDate} - ${balance}</div>`);
+            $('#invoices').append(`<div>&bull;&nbsp;${invoice.TxnDate} - ${balance}</div>`);
           }
         }).catch(error => {
           alert(JSON.stringify(error) + " " + error);
