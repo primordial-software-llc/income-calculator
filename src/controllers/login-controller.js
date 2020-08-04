@@ -7,25 +7,6 @@ const QRCode = require('qrcode');
 const Util = require('../util');
 function LoginController() {
     'use strict';
-    function getAdditionalFieldValidation() {
-        let issues = [];
-        if ($('#login-new-password').val().trim().length < 1) {
-            issues.push('New password is required');
-        }
-        if ($('#login-firstname').val().trim().length < 1) {
-            issues.push('First name is required');
-        }
-        if ($('#login-lastname').val().trim().length < 1) {
-            issues.push('Last name is required');
-        }
-        if ($('#login-phone').val().trim().length < 1) {
-            issues.push('Phone number is required');
-        }
-        if ($('#login-address').val().trim().length < 1) {
-            issues.push('Address is required');
-        }
-        return issues;
-    }
     function getAuthCallback(cognitoUser, username, password) {
         return {
             onSuccess: async function (result) {
@@ -50,25 +31,6 @@ function LoginController() {
                 MessageViewController.setMessage('');
                 $('.login-form').addClass('hide');
                 $('.form-additional-fields').removeClass('hide');
-                $('#additional-fields-button').click(function () {
-                    MessageViewController.setMessage('');
-                    let issues = getAdditionalFieldValidation();
-                    if (issues.length > 0) {
-                        MessageViewController.setMessage(issues, 'alert-danger');
-                        return;
-                    }
-                    let newPassword = $('#login-new-password').val().trim();
-                    let newAttributes = {
-                        "given_name": $('#login-firstname').val().trim(),
-                        "family_name": $('#login-lastname').val().trim(),
-                        'phone_number': $('#login-phone').val().trim(),
-                        "address": $('#login-address').val().trim()
-                    };
-                    cognitoUser.completeNewPasswordChallenge(
-                        newPassword,
-                        newAttributes,
-                        getAuthCallback(cognitoUser, username, newPassword));
-                });
             },
             mfaRequired: function(codeDeliveryDetails) {
                 let verificationCode = prompt('Please input verification code' ,'');

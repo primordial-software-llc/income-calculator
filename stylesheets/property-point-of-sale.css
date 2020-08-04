@@ -46,6 +46,10 @@ body .property-nav .property-nav-item {
     font-size: 36px;
 }
 
+.owner-alert {
+    background-color: #ffcccc;
+}
+
 @media print {
     span, div {
         font-size: 12px !important;

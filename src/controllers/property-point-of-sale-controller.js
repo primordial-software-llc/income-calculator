@@ -31,47 +31,48 @@ export default class PropertyPointOfSaleController {
             this.getCustomerDescription(x).toLowerCase().replace(/\s+/g, " ") ===
                 customerDescription.toLowerCase().replace(/\s+/g, " ")); // Data list and input automatically replace multiple whitespaces with a single white space
     }
+    loadCustomer(customer) {
+        if (customer) {
+            $('#sale-prior-balance').val(customer.balance);
+            $('#sale-payment-frequency').text(customer.paymentFrequency);
+            $('#vendor-notes').text(customer.memo);
+            let start = Moment().subtract('90', 'days').format('YYYY-MM-DD');
+            let end = Moment().add('30', 'days').format('YYYY-MM-DD');
+            $('#invoices').append(`<div>Loading invoices...</div>`);
+            new DataClient(true)
+                .get(`point-of-sale/customer-invoices?id=${customer.id}&start=${start}&end=${end}`)
+                .then((invoices) => {
+                    $('#invoices').empty();
+                    for (let invoice of invoices) {
+                        let balance = invoice.Balance === '0' || invoice.Balance === 0 ? 'PAID' : Util.format(invoice.Balance);
+                        $('#invoices').append(`<div>&bull;&nbsp;${invoice.TxnDate} - ${balance}</div>`);
+                    }
+                })
+                .catch((error) => {
+                    alert(JSON.stringify(error) + " " + error);
+                    Util.log(error);
+                });
+        } else {
+            $('#sale-prior-balance').val('');
+            $('#sale-payment-frequency').text('');
+            $('#vendor-notes').text('');
+            $('#invoices').empty();
+        }
+    }
     async init(user) {
         let self = this;
         this.initForm();
-
         new AccountSettingsController().init({}, user, false);
         this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
         for (let customer of this.customers) {
             $('#sale-vendor-list').append(`<option>${this.getCustomerDescription(customer)}</option>`);
         }
-
         $("#sale-vendor").on('input', function () {
-            let customer = self.getCustomer(this.value);
-            if (customer) {
-                $('#sale-prior-balance').val(customer.balance);
-                $('#sale-payment-frequency').text(customer.paymentFrequency);
-                $('#vendor-notes').text(customer.memo);
-                let start = Moment().subtract('90', 'days').format('YYYY-MM-DD');
-                let end = Moment().add('30', 'days').format('YYYY-MM-DD');
-                $('#invoices').append(`<div>Loading invoices...</div>`);
-                new DataClient(true)
-                    .get(`point-of-sale/customer-invoices?id=${customer.id}&start=${start}&end=${end}`)
-                    .then((invoices) => {
-                        $('#invoices').empty();
-                        for (let invoice of invoices) {
-                            let balance = invoice.Balance === '0' || invoice.Balance === 0 ? 'PAID' : Util.format(invoice.Balance);
-                            console.log(invoice.Balance);
-                            $('#invoices').append(`<div>&bull;&nbsp;${invoice.TxnDate} - ${balance}</div>`);
-                        }
-                    })
-                    .catch((error) => {
-                        alert(JSON.stringify(error) + " " + error);
-                        Util.log(error);
-                    });
-            } else {
-                $('#sale-prior-balance').val('');
-                $('#sale-payment-frequency').text('');
-                $('#vendor-notes').text('');
-                $('#invoices').empty();
-            }
+            $("#sale-vendor").removeClass('owner-alert');
+            self.loadCustomer(self.getCustomer(this.value));
         });
         $('#scan-vendor').click(async function() {
+            $("#sale-vendor").removeClass('owner-alert');
             if ($('#cameras').hasClass('hide')) {
                 $('#cameras').removeClass('hide');
                 let cameras = await Html5Qrcode.getCameras();
@@ -81,15 +82,21 @@ export default class PropertyPointOfSaleController {
             }
             window.location.hash = '#reader';
             let html5Qrcode = new Html5Qrcode("reader");
-            html5Qrcode.start(
-                $('#cameras').val(),
-                { fps: 10, qrbox: 250 },
+            html5Qrcode.start($('#cameras').val(), { fps: 10, qrbox: 250 },
                 async qrCodeMessage => {
-                    let myRegEx  = /[^a-z\d: ]/i;
-                    let isValid = !(myRegEx.test(qrCodeMessage));
-                    if (isValid) {
-                        $("#sale-vendor").val((qrCodeMessage || '').trim());
-                        $("#sale-vendor").trigger('input');
+                    let parsedJson;
+                    try {
+                        parsedJson = JSON.parse(qrCodeMessage);
+                    } catch (error) {
+                        Util.log(error);
+                    }
+                    if (parsedJson) {
+                        let vendor = self.customers.find(x => x.id === parsedJson.id);
+                        $("#sale-vendor").val(self.getCustomerDescription(vendor));
+                        self.loadCustomer(vendor);
+                        if ((parsedJson.type || '').toLowerCase() === 'owner') {
+                            $("#sale-vendor").addClass('owner-alert');
+                        }
                         html5Qrcode.stop();
                     }
                 },

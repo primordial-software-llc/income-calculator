@@ -4,21 +4,37 @@
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/property-point-of-sale.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
     <title>Net Income Calculator</title>
-      <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
-      <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
-      <script type="text/javascript" src="../app.bundle.js"></script>
-      <script type="text/javascript" src="../javascript/html-5-qrcode.js"></script>
+    <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../app.bundle.js"></script>
+    <script type="text/javascript" src="../javascript/html-5-qrcode.js"></script>
+    <style type="text/css">
+      .card-header {
+        font-size: 10px;
+      }
+      .card-container {
+        width: 900px;
+      }
+      .card {
+        padding: 10px;
+        padding-top: 15px;
+        border: 1px dotted black;
+        height: 400px;
+        max-height: 400px;
+        max-width: 250px;
+      }
+      .vendor-description {
+        font-size: 14px;
+        font-weight: bold;
+      }
+    </style>
   </head>
-  <body class="bg-color-imago-light-gray">
+  <body class="container-fluid">
 
-  <div>New Build</div>
-  <div style="width: 500px" id="reader"></div>
 
-  <select id="cameras"></select>
-  <button type="button" id="start-scan">Scan</button>
+
   </body>
 </html>
