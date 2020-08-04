@@ -20994,6 +20994,8 @@ arguments[4][30][0].apply(exports,arguments)
 
 var _commandButtonsView = _interopRequireDefault(require("./views/command-buttons-view"));
 
+var _dataClient = _interopRequireDefault(require("./data-client"));
+
 var _footerView = _interopRequireDefault(require("./views/footer-view"));
 
 var _homeController = _interopRequireDefault(require("./controllers/home-controller"));
@@ -21002,11 +21004,7 @@ var _loginSignupController = _interopRequireDefault(require("./controllers/login
 
 var _nav = _interopRequireDefault(require("./nav"));
 
-var _qrTestController = _interopRequireDefault(require("./controllers/qr-test-controller"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const DataClient = require('./data-client');
 
 const LoginController = require('./controllers/login-controller');
 
@@ -21020,8 +21018,8 @@ async function init() {
   let usernameResponse;
 
   try {
-    if (pageName && !pageName.startsWith('login.html') && !pageName.startsWith('qr-test.html') && !pageName.startsWith('login-signup.html')) {
-      usernameResponse = await new DataClient().getBudget();
+    if (pageName && !pageName.startsWith('login.html') && !pageName.startsWith('login-signup.html')) {
+      usernameResponse = await new _dataClient.default().getBudget();
     }
   } catch (err) {
     Util.log(err);
@@ -21042,8 +21040,6 @@ async function init() {
     controller = new _loginSignupController.default();
   } else if (pageName.startsWith('index.html')) {
     controller = new _homeController.default();
-  } else if (pageName.startsWith('qr-test.html')) {
-    controller = new _qrTestController.default();
   }
 
   try {
@@ -21059,7 +21055,7 @@ $(document).ready(function () {
   init();
 });
 
-},{"./controllers/home-controller":78,"./controllers/login-controller":79,"./controllers/login-signup-controller":80,"./controllers/qr-test-controller":89,"./data-client":91,"./nav":92,"./util":93,"./views/command-buttons-view":110,"./views/footer-view":111}],64:[function(require,module,exports){
+},{"./controllers/home-controller":78,"./controllers/login-controller":79,"./controllers/login-signup-controller":80,"./data-client":90,"./nav":91,"./util":92,"./views/command-buttons-view":109,"./views/footer-view":110}],64:[function(require,module,exports){
 function CalendarSearch() {
 
     this.find = function (startTime, endTime, transactions) {
@@ -21141,7 +21137,7 @@ class CurrentBalanceCalculator {
 
 exports.default = CurrentBalanceCalculator;
 
-},{"../util":93,"currency.js":27}],67:[function(require,module,exports){
+},{"../util":92,"currency.js":27}],67:[function(require,module,exports){
 const cal = require('./calendar');
 const UtcDay = require('./utc-day');
 function NetIncomeCalculator() {
@@ -21349,9 +21345,9 @@ var _footerView = _interopRequireDefault(require("../views/footer-view"));
 
 var _nav = _interopRequireDefault(require("../nav"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _dataClient = _interopRequireDefault(require("../data-client"));
 
-const DataClient = require('../data-client');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const Util = require('../util');
 
@@ -21364,7 +21360,7 @@ class AccountSettingsController {
     let data = await this.view.getModel();
 
     try {
-      let dataClient = new DataClient();
+      let dataClient = new _dataClient.default();
       let response = await dataClient.patch('budget', data);
       window.location.reload();
     } catch (err) {
@@ -21374,7 +21370,7 @@ class AccountSettingsController {
 
   init(viewIn, user, injectFooter) {
     this.view = viewIn;
-    let dataClient = new DataClient();
+    let dataClient = new _dataClient.default();
     $('#save').click(this.save); // Should get rid of this it's difficult to see this functionality is in place.
 
     $('#obfuscate-data').click(() => {
@@ -21460,7 +21456,7 @@ class AccountSettingsController {
 
 exports.default = AccountSettingsController;
 
-},{"../data-client":91,"../nav":92,"../util":93,"../views/footer-view":111}],72:[function(require,module,exports){
+},{"../data-client":90,"../nav":91,"../util":92,"../views/footer-view":110}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21470,6 +21466,8 @@ exports.default = void 0;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
 var _loanViewModel = _interopRequireDefault(require("../views/balance-sheet/loan-view-model"));
 
 var _balanceSheetViewModel = _interopRequireDefault(require("../view-models/balance-sheet-view-model"));
@@ -21478,14 +21476,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 
-const DataClient = require('../data-client');
-
 const Util = require('../util');
 
 async function refresh() {
   try {
-    let data = await new DataClient().getBudget();
-    let bankData = await new DataClient().get('accountBalance'); // Synchronous so there are no uncaught promises if authentication fails. Call to budget is fast anyway.
+    let data = await new _dataClient.default().getBudget();
+    let bankData = await new _dataClient.default().get('accountBalance'); // Synchronous so there are no uncaught promises if authentication fails. Call to budget is fast anyway.
 
     let obfuscate = Util.obfuscate();
 
@@ -21528,80 +21524,89 @@ class BalanceSheetController {
 
 exports.default = BalanceSheetController;
 
-},{"../data-client":91,"../util":93,"../view-models/balance-sheet-view-model":94,"../views/balance-sheet/balance-sheet-view":96,"../views/balance-sheet/loan-view-model":102,"./account-settings-controller":71}],73:[function(require,module,exports){
-const DataClient = require('../../data-client');
-const Moment = require('moment/moment');
-const TransferView = require('../../views/balance-sheet/transfer-view');
-const Util = require('../../util');
-function TransferController() {
-    this.init = function (
-        transferButton,
-        viewContainer,
-        debitAccountName,
-        allowableTransferViewModels,
-        debitId,
-        readOnlyAmount) {
-        transferButton.find('button').click(function () {
-            transferButton.find('button').attr('disabled', true);
-            let transferView = $(new TransferView().getView(debitAccountName, allowableTransferViewModels));
-            viewContainer.append(transferView);
-            let viewModel;
-            let newView;
-            viewContainer.find('.asset-type-selector').change(function () {
-                let selectedAssetType = viewContainer.find('.asset-type-selector').val();
-                viewModel = allowableTransferViewModels.find(x => x.getViewType().toLowerCase() === selectedAssetType.toLowerCase());
-                transferView.find('.target-asset-type').empty();
-                if (viewModel) {
-                    newView = viewModel.getView(readOnlyAmount);
-                    transferView.find('.target-asset-type').append(viewModel.getHeaderView());
-                    transferView.find('.target-asset-type').append(newView);
-                }
-            });
-            let saveTransferBtn = $(`<input type="button" value="Transfer" class="btn btn-primary">`);
-            transferView.append(saveTransferBtn);
-            let cancelTransferBtn = $(`<input type="button" value="Cancel" class="btn btn-default cancel">`);
-            transferView.append(cancelTransferBtn);
-            saveTransferBtn.click(async function () {
-                let dataClient = new DataClient();
-                try {
-                    let data = await dataClient.getBudget();
-                    let patch = {};
-                    data.pending = data.pending || [];
-                    patch.pending = data.pending;
-                    let transferModel = viewModel.getModel(newView);
-                    if (!transferModel) {
-                        return;
-                    }
-                    transferModel.id = Util.guid();
-                    if (transferModel.amount) {
-                        transferModel.amount = Util.cleanseNumericString(transferModel.amount);
-                    }
-                    transferModel.transferDate = Moment(transferView.find('.transfer-date').val().trim(), 'YYYY-MM-DD UTC Z');
-                    transferModel.debitAccount = debitAccountName;
-                    transferModel.type = viewModel.getViewType();
-                    if (!transferModel.creditAccount) {
-                        transferModel.creditAccount = transferModel.name;
-                    }
-                    transferModel.debitId = debitId;
-                    patch.pending.push(transferModel);
+},{"../data-client":90,"../util":92,"../view-models/balance-sheet-view-model":93,"../views/balance-sheet/balance-sheet-view":95,"../views/balance-sheet/loan-view-model":101,"./account-settings-controller":71}],73:[function(require,module,exports){
+"use strict";
 
-                    await dataClient.patch('budget', patch);
-                    window.location.reload();
-                } catch (error) {
-                    Util.log(err);
-                }
-            });
-            cancelTransferBtn.click(function () {
-                transferButton.find('button').attr("disabled", false);
-                transferView.remove();
-            });
-        });
-    }
+var _dataClient = _interopRequireDefault(require("../../data-client"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const Moment = require('moment/moment');
+
+const TransferView = require('../../views/balance-sheet/transfer-view');
+
+const Util = require('../../util');
+
+function TransferController() {
+  this.init = function (transferButton, viewContainer, debitAccountName, allowableTransferViewModels, debitId, readOnlyAmount) {
+    transferButton.find('button').click(function () {
+      transferButton.find('button').attr('disabled', true);
+      let transferView = $(new TransferView().getView(debitAccountName, allowableTransferViewModels));
+      viewContainer.append(transferView);
+      let viewModel;
+      let newView;
+      viewContainer.find('.asset-type-selector').change(function () {
+        let selectedAssetType = viewContainer.find('.asset-type-selector').val();
+        viewModel = allowableTransferViewModels.find(x => x.getViewType().toLowerCase() === selectedAssetType.toLowerCase());
+        transferView.find('.target-asset-type').empty();
+
+        if (viewModel) {
+          newView = viewModel.getView(readOnlyAmount);
+          transferView.find('.target-asset-type').append(viewModel.getHeaderView());
+          transferView.find('.target-asset-type').append(newView);
+        }
+      });
+      let saveTransferBtn = $(`<input type="button" value="Transfer" class="btn btn-primary">`);
+      transferView.append(saveTransferBtn);
+      let cancelTransferBtn = $(`<input type="button" value="Cancel" class="btn btn-default cancel">`);
+      transferView.append(cancelTransferBtn);
+      saveTransferBtn.click(async function () {
+        let dataClient = new _dataClient.default();
+
+        try {
+          let data = await dataClient.getBudget();
+          let patch = {};
+          data.pending = data.pending || [];
+          patch.pending = data.pending;
+          let transferModel = viewModel.getModel(newView);
+
+          if (!transferModel) {
+            return;
+          }
+
+          transferModel.id = Util.guid();
+
+          if (transferModel.amount) {
+            transferModel.amount = Util.cleanseNumericString(transferModel.amount);
+          }
+
+          transferModel.transferDate = Moment(transferView.find('.transfer-date').val().trim(), 'YYYY-MM-DD UTC Z');
+          transferModel.debitAccount = debitAccountName;
+          transferModel.type = viewModel.getViewType();
+
+          if (!transferModel.creditAccount) {
+            transferModel.creditAccount = transferModel.name;
+          }
+
+          transferModel.debitId = debitId;
+          patch.pending.push(transferModel);
+          await dataClient.patch('budget', patch);
+          window.location.reload();
+        } catch (error) {
+          Util.log(err);
+        }
+      });
+      cancelTransferBtn.click(function () {
+        transferButton.find('button').attr("disabled", false);
+        transferView.remove();
+      });
+    });
+  };
 }
 
 module.exports = TransferController;
 
-},{"../../data-client":91,"../../util":93,"../../views/balance-sheet/transfer-view":104,"moment/moment":32}],74:[function(require,module,exports){
+},{"../../data-client":90,"../../util":92,"../../views/balance-sheet/transfer-view":103,"moment/moment":32}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21611,9 +21616,9 @@ exports.default = void 0;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _dataClient = _interopRequireDefault(require("../data-client"));
 
-const DataClient = require('../data-client');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const Util = require('../util');
 
@@ -21636,7 +21641,7 @@ class BanksController {
         key: '7e6391ab6cbcc3b212440b5821bfa7',
         product: selectedProducts,
         onSuccess: async function (public_token, plaidAuth) {
-          let dataClient = new DataClient();
+          let dataClient = new _dataClient.default();
 
           try {
             let result = await dataClient.post('link-access-token', plaidAuth);
@@ -21660,7 +21665,7 @@ class BanksController {
       });
       handler.open();
     });
-    let dataClient = new DataClient();
+    let dataClient = new _dataClient.default();
     let bankLinks = await dataClient.get('bank-link');
 
     for (let bankLink of bankLinks) {
@@ -21721,7 +21726,7 @@ class BanksController {
 
 exports.default = BanksController;
 
-},{"../data-client":91,"../util":93,"./account-settings-controller":71}],75:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"./account-settings-controller":71}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21731,11 +21736,11 @@ exports.default = void 0;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const CalendarView = require('../views/calendar-view');
-
-const DataClient = require('../data-client');
 
 const Util = require('../util');
 
@@ -21821,7 +21826,7 @@ class BudgetCalendarController {
 
   async load() {
     let self = this;
-    let data = await new DataClient().getBudget();
+    let data = await new _dataClient.default().getBudget();
     $('#calendar-date-select').val(new Date().getUTCMonth());
     $('#calendar-date-select').change(function () {
       self.loadCalendar(data, new Date().getUTCFullYear(), $(this).val());
@@ -21849,7 +21854,7 @@ class BudgetCalendarController {
 
 exports.default = BudgetCalendarController;
 
-},{"../calculators/calendar-search":64,"../calculators/net-income-calculator":67,"../data-client":91,"../util":93,"../views/calendar-view":109,"./account-settings-controller":71,"currency.js":27}],76:[function(require,module,exports){
+},{"../calculators/calendar-search":64,"../calculators/net-income-calculator":67,"../data-client":90,"../util":92,"../views/calendar-view":108,"./account-settings-controller":71,"currency.js":27}],76:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21869,9 +21874,9 @@ var _monthlyView = _interopRequireDefault(require("../views/budget/monthly-view"
 
 var _biweeklyView = _interopRequireDefault(require("../views/budget/biweekly-view"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _dataClient = _interopRequireDefault(require("../data-client"));
 
-const DataClient = require('../data-client');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const Util = require('../util');
 
@@ -21890,7 +21895,7 @@ class BudgetController {
 
   async refresh() {
     try {
-      let data = await new DataClient().getBudget();
+      let data = await new _dataClient.default().getBudget();
       this.homeView.setView(data, Util.obfuscate());
     } catch (err) {
       Util.log(err);
@@ -21898,8 +21903,8 @@ class BudgetController {
   }
 
   async getAccounts() {
-    let budget = await new DataClient().getBudget();
-    let bankData = await new DataClient().get('accountBalance');
+    let budget = await new _dataClient.default().getBudget();
+    let bankData = await new _dataClient.default().get('accountBalance');
 
     let viewModel = _balanceSheetViewModel.default.getViewModel(budget, bankData, Util.obfuscate());
 
@@ -21931,7 +21936,7 @@ class BudgetController {
 
 exports.default = BudgetController;
 
-},{"../data-client":91,"../util":93,"../view-models/balance-sheet-view-model":94,"../views/budget/biweekly-view":105,"../views/budget/budget-view":106,"../views/budget/monthly-view":107,"../views/budget/weekly-view":108,"./account-settings-controller":71}],77:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"../view-models/balance-sheet-view-model":93,"../views/budget/biweekly-view":104,"../views/budget/budget-view":105,"../views/budget/monthly-view":106,"../views/budget/weekly-view":107,"./account-settings-controller":71}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -21941,14 +21946,14 @@ exports.default = void 0;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _dataClient = _interopRequireDefault(require("../data-client"));
 
-const DataClient = require('../data-client');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const Util = require('../util');
 
 async function deposit(amount) {
-  let dataClient = new DataClient();
+  let dataClient = new _dataClient.default();
   let data = await dataClient.getBudget();
   data.assets = data.assets || [];
   let cashAsset = data.assets.find(x => (x.name || '').toLowerCase() === "cash");
@@ -21963,7 +21968,7 @@ async function deposit(amount) {
   }
 
   cashAsset.amount = Util.add(cashAsset.amount, amount);
-  await new DataClient().patch('budget', {
+  await new _dataClient.default().patch('budget', {
     assets: data.assets
   });
   $('#transfer-amount').val('');
@@ -22001,7 +22006,7 @@ class DepositController {
 
 exports.default = DepositController;
 
-},{"../data-client":91,"../util":93,"./account-settings-controller":71}],78:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"./account-settings-controller":71}],78:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22023,13 +22028,13 @@ exports.default = HomeController;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
 var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
-
-const DataClient = require('../data-client');
 
 const OTPAuth = require('otpauth');
 
@@ -22071,7 +22076,7 @@ function LoginController() {
       onSuccess: async function (result) {
         _messageViewController.default.setMessage('');
 
-        let dataClient = new DataClient();
+        let dataClient = new _dataClient.default();
         await dataClient.post('unauthenticated/setToken', {
           idToken: result.getIdToken().getJwtToken(),
           refreshToken: result.getRefreshToken().token
@@ -22201,14 +22206,14 @@ function LoginController() {
 
 module.exports = LoginController;
 
-},{"../data-client":91,"../util":93,"./account-settings-controller":71,"./message-view-controller":81,"amazon-cognito-identity-js":17,"otpauth":33,"qrcode":34}],80:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"./account-settings-controller":71,"./message-view-controller":81,"amazon-cognito-identity-js":17,"otpauth":33,"qrcode":34}],80:[function(require,module,exports){
 "use strict";
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _dataClient = _interopRequireDefault(require("../data-client"));
 
-const DataClient = require('../data-client');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const Util = require('../util');
 
@@ -22275,7 +22280,7 @@ function LoginSignupController() {
       return;
     }
 
-    let dataClient = new DataClient();
+    let dataClient = new _dataClient.default();
     let response = await dataClient.post('unauthenticated/signup', {
       email: $('#login-username').val().trim(),
       password: $('#login-password').val().trim(),
@@ -22307,7 +22312,7 @@ function LoginSignupController() {
 
 module.exports = LoginSignupController;
 
-},{"../data-client":91,"../util":93,"./account-settings-controller":71}],81:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"./account-settings-controller":71}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22362,6 +22367,8 @@ exports.default = void 0;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const moment = require('moment/moment');
@@ -22369,8 +22376,6 @@ const moment = require('moment/moment');
 const cal = require('../calculators/calendar');
 
 const UtcDay = require('../calculators/utc-day');
-
-const DataClient = require('../data-client');
 
 const Currency = require('currency.js');
 
@@ -22417,7 +22422,7 @@ class PayDaysController {
   async init(usernameResponse) {
     const max401kContribution = 19500;
     new _accountSettingsController.default().init(PayDaysView, usernameResponse, true);
-    let data = await new DataClient().getBudget();
+    let data = await new _dataClient.default().getBudget();
     $('#401k-contribution-for-year').val(data['401k-contribution-for-year']);
     $('#401k-contribution-per-pay-check').val(data['401k-contribution-per-pay-check']);
     $('#max-401k-contribution').text(Util.format(max401kContribution));
@@ -22440,7 +22445,7 @@ class PayDaysController {
 
 exports.default = PayDaysController;
 
-},{"../calculators/calendar":65,"../calculators/utc-day":69,"../data-client":91,"../util":93,"../views/pay-days-view":112,"./account-settings-controller":71,"currency.js":27,"moment/moment":32}],83:[function(require,module,exports){
+},{"../calculators/calendar":65,"../calculators/utc-day":69,"../data-client":90,"../util":92,"../views/pay-days-view":111,"./account-settings-controller":71,"currency.js":27,"moment/moment":32}],83:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22450,9 +22455,9 @@ exports.default = void 0;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _dataClient = _interopRequireDefault(require("../data-client"));
 
-const DataClient = require('../data-client');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const PricesView = require('../views/prices-view');
 
@@ -22469,7 +22474,7 @@ class PricesController {
 
   async init(usernameResponse) {
     new _accountSettingsController.default().init(PricesView, usernameResponse, true);
-    let dataClient = new DataClient();
+    let dataClient = new _dataClient.default();
     let data = await dataClient.getBudget();
 
     if (data.assets) {
@@ -22486,7 +22491,7 @@ class PricesController {
 
 exports.default = PricesController;
 
-},{"../data-client":91,"../util":93,"../views/prices-view":113,"./account-settings-controller":71}],84:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"../views/prices-view":112,"./account-settings-controller":71}],84:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22494,11 +22499,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const DataClient = require('../data-client');
 
 const Util = require('../util');
 
@@ -22524,7 +22529,7 @@ class PropertyCustomerBalancesController {
   async init(user) {
     let self = this;
     new _accountSettingsController.default().init({}, user, false);
-    this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
+    this.customers = await new _dataClient.default().get('point-of-sale/customer-payment-settings');
     this.customers.sort(function (a, b) {
       var nameA = (a.paymentFrequency || '').toUpperCase(); // ignore upper and lowercase
 
@@ -22569,7 +22574,7 @@ class PropertyCustomerBalancesController {
 
 exports.default = PropertyCustomerBalancesController;
 
-},{"../data-client":91,"../util":93,"./account-settings-controller":71}],85:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"./account-settings-controller":71}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22579,11 +22584,11 @@ exports.default = void 0;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
 var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const DataClient = require('../data-client');
 
 const Util = require('../util');
 
@@ -22613,7 +22618,7 @@ class PropertyCustomersController {
   async init(user) {
     let self = this;
     new _accountSettingsController.default().init({}, user, false);
-    let customer = await new DataClient().get(`point-of-sale/customer-payment-settings-by-id?id=${Util.getParameterByName("id")}`);
+    let customer = await new _dataClient.default().get(`point-of-sale/customer-payment-settings-by-id?id=${Util.getParameterByName("id")}`);
     $('#customer-vendor').text(this.getCustomerDescription(customer));
     $('#payment-frequency').val(customer.paymentFrequency);
     $('#rental-amount').val(customer.rentPrice);
@@ -22653,7 +22658,7 @@ class PropertyCustomersController {
       }
 
       try {
-        let vendor = await new DataClient().patch(`point-of-sale/vendor`, updates);
+        let vendor = await new _dataClient.default().patch(`point-of-sale/vendor`, updates);
 
         _messageViewController.default.setMessage('Vendor saved', 'alert-success');
       } catch (error) {
@@ -22668,7 +22673,7 @@ class PropertyCustomersController {
 
 exports.default = PropertyCustomersController;
 
-},{"../data-client":91,"../util":93,"./account-settings-controller":71,"./message-view-controller":81}],86:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"./account-settings-controller":71,"./message-view-controller":81}],86:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22678,11 +22683,11 @@ exports.default = void 0;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
 var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const DataClient = require('../data-client');
 
 const Moment = require('moment');
 
@@ -22733,7 +22738,7 @@ class PropertyCustomersController {
   async createInvoices(frequency, date) {
     _messageViewController.default.setMessage('');
 
-    let dataClient = new DataClient();
+    let dataClient = new _dataClient.default();
     let invoiceParams = {
       year: date.getFullYear(),
       month: date.getMonth() + 1,
@@ -22767,7 +22772,7 @@ class PropertyCustomersController {
   async init(user) {
     let self = this;
     new _accountSettingsController.default().init({}, user, false);
-    this.customerPaymentSettings = await new DataClient().get('point-of-sale/customer-payment-settings');
+    this.customerPaymentSettings = await new _dataClient.default().get('point-of-sale/customer-payment-settings');
 
     for (let customer of this.customerPaymentSettings) {
       $('.customers-container').append(this.getView(customer));
@@ -22787,7 +22792,7 @@ class PropertyCustomersController {
 
 exports.default = PropertyCustomersController;
 
-},{"../data-client":91,"../util":93,"./account-settings-controller":71,"./message-view-controller":81,"moment":32}],87:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"./account-settings-controller":71,"./message-view-controller":81,"moment":32}],87:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22797,6 +22802,8 @@ exports.default = void 0;
 
 var _currency = _interopRequireDefault(require("currency.js"));
 
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
 var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
@@ -22804,8 +22811,6 @@ var _messageViewController = _interopRequireDefault(require("./message-view-cont
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const Moment = require('moment/moment');
-
-const DataClient = require('../data-client');
 
 const Util = require('../util');
 
@@ -22845,7 +22850,7 @@ class PropertyPointOfSaleController {
     let self = this;
     this.initForm();
     new _accountSettingsController.default().init({}, user, false);
-    this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
+    this.customers = await new _dataClient.default().get('point-of-sale/customer-payment-settings');
 
     for (let customer of this.customers) {
       $('#sale-vendor-list').append(`<option>${this.getCustomerDescription(customer)}</option>`);
@@ -22860,7 +22865,10 @@ class PropertyPointOfSaleController {
         $('#vendor-notes').text(customer.memo);
         let start = Moment().subtract('90', 'days').format('YYYY-MM-DD');
         let end = Moment().add('30', 'days').format('YYYY-MM-DD');
-        new DataClient().get(`point-of-sale/customer-invoices?id=${customer.id}&start=${start}&end=${end}`).then(invoices => {
+        $('#invoices').append(`<div>Loading invoices...</div>`);
+        new _dataClient.default(true).get(`point-of-sale/customer-invoices?id=${customer.id}&start=${start}&end=${end}`).then(invoices => {
+          $('#invoices').empty();
+
           for (let invoice of invoices) {
             let balance = invoice.Balance === '0' || invoice.Balance === 0 ? 'PAID' : Util.format(invoice.Balance);
             console.log(invoice.Balance);
@@ -22926,7 +22934,7 @@ class PropertyPointOfSaleController {
       };
 
       try {
-        let receiptResult = await new DataClient().post('point-of-sale/receipt', receipt);
+        let receiptResult = await new _dataClient.default().post('point-of-sale/receipt', receipt);
 
         if (receiptResult.error) {
           _messageViewController.default.setMessage(receiptResult.error, 'alert-danger');
@@ -23003,7 +23011,7 @@ class PropertyPointOfSaleController {
 
 exports.default = PropertyPointOfSaleController;
 
-},{"../data-client":91,"../util":93,"./account-settings-controller":71,"./message-view-controller":81,"currency.js":27,"moment/moment":32}],88:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"./account-settings-controller":71,"./message-view-controller":81,"currency.js":27,"moment/moment":32}],88:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23013,11 +23021,11 @@ exports.default = void 0;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
 var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const DataClient = require('../data-client');
 
 const Moment = require('moment');
 
@@ -23052,7 +23060,7 @@ class PricesController {
         $('#submit-purchase').prop('disabled', true);
 
         try {
-          await new DataClient().post('purchase', {
+          await new _dataClient.default().post('purchase', {
             agreedToBillingTerms: $('#agreedToBillingTerms').is(':checked'),
             cardCvc: $('#cardCvc').val().trim(),
             cardNumber: $('#cardNumber').val().trim(),
@@ -23094,71 +23102,7 @@ class PricesController {
 
 exports.default = PricesController;
 
-},{"../data-client":91,"../util":93,"../views/prices-view":113,"./account-settings-controller":71,"./message-view-controller":81,"moment":32}],89:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _currency = _interopRequireDefault(require("currency.js"));
-
-var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
-
-var _messageViewController = _interopRequireDefault(require("./message-view-controller"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const Moment = require('moment/moment');
-
-const DataClient = require('../data-client');
-
-const Util = require('../util');
-
-class PropertyPointOfSaleController {
-  static getName() {
-    return 'QR Test';
-  }
-
-  static getUrl() {
-    return `${Util.rootUrl()}/pages/qr-test.html`;
-  }
-
-  async init(user) {
-    let cameras = await Html5Qrcode.getCameras();
-
-    for (let camera of cameras) {
-      $('#cameras').append(`<option value="${camera.id}">${camera.label}</option>`);
-    }
-
-    $('#start-scan').click(async function () {
-      let html5Qrcode = new Html5Qrcode("reader");
-      html5Qrcode.start($('#cameras').val(), {
-        fps: 10,
-        qrbox: 3000
-      }, async qrCodeMessage => {
-        let myRegEx = /[^a-z\d: ]/i;
-        let isValid = !myRegEx.test(qrCodeMessage);
-
-        if (isValid) {
-          console.log('is valid');
-          console.log(qrCodeMessage);
-          html5Qrcode.stop();
-        }
-      }, errorMessage => {
-        /* console.log(errorMessage);*/
-      }).catch(error => {
-        console.log(error);
-      });
-    });
-  }
-
-}
-
-exports.default = PropertyPointOfSaleController;
-
-},{"../data-client":91,"../util":93,"./account-settings-controller":71,"./message-view-controller":81,"currency.js":27,"moment/moment":32}],90:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"../views/prices-view":112,"./account-settings-controller":71,"./message-view-controller":81,"moment":32}],89:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23170,13 +23114,13 @@ var _accountSettingsController = _interopRequireDefault(require("./account-setti
 
 var _transferView = _interopRequireDefault(require("../views/transfer-view"));
 
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 
 const Currency = require('currency.js');
-
-const DataClient = require('../data-client');
 
 const Util = require('../util');
 
@@ -23190,7 +23134,7 @@ class TransfersController {
   }
 
   async cancelTransfer(transferId) {
-    let dataClient = new DataClient();
+    let dataClient = new _dataClient.default();
 
     try {
       let data = await dataClient.getBudget();
@@ -23204,7 +23148,7 @@ class TransfersController {
   }
 
   async completeTransfer(transferId) {
-    let dataClient = new DataClient();
+    let dataClient = new _dataClient.default();
     let data = await dataClient.getBudget();
     let patch = {
       assets: data.assets || []
@@ -23276,7 +23220,7 @@ class TransfersController {
 
   async refresh() {
     try {
-      let dataClient = new DataClient();
+      let dataClient = new _dataClient.default();
       let data = await dataClient.getBudget('budget');
       this.setView(data);
 
@@ -23297,119 +23241,155 @@ class TransfersController {
 
 exports.default = TransfersController;
 
-},{"../data-client":91,"../util":93,"../views/balance-sheet/balance-sheet-view":96,"../views/transfer-view":114,"./account-settings-controller":71,"currency.js":27}],91:[function(require,module,exports){
+},{"../data-client":90,"../util":92,"../views/balance-sheet/balance-sheet-view":95,"../views/transfer-view":113,"./account-settings-controller":71,"currency.js":27}],90:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
 const Util = require('./util');
+
 const Currency = require('currency.js');
-function DataClient() {
-    const FETCH_MODE = 'cors';
-    const FETCH_CREDENTIALS = 'include';
-    this.patch = async function (endpoint, data) {
-        let requestParams = {
-            method: 'PATCH',
-            mode: FETCH_MODE,
-            credentials: FETCH_CREDENTIALS,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        };
-        return await this.sendRequestInner(endpoint, requestParams)
-    };
-    this.post = async function (endpoint, data, isRetryFromRefresh) {
-        let requestParams = {
-            method: 'POST',
-            mode: FETCH_MODE,
-            credentials: FETCH_CREDENTIALS,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        };
-        return await this.sendRequestInner(endpoint, requestParams, isRetryFromRefresh)
-    };
-    this.delete = async function (endpoint, data) {
-        let requestParams = {
-            method: 'DELETE',
-            mode: FETCH_MODE,
-            credentials: FETCH_CREDENTIALS,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        };
-        return await this.sendRequestInner(endpoint, requestParams)
-    };
-    this.get = async function (requestType) {
-        let requestParams = {
-            method: 'GET',
-            mode: FETCH_MODE,
-            credentials: FETCH_CREDENTIALS,
-            headers: { 'Content-Type': 'application/json' }
-        };
-        return await this.sendRequestInner(requestType, requestParams)
-    };
-    this.getBudget = async function () {
-        let data = await this.get('budget');
-        let obfuscate = Util.obfuscate();
-        if (obfuscate) {
-            $('#save').prop('disabled', true);
-            for (let weekly of data.weeklyRecurringExpenses) {
-                weekly.amount = Currency(weekly.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
-            }
-            for (let monthly of data.monthlyRecurringExpenses) {
-                monthly.amount = Currency(monthly.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
-            }
-            if (data['401k-contribution-for-year']) {
-                data['401k-contribution-for-year'] = Currency(data['401k-contribution-for-year'],
-                    Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
-            }
-            if (data['401k-contribution-per-pay-check']) {
-                data['401k-contribution-per-pay-check'] = Currency(data['401k-contribution-per-pay-check'],
-                    Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
-            }
+
+const FETCH_MODE = 'cors';
+const FETCH_CREDENTIALS = 'include';
+
+class DataClient {
+  constructor(withholdWaitingIndicator) {
+    this.withholdWaitingIndicator = withholdWaitingIndicator;
+  }
+
+  async patch(endpoint, data) {
+    return await this.sendRequestInner(endpoint, {
+      method: 'PATCH',
+      mode: FETCH_MODE,
+      credentials: FETCH_CREDENTIALS,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+  }
+
+  async post(endpoint, data, isRetryFromRefresh) {
+    return await this.sendRequestInner(endpoint, {
+      method: 'POST',
+      mode: FETCH_MODE,
+      credentials: FETCH_CREDENTIALS,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }, isRetryFromRefresh);
+  }
+
+  async delete(endpoint, data) {
+    return await this.sendRequestInner(endpoint, {
+      method: 'DELETE',
+      mode: FETCH_MODE,
+      credentials: FETCH_CREDENTIALS,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+  }
+
+  async get(requestType) {
+    return await this.sendRequestInner(requestType, {
+      method: 'GET',
+      mode: FETCH_MODE,
+      credentials: FETCH_CREDENTIALS,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+
+  async getBudget() {
+    let data = await this.get('budget');
+    let obfuscate = Util.obfuscate();
+
+    if (obfuscate) {
+      $('#save').prop('disabled', true);
+
+      for (let weekly of data.weeklyRecurringExpenses) {
+        weekly.amount = Currency(weekly.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+      }
+
+      for (let monthly of data.monthlyRecurringExpenses) {
+        monthly.amount = Currency(monthly.amount, Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+      }
+
+      if (data['401k-contribution-for-year']) {
+        data['401k-contribution-for-year'] = Currency(data['401k-contribution-for-year'], Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+      }
+
+      if (data['401k-contribution-per-pay-check']) {
+        data['401k-contribution-per-pay-check'] = Currency(data['401k-contribution-per-pay-check'], Util.getCurrencyDefaults()).multiply(Util.obfuscationAmount()).toString();
+      }
+    }
+
+    return data;
+  }
+
+  async sendRequestInner(requestType, requestParams, isRetryFromRefresh) {
+    let response;
+    let url = `${Util.getApiUrl()}${requestType}`;
+
+    try {
+      if (!this.withholdWaitingIndicator) {
+        $('.loader-group').removeClass('hide');
+      }
+
+      response = await fetch(url, requestParams);
+    } catch (error) {
+      $('.loader-group').addClass('hide');
+      console.log(`An error occurred when fetching ${url}. The server response can\'t be read`);
+      throw 'Network error failed to fetch: ' + url;
+    } // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
+
+
+    if (response.status.toString() === '401') {
+      console.log('Failed to authenticate attempting to refresh token');
+
+      try {
+        if (isRetryFromRefresh) {
+          console.log('failed to refresh from token');
+          window.location = `${Util.rootUrl()}/pages/login.html`;
         }
-        return data;
-    };
-    this.sendRequestInner = async function (requestType, requestParams, isRetryFromRefresh) {
-        let response;
-        let url = `${Util.getApiUrl()}${requestType}`;
-        try {
-            $('.loader-group').removeClass('hide');
-            response = await fetch(url, requestParams);
-        } catch (error) {
-            $('.loader-group').addClass('hide');
-            console.log(`An error occurred when fetching ${url}. The server response can\'t be read`);
-            throw 'Network error failed to fetch: ' + url;
-        }
-        // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
-        if (response.status.toString() === '401') {
-            console.log('Failed to authenticate attempting to refresh token');
-            try {
-                if (isRetryFromRefresh) {
-                    console.log('failed to refresh from token');
-                    window.location = `${Util.rootUrl()}/pages/login.html`;
-                }
-                await this.post('unauthenticated/refreshToken', {}, true);
-                console.log('retrying request after token refresh');
-                return await this.sendRequestInner(requestType, requestParams, true);
-            } catch (err) {
-                console.log('error occurred when refreshing');
-                console.log(err);
-                window.location = `${Util.rootUrl()}/pages/login.html`;
-            }
-        } else if (response.status.toString()[0] !== '2') {
-            $('.loader-group').addClass('hide');
-            console.log('failed throwing error');
-            let errorResponse = await response.text();
-            throw {
-                status: response.status,
-                url: response.url,
-                response: errorResponse
-            };
-        }
-        let responseJson = await response.json();
-        $('.loader-group').addClass('hide');
-        return responseJson;
-    };
+
+        await this.post('unauthenticated/refreshToken', {}, true);
+        console.log('retrying request after token refresh');
+        return await this.sendRequestInner(requestType, requestParams, true);
+      } catch (err) {
+        console.log('error occurred when refreshing');
+        console.log(err);
+        window.location = `${Util.rootUrl()}/pages/login.html`;
+      }
+    } else if (response.status.toString()[0] !== '2') {
+      $('.loader-group').addClass('hide');
+      console.log('failed throwing error');
+      let errorResponse = await response.text();
+      throw {
+        status: response.status,
+        url: response.url,
+        response: errorResponse
+      };
+    }
+
+    let responseJson = await response.json();
+    $('.loader-group').addClass('hide');
+    return responseJson;
+  }
+
 }
 
-module.exports = DataClient;
+exports.default = DataClient;
 
-},{"./util":93,"currency.js":27}],92:[function(require,module,exports){
+},{"./util":92,"currency.js":27}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23479,7 +23459,7 @@ class Navigation {
 
 exports.default = Navigation;
 
-},{"./controllers/balance-sheet-controller":72,"./controllers/banks-controller":74,"./controllers/budget-calendar-controller":75,"./controllers/budget-controller":76,"./controllers/deposit-controller":77,"./controllers/pay-days-controller":82,"./controllers/prices-controller":83,"./controllers/property-customer-balances-controller":84,"./controllers/property-customer-edit-controller":85,"./controllers/property-customers-controller":86,"./controllers/property-point-of-sale-controller":87,"./controllers/purchase-controller":88,"./controllers/transfers-controller":90}],93:[function(require,module,exports){
+},{"./controllers/balance-sheet-controller":72,"./controllers/banks-controller":74,"./controllers/budget-calendar-controller":75,"./controllers/budget-controller":76,"./controllers/deposit-controller":77,"./controllers/pay-days-controller":82,"./controllers/prices-controller":83,"./controllers/property-customer-balances-controller":84,"./controllers/property-customer-edit-controller":85,"./controllers/property-customers-controller":86,"./controllers/property-point-of-sale-controller":87,"./controllers/purchase-controller":88,"./controllers/transfers-controller":89}],92:[function(require,module,exports){
 const Currency = require('currency.js');
 exports.log = function (error) {
     console.log(error);
@@ -23577,7 +23557,7 @@ exports.getApiUrl = () => 'https://api.primordial-software.com/';
 exports.getBankIntegrationEnvironment = () => window.location.hostname.toLowerCase() === 'www.primordial-software.com'
     ? 'production'
     : 'development';
-},{"currency.js":27}],94:[function(require,module,exports){
+},{"currency.js":27}],93:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23664,7 +23644,7 @@ class BalanceSheetViewModel {
 
 exports.default = BalanceSheetViewModel;
 
-},{"../util":93,"currency.js":27}],95:[function(require,module,exports){
+},{"../util":92,"currency.js":27}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23715,7 +23695,7 @@ class AssetViewModel {
 
 exports.default = AssetViewModel;
 
-},{}],96:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 "use strict";
 
 var _bondViewModel = _interopRequireDefault(require("./bond-view-model"));
@@ -23832,7 +23812,7 @@ exports.setView = function (budget, obfuscate) {
   $('#net-total').text(Util.format(net));
 };
 
-},{"../../calculators/calendar":65,"../../util":93,"./bond-view-model":97,"./cash-view-model":98,"./equity-view-model":99,"./inventory-view-model":101,"./loan-view-model":102,"./property-plant-and-equipment-view-model":103,"currency.js":27,"moment":32}],97:[function(require,module,exports){
+},{"../../calculators/calendar":65,"../../util":92,"./bond-view-model":96,"./cash-view-model":97,"./equity-view-model":98,"./inventory-view-model":100,"./loan-view-model":101,"./property-plant-and-equipment-view-model":102,"currency.js":27,"moment":32}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23959,7 +23939,7 @@ class BondViewModel extends _assetViewModel.default {
 
 exports.default = BondViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":93,"./asset-view-model":95,"./cash-view-model":98,"moment/moment":32}],98:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":92,"./asset-view-model":94,"./cash-view-model":97,"moment/moment":32}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24094,7 +24074,7 @@ class CashViewModel extends _assetViewModel.default {
 
 exports.default = CashViewModel;
 
-},{"../../calculators/current-balance-calculator":66,"../../controllers/balance-sheet/transfer-controller":73,"../../util":93,"./asset-view-model":95,"./bond-view-model":97,"./equity-view-model":99,"./expense-view-model":100,"./inventory-view-model":101,"./property-plant-and-equipment-view-model":103}],99:[function(require,module,exports){
+},{"../../calculators/current-balance-calculator":66,"../../controllers/balance-sheet/transfer-controller":73,"../../util":92,"./asset-view-model":94,"./bond-view-model":96,"./equity-view-model":98,"./expense-view-model":99,"./inventory-view-model":100,"./property-plant-and-equipment-view-model":102}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24219,7 +24199,7 @@ class EquityViewModel extends _assetViewModel.default {
 
 exports.default = EquityViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":93,"./asset-view-model":95,"./cash-view-model":98,"currency.js":27}],100:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":92,"./asset-view-model":94,"./cash-view-model":97,"currency.js":27}],99:[function(require,module,exports){
 function ExpenseViewModel() {
     this.getViewDescription = () => 'Expense';
     this.getViewType = () => 'expense';
@@ -24250,7 +24230,7 @@ function ExpenseViewModel() {
            </div>`);
 }
 module.exports = ExpenseViewModel;
-},{}],101:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24326,7 +24306,7 @@ class InventoryViewModel extends _assetViewModel.default {
 
 exports.default = InventoryViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":93,"./asset-view-model":95,"./cash-view-model":98}],102:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":92,"./asset-view-model":94,"./cash-view-model":97}],101:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24435,7 +24415,7 @@ class LoanViewModel {
 
 exports.default = LoanViewModel;
 
-},{"../../calculators/calendar":65,"../../calculators/payoff-date-calculator":68,"../../util":93,"currency.js":27}],103:[function(require,module,exports){
+},{"../../calculators/calendar":65,"../../calculators/payoff-date-calculator":68,"../../util":92,"currency.js":27}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24511,7 +24491,7 @@ class PropertyPlantAndEquipmentViewModel extends _assetViewModel.default {
 
 exports.default = PropertyPlantAndEquipmentViewModel;
 
-},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":93,"./asset-view-model":95,"./cash-view-model":98}],104:[function(require,module,exports){
+},{"../../controllers/balance-sheet/transfer-controller":73,"../../util":92,"./asset-view-model":94,"./cash-view-model":97}],103:[function(require,module,exports){
 const Moment = require('moment/moment');
 function TransferView() {
     this.getView = function (name, allowableTransferViewModels) {
@@ -24549,7 +24529,7 @@ function TransferView() {
 
 module.exports = TransferView;
 
-},{"moment/moment":32}],105:[function(require,module,exports){
+},{"moment/moment":32}],104:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24578,7 +24558,7 @@ class BiweeklyView {
 
 exports.default = BiweeklyView;
 
-},{}],106:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24729,7 +24709,7 @@ class BudgetView {
 
 exports.default = BudgetView;
 
-},{"../../util":93,"./biweekly-view":105,"./monthly-view":107,"./weekly-view":108}],107:[function(require,module,exports){
+},{"../../util":92,"./biweekly-view":104,"./monthly-view":106,"./weekly-view":107}],106:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24768,7 +24748,7 @@ class MonthlyView {
 
 exports.default = MonthlyView;
 
-},{"../../calculators/calendar":65}],108:[function(require,module,exports){
+},{"../../calculators/calendar":65}],107:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24813,7 +24793,7 @@ class WeeklyView {
 
 exports.default = WeeklyView;
 
-},{"../../calculators/calendar":65}],109:[function(require,module,exports){
+},{"../../calculators/calendar":65}],108:[function(require,module,exports){
 const cal = require('../calculators/calendar');
 const CalendarCalculator = require('../calendar-calculator');
 const Util = require('../util');
@@ -24934,7 +24914,7 @@ function getDisplayAmount(amount, type) {
     displayAmount = Util.format(displayAmount);
     return displayAmount;
 }
-},{"../calculators/calendar":65,"../calendar-calculator":70,"../util":93}],110:[function(require,module,exports){
+},{"../calculators/calendar":65,"../calendar-calculator":70,"../util":92}],109:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24965,7 +24945,7 @@ class CommandButtonsView {
 
 exports.default = CommandButtonsView;
 
-},{}],111:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25059,7 +25039,7 @@ class FooterView {
 
 exports.default = FooterView;
 
-},{}],112:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 const Currency = require('currency.js');
 
 exports.getModel = function () {
@@ -25068,39 +25048,44 @@ exports.getModel = function () {
     model['401k-contribution-per-pay-check'] = Currency($('#401k-contribution-per-pay-check').val().trim()).toString();
     return model;
 };
-},{"currency.js":27}],113:[function(require,module,exports){
-const DataClient = require('../data-client');
+},{"currency.js":27}],112:[function(require,module,exports){
+"use strict";
+
+var _dataClient = _interopRequireDefault(require("../data-client"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 exports.getModel = async function () {
-    let prices = [];
-    $('.prices-item').each(function () {
-        prices.push({
-            "name": $(this).find('input.input-name').val().trim(),
-            "sharePrice": $(this).find('input.share-price').val().trim(),
-        });
+  let prices = [];
+  $('.prices-item').each(function () {
+    prices.push({
+      "name": $(this).find('input.input-name').val().trim(),
+      "sharePrice": $(this).find('input.share-price').val().trim()
     });
-    let dataClient = new DataClient();
-    let data = await dataClient.getBudget();
-    let updateModel = {
-        assets: data.assets
-    };
-    for (let price of prices) {
-        let existing = updateModel.assets.find(x =>
-            (x.name || '').length > 0 &&
-            x.name.toLowerCase() === price.name.toLowerCase()
-        );
-        if (existing) {
-            existing.sharePrice = price.sharePrice;
-        }
+  });
+  let dataClient = new _dataClient.default();
+  let data = await dataClient.getBudget();
+  let updateModel = {
+    assets: data.assets
+  };
+
+  for (let price of prices) {
+    let existing = updateModel.assets.find(x => (x.name || '').length > 0 && x.name.toLowerCase() === price.name.toLowerCase());
+
+    if (existing) {
+      existing.sharePrice = price.sharePrice;
     }
-    return updateModel;
+  }
+
+  return updateModel;
 };
-exports.getHeaderView = () =>
-    $(`<div class="row table-header-row">
+
+exports.getHeaderView = () => $(`<div class="row table-header-row">
               <div class="col-xs-6">Asset</div>
               <div class="col-xs-6">Price</div>
           </div>`);
-exports.getView = (name, sharePrice) =>
-    $(`<div>
+
+exports.getView = (name, sharePrice) => $(`<div>
             <div class="prices-item row transaction-input-view">
                 <div class="col-xs-6"><input disabled="disabled" class="input-name name form-control" type="text" value="${name || ''}" /></div>
                 <div class="col-xs-6">
@@ -25112,7 +25097,8 @@ exports.getView = (name, sharePrice) =>
                 </div>
               </div>
           </div>`);
-},{"../data-client":91}],114:[function(require,module,exports){
+
+},{"../data-client":90}],113:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -25156,4 +25142,4 @@ class TransferView {
 
 exports.default = TransferView;
 
-},{"../util":93,"moment":32}]},{},[63]);
+},{"../util":92,"moment":32}]},{},[63]);

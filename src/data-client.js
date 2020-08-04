@@ -1,48 +1,47 @@
 const Util = require('./util');
 const Currency = require('currency.js');
-function DataClient() {
-    const FETCH_MODE = 'cors';
-    const FETCH_CREDENTIALS = 'include';
-    this.patch = async function (endpoint, data) {
-        let requestParams = {
+const FETCH_MODE = 'cors';
+const FETCH_CREDENTIALS = 'include';
+export default class DataClient {
+    constructor(withholdWaitingIndicator) {
+        this.withholdWaitingIndicator = withholdWaitingIndicator;
+    }
+    async patch(endpoint, data) {
+        return await this.sendRequestInner(endpoint, {
             method: 'PATCH',
             mode: FETCH_MODE,
             credentials: FETCH_CREDENTIALS,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
-        };
-        return await this.sendRequestInner(endpoint, requestParams)
+        })
     };
-    this.post = async function (endpoint, data, isRetryFromRefresh) {
-        let requestParams = {
+    async post(endpoint, data, isRetryFromRefresh) {
+        return await this.sendRequestInner(endpoint, {
             method: 'POST',
             mode: FETCH_MODE,
             credentials: FETCH_CREDENTIALS,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
-        };
-        return await this.sendRequestInner(endpoint, requestParams, isRetryFromRefresh)
+        }, isRetryFromRefresh)
     };
-    this.delete = async function (endpoint, data) {
-        let requestParams = {
+    async delete(endpoint, data) {
+        return await this.sendRequestInner(endpoint, {
             method: 'DELETE',
             mode: FETCH_MODE,
             credentials: FETCH_CREDENTIALS,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
-        };
-        return await this.sendRequestInner(endpoint, requestParams)
+        })
     };
-    this.get = async function (requestType) {
-        let requestParams = {
+    async get(requestType) {
+        return await this.sendRequestInner(requestType, {
             method: 'GET',
             mode: FETCH_MODE,
             credentials: FETCH_CREDENTIALS,
             headers: { 'Content-Type': 'application/json' }
-        };
-        return await this.sendRequestInner(requestType, requestParams)
+        })
     };
-    this.getBudget = async function () {
+    async getBudget() {
         let data = await this.get('budget');
         let obfuscate = Util.obfuscate();
         if (obfuscate) {
@@ -64,11 +63,13 @@ function DataClient() {
         }
         return data;
     };
-    this.sendRequestInner = async function (requestType, requestParams, isRetryFromRefresh) {
+    async sendRequestInner (requestType, requestParams, isRetryFromRefresh) {
         let response;
         let url = `${Util.getApiUrl()}${requestType}`;
         try {
-            $('.loader-group').removeClass('hide');
+            if (!this.withholdWaitingIndicator) {
+                $('.loader-group').removeClass('hide');
+            }
             response = await fetch(url, requestParams);
         } catch (error) {
             $('.loader-group').addClass('hide');
@@ -106,5 +107,3 @@ function DataClient() {
         return responseJson;
     };
 }
-
-module.exports = DataClient;

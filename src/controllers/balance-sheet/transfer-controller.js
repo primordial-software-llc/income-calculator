@@ -1,4 +1,4 @@
-const DataClient = require('../../data-client');
+import DataClient from '../../data-client';
 const Moment = require('moment/moment');
 const TransferView = require('../../views/balance-sheet/transfer-view');
 const Util = require('../../util');

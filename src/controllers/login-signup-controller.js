@@ -1,5 +1,5 @@
 import AccountSettingsController from './account-settings-controller';
-const DataClient = require('../data-client');
+import DataClient from '../data-client';
 const Util = require('../util');
 
 function LoginSignupController() {

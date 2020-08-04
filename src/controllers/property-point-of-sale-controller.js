@@ -1,6 +1,6 @@
 import Currency from 'currency.js';
 const Moment = require('moment/moment');
-const DataClient = require('../data-client');
+import DataClient from '../data-client';
 import AccountSettingsController from './account-settings-controller';
 import MessageViewController from './message-view-controller';
 const Util = require('../util');
@@ -49,15 +49,16 @@ export default class PropertyPointOfSaleController {
                 $('#vendor-notes').text(customer.memo);
                 let start = Moment().subtract('90', 'days').format('YYYY-MM-DD');
                 let end = Moment().add('30', 'days').format('YYYY-MM-DD');
-                new DataClient()
+                $('#invoices').append(`<div>Loading invoices...</div>`);
+                new DataClient(true)
                     .get(`point-of-sale/customer-invoices?id=${customer.id}&start=${start}&end=${end}`)
                     .then((invoices) => {
+                        $('#invoices').empty();
                         for (let invoice of invoices) {
                             let balance = invoice.Balance === '0' || invoice.Balance === 0 ? 'PAID' : Util.format(invoice.Balance);
                             console.log(invoice.Balance);
                             $('#invoices').append(`<div>&bull;&nbsp;${invoice.TxnDate} - ${balance}</div>`);
                         }
-
                     })
                     .catch((error) => {
                         alert(JSON.stringify(error) + " " + error);

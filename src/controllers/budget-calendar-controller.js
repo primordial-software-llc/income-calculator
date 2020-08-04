@@ -1,6 +1,6 @@
 import AccountSettingsController from './account-settings-controller';
 const CalendarView = require('../views/calendar-view');
-const DataClient = require('../data-client');
+import DataClient from '../data-client';
 const Util = require('../util');
 const NetIncomeCalculator = require('../calculators/net-income-calculator');
 const netIncomeCalculator = new NetIncomeCalculator();

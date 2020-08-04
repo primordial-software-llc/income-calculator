@@ -1,11 +1,10 @@
 import CommandButtonsView from './views/command-buttons-view';
-const DataClient = require('./data-client');
+import DataClient from './data-client';
 import FooterView from './views/footer-view';
 import HomeController from './controllers/home-controller';
 const LoginController = require('./controllers/login-controller');
 import LoginSignupController from './controllers/login-signup-controller';
 import Navigation from './nav';
-import QrTestController from './controllers/qr-test-controller';
 const Util = require('./util');
 
 async function init() {
@@ -17,7 +16,6 @@ async function init() {
     try {
         if (pageName &&
             !pageName.startsWith('login.html') &&
-            !pageName.startsWith('qr-test.html') &&
             !pageName.startsWith('login-signup.html')) {
             usernameResponse = await new DataClient().getBudget();
         }
@@ -36,8 +34,6 @@ async function init() {
         controller = new LoginSignupController();
     } else if (pageName.startsWith('index.html')) {
         controller = new HomeController();
-    } else if (pageName.startsWith('qr-test.html')) {
-        controller = new QrTestController();
     }
     try {
         if (controller) {

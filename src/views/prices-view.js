@@ -1,4 +1,4 @@
-const DataClient = require('../data-client');
+import DataClient from '../data-client';
 exports.getModel = async function () {
     let prices = [];
     $('.prices-item').each(function () {

@@ -2,7 +2,7 @@ import AccountSettingsController from './account-settings-controller';
 const moment = require('moment/moment');
 const cal = require('../calculators/calendar');
 const UtcDay = require('../calculators/utc-day');
-const DataClient = require('../data-client');
+import DataClient from '../data-client';
 const Currency = require('currency.js');
 const PayDaysView = require('../views/pay-days-view');
 const Util = require('../util');

@@ -4,7 +4,7 @@ import BudgetView from '../views/budget/budget-view';
 import WeeklyView from '../views/budget/weekly-view';
 import MonthlyView from '../views/budget/monthly-view';
 import BiweeklyView from '../views/budget/biweekly-view';
-const DataClient = require('../data-client');
+import DataClient from '../data-client';
 const Util = require('../util');
 
 export default class BudgetController {

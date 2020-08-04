@@ -1,6 +1,6 @@
 import AccountSettingsController from './account-settings-controller';
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
-const DataClient = require('../data-client');
+import DataClient from '../data-client';
 import MessageViewController from './message-view-controller';
 const OTPAuth = require('otpauth');
 const QRCode = require('qrcode');

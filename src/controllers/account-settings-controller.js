@@ -1,6 +1,6 @@
 import FooterView from '../views/footer-view';
 import Navigation from '../nav';
-const DataClient = require('../data-client');
+import DataClient from '../data-client';
 const Util = require('../util');
 
 export default class AccountSettingsController {

@@ -2,7 +2,7 @@ import AccountSettingsController from './account-settings-controller';
 import TransferView from '../views/transfer-view';
 const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
 const Currency = require('currency.js');
-const DataClient = require('../data-client');
+import DataClient from '../data-client';
 const Util = require('../util');
 export default class TransfersController {
     static getName() {

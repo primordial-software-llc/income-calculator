@@ -1,5 +1,5 @@
-const DataClient = require('../data-client');
 import AccountSettingsController from './account-settings-controller';
+import DataClient from '../data-client';
 import MessageViewController from './message-view-controller';
 const Util = require('../util');
 export default class PropertyCustomersController {
