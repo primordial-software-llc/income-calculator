@@ -10,11 +10,12 @@ export default class PropertyPointOfSaleController {
         return `${Util.rootUrl()}/pages/qr-test.html`;
     }
     getCustomerDescription(customer) {
+        let description = customer.displayName;
         let fullName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
-        if (fullName) {
-            fullName = ' : ' + fullName;
+        if (fullName && fullName.toLowerCase() !== customer.displayName.toLowerCase()) {
+            description += ' : ' + fullName;
         }
-        return `${customer.displayName}${fullName}`;
+        return description;
     }
     getQrCodePromise(data) {
         return new Promise((resolve, reject) => {

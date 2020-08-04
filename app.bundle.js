@@ -22791,13 +22791,14 @@ class PropertyPointOfSaleController {
   }
 
   getCustomerDescription(customer) {
+    let description = customer.displayName;
     let fullName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
 
-    if (fullName) {
-      fullName = ' : ' + fullName;
+    if (fullName && fullName.toLowerCase() !== customer.displayName.toLowerCase()) {
+      description += ' : ' + fullName;
     }
 
-    return `${customer.displayName}${fullName}`;
+    return description;
   }
 
   getCustomer(customerDescription) {
@@ -22871,17 +22872,24 @@ class PropertyPointOfSaleController {
           Util.log(error);
         }
 
-        if (parsedJson) {
-          let vendor = self.customers.find(x => x.id === parsedJson.id);
-          $("#sale-vendor").val(self.getCustomerDescription(vendor));
-          self.loadCustomer(vendor);
-
-          if ((parsedJson.type || '').toLowerCase() === 'owner') {
-            $("#sale-vendor").addClass('owner-alert');
-          }
-
-          html5Qrcode.stop();
+        if (!parsedJson) {
+          return;
         }
+
+        let vendor = self.customers.find(x => x.id === parsedJson.id);
+
+        if (!vendor) {
+          return; // could be a misread since the id isn't found so ignore.
+        }
+
+        $("#sale-vendor").val(self.getCustomerDescription(vendor));
+        self.loadCustomer(vendor);
+
+        if ((parsedJson.type || '').toLowerCase() === 'owner') {
+          $("#sale-vendor").addClass('owner-alert');
+        }
+
+        html5Qrcode.stop();
       }, errorMessage => {
         /* console.log(errorMessage);*/
       }).catch(error => {
@@ -23101,13 +23109,14 @@ class PropertyPointOfSaleController {
   }
 
   getCustomerDescription(customer) {
+    let description = customer.displayName;
     let fullName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
 
-    if (fullName) {
-      fullName = ' : ' + fullName;
+    if (fullName && fullName.toLowerCase() !== customer.displayName.toLowerCase()) {
+      description += ' : ' + fullName;
     }
 
-    return `${customer.displayName}${fullName}`;
+    return description;
   }
 
   getQrCodePromise(data) {
