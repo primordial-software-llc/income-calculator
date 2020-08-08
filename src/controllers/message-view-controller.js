@@ -24,8 +24,8 @@ export default class MessageViewController {
         if (message.length < 1) {
             $('#messageAlert').addClass('hide');
         } else {
-            $('#messageAlert')[0].scrollIntoView();
             $('#messageAlert').removeClass('hide');
+            $('#messageAlert')[0].scrollIntoView();
         }
     }
 }

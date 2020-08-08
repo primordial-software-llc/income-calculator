@@ -46,8 +46,29 @@ body .property-nav .property-nav-item {
     font-size: 36px;
 }
 
+.debit-bg-color {
+    background-color: #ffcccc;
+}
+
+.credit-bg-color {
+    background-color: #ccffb6;;
+}
+
 .owner-alert {
     background-color: #ffcccc;
+}
+
+#input-form .btn-primary {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.additional-spot {
+    margin-top: 30px;
+}
+
+.required-field-validation {
+    border: 3px solid red;
 }
 
 @media print {

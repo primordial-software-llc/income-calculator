@@ -5,6 +5,7 @@ const FETCH_CREDENTIALS = 'include';
 export default class DataClient {
     constructor(withholdWaitingIndicator) {
         this.withholdWaitingIndicator = withholdWaitingIndicator;
+        this.activeRequests = 0;
     }
     async patch(endpoint, data) {
         return await this.sendRequestInner(endpoint, {
@@ -64,6 +65,7 @@ export default class DataClient {
         return data;
     };
     async sendRequestInner (requestType, requestParams, isRetryFromRefresh) {
+        this.activeRequests += 1;
         let response;
         let url = `${Util.getApiUrl()}${requestType}`;
         try {
@@ -72,7 +74,10 @@ export default class DataClient {
             }
             response = await fetch(url, requestParams);
         } catch (error) {
-            $('.loader-group').addClass('hide');
+            this.activeRequests -= 1;
+            if (this.activeRequests === 0) {
+                $('.loader-group').addClass('hide');
+            }
             console.log(`An error occurred when fetching ${url}. The server response can\'t be read`);
             throw 'Network error failed to fetch: ' + url;
         }
@@ -93,7 +98,10 @@ export default class DataClient {
                 window.location = `${Util.rootUrl()}/pages/login.html`;
             }
         } else if (response.status.toString()[0] !== '2') {
-            $('.loader-group').addClass('hide');
+            this.activeRequests -= 1;
+            if (this.activeRequests === 0) {
+                $('.loader-group').addClass('hide');
+            }
             console.log('failed throwing error');
             let errorResponse = await response.text();
             throw {
@@ -103,7 +111,10 @@ export default class DataClient {
             };
         }
         let responseJson = await response.json();
-        $('.loader-group').addClass('hide');
+        this.activeRequests -= 1;
+        if (this.activeRequests === 0) {
+            $('.loader-group').addClass('hide');
+        }
         return responseJson;
     };
 }

@@ -22306,8 +22306,8 @@ class MessageViewController {
     if (message.length < 1) {
       $('#messageAlert').addClass('hide');
     } else {
-      $('#messageAlert')[0].scrollIntoView();
       $('#messageAlert').removeClass('hide');
+      $('#messageAlert')[0].scrollIntoView();
     }
   }
 
@@ -22781,6 +22781,21 @@ class PropertyPointOfSaleController {
     return `${Util.rootUrl()}/pages/property-point-of-sale.html`;
   }
 
+  addSpot(additionalSpot) {
+    let id = Util.guid();
+    $('#spot-container').append(`
+            <div id="${id}" class="row ${additionalSpot ? 'additional-spot' : ''}">
+                <div class="col-xs-${additionalSpot ? '9' : '12'}">
+                    <input class="form-control spot-input" list="spot-list" />
+                </div>
+                ${additionalSpot ? `<div class="col-xs-3">
+                    <input type="button" class="remove-spot-btn btn btn-warning" value="Remove Spot" />
+                </div>` : ''}
+            </div>
+        `);
+    return id;
+  }
+
   initForm() {
     $('#sale-date').prop('disabled', false).val(Moment().format('YYYY-MM-DD'));
     $('#sale-vendor').prop('disabled', false).val('');
@@ -22788,6 +22803,14 @@ class PropertyPointOfSaleController {
     $('#sale-rental-amount').prop('disabled', false).val('');
     $('#sale-payment').prop('disabled', false).val('');
     $('#sale-memo').prop('disabled', false).val('');
+  }
+
+  getSpotDescription(spot) {
+    return `${spot.section.name} - ${spot.name}`;
+  }
+
+  getSpot(spotDescription) {
+    return this.spots.find(x => this.getSpotDescription(x).toLowerCase() === spotDescription.toLowerCase());
   }
 
   getCustomerDescription(customer) {
@@ -22835,13 +22858,29 @@ class PropertyPointOfSaleController {
   async init(user) {
     let self = this;
     this.initForm();
+    this.addSpot();
     new _accountSettingsController.default().init({}, user, false);
-    this.customers = await new _dataClient.default().get('point-of-sale/customer-payment-settings');
+    let dataClient = new _dataClient.default();
+    let customerPromise = dataClient.get('point-of-sale/customer-payment-settings');
+    let rentalSectionPromise = dataClient.get('point-of-sale/spots?cache-level=cache-everything');
+    let promiseResults = await Promise.all([customerPromise, rentalSectionPromise]);
+    this.customers = promiseResults[0];
+    this.spots = promiseResults[1];
+
+    for (let spot of this.spots) {
+      $('#spot-list').append(`<option>${self.getSpotDescription(spot)}</option>`);
+    }
 
     for (let customer of this.customers) {
       $('#sale-vendor-list').append(`<option>${this.getCustomerDescription(customer)}</option>`);
     }
 
+    $('#add-new-spot').click(function () {
+      let id = self.addSpot(true);
+      $(`#${id} .remove-spot-btn`).click(function () {
+        $(`#${id}`).remove();
+      });
+    });
     $("#sale-vendor").on('input', function () {
       $("#sale-vendor").removeClass('owner-alert');
       self.loadCustomer(self.getCustomer(this.value));
@@ -22899,8 +22938,30 @@ class PropertyPointOfSaleController {
     $('#sale-save').click(async function () {
       _messageViewController.default.setMessage('');
 
+      let validationMessages = [];
       let vendor = $("#sale-vendor").val().trim();
       let customerMatch = self.getCustomer(vendor);
+      let spots = [];
+
+      for (let spotTextInput of $('.spot-input').toArray()) {
+        $(spotTextInput).removeClass('required-field-validation');
+        let spotDescription = $(spotTextInput).val().trim();
+        let spot = self.getSpot(spotDescription);
+
+        if (!spot) {
+          $(spotTextInput).addClass('required-field-validation');
+          validationMessages.push(`${spotDescription} is not valid`);
+        } else {
+          spots.push(spot);
+        }
+      }
+
+      if (validationMessages.length > 0) {
+        _messageViewController.default.setMessage(validationMessages, 'alert-danger');
+
+        return;
+      }
+
       let receipt = {
         rentalDate: $('#sale-date').val().trim(),
         transactionDate: Moment().format('YYYY-MM-DD'),
@@ -22911,7 +22972,8 @@ class PropertyPointOfSaleController {
         amountOfAccount: $('#sale-prior-balance').val().trim(),
         rentalAmount: $('#sale-rental-amount').val().trim(),
         thisPayment: $('#sale-payment').val().trim(),
-        memo: $('#sale-memo').val().trim()
+        memo: $('#sale-memo').val().trim(),
+        spots: spots
       };
 
       try {
@@ -22964,6 +23026,7 @@ class PropertyPointOfSaleController {
         balanceDue = balanceDue.subtract(payment);
         $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
         $('.memo-receipt-group').toggle(!!receipt.memo);
+        $('#sale-spots-text').text(spots.map(x => self.getSpotDescription(x)).join(", "));
         $('#sale-memo-text').text(receipt.memo);
         $('#sale-date').prop('disabled', true);
         $('#sale-vendor').prop('disabled', true);
@@ -22972,6 +23035,10 @@ class PropertyPointOfSaleController {
         $('#sale-payment').prop('disabled', true);
         $('#sale-memo').prop('disabled', true);
         $('#sale-save').prop('disabled', true);
+        $('.spot-input').prop('disabled', true);
+        $('.remove-spot-btn').prop('disabled', true);
+        $('#add-new-spot').prop('disabled', true);
+        $('#scan-vendor').prop('disabled', true);
         window.print();
       } catch (error) {
         Util.log(error);
@@ -22983,7 +23050,6 @@ class PropertyPointOfSaleController {
       window.print();
     });
     $('#sale-new').click(function () {
-      // self.initForm(); // should refresh fields only, but I need an accurate balance returned from post receipt.
       window.location.reload();
     });
   }
@@ -23333,6 +23399,7 @@ const FETCH_CREDENTIALS = 'include';
 class DataClient {
   constructor(withholdWaitingIndicator) {
     this.withholdWaitingIndicator = withholdWaitingIndicator;
+    this.activeRequests = 0;
   }
 
   async patch(endpoint, data) {
@@ -23410,6 +23477,7 @@ class DataClient {
   }
 
   async sendRequestInner(requestType, requestParams, isRetryFromRefresh) {
+    this.activeRequests += 1;
     let response;
     let url = `${Util.getApiUrl()}${requestType}`;
 
@@ -23420,7 +23488,12 @@ class DataClient {
 
       response = await fetch(url, requestParams);
     } catch (error) {
-      $('.loader-group').addClass('hide');
+      this.activeRequests -= 1;
+
+      if (this.activeRequests === 0) {
+        $('.loader-group').addClass('hide');
+      }
+
       console.log(`An error occurred when fetching ${url}. The server response can\'t be read`);
       throw 'Network error failed to fetch: ' + url;
     } // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
@@ -23444,7 +23517,12 @@ class DataClient {
         window.location = `${Util.rootUrl()}/pages/login.html`;
       }
     } else if (response.status.toString()[0] !== '2') {
-      $('.loader-group').addClass('hide');
+      this.activeRequests -= 1;
+
+      if (this.activeRequests === 0) {
+        $('.loader-group').addClass('hide');
+      }
+
       console.log('failed throwing error');
       let errorResponse = await response.text();
       throw {
@@ -23455,7 +23533,12 @@ class DataClient {
     }
 
     let responseJson = await response.json();
-    $('.loader-group').addClass('hide');
+    this.activeRequests -= 1;
+
+    if (this.activeRequests === 0) {
+      $('.loader-group').addClass('hide');
+    }
+
     return responseJson;
   }
 
