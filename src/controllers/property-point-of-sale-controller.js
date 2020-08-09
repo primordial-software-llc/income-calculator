@@ -155,10 +155,13 @@ export default class PropertyPointOfSaleController {
             for (let spotTextInput of $('.spot-input').toArray()) {
                 $(spotTextInput).removeClass('required-field-validation');
                 let spotDescription = $(spotTextInput).val().trim();
+                if (spotDescription.length === 0) {
+                    continue;
+                }
                 let spot = self.getSpot(spotDescription);
                 if (!spot) {
                     $(spotTextInput).addClass('required-field-validation');
-                    validationMessages.push(`${spotDescription} is not valid`);
+                    validationMessages.push(`${spotDescription} is not a valid spot`);
                 } else {
                     spots.push(spot);
                 }
@@ -169,7 +172,6 @@ export default class PropertyPointOfSaleController {
             }
             let receipt = {
                 rentalDate: $('#sale-date').val().trim(),
-                transactionDate: Moment().format('YYYY-MM-DD'),
                 customer: {
                     id: customerMatch ? customerMatch.quickBooksOnlineId : '',
                     name: vendor
@@ -219,8 +221,9 @@ export default class PropertyPointOfSaleController {
                 let balanceDue = amountOfAccount.add(rentalAmount);
                 balanceDue = balanceDue.subtract(payment);
                 $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
+                $('.spots-receipt-group').toggle(spots.length > 0);
+                $('#sale-spots-text').text(spots.map(x => self.getSpotDescription(x)).join(", "));
                 $('.memo-receipt-group').toggle(!!receipt.memo);
-                $('#sale-spots-text').text(spots.map(x => self.getSpotDescription(x) ).join(", "));
                 $('#sale-memo-text').text(receipt.memo);
                 $('#sale-date').prop('disabled', true);
                 $('#sale-vendor').prop('disabled', true);
