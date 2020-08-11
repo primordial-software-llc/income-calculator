@@ -1,4 +1,7 @@
 import AccountSettingsController from './account-settings-controller';
+import AddSpotView from '../views/add-spot-view';
+import CustomerDescription from '../customer-description';
+import CustomerSort from '../customer-sort';
 import DataClient from '../data-client';
 const Moment = require('moment');
 import MessageViewController from './message-view-controller';
@@ -10,12 +13,8 @@ export default class PropertyCustomersController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/property-customers.html`;
     }
-    getCustomerDescription(customerPaymentSetting) {
-        let fullName = `${customerPaymentSetting.firstName || ''} ${customerPaymentSetting.lastName || ''}`.trim();
-        if (fullName) {
-            fullName = ' : ' + fullName;
-        }
-        return `${customerPaymentSetting.displayName}${fullName}`;
+    static hideInNav() {
+        return true;
     }
     getView(customerPaymentSetting) {
         let paymentFrequency = customerPaymentSetting.paymentFrequency || '&nbsp;';
@@ -26,7 +25,7 @@ export default class PropertyCustomersController {
             <div class="row dotted-underline-row customer-row">
                 <div class="col-xs-5 vertical-align customer-balance-column">
                     <div class="black-dotted-underline">
-                        <a class="customer-link" href="./property-customer-edit.html?id=${customerPaymentSetting.id}">${this.getCustomerDescription(customerPaymentSetting)}</a>
+                        <a class="customer-link" href="./property-customer-edit.html?id=${customerPaymentSetting.id}">${CustomerDescription.getCustomerDescription(customerPaymentSetting)}</a>
                     </div>
                 </div>
                 <div class="col-xs-2 vertical-align">
@@ -72,6 +71,7 @@ export default class PropertyCustomersController {
         let self = this;
         new AccountSettingsController().init({}, user, false);
         this.customerPaymentSettings = await new DataClient().get('point-of-sale/customer-payment-settings');
+        this.customerPaymentSettings.sort(CustomerSort.sort);
         for (let customer of this.customerPaymentSettings) {
             $('.customers-container').append(this.getView(customer));
         }

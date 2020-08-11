@@ -1,4 +1,6 @@
+import AddSpotView from '../views/add-spot-view';
 import Currency from 'currency.js';
+import CustomerDescription from '../customer-description';
 const Moment = require('moment/moment');
 import DataClient from '../data-client';
 import AccountSettingsController from './account-settings-controller';
@@ -13,17 +15,7 @@ export default class PropertyPointOfSaleController {
     }
     addSpot(additionalSpot) {
         let id = Util.guid();
-        $('#spot-container').append(`
-            <div id="${id}" class="row ${additionalSpot ? 'additional-spot' : ''}">
-                <div class="col-xs-${additionalSpot ? '9' : '12'}">
-                    <input class="form-control spot-input" list="spot-list" />
-                </div>
-                ${additionalSpot ?
-                `<div class="col-xs-3">
-                    <input type="button" class="remove-spot-btn btn btn-warning" value="Remove Spot" />
-                </div>` : ''}
-            </div>
-        `);
+        $('#spot-container').append(AddSpotView.GetAddSpotView(id, additionalSpot));
         return id;
     }
     initForm() {
@@ -40,17 +32,9 @@ export default class PropertyPointOfSaleController {
     getSpot(spotDescription) {
         return this.spots.find(x => this.getSpotDescription(x).toLowerCase() === spotDescription.toLowerCase());
     }
-    getCustomerDescription(customer) {
-        let description = customer.displayName;
-        let fullName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
-        if (fullName && fullName.toLowerCase() !== customer.displayName.toLowerCase()) {
-            description += ' : ' + fullName;
-        }
-        return description;
-    }
     getCustomer(customerDescription) {
         return this.customers.find(x =>
-            this.getCustomerDescription(x).toLowerCase().replace(/\s+/g, " ") ===
+            CustomerDescription.getCustomerDescription(x).toLowerCase().replace(/\s+/g, " ") ===
                 customerDescription.toLowerCase().replace(/\s+/g, " ")); // Data list and input automatically replace multiple whitespaces with a single white space
     }
     loadCustomer(customer) {
@@ -96,7 +80,7 @@ export default class PropertyPointOfSaleController {
             $('#spot-list').append(`<option>${self.getSpotDescription(spot)}</option>`);
         }
         for (let customer of this.customers) {
-            $('#sale-vendor-list').append(`<option>${this.getCustomerDescription(customer)}</option>`);
+            $('#sale-vendor-list').append(`<option>${CustomerDescription.getCustomerDescription(customer)}</option>`);
         }
         $('#add-new-spot').click(function() {
             let id = self.addSpot(true);
@@ -134,7 +118,7 @@ export default class PropertyPointOfSaleController {
                     if (!vendor) {
                         return; // could be a misread since the id isn't found so ignore.
                     }
-                    $("#sale-vendor").val(self.getCustomerDescription(vendor));
+                    $("#sale-vendor").val(CustomerDescription.getCustomerDescription(vendor));
                     self.loadCustomer(vendor);
                     if ((parsedJson.type || '').toLowerCase() === 'owner') {
                         $("#sale-vendor").addClass('owner-alert');

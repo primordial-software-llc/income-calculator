@@ -1,5 +1,7 @@
-import DataClient from '../data-client';
 import AccountSettingsController from './account-settings-controller';
+import CustomerDescription from '../customer-description';
+import CustomerSort from '../customer-sort';
+import DataClient from '../data-client';
 const Util = require('../util');
 export default class PropertyCustomerBalancesController {
     static getName() {
@@ -8,38 +10,19 @@ export default class PropertyCustomerBalancesController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/property-customer-balances.html`;
     }
-    getCustomerDescription(customerPaymentSetting) {
-        let fullName = `${customerPaymentSetting.firstName || ''} ${customerPaymentSetting.lastName || ''}`.trim();
-        if (fullName) {
-            fullName = ' : ' + fullName;
-        }
-        return `${customerPaymentSetting.displayName}${fullName}`;
+    static hideInNav() {
+        return true;
     }
     async init(user) {
-        let self = this;
         new AccountSettingsController().init({}, user, false);
         this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
-
-        this.customers.sort(function(a, b) {
-            var nameA = (a.paymentFrequency || '').toUpperCase(); // ignore upper and lowercase
-            var nameB = (b.paymentFrequency || '').toUpperCase(); // ignore upper and lowercase
-            if (nameA < nameB) {
-                return -1;
-            }
-            if (nameA > nameB) {
-                return 1;
-            }
-
-            // names must be equal
-            return 0;
-        });
-
+        this.customers.sort(CustomerSort.sort);
         for (let customer of this.customers.filter(x => x.balance > 0)) {
             $('.customer-balance-container').append(`
                 <div class="row dotted-underline-row customer-balance-row">
                     <div class="col-xs-7 vertical-align customer-balance-column">
                         <div class="black-dotted-underline">
-                            ${this.getCustomerDescription(customer)}
+                            ${CustomerDescription.getCustomerDescription(customer)}
                         </div>
                     </div>
                     <div class="col-xs-2 vertical-align customer-balance-column">

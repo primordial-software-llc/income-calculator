@@ -31,3 +31,16 @@ body .form-control {
 #memo {
     height: 100px;
 }
+
+#input-form .btn-primary {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#spot-container > .additional-spot:not(:first-child) {
+    margin-top: 30px;
+}
+
+.required-field-validation {
+    border: 3px solid red;
+}

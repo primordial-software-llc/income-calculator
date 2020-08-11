@@ -1,3 +1,4 @@
+import CustomerDescription from '../customer-description';
 import DataClient from '../data-client';
 const Util = require('../util');
 const QRCode = require('qrcode');
@@ -8,14 +9,6 @@ export default class PropertyPointOfSaleController {
     }
     static getUrl() {
         return `${Util.rootUrl()}/pages/qr-test.html`;
-    }
-    getCustomerDescription(customer) {
-        let description = customer.displayName;
-        let fullName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
-        if (fullName && fullName.toLowerCase() !== customer.displayName.toLowerCase()) {
-            description += ' : ' + fullName;
-        }
-        return description;
     }
     getQrCodePromise(data) {
         return new Promise((resolve, reject) => {
@@ -39,7 +32,7 @@ export default class PropertyPointOfSaleController {
         return `
             <div class="card">
                 <div class="vendor-description">Vendor - ${cardType}</div>
-                <div class="vendor-description">${this.getCustomerDescription(vendor)}</div>
+                <div class="vendor-description">${CustomerDescription.getCustomerDescription(vendor)}</div>
                 <img src="${encodeURI(url)}" />
                 <div class="text-center card-header">
                     Lakeland Mi Pueblo Flea Market
