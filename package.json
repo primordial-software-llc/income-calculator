@@ -20,15 +20,15 @@
   "dependencies": {
     "amazon-cognito-identity-js": "^3.2.0",
     "aws-sdk": "^2.438.0",
+    "browser-resolve": "^2.0.0",
     "currency.js": "1.2.1",
-    "jquery": "3.1.0",
-    "moment": "2.24.0",
+    "jquery": "^3.5.1",
+    "moment": "^2.27.0",
     "otpauth": "^5.0.3",
     "qr-code-scanner": "^1.0.7",
     "qrcode": "^1.4.2"
   },
   "devDependencies": {
-    "browser-resolve": "^1.11.3",
     "browserify": "^16.5.2",
     "esmify": "^2.1.1",
     "tape": "4.5.1"

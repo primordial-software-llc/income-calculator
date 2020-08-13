@@ -182,7 +182,7 @@ export default class PropertyPointOfSaleController {
             $('#sale-id').text(receiptResult.id);
             let receiptNumber = receiptResult.invoice ? `I${receiptResult.invoice.Id}` : '';
             for (let payment of receiptResult.payments || []) {
-                receiptNumber += `P${receiptResult.payment.Id}`;
+                receiptNumber += `P${payment.Id}`;
             }
             $('#receipt-number').text(receiptNumber);
             let saleBy = (`${user.firstName} ${user.lastName}`.trim() || user.email);
@@ -201,8 +201,9 @@ export default class PropertyPointOfSaleController {
             let balanceDue = amountOfAccount.add(rentalAmount);
             balanceDue = balanceDue.subtract(payment);
             $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
-            $('.spots-receipt-group').toggle(spots.length > 0);
-            $('#sale-spots-text').text(spots.map(x => self.getSpotDescription(x)).join(", "));
+            let allSpots = (customerMatch.spots || []).concat(spots);
+            $('.spots-receipt-group').toggle(allSpots.length > 0);
+            $('#sale-spots-text').text(allSpots.map(x => self.getSpotDescription(x)).join(", "));
             $('.memo-receipt-group').toggle(!!receipt.memo);
             $('#sale-memo-text').text(receipt.memo);
             $('.disable-on-save').prop('disabled', true);
