@@ -4767,10 +4767,6 @@ function fromByteArray (uint8) {
 
 var base64 = require('base64-js')
 var ieee754 = require('ieee754')
-var customInspectSymbol =
-  (typeof Symbol === 'function' && typeof Symbol.for === 'function')
-    ? Symbol.for('nodejs.util.inspect.custom')
-    : null
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -4807,9 +4803,7 @@ function typedArraySupport () {
   // Can typed array instances can be augmented?
   try {
     var arr = new Uint8Array(1)
-    var proto = { foo: function () { return 42 } }
-    Object.setPrototypeOf(proto, Uint8Array.prototype)
-    Object.setPrototypeOf(arr, proto)
+    arr.__proto__ = { __proto__: Uint8Array.prototype, foo: function () { return 42 } }
     return arr.foo() === 42
   } catch (e) {
     return false
@@ -4838,7 +4832,7 @@ function createBuffer (length) {
   }
   // Return an augmented `Uint8Array` instance
   var buf = new Uint8Array(length)
-  Object.setPrototypeOf(buf, Buffer.prototype)
+  buf.__proto__ = Buffer.prototype
   return buf
 }
 
@@ -4888,7 +4882,7 @@ function from (value, encodingOrOffset, length) {
   }
 
   if (value == null) {
-    throw new TypeError(
+    throw TypeError(
       'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
       'or Array-like Object. Received type ' + (typeof value)
     )
@@ -4940,8 +4934,8 @@ Buffer.from = function (value, encodingOrOffset, length) {
 
 // Note: Change prototype *after* Buffer.from is defined to workaround Chrome bug:
 // https://github.com/feross/buffer/pull/148
-Object.setPrototypeOf(Buffer.prototype, Uint8Array.prototype)
-Object.setPrototypeOf(Buffer, Uint8Array)
+Buffer.prototype.__proto__ = Uint8Array.prototype
+Buffer.__proto__ = Uint8Array
 
 function assertSize (size) {
   if (typeof size !== 'number') {
@@ -5045,8 +5039,7 @@ function fromArrayBuffer (array, byteOffset, length) {
   }
 
   // Return an augmented `Uint8Array` instance
-  Object.setPrototypeOf(buf, Buffer.prototype)
-
+  buf.__proto__ = Buffer.prototype
   return buf
 }
 
@@ -5368,9 +5361,6 @@ Buffer.prototype.inspect = function inspect () {
   if (this.length > max) str += ' ... '
   return '<Buffer ' + str + '>'
 }
-if (customInspectSymbol) {
-  Buffer.prototype[customInspectSymbol] = Buffer.prototype.inspect
-}
 
 Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
   if (isInstance(target, Uint8Array)) {
@@ -5496,7 +5486,7 @@ function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
         return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
       }
     }
-    return arrayIndexOf(buffer, [val], byteOffset, encoding, dir)
+    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
   }
 
   throw new TypeError('val must be string, number or Buffer')
@@ -5825,7 +5815,7 @@ function hexSlice (buf, start, end) {
 
   var out = ''
   for (var i = start; i < end; ++i) {
-    out += hexSliceLookupTable[buf[i]]
+    out += toHex(buf[i])
   }
   return out
 }
@@ -5862,8 +5852,7 @@ Buffer.prototype.slice = function slice (start, end) {
 
   var newBuf = this.subarray(start, end)
   // Return an augmented `Uint8Array` instance
-  Object.setPrototypeOf(newBuf, Buffer.prototype)
-
+  newBuf.__proto__ = Buffer.prototype
   return newBuf
 }
 
@@ -6352,8 +6341,6 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
     }
   } else if (typeof val === 'number') {
     val = val & 255
-  } else if (typeof val === 'boolean') {
-    val = Number(val)
   }
 
   // Invalid ranges are not set to a default, so can range check early.
@@ -6409,6 +6396,11 @@ function base64clean (str) {
     str = str + '='
   }
   return str
+}
+
+function toHex (n) {
+  if (n < 16) return '0' + n.toString(16)
+  return n.toString(16)
 }
 
 function utf8ToBytes (string, units) {
@@ -6540,20 +6532,6 @@ function numberIsNaN (obj) {
   // For IE11 support
   return obj !== obj // eslint-disable-line no-self-compare
 }
-
-// Create lookup table for `toString('hex')`
-// See: https://github.com/feross/buffer/issues/219
-var hexSliceLookupTable = (function () {
-  var alphabet = '0123456789abcdef'
-  var table = new Array(256)
-  for (var i = 0; i < 16; ++i) {
-    var i16 = i * 16
-    for (var j = 0; j < 16; ++j) {
-      table[i16 + j] = alphabet[i] + alphabet[j]
-    }
-  }
-  return table
-})()
 
 }).call(this,require("buffer").Buffer)
 },{"base64-js":18,"buffer":19,"ieee754":29}],20:[function(require,module,exports){
@@ -22283,6 +22261,20 @@ exports.default = void 0;
     <div id="messageAlert" class="hide alert" role="alert"></div>
  */
 class MessageViewController {
+  static setRequestErrorMessage(error) {
+    let jsonErrorResponse;
+
+    try {
+      if (error.response) {
+        jsonErrorResponse = JSON.parse(error.response);
+      }
+    } catch (jsonParseError) {// Not a json response.
+    }
+
+    let message = jsonErrorResponse && jsonErrorResponse.error ? jsonErrorResponse.error : JSON.stringify(error, 0, 4);
+    this.setMessage(message, 'alert-danger');
+  }
+
   static setMessage(message, messageType, isSingleHtmlMessage) {
     $('#messageAlert').removeClass('alert-danger');
     $('#messageAlert').removeClass('alert-info');
@@ -22292,7 +22284,6 @@ class MessageViewController {
 
     if (Array.isArray(message)) {
       for (let messageItem of message) {
-        console.log(messageItem);
         $('#messageAlert').append($(`<div>&bull;&nbsp;${messageItem}</div>`));
       }
     } else {
@@ -22575,10 +22566,8 @@ class PropertyCustomersController {
     $('#payment-frequency').val(customer.paymentFrequency);
     $('#rental-amount').val(customer.rentPrice);
     $('#memo').text(customer.memo);
-    console.log(customer.spots);
 
-    for (let spot of customer.spots) {
-      console.log(spot);
+    for (let spot of customer.spots || []) {
       let id = Util.guid();
       $('#spot-container').append(_addSpotView.default.GetAddSpotView(id, true));
       $(`#${id} .spot-input`).val(self.getSpotDescription(spot));
@@ -22665,7 +22654,7 @@ class PropertyCustomersController {
       } catch (error) {
         Util.log(error);
 
-        _messageViewController.default.setMessage(JSON.stringify(error, 0, 4), 'alert-danger');
+        _messageViewController.default.setRequestErrorMessage(error);
       }
     });
   }
@@ -22875,6 +22864,10 @@ class PropertyPointOfSaleController {
         alert(JSON.stringify(error) + " " + error);
         Util.log(error);
       });
+
+      for (let spot of customer.spots || []) {
+        $('#spot-container').prepend(_addSpotView.default.GetAddSpotView(Util.guid(), false, true, this.getSpotDescription(spot)));
+      }
     } else {
       $('#sale-prior-balance').val('');
       $('#sale-payment-frequency').text('');
@@ -23007,77 +23000,50 @@ class PropertyPointOfSaleController {
         memo: $('#sale-memo').val().trim(),
         spots: spots
       };
+      let receiptResult;
 
       try {
-        let receiptResult = await new _dataClient.default().post('point-of-sale/receipt', receipt);
-
-        if (receiptResult.error) {
-          _messageViewController.default.setMessage(receiptResult.error, 'alert-danger');
-
-          return;
-        }
-
-        if (!receiptResult.id) {
-          Util.log(receiptResult);
-
-          _messageViewController.default.setMessage(JSON.stringify(receiptResult), 'alert-danger');
-
-          return;
-        }
-
-        $('#sale-id').text(receiptResult.id);
-        let receiptNumber = '';
-
-        if (receiptResult.invoice) {
-          receiptNumber += `I${receiptResult.invoice.Id}`;
-        }
-
-        if (receiptResult.paymentAppliedToInvoice) {
-          receiptNumber += `AP${receiptResult.paymentAppliedToInvoice.Id}`;
-        }
-
-        if (receiptResult.unappliedPayment) {
-          receiptNumber += `UP${receiptResult.unappliedPayment.Id}`;
-        }
-
-        $('#receipt-number').text(receiptNumber);
-        let saleBy = `${user.firstName} ${user.lastName}`.trim() || user.email;
-        $('#sale-by').text(saleBy);
-        let timestamp = Moment(receiptResult.timestamp);
-        $('#sale-timestamp').text(timestamp.format('L LT'));
-        $('#sale-date-text').text(receipt.rentalDate);
-        $('#sale-vendor-text').text(receipt.customer.name);
-        let amountOfAccount = (0, _currency.default)(receipt.amountOfAccount, Util.getCurrencyDefaults());
-        $('.prior-balance-receipt-group').toggle(!!receipt.amountOfAccount);
-        let rentalAmount = (0, _currency.default)(receipt.rentalAmount, Util.getCurrencyDefaults());
-        let payment = (0, _currency.default)(receipt.thisPayment, Util.getCurrencyDefaults());
-        $('#sale-prior-balance-text').text(Util.format(amountOfAccount.toString()));
-        $('#sale-rental-amount-text').text(Util.format(rentalAmount.toString()));
-        $('#sale-payment-text').text(Util.format(payment.toString()));
-        let balanceDue = amountOfAccount.add(rentalAmount);
-        balanceDue = balanceDue.subtract(payment);
-        $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
-        $('.spots-receipt-group').toggle(spots.length > 0);
-        $('#sale-spots-text').text(spots.map(x => self.getSpotDescription(x)).join(", "));
-        $('.memo-receipt-group').toggle(!!receipt.memo);
-        $('#sale-memo-text').text(receipt.memo);
-        $('#sale-date').prop('disabled', true);
-        $('#sale-vendor').prop('disabled', true);
-        $('#sale-prior-balance').prop('disabled', true);
-        $('#sale-rental-amount').prop('disabled', true);
-        $('#sale-payment').prop('disabled', true);
-        $('#sale-memo').prop('disabled', true);
-        $('#sale-save').prop('disabled', true);
-        $('.spot-input').prop('disabled', true);
-        $('.remove-spot-btn').prop('disabled', true);
-        $('#add-new-spot').prop('disabled', true);
-        $('#scan-vendor').prop('disabled', true);
-        window.print();
+        receiptResult = await new _dataClient.default().post('point-of-sale/receipt', receipt);
       } catch (error) {
         Util.log(error);
 
-        _messageViewController.default.setMessage(JSON.stringify(error), 'alert-danger');
+        _messageViewController.default.setRequestErrorMessage(error);
+
+        return;
       }
+
+      $('#sale-id').text(receiptResult.id);
+      let receiptNumber = receiptResult.invoice ? `I${receiptResult.invoice.Id}` : '';
+
+      for (let payment of receiptResult.payments || []) {
+        receiptNumber += `P${receiptResult.payment.Id}`;
+      }
+
+      $('#receipt-number').text(receiptNumber);
+      let saleBy = `${user.firstName} ${user.lastName}`.trim() || user.email;
+      $('#sale-by').text(saleBy);
+      let timestamp = Moment(receiptResult.timestamp);
+      $('#sale-timestamp').text(timestamp.format('L LT'));
+      $('#sale-date-text').text(receipt.rentalDate);
+      $('#sale-vendor-text').text(receipt.customer.name);
+      let amountOfAccount = (0, _currency.default)(receipt.amountOfAccount, Util.getCurrencyDefaults());
+      $('.prior-balance-receipt-group').toggle(!!receipt.amountOfAccount);
+      let rentalAmount = (0, _currency.default)(receipt.rentalAmount, Util.getCurrencyDefaults());
+      let payment = (0, _currency.default)(receipt.thisPayment, Util.getCurrencyDefaults());
+      $('#sale-prior-balance-text').text(Util.format(amountOfAccount.toString()));
+      $('#sale-rental-amount-text').text(Util.format(rentalAmount.toString()));
+      $('#sale-payment-text').text(Util.format(payment.toString()));
+      let balanceDue = amountOfAccount.add(rentalAmount);
+      balanceDue = balanceDue.subtract(payment);
+      $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
+      $('.spots-receipt-group').toggle(spots.length > 0);
+      $('#sale-spots-text').text(spots.map(x => self.getSpotDescription(x)).join(", "));
+      $('.memo-receipt-group').toggle(!!receipt.memo);
+      $('#sale-memo-text').text(receipt.memo);
+      $('.disable-on-save').prop('disabled', true);
+      $('.spot-input').prop('disabled', true);
+      $('.remove-spot-btn').prop('disabled', true);
+      window.print();
     });
     $('#sale-print').click(function () {
       window.print();
@@ -23898,11 +23864,15 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 
 class AddSpotView {
-  static GetAddSpotView(id, additionalSpot) {
+  static GetAddSpotView(id, additionalSpot, readOnly, spotDescription) {
     return `
-            <div id="${id}" class="row ${additionalSpot ? 'additional-spot' : ''}">
+            <div id="${id}" class="row spot-row">
                 <div class="col-xs-${additionalSpot ? '9' : '12'}">
-                    <input class="form-control spot-input" list="spot-list" />
+                    <input
+                        type="text" value="${spotDescription || ''}"
+                        class="spot-text form-control ${readOnly ? '' : 'spot-input'}"
+                        list="spot-list"
+                        ${readOnly ? `disabled="disabled"` : ''} />
                 </div>
                 ${additionalSpot ? `<div class="col-xs-3">
                     <input type="button" class="remove-spot-btn btn btn-warning" value="Remove Spot" />

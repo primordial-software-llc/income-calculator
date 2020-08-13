@@ -37,7 +37,7 @@ body .form-control {
     margin-bottom: 0;
 }
 
-#spot-container > .additional-spot:not(:first-child) {
+#spot-container > .spot-row:not(:first-child) {
     margin-top: 30px;
 }
 

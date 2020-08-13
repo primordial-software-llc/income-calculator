@@ -36,7 +36,7 @@ export default class PropertyCustomersController {
         $('#payment-frequency').val(customer.paymentFrequency);
         $('#rental-amount').val(customer.rentPrice);
         $('#memo').text(customer.memo);
-        for (let spot of customer.spots) {
+        for (let spot of customer.spots || []) {
             let id = Util.guid();
             $('#spot-container').append(AddSpotView.GetAddSpotView(id, true));
             $(`#${id} .spot-input`).val(self.getSpotDescription(spot));
@@ -102,7 +102,7 @@ export default class PropertyCustomersController {
                 MessageViewController.setMessage('Vendor saved', 'alert-success');
             } catch (error) {
                 Util.log(error);
-                MessageViewController.setMessage(JSON.stringify(error, 0, 4), 'alert-danger');
+                MessageViewController.setRequestErrorMessage(error);
             }
         });
     }

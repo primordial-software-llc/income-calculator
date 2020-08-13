@@ -49,17 +49,17 @@
           <div class="form-group row">
               <label class="col-xs-3 col-form-label col-form-label-lg">Rental Date</label>
               <div class="col-xs-9">
-                  <input id="sale-date" class="form-control" type="date">
+                  <input id="sale-date" class="disable-on-save form-control" type="date">
               </div>
           </div>
           <div class="form-group row">
               <div class="col-xs-3">
                   <label class="col-form-label col-form-label-lg">Vendor</label>
-                  <button class="btn btn-primary" type="button" id="scan-vendor">Scan</button>
+                  <button class="btn btn-primary disable-on-save" type="button" id="scan-vendor">Scan</button>
                   <select class="hide form-control" id="cameras"></select>
               </div>
               <div class="col-xs-9">
-                  <input id="sale-vendor" class="form-control" type="text" list="sale-vendor-list">
+                  <input id="sale-vendor" class="disable-on-save form-control" type="text" list="sale-vendor-list">
                   <datalist id="sale-vendor-list"></datalist>
               </div>
           </div>
@@ -75,14 +75,14 @@
               <div class="col-xs-9">
                   <div class="input-group">
                       <div class="input-group-addon">$</div>
-                      <input id="sale-prior-balance" class="form-control text-right" type="number">
+                      <input id="sale-prior-balance" class="disable-on-save form-control text-right" type="number">
                   </div>
               </div>
           </div>
           <div class="form-group row">
               <div class="col-xs-3">
                   <label class="col-form-label col-form-label-lg">Spot(s)</label>
-                  <input id="add-new-spot" type="button" value="Add Spot" class="btn btn-primary" />
+                  <input id="add-new-spot" type="button" value="Add Spot" class="disable-on-save btn btn-primary" />
               </div>
               <div class="col-xs-9">
                   <datalist id="spot-list"></datalist>
@@ -94,7 +94,7 @@
               <div class="col-xs-9">
                   <div class="input-group">
                       <div class="input-group-addon">$</div>
-                      <input id="sale-rental-amount" class="debit-bg-color form-control text-right" type="number" placeholder="0.00">
+                      <input id="sale-rental-amount" class="disable-on-save debit-bg-color form-control text-right" type="number" placeholder="0.00">
                   </div>
               </div>
           </div>
@@ -103,14 +103,14 @@
               <div class="col-xs-9">
                   <div class="input-group">
                       <div class="input-group-addon">$</div>
-                      <input id="sale-payment" class="credit-bg-color form-control text-right" type="number" placeholder="0.00" />
+                      <input id="sale-payment" class="disable-on-save credit-bg-color form-control text-right" type="number" placeholder="0.00" />
                   </div>
               </div>
           </div>
           <div class="form-group row">
               <label class="col-xs-3 col-form-label col-form-label-lg">Memo</label>
               <div class="col-xs-9">
-                  <textarea id="sale-memo" class="form-control"></textarea>
+                  <textarea id="sale-memo" class="disable-on-save form-control"></textarea>
               </div>
           </div>
           <div class="form-group row">
@@ -125,7 +125,7 @@
                   <div id="invoices"></div>
               </div>
           </div>
-          <input id="sale-save" type="button" value="Save &amp; Print" class="btn btn-primary" />
+          <input id="sale-save" type="button" value="Save &amp; Print" class="disable-on-save btn btn-primary" />
           <input id="sale-print" type="button" value="Print" class="btn btn-primary" />
           <input id="sale-new" type="button" value="New Receipt" class="btn btn-primary" />
       </form>

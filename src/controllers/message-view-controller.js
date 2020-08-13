@@ -3,6 +3,22 @@
     <div id="messageAlert" class="hide alert" role="alert"></div>
  */
 export default class MessageViewController {
+
+    static setRequestErrorMessage(error) {
+        let jsonErrorResponse;
+        try {
+            if (error.response) {
+                jsonErrorResponse = JSON.parse(error.response);
+            }
+        } catch (jsonParseError) {
+            // Not a json response.
+        }
+        let message = jsonErrorResponse && jsonErrorResponse.error
+            ? jsonErrorResponse.error
+            : JSON.stringify(error, 0, 4);
+        this.setMessage(message, 'alert-danger');
+    }
+
     static setMessage(message, messageType, isSingleHtmlMessage) {
         $('#messageAlert').removeClass('alert-danger');
         $('#messageAlert').removeClass('alert-info');
@@ -11,13 +27,13 @@ export default class MessageViewController {
         message = message || '';
         if (Array.isArray(message)) {
             for (let messageItem of message) {
-                console.log(messageItem);
                 $('#messageAlert').append($(`<div>&bull;&nbsp;${messageItem}</div>`));
             }
         } else {
             if (isSingleHtmlMessage) {
                 $('#messageAlert').html(message); // Only use this for static text.
             } else {
+
                 $('#messageAlert').text(message);
             }
         }

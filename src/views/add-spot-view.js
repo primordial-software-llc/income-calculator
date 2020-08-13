@@ -1,9 +1,13 @@
 export default class AddSpotView {
-    static GetAddSpotView(id, additionalSpot) {
+    static GetAddSpotView(id, additionalSpot, readOnly, spotDescription) {
         return `
-            <div id="${id}" class="row ${additionalSpot ? 'additional-spot' : ''}">
+            <div id="${id}" class="row spot-row">
                 <div class="col-xs-${additionalSpot ? '9' : '12'}">
-                    <input class="form-control spot-input" list="spot-list" />
+                    <input
+                        type="text" value="${spotDescription || ''}"
+                        class="spot-text form-control ${readOnly ? '' : 'spot-input' }"
+                        list="spot-list"
+                        ${readOnly ? `disabled="disabled"` : ''} />
                 </div>
                 ${additionalSpot ?
                 `<div class="col-xs-3">

@@ -58,6 +58,11 @@ export default class PropertyPointOfSaleController {
                     alert(JSON.stringify(error) + " " + error);
                     Util.log(error);
                 });
+
+            for (let spot of customer.spots || []) {
+                $('#spot-container').prepend(
+                    AddSpotView.GetAddSpotView(Util.guid(), false, true, this.getSpotDescription(spot)));
+            }
         } else {
             $('#sale-prior-balance').val('');
             $('#sale-payment-frequency').text('');
@@ -166,65 +171,44 @@ export default class PropertyPointOfSaleController {
                 memo: $('#sale-memo').val().trim(),
                 spots: spots
             };
+            let receiptResult;
             try {
-                let receiptResult = await new DataClient().post('point-of-sale/receipt', receipt);
-                if (receiptResult.error) {
-                    MessageViewController.setMessage(receiptResult.error, 'alert-danger');
-                    return;
-                }
-                if (!receiptResult.id) {
-                    Util.log(receiptResult);
-                    MessageViewController.setMessage(JSON.stringify(receiptResult), 'alert-danger');
-                    return;
-                }
-                $('#sale-id').text(receiptResult.id);
-                let receiptNumber = '';
-                if (receiptResult.invoice) {
-                    receiptNumber += `I${receiptResult.invoice.Id}`;
-                }
-                if (receiptResult.paymentAppliedToInvoice) {
-                    receiptNumber += `AP${receiptResult.paymentAppliedToInvoice.Id}`;
-                }
-                if (receiptResult.unappliedPayment) {
-                    receiptNumber += `UP${receiptResult.unappliedPayment.Id}`;
-                }
-                $('#receipt-number').text(receiptNumber);
-                let saleBy = (`${user.firstName} ${user.lastName}`.trim() || user.email);
-                $('#sale-by').text(saleBy);
-                let timestamp = Moment(receiptResult.timestamp);
-                $('#sale-timestamp').text(timestamp.format('L LT'));
-                $('#sale-date-text').text(receipt.rentalDate);
-                $('#sale-vendor-text').text(receipt.customer.name);
-                let amountOfAccount = Currency(receipt.amountOfAccount, Util.getCurrencyDefaults());
-                $('.prior-balance-receipt-group').toggle(!!receipt.amountOfAccount);
-                let rentalAmount = Currency(receipt.rentalAmount, Util.getCurrencyDefaults());
-                let payment = Currency(receipt.thisPayment, Util.getCurrencyDefaults());
-                $('#sale-prior-balance-text').text(Util.format(amountOfAccount.toString()));
-                $('#sale-rental-amount-text').text(Util.format(rentalAmount.toString()));
-                $('#sale-payment-text').text(Util.format(payment.toString()));
-                let balanceDue = amountOfAccount.add(rentalAmount);
-                balanceDue = balanceDue.subtract(payment);
-                $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
-                $('.spots-receipt-group').toggle(spots.length > 0);
-                $('#sale-spots-text').text(spots.map(x => self.getSpotDescription(x)).join(", "));
-                $('.memo-receipt-group').toggle(!!receipt.memo);
-                $('#sale-memo-text').text(receipt.memo);
-                $('#sale-date').prop('disabled', true);
-                $('#sale-vendor').prop('disabled', true);
-                $('#sale-prior-balance').prop('disabled', true);
-                $('#sale-rental-amount').prop('disabled', true);
-                $('#sale-payment').prop('disabled', true);
-                $('#sale-memo').prop('disabled', true);
-                $('#sale-save').prop('disabled', true);
-                $('.spot-input').prop('disabled', true);
-                $('.remove-spot-btn').prop('disabled', true);
-                $('#add-new-spot').prop('disabled', true);
-                $('#scan-vendor').prop('disabled', true);
-                window.print();
+                receiptResult = await new DataClient().post('point-of-sale/receipt', receipt);
             } catch (error) {
-                Util.log(error);
-                MessageViewController.setMessage(JSON.stringify(error), 'alert-danger');
+                Util.log(error)
+                MessageViewController.setRequestErrorMessage(error);
+                return;
             }
+            $('#sale-id').text(receiptResult.id);
+            let receiptNumber = receiptResult.invoice ? `I${receiptResult.invoice.Id}` : '';
+            for (let payment of receiptResult.payments || []) {
+                receiptNumber += `P${receiptResult.payment.Id}`;
+            }
+            $('#receipt-number').text(receiptNumber);
+            let saleBy = (`${user.firstName} ${user.lastName}`.trim() || user.email);
+            $('#sale-by').text(saleBy);
+            let timestamp = Moment(receiptResult.timestamp);
+            $('#sale-timestamp').text(timestamp.format('L LT'));
+            $('#sale-date-text').text(receipt.rentalDate);
+            $('#sale-vendor-text').text(receipt.customer.name);
+            let amountOfAccount = Currency(receipt.amountOfAccount, Util.getCurrencyDefaults());
+            $('.prior-balance-receipt-group').toggle(!!receipt.amountOfAccount);
+            let rentalAmount = Currency(receipt.rentalAmount, Util.getCurrencyDefaults());
+            let payment = Currency(receipt.thisPayment, Util.getCurrencyDefaults());
+            $('#sale-prior-balance-text').text(Util.format(amountOfAccount.toString()));
+            $('#sale-rental-amount-text').text(Util.format(rentalAmount.toString()));
+            $('#sale-payment-text').text(Util.format(payment.toString()));
+            let balanceDue = amountOfAccount.add(rentalAmount);
+            balanceDue = balanceDue.subtract(payment);
+            $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
+            $('.spots-receipt-group').toggle(spots.length > 0);
+            $('#sale-spots-text').text(spots.map(x => self.getSpotDescription(x)).join(", "));
+            $('.memo-receipt-group').toggle(!!receipt.memo);
+            $('#sale-memo-text').text(receipt.memo);
+            $('.disable-on-save').prop('disabled', true);
+            $('.spot-input').prop('disabled', true);
+            $('.remove-spot-btn').prop('disabled', true);
+            window.print();
         });
         $('#sale-print').click(function () {
             window.print();
