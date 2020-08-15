@@ -201,7 +201,10 @@ export default class PropertyPointOfSaleController {
             let balanceDue = amountOfAccount.add(rentalAmount);
             balanceDue = balanceDue.subtract(payment);
             $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
-            let allSpots = (customerMatch.spots || []).concat(spots);
+            let allSpots = spots;
+            if (customerMatch && customerMatch.spots) {
+                allSpots = customerMatch.spots.concat(allSpots);
+            }
             $('.spots-receipt-group').toggle(allSpots.length > 0);
             $('#sale-spots-text').text(allSpots.map(x => self.getSpotDescription(x)).join(", "));
             $('.memo-receipt-group').toggle(!!receipt.memo);
