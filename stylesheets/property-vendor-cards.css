@@ -1,0 +1,37 @@
+body .property-nav .property-nav-item {
+    margin-left: 20px;
+    margin-right: 20px;
+    color: blue;
+    text-decoration: underline;
+    font-size: 36px;
+}
+
+body label.col-form-label-lg,
+.input-group-addon,
+body textarea.form-control,
+body input.form-control,
+body #input-form  {
+    font-size: 30px;
+}
+body .form-control {
+    height: 50px;
+}
+.card-header {
+    font-size: 10px;
+}
+.card-container {
+    width: 900px;
+    background-color: white;
+}
+.card {
+    padding: 10px;
+    padding-top: 15px;
+    border: 1px dotted black;
+    height: 387px;
+    max-height: 400px;
+    max-width: 250px;
+}
+.vendor-description {
+    font-size: 18px;
+    font-weight: bold;
+}

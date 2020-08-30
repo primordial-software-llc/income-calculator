@@ -6,35 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
     <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/property-vendor-cards.css">
     <title>Net Income Calculator</title>
     <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
     <script type="text/javascript" src="../app.bundle.js"></script>
     <script type="text/javascript" src="../javascript/html-5-qrcode.js"></script>
-    <style type="text/css">
-      .card-header {
-        font-size: 10px;
-      }
-      .card-container {
-        width: 900px;
-      }
-      .card {
-        padding: 10px;
-        padding-top: 15px;
-        border: 1px dotted black;
-        height: 393px;
-        max-height: 400px;
-        max-width: 250px;
-      }
-      .vendor-description {
-        font-size: 18px;
-        font-weight: bold;
-      }
-    </style>
   </head>
-  <body class="container-fluid">
-
-
-
+  <body class="container-fluid bg-color-imago-light-gray">
+    <div class="no-print property-nav p-15">
+      <a class="property-nav-item" href="property-point-of-sale.html">Receipts</a>
+      <a class="property-nav-item" href="property-customer-balances.html">Balances</a>
+      <a class="property-nav-item" href="property-customers.html">Vendors</a>
+      <a class="property-nav-item" href="property-spots.html">Spots</a>
+      <a class="property-nav-item" href="qr-test.html">Cards</a>
+    </div>
+    <form id="input-form" class="p-15 form no-print">
+      <div class="form-group row">
+        <div class="col-xs-3">
+          <label class="col-form-label col-form-label-lg">Vendor</label>
+          <select class="hide form-control" id="cameras"></select>
+        </div>
+        <div class="col-xs-9">
+          <input id="vendor" class="disable-on-save form-control" type="text" list="sale-vendor-list">
+          <datalist id="sale-vendor-list"></datalist>
+        </div>
+      </div>
+    </form>
   </body>
 </html>

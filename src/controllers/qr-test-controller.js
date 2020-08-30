@@ -3,7 +3,7 @@ import DataClient from '../data-client';
 const Util = require('../util');
 const QRCode = require('qrcode');
 
-export default class PropertyPointOfSaleController {
+export default class QrTestController {
     static getName() {
         return 'QR Test';
     }
@@ -43,19 +43,42 @@ export default class PropertyPointOfSaleController {
                 </div>
             </div>`;
     }
+    getCustomer(customerDescription) {
+        return this.customers.find(x =>
+            CustomerDescription.getCustomerDescription(x).toLowerCase().replace(/\s+/g, " ") ===
+            customerDescription.toLowerCase().replace(/\s+/g, " ")); // Data list and input automatically replace multiple whitespaces with a single white space
+    }
     async init(user) {
+        let self = this;
         this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
-        for (let vendor of this.customers) {
-            let customer1 = await this.getCardView(vendor, 'Owner');
-            let customer2 = await this.getCardView(vendor, 'Employee');
-            let customer3 = await this.getCardView(vendor, 'Employee');
+        for (let customer of this.customers) {
+            $('#sale-vendor-list').append(`<option>${CustomerDescription.getCustomerDescription(customer)}</option>`);
+        }
+        $("#vendor").on('input', async function () {
+            let customer = self.getCustomer(this.value);
+            if (!customer) {
+                return;
+            }
+            let ownerView = await self.getCardView(customer, 'Owner');
+            let employeeView = await self.getCardView(customer, 'Employee');
+            $('.card-container').remove();
             $('body').append(`
-                <div class="card-container row table-header-row">
-                  <div class="col-xs-4">${customer1}</div>
-                  <div class="col-xs-4">${customer2}</div>
-                  <div class="col-xs-4">${customer3}</div>
+                <div class="card-container row text-center">
+                  <div class="col-xs-4">${ownerView}</div>
+                  <div class="col-xs-4">${employeeView}</div>
+                  <div class="col-xs-4">${employeeView}</div>
+                </div>
+                <div class="card-container row text-center">
+                  <div class="col-xs-4">${employeeView}</div>
+                  <div class="col-xs-4">${employeeView}</div>
+                  <div class="col-xs-4">${employeeView}</div>
+                </div>
+                <div class="card-container row text-center">
+                  <div class="col-xs-4">${employeeView}</div>
+                  <div class="col-xs-4">${employeeView}</div>
+                  <div class="col-xs-4">${employeeView}</div>
                 </div>
             `);
-        }
+        });
     }
 }
