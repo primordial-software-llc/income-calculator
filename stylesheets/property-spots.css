@@ -13,3 +13,13 @@ body .property-nav .property-nav-item {
 .spot-open {
     background-color: #ccffb6;;
 }
+
+.spot-row-container {
+    display: flex;
+}
+
+.spot-cell {
+    width: 50%;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}

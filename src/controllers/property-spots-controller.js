@@ -32,7 +32,50 @@ export default class PropertySpotsController {
             return vendor;
         }
     }
+    getRow(firstSpot, spots) {
+        let row = [];
+        if (!firstSpot) {
+            return row;
+        }
+        let currentSpot = firstSpot;
+        do {
+            row.push(currentSpot);
+            currentSpot = spots.find(x => x.id === currentSpot.right);
+        } while(currentSpot);
+        return row;
+    }
+    getSectionView(section) {
+        let sectionId = `spot-container-${section.id}`;
+        let sectionView = $(`<div id="${sectionId}">${section.name}</div>`);
+        let sectionSpots = this.spots.filter(x => (x.section == null ? '' : x.section.id) === section.id);
+
+        let leftSpot = sectionSpots.find(x => x.name === '79');
+        if (!leftSpot) {
+            return sectionView;
+        }
+        do {
+            let rowOfSpots = this.getRow(leftSpot, sectionSpots);
+
+            let rowOfSpotsContainer = $(`<div class="spot-row-container"></div>`);
+            for (let spot of rowOfSpots) {
+                let spotDescription = spot.name;
+                let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
+                if (reservedByVendor) {
+                    spotDescription += ` - ${CustomerDescription.getCustomerDescription(reservedByVendor)}`;
+                }
+                rowOfSpotsContainer.append(`
+                    <div class="spot-cell ${reservedByVendor ? 'spot-reserved' : 'spot-open'}">
+                        <div>${spotDescription}</div>
+                    </div>`);
+            }
+            sectionView.append(rowOfSpotsContainer);
+
+            leftSpot = sectionSpots.find(x => x.id === leftSpot.bottom);
+        } while (leftSpot);
+        return sectionView;
+    }
     async init(user) {
+        let self = this;
         let date = Moment();
         let diff = (7 - date.day() + 7) % 7;
         date.add(diff, 'day');
@@ -42,7 +85,7 @@ export default class PropertySpotsController {
         try {
             let promiseResults = await Promise.all([
                 dataClient.get('point-of-sale/customer-payment-settings'),
-                dataClient.get('point-of-sale/spots?cache-level=cache-everything'),
+                dataClient.get('point-of-sale/spots'),//?cache-level=cache-everything'),
                 dataClient.get(`point-of-sale/spot-reservations?rentalDate=${encodeURIComponent($('#rental-date').val())}`)
             ]);
             this.customers = promiseResults[0];
@@ -60,26 +103,18 @@ export default class PropertySpotsController {
             let spotSection = this.spots.find(x => (x.section == null ? '' : x.section.id) === sectionId);
             if (spotSection) {
                 sections.push(spotSection.section);
+                $('#section-list').append(`
+                    <option data-section-id="${spotSection.section.id}">
+                        ${spotSection.section.name}
+                    </option>`);
             }
         }
-
-        for (let section of sections) {
-            let sectionId = `spot-container-${section.id}`;
-            $('#spot-sections-container').append(`<div id="${sectionId}">${section.name}</div>`);
-            let sectionSpots = this.spots.filter(x => (x.section == null ? '' : x.section.id) === section.id);
-            for (let spot of sectionSpots) {
-                let spotDescription = spot.name;
-                let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
-                if (reservedByVendor) {
-                    spotDescription += ` - ${CustomerDescription.getCustomerDescription(reservedByVendor)}`;
-                }
-                $(`#${sectionId}`).append(`
-                    <div class="${reservedByVendor ? 'spot-open' : 'spot-reserved'}">
-                        ${spotDescription}
-                    </div>`);
-            }
-        }
-
+        $('#section-list').change(function () {
+            let sectionId = $("option:selected", this).data('section-id');
+            let section = sections.find(x => x.id === sectionId);
+            $('#spot-sections-container').empty();
+            $('#spot-sections-container').append(self.getSectionView(section));
+        });
+        $('#section-list').trigger('change');
     }
-
 }
