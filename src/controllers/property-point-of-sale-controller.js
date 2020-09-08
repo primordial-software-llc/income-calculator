@@ -59,6 +59,7 @@ export default class PropertyPointOfSaleController {
                     Util.log(error);
                 });
 
+            $('#spot-container').empty();
             for (let spot of customer.spots || []) {
                 $('#spot-container').prepend(
                     AddSpotView.GetAddSpotView(Util.guid(), false, true, this.getSpotDescription(spot)));

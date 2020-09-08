@@ -49,7 +49,10 @@ export default class PropertySpotsController {
         let sectionView = $(`<div id="${sectionId}">${section.name}</div>`);
         let sectionSpots = this.spots.filter(x => (x.section == null ? '' : x.section.id) === section.id);
 
-        let leftSpot = sectionSpots.find(x => x.name === '79');
+        let leftSpot = sectionSpots.find(x =>
+            x.name === '79' ||
+            x.name === '37' ||
+            x.name === '119');
         if (!leftSpot) {
             return sectionView;
         }
