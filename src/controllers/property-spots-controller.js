@@ -61,21 +61,50 @@ export default class PropertySpotsController {
 
             let rowOfSpotsContainer = $(`<div class="spot-row-container"></div>`);
             for (let spot of rowOfSpots) {
-                let spotDescription = spot.name;
-                let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
-                if (reservedByVendor) {
-                    spotDescription += ` - ${CustomerDescription.getCustomerDescription(reservedByVendor)}`;
-                }
-                rowOfSpotsContainer.append(`
-                    <div class="spot-cell ${reservedByVendor ? 'spot-reserved' : 'spot-open'}">
-                        <div>${spotDescription}</div>
-                    </div>`);
+                rowOfSpotsContainer.append(this.getSpotView(spot));
             }
             sectionView.append(rowOfSpotsContainer);
 
             leftSpot = sectionSpots.find(x => x.id === leftSpot.bottom);
         } while (leftSpot);
         return sectionView;
+    }
+    getSpotView(spot) {
+        let spotDescription = spot.name;
+        let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
+        if (reservedByVendor) {
+            spotDescription += ` - ${CustomerDescription.getCustomerDescription(reservedByVendor)}`;
+        }
+        // spot-edit-btn
+        return `                
+                <div class="spot-cell">
+                    <div class="${reservedByVendor ? 'spot-reserved' : 'spot-open'}">
+                        <div>
+                            ${spotDescription}
+                            <input type="button" class="btn btn-primary spot-edit-btn" value="Edit" />
+                        </div>
+                    </div>
+                    <div>
+                    <form id="input-form" class="p-15 form">
+                        <div class="form-group row">
+                            <label class="col-xs-3 col-form-label col-form-label-lg">Bottom</label>
+                            <div class="col-xs-9">
+                                <select class="form-control spot-bottom"></select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-xs-3 col-form-label col-form-label-lg">Right</label>
+                            <div class="col-xs-9">
+                                <select class="form-control spot-right"></select>
+                            </div>
+                        </div>
+                    </form>
+
+                        
+                        
+                        
+                    </div>
+                </div>`;
     }
     async init(user) {
         let self = this;
