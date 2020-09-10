@@ -23,3 +23,7 @@ body .property-nav .property-nav-item {
     border-right: 1px solid black;
     border-bottom: 1px solid black;
 }
+
+.spot-cell-inner {
+    height: 40px;
+}

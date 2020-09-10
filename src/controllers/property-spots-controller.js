@@ -38,36 +38,102 @@ export default class PropertySpotsController {
             return row;
         }
         let currentSpot = firstSpot;
+        let ct = 1;
         do {
             row.push(currentSpot);
             currentSpot = spots.find(x => x.id === currentSpot.right);
+            ct += 1;
+            if (ct > 1000) {
+                break; // Sanity check for loops.
+            }
         } while(currentSpot);
         return row;
+    }
+    getTopLeftSpotIds() {
+        return [
+            'ad0b0efe-52fe-43f6-b2ac-a2c2b3537440', // 79
+            '50ff2d87-2a87-4934-a20b-cd4c668c85c9', // 119
+            'dc30099b-e56d-4b16-b691-77c01fcb54d3' // 38
+        ];
     }
     getSectionView(section) {
         let sectionId = `spot-container-${section.id}`;
         let sectionView = $(`<div id="${sectionId}">${section.name}</div>`);
         let sectionSpots = this.spots.filter(x => (x.section == null ? '' : x.section.id) === section.id);
-
-        let leftSpot = sectionSpots.find(x =>
-            x.name === '79' ||
-            x.name === '37' ||
-            x.name === '119');
+        let leftSpot = sectionSpots.find(x => this.getTopLeftSpotIds().find(y => x.id === y));
         if (!leftSpot) {
             return sectionView;
         }
+        let ct = 1;
         do {
             let rowOfSpots = this.getRow(leftSpot, sectionSpots);
 
             let rowOfSpotsContainer = $(`<div class="spot-row-container"></div>`);
             for (let spot of rowOfSpots) {
-                rowOfSpotsContainer.append(this.getSpotView(spot));
+                let spotView = $(this.getSpotView(spot));
+                this.initSpotView(spotView, spot, section, sectionSpots);
+                rowOfSpotsContainer.append(spotView);
             }
             sectionView.append(rowOfSpotsContainer);
 
             leftSpot = sectionSpots.find(x => x.id === leftSpot.bottom);
+            ct += 1;
+            if (ct > 1000) {
+                break; // Sanity check for loops.
+            }
         } while (leftSpot);
         return sectionView;
+    }
+    initSpotView(spotView, spot, section, sectionSpots) {
+        let self = this;
+        spotView.find('.spot-edit-btn').click(function() {
+            spotView.find('.form').removeClass('hide');
+        });
+        let availableBottomSpots = sectionSpots.filter(x =>
+            !sectionSpots.find(y => x.id === y.bottom) &&
+            !sectionSpots.find(y => x.id === y.right) &&
+            !this.getTopLeftSpotIds().find(y => x.id === y)
+        );
+        let availableRightSpots = availableBottomSpots.slice();
+        let bottomIndex = 0;
+        let rightIndex = 0;
+        if (spot.bottom) {
+            availableBottomSpots.push(sectionSpots.find(x => x.id === spot.bottom));
+            bottomIndex = availableBottomSpots.findIndex(x => x.id == spot.bottom) + 1;
+        }
+        if (spot.right) {
+            availableRightSpots.push(sectionSpots.find(x => x.id === spot.right));
+            rightIndex = availableRightSpots.findIndex(x => x.id == spot.right) + 1;
+        }
+        spotView.find('.spot-cancel').click(function() {
+            spotView.find('.spot-bottom').prop('selectedIndex', bottomIndex);
+            spotView.find('.spot-right').prop('selectedIndex', rightIndex);
+            spotView.find('.form').addClass('hide');
+        });
+        spotView.find('.spot-save').click(async function() {
+            let dataClient = new DataClient();
+            let patch = {
+                id: spot.id,
+                bottom: spotView.find('.spot-bottom').val(),
+                right: spotView.find('.spot-right').val()
+            };
+            let updatedSpot = await dataClient.patch('point-of-sale/spot', patch);
+            let spotIndex = self.spots.findIndex(x => x.id === updatedSpot.id);
+            self.spots[spotIndex] = updatedSpot;
+            spotView.find('.form').addClass('hide');
+            $('#section-list').trigger('change');
+        });
+        spotView.find('.spot-bottom').append(`<option value="">Select a Spot</option>`);
+        spotView.find('.spot-right').append(`<option value="">Select a Spot</option>`);
+
+        for (let spot of availableBottomSpots) {
+            spotView.find('.spot-bottom').append(`<option value="${spot.id}">${section.name} - ${spot.name}</option>`);
+        }
+        for (let spot of availableRightSpots) {
+            spotView.find('.spot-right').append(`<option value="${spot.id}">${section.name} - ${spot.name}</option>`);
+        }
+        spotView.find('.spot-bottom').prop('selectedIndex', bottomIndex);
+        spotView.find('.spot-right').prop('selectedIndex', rightIndex);
     }
     getSpotView(spot) {
         let spotDescription = spot.name;
@@ -75,17 +141,17 @@ export default class PropertySpotsController {
         if (reservedByVendor) {
             spotDescription += ` - ${CustomerDescription.getCustomerDescription(reservedByVendor)}`;
         }
-        // spot-edit-btn
         return `                
                 <div class="spot-cell">
-                    <div class="${reservedByVendor ? 'spot-reserved' : 'spot-open'}">
-                        <div>
-                            ${spotDescription}
-                            <input type="button" class="btn btn-primary spot-edit-btn" value="Edit" />
+                    <div class="${reservedByVendor ? 'spot-reserved' : 'spot-open'} spot-cell-inner">
+                        <div class="row">
+                            <div class="col-xs-10">${spotDescription}</div>
+                            <div class="col-xs-2">
+                                <input type="button" class="btn btn-default spot-edit-btn" value="Edit" />
+                            </div>
                         </div>
                     </div>
-                    <div>
-                    <form id="input-form" class="p-15 form">
+                    <form class="p-15 form hide">
                         <div class="form-group row">
                             <label class="col-xs-3 col-form-label col-form-label-lg">Bottom</label>
                             <div class="col-xs-9">
@@ -98,12 +164,11 @@ export default class PropertySpotsController {
                                 <select class="form-control spot-right"></select>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <input type="button" class="btn btn-default spot-cancel" value="Cancel" />
+                            <input type="button" class="btn btn-primary spot-save" value="Save" />
+                        </div>
                     </form>
-
-                        
-                        
-                        
-                    </div>
                 </div>`;
     }
     async init(user) {
@@ -117,7 +182,7 @@ export default class PropertySpotsController {
         try {
             let promiseResults = await Promise.all([
                 dataClient.get('point-of-sale/customer-payment-settings'),
-                dataClient.get('point-of-sale/spots'),//?cache-level=cache-everything'),
+                dataClient.get('point-of-sale/spots'),
                 dataClient.get(`point-of-sale/spot-reservations?rentalDate=${encodeURIComponent($('#rental-date').val())}`)
             ]);
             this.customers = promiseResults[0];
