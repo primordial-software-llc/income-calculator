@@ -44,7 +44,7 @@ export default class PropertySpotsController {
             currentSpot = spots.find(x => x.id === currentSpot.right);
             ct += 1;
             if (ct > 1000) {
-                break; // Sanity check for loops.
+                break; // Sanity check for loops, because I have no validation.
             }
         } while(currentSpot);
         return row;
@@ -75,7 +75,6 @@ export default class PropertySpotsController {
                 rowOfSpotsContainer.append(spotView);
             }
             sectionView.append(rowOfSpotsContainer);
-
             leftSpot = sectionSpots.find(x => x.id === leftSpot.bottom);
             ct += 1;
             if (ct > 1000) {
@@ -139,7 +138,9 @@ export default class PropertySpotsController {
         let spotDescription = spot.name;
         let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
         if (reservedByVendor) {
-            spotDescription += ` - ${CustomerDescription.getCustomerDescription(reservedByVendor)}`;
+            spotDescription += ` - <a href="/pages/property-customer-edit.html?id=${reservedByVendor.id}">
+                                       ${CustomerDescription.getCustomerDescription(reservedByVendor)}
+                                   </a>`;
         }
         return `                
                 <div class="spot-cell">

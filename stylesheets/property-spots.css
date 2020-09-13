@@ -27,3 +27,8 @@ body .property-nav .property-nav-item {
 .spot-cell-inner {
     height: 40px;
 }
+
+.spot-cell a {
+    color: black;
+    text-decoration: underline;
+}
