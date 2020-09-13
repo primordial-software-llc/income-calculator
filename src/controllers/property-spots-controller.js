@@ -53,7 +53,22 @@ export default class PropertySpotsController {
         return [
             'ad0b0efe-52fe-43f6-b2ac-a2c2b3537440', // 79
             '50ff2d87-2a87-4934-a20b-cd4c668c85c9', // 119
-            'dc30099b-e56d-4b16-b691-77c01fcb54d3' // 38
+            'dc30099b-e56d-4b16-b691-77c01fcb54d3', // 38
+            '916250b8-505c-4fae-87a8-e119cdc46826', // 159
+            'a015cb31-e6b3-449f-8be9-fd0a872cc32f', // 199
+            '51e6c980-81e4-4f7a-804d-a414875a82a4', // 239
+            '16916bcb-cb22-436e-9b77-86697a397a25', // Field A 8
+            '5407aaae-46cd-4f69-af83-b9665b644cef', // Field B 8
+            '92c4e679-ba81-4753-a5e7-a65b4909c50b', // Field C 8
+            '8dc98089-a238-4f98-ace8-b8c8f20b8016', // Field D 8
+            '8a1d2523-fe4c-401e-881a-d21f20cd8de7', // Field E 8
+            'f898bf04-800f-4711-9b01-cac1a21144f7', // Field F 8
+            'b10ccdcc-b4cb-4e36-b30d-393cc7569143', // Field G 8
+            'ba8433fe-a4de-4d4e-b5f0-7fba36f1aed4', // Field H 6
+            'dc14c447-3c85-49c1-9461-ad297cae527c', // Field I 11
+            'ddfc99bd-cb85-498a-bdc5-e12009863c84', // Field J 11
+            'bedc11c1-babb-4756-8a8f-b1842d40af71', // Field K
+            'c73598a4-fd0a-42a7-a787-20d327e23b64'  // Field L 12
         ];
     }
     getSectionView(section) {
@@ -143,8 +158,8 @@ export default class PropertySpotsController {
                                    </a>`;
         }
         return `                
-                <div class="spot-cell">
-                    <div class="${reservedByVendor ? 'spot-reserved' : 'spot-open'} spot-cell-inner">
+                <div class="spot-cell ${reservedByVendor ? 'spot-reserved' : 'spot-open'}">
+                    <div class="spot-cell-inner">
                         <div class="row">
                             <div class="col-xs-10">${spotDescription}</div>
                             <div class="col-xs-2">
