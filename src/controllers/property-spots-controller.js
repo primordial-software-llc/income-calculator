@@ -57,6 +57,7 @@ export default class PropertySpotsController {
             '916250b8-505c-4fae-87a8-e119cdc46826', // 159
             'a015cb31-e6b3-449f-8be9-fd0a872cc32f', // 199
             '51e6c980-81e4-4f7a-804d-a414875a82a4', // 239
+            '7cbad948-f2f1-4930-8dd6-f930f7df4518', // 279
             '16916bcb-cb22-436e-9b77-86697a397a25', // Field A 8
             '5407aaae-46cd-4f69-af83-b9665b644cef', // Field B 8
             '92c4e679-ba81-4753-a5e7-a65b4909c50b', // Field C 8
