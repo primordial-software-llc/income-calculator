@@ -69,7 +69,7 @@ export default class PropertySpotsController {
             'dc14c447-3c85-49c1-9461-ad297cae527c', // Field I 11
             'ddfc99bd-cb85-498a-bdc5-e12009863c84', // Field J 11
             'bedc11c1-babb-4756-8a8f-b1842d40af71', // Field K
-            'c73598a4-fd0a-42a7-a787-20d327e23b64'  // Field L 12
+            'd7a1fe03-721f-47f0-b55d-e00944023398'  // Field L 1
         ];
     }
     getSectionView(section) {
