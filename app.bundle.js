@@ -23179,7 +23179,7 @@ class PropertySpotsController {
     'ba8433fe-a4de-4d4e-b5f0-7fba36f1aed4', // Field H 6
     'dc14c447-3c85-49c1-9461-ad297cae527c', // Field I 11
     'ddfc99bd-cb85-498a-bdc5-e12009863c84', // Field J 11
-    'bedc11c1-babb-4756-8a8f-b1842d40af71', // Field K
+    '63f53ee9-37af-402a-b346-c574bfcca0e3', // Field K 1
     'd7a1fe03-721f-47f0-b55d-e00944023398' // Field L 1
     ];
   }
@@ -23313,6 +23313,7 @@ class PropertySpotsController {
   }
 
   async init(user) {
+    $('.spot-edit-btn').hide();
     let self = this;
     let date = (0, _moment.default)();
     let diff = (7 - date.day() + 7) % 7;
@@ -23356,6 +23357,9 @@ class PropertySpotsController {
       $('#spot-sections-container').append(self.getSectionView(section));
     });
     $('#section-list').trigger('change');
+    $('#edit-map-btn').click(function () {
+      $('.spot-edit-btn').show();
+    });
   }
 
 }
