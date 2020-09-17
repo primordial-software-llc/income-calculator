@@ -27,7 +27,12 @@ export default class PropertyPointOfSaleController {
         $('#sale-memo').prop('disabled', false).val('');
     }
     getSpotDescription(spot) {
-        return `${spot.section.name} - ${spot.name}`;
+        let description = '';
+        if (spot.section) {
+            description += spot.section.name + ' - ';
+        }
+        description += spot.name;
+        return description;
     }
     getSpot(spotDescription) {
         return this.spots.find(x => this.getSpotDescription(x).toLowerCase() === spotDescription.toLowerCase());

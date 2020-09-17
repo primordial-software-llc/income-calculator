@@ -22563,7 +22563,14 @@ class PropertyCustomersController {
   }
 
   getSpotDescription(spot) {
-    return `${spot.section.name} - ${spot.name}`;
+    let description = '';
+
+    if (spot.section) {
+      description += spot.section.name + ' - ';
+    }
+
+    description += spot.name;
+    return description;
   }
 
   getSpot(spotDescription) {
@@ -22856,7 +22863,14 @@ class PropertyPointOfSaleController {
   }
 
   getSpotDescription(spot) {
-    return `${spot.section.name} - ${spot.name}`;
+    let description = '';
+
+    if (spot.section) {
+      description += spot.section.name + ' - ';
+    }
+
+    description += spot.name;
+    return description;
   }
 
   getSpot(spotDescription) {

@@ -15,7 +15,12 @@ export default class PropertyCustomersController {
         return true;
     }
     getSpotDescription(spot) {
-        return `${spot.section.name} - ${spot.name}`;
+        let description = '';
+        if (spot.section) {
+            description += spot.section.name + ' - ';
+        }
+        description += spot.name;
+        return description;
     }
     getSpot(spotDescription) {
         return this.spots.find(x => this.getSpotDescription(x).toLowerCase() === spotDescription.toLowerCase());
