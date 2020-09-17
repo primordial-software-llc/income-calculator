@@ -6,6 +6,20 @@ body .property-nav .property-nav-item {
     font-size: 36px;
 }
 
+#spot-sections-container-outer {
+    overflow-x: scroll;
+
+}
+
+#spot-sections-container {
+    display: flex;
+    flex-flow: row;
+}
+
+.spot-container {
+    border: 1px solid black;
+}
+
 .spot-reserved {
     background-color: #ffcccc;
 }
@@ -19,16 +33,37 @@ body .property-nav .property-nav-item {
 }
 
 .spot-cell {
-    width: 50%;
     border-right: 1px solid black;
     border-bottom: 1px solid black;
 }
 
 .spot-cell-inner {
     height: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 300px;
+}
+
+.spot-cell-inner.field {
+    height: 103px;
 }
 
 .spot-cell a {
     color: black;
     text-decoration: underline;
+}
+
+.spot-edit-btn {
+    margin-left: 10px;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.edit-mode .spot-cell-inner {
+    width: 600px;
+}
+
+.edit-mode .spot-edit-btn {
+    display: block;
 }

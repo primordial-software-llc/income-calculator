@@ -1,5 +1,5 @@
 import AccountSettingsController from './account-settings-controller';
-import CustomerDescription from '../customer-description';
+import SpotView from '../views/property-spots/spot-view';
 import DataClient from '../data-client';
 import MessageViewController from './message-view-controller';
 import Moment from 'moment/moment';
@@ -65,16 +65,16 @@ export default class PropertySpotsController {
             '8a1d2523-fe4c-401e-881a-d21f20cd8de7', // Field E 8
             'f898bf04-800f-4711-9b01-cac1a21144f7', // Field F 8
             'b10ccdcc-b4cb-4e36-b30d-393cc7569143', // Field G 8
-            'ba8433fe-a4de-4d4e-b5f0-7fba36f1aed4', // Field H 6
-            'dc14c447-3c85-49c1-9461-ad297cae527c', // Field I 11
-            'ddfc99bd-cb85-498a-bdc5-e12009863c84', // Field J 11
+            'e3820f9e-e4ad-4aa9-8945-1501449ff0ba', // Field H 8 - North Walkway
+            '8d10b86c-3dc4-4707-9769-3793dbb7ba33', // Field I 1
+            'a616f0c7-93c5-4436-9a4f-ac9feb7e9c89', // Field J 1
             '63f53ee9-37af-402a-b346-c574bfcca0e3', // Field K 1
             'd7a1fe03-721f-47f0-b55d-e00944023398'  // Field L 1
         ];
     }
     getSectionView(section) {
         let sectionId = `spot-container-${section.id}`;
-        let sectionView = $(`<div id="${sectionId}">${section.name}</div>`);
+        let sectionView = $(`<div class="spot-container" id="${sectionId}">${section.name}</div>`);
         let sectionSpots = this.spots.filter(x => (x.section == null ? '' : x.section.id) === section.id);
         let leftSpot = sectionSpots.find(x => this.getTopLeftSpotIds().find(y => x.id === y));
         if (!leftSpot) {
@@ -83,10 +83,10 @@ export default class PropertySpotsController {
         let ct = 1;
         do {
             let rowOfSpots = this.getRow(leftSpot, sectionSpots);
-
             let rowOfSpotsContainer = $(`<div class="spot-row-container"></div>`);
             for (let spot of rowOfSpots) {
-                let spotView = $(this.getSpotView(spot));
+                let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
+                let spotView = $(SpotView.getSpotView(spot, reservedByVendor));
                 this.initSpotView(spotView, spot, section, sectionSpots);
                 rowOfSpotsContainer.append(spotView);
             }
@@ -136,11 +136,10 @@ export default class PropertySpotsController {
             let spotIndex = self.spots.findIndex(x => x.id === updatedSpot.id);
             self.spots[spotIndex] = updatedSpot;
             spotView.find('.form').addClass('hide');
-            $('#section-list').trigger('change');
+            self.buildMap();
         });
         spotView.find('.spot-bottom').append(`<option value="">Select a Spot</option>`);
         spotView.find('.spot-right').append(`<option value="">Select a Spot</option>`);
-
         for (let spot of availableBottomSpots) {
             spotView.find('.spot-bottom').append(`<option value="${spot.id}">${section.name} - ${spot.name}</option>`);
         }
@@ -150,43 +149,53 @@ export default class PropertySpotsController {
         spotView.find('.spot-bottom').prop('selectedIndex', bottomIndex);
         spotView.find('.spot-right').prop('selectedIndex', rightIndex);
     }
-    getSpotView(spot) {
-        let spotDescription = spot.name;
-        let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
-        if (reservedByVendor) {
-            spotDescription += ` - <a href="/pages/property-customer-edit.html?id=${reservedByVendor.id}">
-                                       ${CustomerDescription.getCustomerDescription(reservedByVendor)}
-                                   </a>`;
+    buildMap() {
+        $('#spot-sections-container').empty();
+        let fieldL = this.sections.find(x => x.id === '3408b26a-b7ed-4e76-8a42-9b574181afae');
+        let fieldK = this.sections.find(x => x.id === 'e8651c71-e5dd-4706-a18c-d2ee0e0da00c');
+        let fieldJ = this.sections.find(x => x.id === '596c8ac6-ebf9-4438-9973-4a516288d7b9');
+        let fieldI = this.sections.find(x => x.id === '2d2fa812-3bcb-4955-9a7c-63922e7392fa');
+        let fieldH = this.sections.find(x => x.id === '47afac0b-67c2-4807-a88d-3ea9e1775661');
+        let fieldG = this.sections.find(x => x.id === 'acddb4d0-1983-46b4-8d3c-e390f070bf0c');
+        let fieldF = this.sections.find(x => x.id === 'cd7587ed-e3f5-4e81-b512-881a67f57ab8');
+        let fieldE = this.sections.find(x => x.id === '469c1c7c-f2f9-4c64-9857-8567821b8adf');
+        let fieldD = this.sections.find(x => x.id === 'dc55ee40-e618-4016-9ec3-b003d8e8fe52');
+        let fieldC = this.sections.find(x => x.id === '2f62d887-39f4-44b7-92a2-4fd9bbecd423');
+        let fieldB = this.sections.find(x => x.id === '3c27b448-514c-4d4b-bdd5-def1414e8d3b');
+        let fieldA = this.sections.find(x => x.id === '96be73ae-cd0e-49ce-8dd2-ccf02fba1c30');
+        let building7 = this.sections.find(x => x.id === 'ebb0a82e-b8fd-46a3-a4af-f49398f82477');
+
+        fieldL.right = fieldK.id
+        fieldK.right = fieldJ.id;
+        fieldJ.right = fieldI.id;
+        fieldI.right = fieldH.id;
+        fieldH.right = fieldG.id;
+        fieldG.right = fieldF.id;
+        fieldF.right = fieldE.id;
+        fieldE.right = fieldD.id;
+        fieldD.right = fieldC.id;
+        fieldC.right = fieldB.id;
+        fieldB.right = fieldA.id;
+        fieldA.right = building7.id;
+
+        building7.right = 'da169b60-6ace-4bd5-a761-dffe1fd79cd6';
+        let building6 = this.sections.find(x => x.id === building7.right);
+        building6.right = 'e9e24284-d47b-4289-8a01-5281c65dc1fe';
+        let building5 = this.sections.find(x => x.id === building6.right);
+        building5.right = '4afaffcd-533b-4f57-aabc-772af3d98431';
+        let building4 = this.sections.find(x => x.id === building5.right);
+        building4.right = '0ea763fb-6271-4dc2-afe4-991a8806ea53';
+        let building3 = this.sections.find(x => x.id === building4.right);
+        building3.right = '9434a661-dcb3-446e-abd2-270345c7f4c5';
+        let building2 = this.sections.find(x => x.id === building3.right);
+        building2.right = 'dd3e87ef-0bd2-4c8f-b265-f749fcd2dcc7';
+
+        let topLeftSection = this.sections.find(x => x.id === fieldL.id);
+        let sectionRow = this.getRow(topLeftSection, this.sections);
+
+        for (let section of sectionRow) {
+            $('#spot-sections-container').append(this.getSectionView(section));
         }
-        return `                
-                <div class="spot-cell ${reservedByVendor ? 'spot-reserved' : 'spot-open'}">
-                    <div class="spot-cell-inner">
-                        <div class="row">
-                            <div class="col-xs-10">${spotDescription}</div>
-                            <div class="col-xs-2">
-                                <input type="button" class="btn btn-default spot-edit-btn" value="Edit" />
-                            </div>
-                        </div>
-                    </div>
-                    <form class="p-15 form hide">
-                        <div class="form-group row">
-                            <label class="col-xs-3 col-form-label col-form-label-lg">Bottom</label>
-                            <div class="col-xs-9">
-                                <select class="form-control spot-bottom"></select>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-xs-3 col-form-label col-form-label-lg">Right</label>
-                            <div class="col-xs-9">
-                                <select class="form-control spot-right"></select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <input type="button" class="btn btn-default spot-cancel" value="Cancel" />
-                            <input type="button" class="btn btn-primary spot-save" value="Save" />
-                        </div>
-                    </form>
-                </div>`;
     }
     async init(user) {
         $('.spot-edit-btn').hide();
@@ -213,26 +222,17 @@ export default class PropertySpotsController {
         }
 
         let sectionIds = Array.from(new Set(this.spots.map(x => x.section == null ? '' : x.section.id)));
-        let sections = [];
+        this.sections = [];
         for (let sectionId of sectionIds) {
             let spotSection = this.spots.find(x => (x.section == null ? '' : x.section.id) === sectionId);
-            if (spotSection) {
-                sections.push(spotSection.section);
-                $('#section-list').append(`
-                    <option data-section-id="${spotSection.section.id}">
-                        ${spotSection.section.name}
-                    </option>`);
+            if (spotSection && spotSection.section) {
+                this.sections.push(spotSection.section);
             }
         }
-        $('#section-list').change(function () {
-            let sectionId = $("option:selected", this).data('section-id');
-            let section = sections.find(x => x.id === sectionId);
-            $('#spot-sections-container').empty();
-            $('#spot-sections-container').append(self.getSectionView(section));
-        });
-        $('#section-list').trigger('change');
+        this.buildMap();
         $('#edit-map-btn').click(function () {
-           $('.spot-edit-btn').show();
+            $('#edit-map-btn').prop('disabled', true);
+            $('#spot-sections-container').addClass('edit-mode');
         });
     }
 }
