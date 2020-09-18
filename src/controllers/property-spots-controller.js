@@ -66,8 +66,8 @@ export default class PropertySpotsController {
             'f898bf04-800f-4711-9b01-cac1a21144f7', // Field F 8
             'b10ccdcc-b4cb-4e36-b30d-393cc7569143', // Field G 8
             'e3820f9e-e4ad-4aa9-8945-1501449ff0ba', // Field H 8 - North Walkway
-            '8d10b86c-3dc4-4707-9769-3793dbb7ba33', // Field I 1
-            'a616f0c7-93c5-4436-9a4f-ac9feb7e9c89', // Field J 1
+            '8fd2a6b6-6d2a-4963-93d9-8c08536fff85', // Field I 5
+            'f3fa523b-4824-4d85-9bbf-ce07f76cd760', // Field J 5
             '63f53ee9-37af-402a-b346-c574bfcca0e3', // Field K 1
             'd7a1fe03-721f-47f0-b55d-e00944023398'  // Field L 1
         ];
