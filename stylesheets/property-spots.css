@@ -11,7 +11,11 @@ body {
 
 }
 
-#spot-sections-container {
+.spots-sections-outer-container {
+    display: flex;
+}
+
+.spot-sections-container {
     display: flex;
     flex-flow: row;
 }
@@ -64,6 +68,16 @@ body {
     width: 600px;
 }
 
+.edit-mode.vertical-spot .spot-cell-inner {
+    width: 208px;
+}
+
 .edit-mode .spot-edit-btn {
     display: block;
+}
+
+.vertical-spot .spot-cell-inner {
+    height: 300px;
+    writing-mode: vertical-rl;
+    width: 104px;
 }

@@ -30,7 +30,7 @@ export default class PropertyCustomersController {
         new AccountSettingsController().init({}, user, false);
         let dataClient = new DataClient();
         let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings-by-id?id=${Util.getParameterByName("id")}`);
-        let rentalSectionPromise = dataClient.get('point-of-sale/spots?cache-level=cache-everything');
+        let rentalSectionPromise = dataClient.get('point-of-sale/spots'); //?cache-level=cache-everything');
         let promiseResults = await Promise.all([customerPromise, rentalSectionPromise]);
         let customer = promiseResults[0];
         this.spots = promiseResults[1];

@@ -57,7 +57,9 @@ export default class PropertySpotsController {
             '916250b8-505c-4fae-87a8-e119cdc46826', // 159
             'a015cb31-e6b3-449f-8be9-fd0a872cc32f', // 199
             '51e6c980-81e4-4f7a-804d-a414875a82a4', // 239
-            '7cbad948-f2f1-4930-8dd6-f930f7df4518', // 279
+            '7cbad948-f2f1-4930-8dd6-f930f7df4518', // building 7
+            '3d737dc0-6675-4530-9018-1e2db6a73774', // 301 building 8
+            '39885837-2841-417f-ba82-9b2c0db70458', // Rear sheds s24
             '16916bcb-cb22-436e-9b77-86697a397a25', // Field A 8
             '5407aaae-46cd-4f69-af83-b9665b644cef', // Field B 8
             '92c4e679-ba81-4753-a5e7-a65b4909c50b', // Field C 8
@@ -66,10 +68,10 @@ export default class PropertySpotsController {
             'f898bf04-800f-4711-9b01-cac1a21144f7', // Field F 8
             'b10ccdcc-b4cb-4e36-b30d-393cc7569143', // Field G 8
             'e3820f9e-e4ad-4aa9-8945-1501449ff0ba', // Field H 8 - North Walkway
-            '8fd2a6b6-6d2a-4963-93d9-8c08536fff85', // Field I 5
-            'f3fa523b-4824-4d85-9bbf-ce07f76cd760', // Field J 5
-            '63f53ee9-37af-402a-b346-c574bfcca0e3', // Field K 1
-            'd7a1fe03-721f-47f0-b55d-e00944023398'  // Field L 1
+            '4d14e171-46ff-440b-8ca1-10129a71aba3', // Field I Parking
+            'fb6b507f-aae4-44ad-aa96-29aca8b113ca', // Field J Parking
+            '4a01797e-25a2-4cb7-91df-78bfd380f5a0', // Field K Parking
+            'fb627c18-236d-4263-91e6-aecdfba6d08e'  // Field L Parking
         ];
     }
     getSectionView(section) {
@@ -150,11 +152,21 @@ export default class PropertySpotsController {
         spotView.find('.spot-right').prop('selectedIndex', rightIndex);
     }
     buildMap() {
-        $('#spot-sections-container').empty();
+        $('.spot-sections-container').empty();
         let fieldL = this.sections.find(x => x.id === '3408b26a-b7ed-4e76-8a42-9b574181afae');
         let fieldK = this.sections.find(x => x.id === 'e8651c71-e5dd-4706-a18c-d2ee0e0da00c');
         let fieldJ = this.sections.find(x => x.id === '596c8ac6-ebf9-4438-9973-4a516288d7b9');
         let fieldI = this.sections.find(x => x.id === '2d2fa812-3bcb-4955-9a7c-63922e7392fa');
+        fieldL.right = fieldK.id
+        fieldK.right = fieldJ.id;
+        fieldJ.right = fieldI.id;
+        let leftSectionTopLeftSection = this.sections.find(x => x.id === fieldL.id);
+        let leftSectionRow = this.getRow(leftSectionTopLeftSection, this.sections);
+        for (let section of leftSectionRow) {
+            $('#spot-sections-container-left').append(this.getSectionView(section));
+        }
+
+        // Middle middle
         let fieldH = this.sections.find(x => x.id === '47afac0b-67c2-4807-a88d-3ea9e1775661');
         let fieldG = this.sections.find(x => x.id === 'acddb4d0-1983-46b4-8d3c-e390f070bf0c');
         let fieldF = this.sections.find(x => x.id === 'cd7587ed-e3f5-4e81-b512-881a67f57ab8');
@@ -163,21 +175,27 @@ export default class PropertySpotsController {
         let fieldC = this.sections.find(x => x.id === '2f62d887-39f4-44b7-92a2-4fd9bbecd423');
         let fieldB = this.sections.find(x => x.id === '3c27b448-514c-4d4b-bdd5-def1414e8d3b');
         let fieldA = this.sections.find(x => x.id === '96be73ae-cd0e-49ce-8dd2-ccf02fba1c30');
-        let building7 = this.sections.find(x => x.id === 'ebb0a82e-b8fd-46a3-a4af-f49398f82477');
-
-        fieldL.right = fieldK.id
-        fieldK.right = fieldJ.id;
-        fieldJ.right = fieldI.id;
-        fieldI.right = fieldH.id;
         fieldH.right = fieldG.id;
         fieldG.right = fieldF.id;
         fieldF.right = fieldE.id;
         fieldE.right = fieldD.id;
-        fieldD.right = fieldC.id;
+        fieldD.right = fieldC.id; // Remove building 7 from middle. Move it to right.
         fieldC.right = fieldB.id;
         fieldB.right = fieldA.id;
-        fieldA.right = building7.id;
+        for (let section of this.getRow(fieldH, this.sections)) {
+            $('#spot-sections-container').append(this.getSectionView(section));
+        }
+        // Middle bottom
+        let building8 = this.sections.find(x => x.id ===  '491f0424-e1fd-4a11-97fb-09be002e60b5');
+        let building8SectionView = this.getSectionView(building8);
+        $('#spot-sections-container-middle-bottom').append(building8SectionView);
 
+        // Right top
+        let rearShedSection = this.sections.find(x => x.id ===  '734541c3-e863-4b4f-9dd6-2bcf606a691d');
+        let rearShedSectionView = this.getSectionView(rearShedSection);
+        $('#spot-sections-container-right-top').append(rearShedSectionView);
+
+        let building7 = this.sections.find(x => x.id === 'ebb0a82e-b8fd-46a3-a4af-f49398f82477');
         building7.right = 'da169b60-6ace-4bd5-a761-dffe1fd79cd6';
         let building6 = this.sections.find(x => x.id === building7.right);
         building6.right = 'e9e24284-d47b-4289-8a01-5281c65dc1fe';
@@ -189,12 +207,8 @@ export default class PropertySpotsController {
         building3.right = '9434a661-dcb3-446e-abd2-270345c7f4c5';
         let building2 = this.sections.find(x => x.id === building3.right);
         building2.right = 'dd3e87ef-0bd2-4c8f-b265-f749fcd2dcc7';
-
-        let topLeftSection = this.sections.find(x => x.id === fieldL.id);
-        let sectionRow = this.getRow(topLeftSection, this.sections);
-
-        for (let section of sectionRow) {
-            $('#spot-sections-container').append(this.getSectionView(section));
+        for (let section of this.getRow(building7, this.sections)) {
+            $('#spot-sections-container-right-middle').append(this.getSectionView(section));
         }
     }
     async init(user) {
@@ -232,7 +246,7 @@ export default class PropertySpotsController {
         this.buildMap();
         $('#edit-map-btn').click(function () {
             $('#edit-map-btn').prop('disabled', true);
-            $('#spot-sections-container').addClass('edit-mode');
+            $('.spot-sections-container').addClass('edit-mode');
         });
     }
 }
