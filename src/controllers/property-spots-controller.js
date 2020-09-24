@@ -4,6 +4,7 @@ import DataClient from '../data-client';
 import MessageViewController from './message-view-controller';
 import Moment from 'moment/moment';
 import Util from '../util';
+import CustomerDescription from "../customer-description";
 
 export default class PropertySpotsController {
     static getName() {
@@ -88,7 +89,17 @@ export default class PropertySpotsController {
             let rowOfSpotsContainer = $(`<div class="spot-row-container"></div>`);
             for (let spot of rowOfSpots) {
                 let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
-                let spotView = $(SpotView.getSpotView(spot, reservedByVendor));
+                let spotView = $(SpotView.getSpotView(spot, reservedByVendor, this.showBalances));
+
+                if (reservedByVendor) {
+                    spotView.find('.spot-vendor-link').text(CustomerDescription.getCustomerDescription(reservedByVendor));
+
+                    if (this.showBalances && reservedByVendor && reservedByVendor.balance > 1) {
+                        spotView.find('.spot-vendor-details').text(`Balance: ${Util.format(reservedByVendor.balance)}`);
+                    }
+                }
+
+
                 this.initSpotView(spotView, spot, section, sectionSpots);
                 rowOfSpotsContainer.append(spotView);
             }
@@ -150,6 +161,9 @@ export default class PropertySpotsController {
         }
         spotView.find('.spot-bottom').prop('selectedIndex', bottomIndex);
         spotView.find('.spot-right').prop('selectedIndex', rightIndex);
+    }
+    setShowBalances(showBalances) {
+        this.showBalances = showBalances;
     }
     buildMap() {
         $('.spot-sections-container').empty();
@@ -247,6 +261,11 @@ export default class PropertySpotsController {
         $('#edit-map-btn').click(function () {
             $('#edit-map-btn').prop('disabled', true);
             $('.spot-sections-container').addClass('edit-mode');
+        });
+        $('#show-balances-btn').click(function () {
+            $('#show-balances-btn').prop('disabled', true);
+            self.setShowBalances(true);
+            self.buildMap();
         });
     }
 }

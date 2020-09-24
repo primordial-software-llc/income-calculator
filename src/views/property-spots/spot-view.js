@@ -1,17 +1,19 @@
 import CustomerDescription from '../../customer-description';
 
 export default class SpotView {
-    static getSpotView(spot, reservedByVendor) {
+    static getSpotView(spot, reservedByVendor, showBalances) {
         let spotDescription = spot.name;
+        let css = 'spot-cell-inner spot-description-text';
+        css += `${!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1 ? ' field' : ''}`;
         if (reservedByVendor) {
-            spotDescription += ` - <a href="/pages/property-customer-edit.html?id=${reservedByVendor.id}">
-                                       ${CustomerDescription.getCustomerDescription(reservedByVendor)}
+            spotDescription += ` - <a class="spot-vendor-link" href="/pages/property-customer-edit.html?id=${reservedByVendor.id}">
                                    </a>`;
         }
         return `                
-                <div class="spot-cell ${reservedByVendor ? 'spot-reserved' : 'spot-open'}">
-                    <div class="spot-cell-inner ${!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1 ? 'field' : ''}">
+                <div class="spot-cell ${reservedByVendor ? 'spot-reserved' : 'spot-open'} ${showBalances && reservedByVendor && reservedByVendor.balance > 1 ? 'spot-with-balance' : ''}">
+                    <div class="${css}">
                         ${spotDescription}
+                        <div class="spot-vendor-details"></div>
                     </div>
                     <input type="button" class="btn btn-default spot-edit-btn" value="Edit" />
                     <form class="p-15 form hide">
