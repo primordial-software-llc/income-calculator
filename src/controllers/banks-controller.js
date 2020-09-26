@@ -67,6 +67,8 @@ export default class BanksController {
                     product: ['transactions'],
                     token: result['public_token'],
                     onSuccess: async function(public_token, metadata) {
+                        // Right now the token in the database doesn't get updated until redirecting back.
+                        // It would be better to update the token here, because a user could close the page after the token was created, but not saved.
                         window.alert('updated account access token');
                     }
                 });

@@ -24,7 +24,7 @@ exports.setView = function (budget, obfuscate) {
                     <span aria-hidden="true">&times;</span>
                 </button>
                 <p class="mb-0">
-                    Failed to get accounts from ${budget.failed.length} financial institutions. Check console for more details.
+                    Failed to get accounts from ${budget.failed.length} financial institutions: ${budget.failed.map(x => x.institutionName)}.
                 </p>
             </div>`);
         console.log('Failed to get accounts from the following financial institutions: ' + JSON.stringify(budget.failed, 0, 4));
