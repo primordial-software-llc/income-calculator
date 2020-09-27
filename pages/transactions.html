@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
+    <title>Net Income Calculator</title>
+    <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../app.bundle.js"></script>
+</head>
+<body class="container-fluid">
+<div class="bg-color-imago-cream no-print" id="command-buttons-container"></div>
+<div class="tab-nav-bar bg-color-imago-blue link-color-white w-100"></div>
+<div class="imago-header">
+    <div class="header-overlay">
+        <div class="header-text">Transactions</div>
+    </div>
+</div>
+<div id="input-form" class="p-15 form bg-color-imago-blue color-white">
+    <div id="message-container"></div>
+    <form class="p-15 form">
+        <div id="messageAlert" class="hide alert" role="alert"></div>
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label col-form-label-lg">Start Date:</label>
+            <div class="col-xs-9">
+                <input id="start-date" class="form-control" type="date">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label col-form-label-lg">End Date:</label>
+            <div class="col-xs-9">
+                <input id="end-date" class="form-control" type="date">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xs-12">
+                <input type="button" id="search-transactions" value="Get Transactions" class="btn btn-primary" />
+            </div>
+        </div>
+    </form>
+    <div id="transactions-container"></div>
+</div>
+</body>
+</html>

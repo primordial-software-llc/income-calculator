@@ -1,10 +1,11 @@
-import BudgetController from "./controllers/budget-controller";
-import BudgetCalendarController from "./controllers/budget-calendar-controller";
-import BalanceSheetController from "./controllers/balance-sheet-controller";
-import TransfersController from "./controllers/transfers-controller";
-import DepositController from "./controllers/deposit-controller";
-import PricesController from "./controllers/prices-controller";
-import PayDaysController from "./controllers/pay-days-controller";
+import BudgetController from './controllers/budget-controller';
+import BudgetCalendarController from './controllers/budget-calendar-controller';
+import BalanceSheetController from './controllers/balance-sheet-controller';
+import TransfersController from './controllers/transfers-controller';
+import TransactionsController from './controllers/transactions-controller';
+import DepositController from './controllers/deposit-controller';
+import PricesController from './controllers/prices-controller';
+import PayDaysController from './controllers/pay-days-controller';
 import PropertyPointOfSaleController from './controllers/property-point-of-sale-controller';
 import PropertyCustomerBalancesController from './controllers/property-customer-balances-controller';
 import PropertyCustomersController from './controllers/property-customers-controller';
@@ -37,6 +38,7 @@ export default class Navigation {
             authenticatedControllers.push(PurchaseController);
         } else {
             authenticatedControllers.push(BanksController);
+            authenticatedControllers.push(TransactionsController)
         }
         return authenticatedControllers;
     }

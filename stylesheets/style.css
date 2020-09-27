@@ -63,6 +63,10 @@ h4 {
     height: 30px;
 }
 
+.small-text {
+    font-size: 14px;
+}
+
 #header.container:before,
 #header.container:after {
     content: normal;
@@ -112,6 +116,10 @@ h4 {
 #input-form .btn-primary {
     margin-top: 15px;
     margin-bottom: 15px;
+}
+
+.btn {
+    font-size: 24px;
 }
 
 .transaction-input-view {
