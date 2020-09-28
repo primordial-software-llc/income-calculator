@@ -72,7 +72,8 @@ export default class PropertySpotsController {
             '4d14e171-46ff-440b-8ca1-10129a71aba3', // Field I Parking
             'fb6b507f-aae4-44ad-aa96-29aca8b113ca', // Field J Parking
             '4a01797e-25a2-4cb7-91df-78bfd380f5a0', // Field K Parking
-            'fb627c18-236d-4263-91e6-aecdfba6d08e'  // Field L Parking
+            'fb627c18-236d-4263-91e6-aecdfba6d08e', // Field L Parking
+            'a8f4d1d7-a3c4-4def-b969-06a544ec3424' // South walkway South walkway
         ];
     }
     getSectionView(section) {
@@ -209,6 +210,7 @@ export default class PropertySpotsController {
         let rearShedSectionView = this.getSectionView(rearShedSection);
         $('#spot-sections-container-right-top').append(rearShedSectionView);
 
+        // Right middle
         let building7 = this.sections.find(x => x.id === 'ebb0a82e-b8fd-46a3-a4af-f49398f82477');
         building7.right = 'da169b60-6ace-4bd5-a761-dffe1fd79cd6';
         let building6 = this.sections.find(x => x.id === building7.right);
@@ -224,6 +226,11 @@ export default class PropertySpotsController {
         for (let section of this.getRow(building7, this.sections)) {
             $('#spot-sections-container-right-middle').append(this.getSectionView(section));
         }
+
+        // Right bottom
+        let southWalkway = this.sections.find(x => x.id === 'da9c786d-ec9a-4678-a313-60f4e44a05ec');
+        let southWalkwaySectionView = this.getSectionView(southWalkway);
+        $('#spot-sections-container-right-bottom').append(southWalkwaySectionView);
     }
     async init(user) {
         $('.spot-edit-btn').hide();
