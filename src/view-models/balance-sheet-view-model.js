@@ -30,7 +30,8 @@ function mergeModels(data, bankData) {
             (
                 x.subtype === 'retirement' ||
                 x.subtype === '401k' ||
-                x.subtype === 'hsa'
+                x.subtype === 'hsa' ||
+                x.subtype === 'ira'
             ))) {
             viewModel.assets.push({
                 type: 'property-plant-and-equipment',
@@ -46,7 +47,8 @@ function mergeModels(data, bankData) {
             x.type !== 'credit' &&
             x.subtype !== 'retirement' &&
             x.subtype !== '401k' &&
-            x.subtype !== 'hsa')) {
+            x.subtype !== 'hsa' &&
+            x.subtype !== 'ira')) {
             viewModel.assets.push({
                 type: 'cash',
                 name: [bankAccount.item.institution.name, account.subtype, account.mask]

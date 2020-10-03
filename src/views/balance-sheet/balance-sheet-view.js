@@ -7,7 +7,6 @@ import PropertyPlantAndEquipmentViewModel from './property-plant-and-equipment-v
 import LoanViewModel from './loan-view-model';
 import InventoryViewModel from "./inventory-view-model";
 const Util = require('../../util');
-const Moment = require('moment');
 exports.getModel = function () {
     return { balances: new LoanViewModel().getModels() };
 };

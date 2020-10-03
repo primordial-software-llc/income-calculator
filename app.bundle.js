@@ -25303,7 +25303,7 @@ function mergeModels(data, bankData) {
   viewModel.failed = bankData.failedAccounts;
 
   for (let bankAccount of bankData.allAccounts || []) {
-    for (let account of bankAccount.accounts.filter(x => x.type !== 'credit' && (x.subtype === 'retirement' || x.subtype === '401k' || x.subtype === 'hsa'))) {
+    for (let account of bankAccount.accounts.filter(x => x.type !== 'credit' && (x.subtype === 'retirement' || x.subtype === '401k' || x.subtype === 'hsa' || x.subtype === 'ira'))) {
       viewModel.assets.push({
         type: 'property-plant-and-equipment',
         name: [bankAccount.item.institution.name, account.subtype, account.mask].filter(x => x).join(' - '),
@@ -25313,7 +25313,7 @@ function mergeModels(data, bankData) {
       });
     }
 
-    for (let account of bankAccount.accounts.filter(x => x.type !== 'credit' && x.subtype !== 'retirement' && x.subtype !== '401k' && x.subtype !== 'hsa')) {
+    for (let account of bankAccount.accounts.filter(x => x.type !== 'credit' && x.subtype !== 'retirement' && x.subtype !== '401k' && x.subtype !== 'hsa' && x.subtype !== 'ira')) {
       viewModel.assets.push({
         type: 'cash',
         name: [bankAccount.item.institution.name, account.subtype, account.mask].filter(x => x).join(' - '),
@@ -25456,8 +25456,6 @@ const Currency = require('currency.js');
 
 const Util = require('../../util');
 
-const Moment = require('moment');
-
 exports.getModel = function () {
   return {
     balances: new _loanViewModel.default().getModels()
@@ -25550,7 +25548,7 @@ exports.setView = function (budget, obfuscate) {
   $('#net-total').text(Util.format(net));
 };
 
-},{"../../calculators/calendar":65,"../../util":97,"./bond-view-model":102,"./cash-view-model":103,"./equity-view-model":104,"./inventory-view-model":106,"./loan-view-model":107,"./property-plant-and-equipment-view-model":108,"currency.js":27,"moment":32}],102:[function(require,module,exports){
+},{"../../calculators/calendar":65,"../../util":97,"./bond-view-model":102,"./cash-view-model":103,"./equity-view-model":104,"./inventory-view-model":106,"./loan-view-model":107,"./property-plant-and-equipment-view-model":108,"currency.js":27}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
