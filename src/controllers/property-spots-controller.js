@@ -8,7 +8,7 @@ import CustomerDescription from "../customer-description";
 
 export default class PropertySpotsController {
     static getName() {
-        return 'Spots';
+        return 'Map';
     }
     static getUrl() {
         return `${Util.rootUrl()}/pages/property-spots.html`;

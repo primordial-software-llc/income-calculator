@@ -24208,7 +24208,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 class PropertySpotsController {
   static getName() {
-    return 'Spots';
+    return 'Map';
   }
 
   static getUrl() {
