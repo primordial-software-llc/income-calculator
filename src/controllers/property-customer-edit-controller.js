@@ -105,10 +105,7 @@ export default class PropertyCustomersController {
                 MessageViewController.setMessage(validationMessages, 'alert-danger');
                 return;
             }
-            let updates = {
-                id: customer.id,
-                spots: spots
-            };
+            let updates = { id: customer.id, spots: spots };
             let newPaymentFrequency = $('#payment-frequency').val().trim();
             if (customer.paymentFrequency !== newPaymentFrequency) {
                 updates.paymentFrequency = newPaymentFrequency;
@@ -130,11 +127,13 @@ export default class PropertyCustomersController {
                 updates.memo = newMemo;
             }
             try {
-                //await new DataClient().patch(`point-of-sale/vendor`, updates);
-
+                let dataClient = new DataClient();
+                let savePromises = [dataClient.patch(`point-of-sale/vendor`, updates)];
                 let cancelledReservations = self.getCancelledReservations();
-                console.log(cancelledReservations);
-
+                for (let cancelledReservation of cancelledReservations) {
+                    savePromises.push(dataClient.delete('point-of-sale/spot-reservation', cancelledReservation));
+                }
+                let saveResults = await Promise.all(savePromises);
                 MessageViewController.setMessage('Vendor saved', 'alert-success');
             } catch (error) {
                 Util.log(error);

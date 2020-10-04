@@ -23751,9 +23751,15 @@ class PropertyCustomersController {
       }
 
       try {
-        //await new DataClient().patch(`point-of-sale/vendor`, updates);
+        let dataClient = new _dataClient.default();
+        let savePromises = [dataClient.patch(`point-of-sale/vendor`, updates)];
         let cancelledReservations = self.getCancelledReservations();
-        console.log(cancelledReservations);
+
+        for (let cancelledReservation of cancelledReservations) {
+          savePromises.push(dataClient.delete('point-of-sale/spot-reservation', cancelledReservation));
+        }
+
+        let saveResults = await Promise.all(savePromises);
 
         _messageViewController.default.setMessage('Vendor saved', 'alert-success');
       } catch (error) {
