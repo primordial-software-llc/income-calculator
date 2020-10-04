@@ -25,15 +25,27 @@ export default class PropertyCustomersController {
     getSpot(spotDescription) {
         return this.spots.find(x => this.getSpotDescription(x).toLowerCase() === spotDescription.toLowerCase());
     }
+    getCancelledReservations() {
+        let cancelledReservations = [];
+        for (let reservation of this.spotReservations) {
+            let reservationExists = $(`[data-reservation-date='${reservation.rentalDate}'][data-reservation-spot-id='${reservation.spotId}']`).length > 0;
+            if (!reservationExists) {
+                cancelledReservations.push(reservation);
+            }
+        }
+        return cancelledReservations;
+    }
     async init(user) {
         let self = this;
         new AccountSettingsController().init({}, user, false);
         let dataClient = new DataClient();
         let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings-by-id?id=${Util.getParameterByName("id")}`);
         let rentalSectionPromise = dataClient.get('point-of-sale/spots'); //?cache-level=cache-everything');
-        let promiseResults = await Promise.all([customerPromise, rentalSectionPromise]);
+        let vendorPromise = dataClient.get(`point-of-sale/spot-reservations?vendorId=${Util.getParameterByName("id")}`);
+        let promiseResults = await Promise.all([customerPromise, rentalSectionPromise, vendorPromise]);
         let customer = promiseResults[0];
         this.spots = promiseResults[1];
+        this.spotReservations = promiseResults[2];
         for (let spot of this.spots) {
             $('#spot-list').append(`<option>${self.getSpotDescription(spot)}</option>`);
         }
@@ -41,6 +53,21 @@ export default class PropertyCustomersController {
         $('#payment-frequency').val(customer.paymentFrequency);
         $('#rental-amount').val(customer.rentPrice);
         $('#memo').text(customer.memo);
+        for (let reservation of this.spotReservations) {
+            let reservationView = $(`<div data-reservation-spot-id="${reservation.spotId}" data-reservation-date="${reservation.rentalDate}" class="row reservation-row display-flex"></div>`);
+            let spot = this.spots.find(x => x.id === reservation.spotId);
+            let descriptionView = $('<div class="col-xs-7 display-flex-valign-center"></div>');
+            descriptionView.text(`${reservation.rentalDate} - ${self.getSpotDescription(spot)}`);
+            reservationView.append(descriptionView);
+            let deleteBtn = $(`<div class="col-xs-5 display-flex-valign-center">
+                    <input type="button" class="remove-one-time-spot-reservation-btn btn btn-warning" value="Cancel Reservation" />
+                </div>`);
+            reservationView.append(deleteBtn);
+            deleteBtn.find('.btn').click(function () {
+                reservationView.remove();
+            });
+            $('#one-time-reservations-container').append(reservationView);
+        }
         for (let spot of customer.spots || []) {
             let id = Util.guid();
             $('#spot-container').append(AddSpotView.GetAddSpotView(id, true));
@@ -103,7 +130,11 @@ export default class PropertyCustomersController {
                 updates.memo = newMemo;
             }
             try {
-                await new DataClient().patch(`point-of-sale/vendor`, updates);
+                //await new DataClient().patch(`point-of-sale/vendor`, updates);
+
+                let cancelledReservations = self.getCancelledReservations();
+                console.log(cancelledReservations);
+
                 MessageViewController.setMessage('Vendor saved', 'alert-success');
             } catch (error) {
                 Util.log(error);

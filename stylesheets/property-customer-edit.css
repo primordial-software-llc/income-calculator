@@ -2,7 +2,8 @@ body label.col-form-label-lg,
 .input-group-addon,
 body textarea.form-control,
 body input.form-control,
-body .customers-container
+body .customers-container,
+body #one-time-reservations-container
 {
     font-size: 30px;
 }
@@ -38,6 +39,10 @@ body .form-control {
 }
 
 #spot-container > .spot-row:not(:first-child) {
+    margin-top: 30px;
+}
+
+#one-time-reservations-container > .reservation-row:not(:first-child) {
     margin-top: 30px;
 }
 
