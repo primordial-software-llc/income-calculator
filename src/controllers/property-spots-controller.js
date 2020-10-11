@@ -274,5 +274,14 @@ export default class PropertySpotsController {
             self.setShowBalances(true);
             self.buildMap();
         });
+        $("#rental-date").on('change', async function () {
+            try {
+                MessageViewController.setMessage('');
+                self.spotReservations = await dataClient.get(`point-of-sale/spot-reservations?rentalDate=${encodeURIComponent($('#rental-date').val())}`);
+                self.buildMap();
+            } catch (error) {
+                MessageViewController.setRequestErrorMessage(error);
+            }
+        });
     }
 }

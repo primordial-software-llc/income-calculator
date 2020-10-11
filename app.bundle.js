@@ -24500,6 +24500,16 @@ class PropertySpotsController {
       self.setShowBalances(true);
       self.buildMap();
     });
+    $("#rental-date").on('change', async function () {
+      try {
+        _messageViewController.default.setMessage('');
+
+        self.spotReservations = await dataClient.get(`point-of-sale/spot-reservations?rentalDate=${encodeURIComponent($('#rental-date').val())}`);
+        self.buildMap();
+      } catch (error) {
+        _messageViewController.default.setRequestErrorMessage(error);
+      }
+    });
   }
 
 }
