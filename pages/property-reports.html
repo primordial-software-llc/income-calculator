@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/property-reports.css">
+    <title>Net Income Calculator</title>
+    <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../app.bundle.js"></script>
+</head>
+<body class="bg-color-imago-light-gray container-fluid">
+<div class="no-print property-nav p-15">
+    <a class="property-nav-item" href="property-point-of-sale.html">Receipts</a>
+    <a class="property-nav-item" href="property-customer-balances.html">Balances</a>
+    <a class="property-nav-item" href="property-customers.html">Vendors</a>
+    <a class="property-nav-item" href="property-spots.html">Map</a>
+    <a class="property-nav-item" href="qr-test.html">Cards</a>
+    <a class="property-nav-item" href="qr-test.html">Reports</a>
+</div>
+<div id="input-form" class="p-15 form">
+    <div id="message-container"></div>
+    <form class="p-15 form">
+        <div id="messageAlert" class="hide alert" role="alert"></div>
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label col-form-label-lg">Start Date:</label>
+            <div class="col-xs-9">
+                <input id="start-date" class="form-control" type="date">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label col-form-label-lg">End Date:</label>
+            <div class="col-xs-9">
+                <input id="end-date" class="form-control" type="date">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xs-12">
+                <input type="button" id="run-cash-basis-income-report" value="Run Cash Basis Income Report" class="btn btn-primary" />
+            </div>
+        </div>
+    </form>
+    <div class="row table-header-row">
+        <div class="col-xs-5">Customer</div>
+        <div class="col-xs-3">Amount</div>
+        <div class="col-xs-4">Date</div>
+    </div>
+    <div id="income-container"></div>
+</div>
+</body>
+</html>

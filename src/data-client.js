@@ -34,8 +34,8 @@ export default class DataClient {
             body: JSON.stringify(data)
         })
     };
-    async get(requestType) {
-        return await this.sendRequestInner(requestType, {
+    async get(path) {
+        return await this.sendRequestInner(path, {
             method: 'GET',
             mode: FETCH_MODE,
             credentials: FETCH_CREDENTIALS,
@@ -64,10 +64,10 @@ export default class DataClient {
         }
         return data;
     };
-    async sendRequestInner (requestType, requestParams, isRetryFromRefresh) {
+    async sendRequestInner (path, requestParams, isRetryFromRefresh) {
         this.activeRequests += 1;
         let response;
-        let url = `${Util.getApiUrl()}${requestType}`;
+        let url = `${Util.getApiUrl()}${path}`;
         try {
             if (!this.withholdWaitingIndicator) {
                 $('.loader-group').removeClass('hide');
