@@ -81,6 +81,7 @@ export default class DataClient {
             console.log(`An error occurred when fetching ${url}. The server response can\'t be read`);
             throw 'Network error failed to fetch: ' + url;
         }
+        this.activeRequests -= 1;
         // Make sure to setup cors for 4xx and 5xx responses in api gateway or the response can't be read.
         if (response.status.toString() === '401') {
             console.log('Failed to authenticate attempting to refresh token');
@@ -91,14 +92,13 @@ export default class DataClient {
                 }
                 await this.post('unauthenticated/refreshToken', {}, true);
                 console.log('retrying request after token refresh');
-                return await this.sendRequestInner(requestType, requestParams, true);
+                return await this.sendRequestInner(path, requestParams, true);
             } catch (err) {
                 console.log('error occurred when refreshing');
                 console.log(err);
                 window.location = `${Util.rootUrl()}/pages/login.html`;
             }
         } else if (response.status.toString()[0] !== '2') {
-            this.activeRequests -= 1;
             if (this.activeRequests === 0) {
                 $('.loader-group').addClass('hide');
             }
@@ -111,7 +111,6 @@ export default class DataClient {
             };
         }
         let responseJson = await response.json();
-        this.activeRequests -= 1;
         if (this.activeRequests === 0) {
             $('.loader-group').addClass('hide');
         }
