@@ -27,8 +27,10 @@ export default class Navigation {
         if (((user || {}).email || '').toLowerCase() === 'timg456789@yahoo.com') {
             authenticatedControllers.push(PayDaysController);
         }
-        if (((user || {}).email || '').toLowerCase() === 'timg456789@yahoo.com' ||
-            ((user || {}).email || '').toLowerCase() === 'taniagkocher@gmail.com') {
+        let email = ((user || {}).email || '').toLowerCase();
+        if (email === 'timg456789@yahoo.com' ||
+            email === 'taniagkocher@gmail.com' ||
+            email === 'cvillavicencio921@gmail.com') {
             authenticatedControllers.push(PropertyPointOfSaleController);
             authenticatedControllers.push(PropertyCustomerBalancesController);
             authenticatedControllers.push(PropertyCustomersController);
