@@ -61,26 +61,43 @@ export default class PropertyCustomersController {
         });
         $('#type').change();
         $('#add-transaction').click(function () {
-            $('#input-form').removeClass('hide');
-            $('#add-transaction').addClass('hide');
+            MessageViewController.setMessage('');
+            $('#page-container').removeClass('view-mode');
+            $('#page-container').addClass('add-mode');
+        });
+        $('#send-to-accounting').click(async function() {
+            MessageViewController.setMessage('');
+            if (window.confirm('Are you sure you would like to send all transactions to the accounting system?')) {
+                let result;
+                try {
+                    result = await self.dataClient.post('point-of-sale/transaction', journalEntry);
+                } catch (error) {
+                    Util.log(error);
+                    MessageViewController.setRequestErrorMessage(error);
+                    return;
+                }
+                MessageViewController.setMessage('Transactions sent to accounting system.', 'alert-success');
+                await self.loadTransactions();
+            }
         });
         $('#save-transaction').click(async function () {
             MessageViewController.setMessage('');
             let itemMap = self.getItemDictionary().find(
                 x => x.name.toLowerCase() === $('#item').val().toLowerCase()
             )
-            let journalEntry = {};
-            journalEntry.date = $('#date').val();
-            journalEntry.account = itemMap.account;
-            journalEntry.product = itemMap.product;
-            journalEntry.amount = $('#amount').val().trim();
-            journalEntry.memo = $('#memo').val().trim();
-            journalEntry.type = $('#type').val();
+            let journalEntry = {
+                date: $('#date').val(),
+                account: itemMap.account,
+                product: itemMap.product,
+                amount: $('#amount').val().trim(),
+                memo: $('#memo').val().trim(),
+                type: $('#type').val()
+            };
             let result;
             try {
                 result = await self.dataClient.post('point-of-sale/transaction', journalEntry);
-                $('#input-form').addClass('hide');
-                $('#add-transaction').removeClass('hide');
+                $('#page-container').removeClass('add-mode');
+                $('#page-container').addClass('view-mode');
                 await self.loadTransactions();
             } catch (error) {
                 Util.log(error)

@@ -23640,26 +23640,50 @@ class PropertyCustomersController {
     });
     $('#type').change();
     $('#add-transaction').click(function () {
-      $('#input-form').removeClass('hide');
-      $('#add-transaction').addClass('hide');
+      _messageViewController.default.setMessage('');
+
+      $('#page-container').removeClass('view-mode');
+      $('#page-container').addClass('add-mode');
+    });
+    $('#send-to-accounting').click(async function () {
+      _messageViewController.default.setMessage('');
+
+      if (window.confirm('Are you sure you would like to send all transactions to the accounting system?')) {
+        let result;
+
+        try {
+          result = await self.dataClient.post('point-of-sale/transaction', journalEntry);
+        } catch (error) {
+          Util.log(error);
+
+          _messageViewController.default.setRequestErrorMessage(error);
+
+          return;
+        }
+
+        _messageViewController.default.setMessage('Transactions sent to accounting system.', 'alert-success');
+
+        await self.loadTransactions();
+      }
     });
     $('#save-transaction').click(async function () {
       _messageViewController.default.setMessage('');
 
       let itemMap = self.getItemDictionary().find(x => x.name.toLowerCase() === $('#item').val().toLowerCase());
-      let journalEntry = {};
-      journalEntry.date = $('#date').val();
-      journalEntry.account = itemMap.account;
-      journalEntry.product = itemMap.product;
-      journalEntry.amount = $('#amount').val().trim();
-      journalEntry.memo = $('#memo').val().trim();
-      journalEntry.type = $('#type').val();
+      let journalEntry = {
+        date: $('#date').val(),
+        account: itemMap.account,
+        product: itemMap.product,
+        amount: $('#amount').val().trim(),
+        memo: $('#memo').val().trim(),
+        type: $('#type').val()
+      };
       let result;
 
       try {
         result = await self.dataClient.post('point-of-sale/transaction', journalEntry);
-        $('#input-form').addClass('hide');
-        $('#add-transaction').removeClass('hide');
+        $('#page-container').removeClass('add-mode');
+        $('#page-container').addClass('view-mode');
         await self.loadTransactions();
       } catch (error) {
         Util.log(error);
@@ -24389,14 +24413,17 @@ class Navigation {
 
     let email = ((user || {}).email || '').toLowerCase();
 
-    if (email === 'timg456789@yahoo.com' || email === 'taniagkocher@gmail.com' || email === 'cvillavicencio921@gmail.com') {
+    if (email === 'timg456789@yahoo.com' || email === 'kmanrique506@hotmail.com' || email === 'taniagkocher@gmail.com' || email === 'cvillavicencio921@gmail.com') {
       authenticatedControllers.push(_propertyPointOfSaleController.default);
       authenticatedControllers.push(_propertyCustomerBalancesController.default);
       authenticatedControllers.push(_propertyCustomersController.default);
       authenticatedControllers.push(_propertyCustomerEditController.default);
       authenticatedControllers.push(_propertySpotsController.default);
-      authenticatedControllers.push(_propertyReportsController.default);
       authenticatedControllers.push(_propertyTransactionsController.default);
+    }
+
+    if (email === 'timg456789@yahoo.com' || email === 'kmanrique506@hotmail.com') {
+      authenticatedControllers.push(_propertyReportsController.default);
     }
 
     if (!(user || {}).billingAgreement || !(user || {}).billingAgreement.agreedToBillingTerms) {

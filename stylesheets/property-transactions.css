@@ -40,3 +40,24 @@ body .property-nav .property-nav-item {
 .row-type {
     text-transform: capitalize;
 }
+
+#input-form,
+.transaction-output {
+    margin-top: 15px;
+}
+
+#page-container.view-mode #input-form {
+    display: none;
+}
+
+#page-container.add-mode .transaction-output {
+    display: none;
+}
+
+#page-container.add-mode #add-transaction {
+    display: none;
+}
+
+#page-container.add-mode #send-to-accounting {
+    display: none;
+}

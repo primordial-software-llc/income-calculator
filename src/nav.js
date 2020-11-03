@@ -30,6 +30,7 @@ export default class Navigation {
         }
         let email = ((user || {}).email || '').toLowerCase();
         if (email === 'timg456789@yahoo.com' ||
+            email === 'kmanrique506@hotmail.com' ||
             email === 'taniagkocher@gmail.com' ||
             email === 'cvillavicencio921@gmail.com') {
             authenticatedControllers.push(PropertyPointOfSaleController);
@@ -37,8 +38,11 @@ export default class Navigation {
             authenticatedControllers.push(PropertyCustomersController);
             authenticatedControllers.push(PropertyCustomerEditController);
             authenticatedControllers.push(PropertySpotsController);
-            authenticatedControllers.push(PropertyReportsController);
             authenticatedControllers.push(PropertyTransactionsController);
+        }
+        if (email === 'timg456789@yahoo.com' ||
+            email === 'kmanrique506@hotmail.com') {
+            authenticatedControllers.push(PropertyReportsController);
         }
         if (!(user || {}).billingAgreement || !(user || {}).billingAgreement.agreedToBillingTerms) {
             authenticatedControllers.push(PurchaseController);
