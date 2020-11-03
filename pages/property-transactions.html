@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
+    <link rel="stylesheet" type="text/css" href="../stylesheets/property-transactions.css">
+    <title>Net Income Calculator</title>
+      <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
+      <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
+      <script type="text/javascript" src="../app.bundle.js"></script>
+      <script type="text/javascript" src="../javascript/html-5-qrcode.js"></script>
+  </head>
+  <body class="bg-color-imago-light-gray">
+  <div class="no-print property-nav p-15">
+      <a class="property-nav-item" href="property-point-of-sale.html">Receipts</a>
+      <a class="property-nav-item" href="property-customer-balances.html">Balances</a>
+      <a class="property-nav-item" href="property-customers.html">Vendors</a>
+      <a class="property-nav-item" href="property-spots.html">Map</a>
+      <a class="property-nav-item" href="qr-test.html">Cards</a>
+      <a class="property-nav-item" href="property-transactions.html">Transactions</a>
+  </div>
+  <form id="input-form" class="p-15 form hide">
+      <div id="messageAlert" class="hide alert" role="alert"></div>
+      <div class="form-group row">
+          <label class="col-xs-3 col-form-label col-form-label-lg">Date</label>
+          <div class="col-xs-9">
+              <input id="date" class="disable-on-save form-control" type="date">
+          </div>
+      </div>
+      <div class="form-group row">
+          <label class="col-xs-3 col-form-label col-form-label-lg">Amount</label>
+          <div class="col-xs-9">
+              <div class="input-group">
+                  <div class="input-group-addon">$</div>
+                  <input id="amount" class="disable-on-save form-control text-right" type="number" placeholder="0.00">
+              </div>
+          </div>
+      </div>
+      <div class="form-group row">
+          <label class="col-xs-3 col-form-label col-form-label-lg">Type</label>
+          <div class="col-xs-9">
+              <select id="type" class="disable-on-save form-control">
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+              </select>
+          </div>
+      </div>
+      <div class="form-group row">
+          <label class="col-xs-3 col-form-label col-form-label-lg">Item</label>
+          <div class="col-xs-9">
+              <select id="item" class="disable-on-save form-control">
+              </select>
+          </div>
+      </div>
+      <div class="form-group row">
+          <label class="col-xs-3 col-form-label col-form-label-lg">Memo</label>
+          <div class="col-xs-9">
+              <textarea id="memo" class="disable-on-save form-control"></textarea>
+          </div>
+      </div>
+      <input id="save-transaction" type="button" value="Save" class="disable-on-save btn btn-primary" />
+  </form>
+  <div class="container-fluid">
+      <input id="add-transaction" type="button" class="btn btn-primary" value="Add Transaction" />
+      <div class="row table-header-row">
+          <div class="col-xs-2">Type</div>
+          <div class="col-xs-2">Item</div>
+          <div class="col-xs-2">Amount</div>
+          <div class="col-xs-2">Date</div>
+          <div class="col-xs-4">Memo</div>
+      </div>
+      <div id="transactions-container" class="container-fluid"></div>
+  </div>
+  </body>
+</html>

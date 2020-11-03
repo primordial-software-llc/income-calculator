@@ -6,14 +6,15 @@ import TransactionsController from './controllers/transactions-controller';
 import DepositController from './controllers/deposit-controller';
 import PricesController from './controllers/prices-controller';
 import PayDaysController from './controllers/pay-days-controller';
+import PurchaseController from './controllers/purchase-controller';
+import BanksController from "./controllers/banks-controller";
 import PropertyPointOfSaleController from './controllers/property-point-of-sale-controller';
 import PropertyCustomerBalancesController from './controllers/property-customer-balances-controller';
 import PropertyCustomersController from './controllers/property-customers-controller';
 import PropertyCustomerEditController from './controllers/property-customer-edit-controller';
 import PropertySpotsController from './controllers/property-spots-controller';
 import PropertyReportsController from './controllers/property-reports-controller';
-import PurchaseController from './controllers/purchase-controller';
-import BanksController from "./controllers/banks-controller";
+import PropertyTransactionsController from './controllers/property-transactions-controller';
 
 export default class Navigation {
     static getNavItemView(url, name) {
@@ -37,6 +38,7 @@ export default class Navigation {
             authenticatedControllers.push(PropertyCustomerEditController);
             authenticatedControllers.push(PropertySpotsController);
             authenticatedControllers.push(PropertyReportsController);
+            authenticatedControllers.push(PropertyTransactionsController);
         }
         if (!(user || {}).billingAgreement || !(user || {}).billingAgreement.agreedToBillingTerms) {
             authenticatedControllers.push(PurchaseController);

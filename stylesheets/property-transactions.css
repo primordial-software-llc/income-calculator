@@ -1,0 +1,42 @@
+body label.col-form-label-lg,
+.input-group-addon,
+body textarea.form-control,
+body input.form-control,
+body #input-form,
+body select.form-control
+{
+    font-size: 30px;
+}
+
+body .form-control {
+    height: 50px;
+}
+
+#memo {
+    height: 150px;
+}
+
+.btn {
+    font-size: 30px;
+}
+
+body .property-nav .property-nav-item {
+    margin-left: 20px;
+    margin-right: 20px;
+    color: blue;
+    text-decoration: underline;
+    font-size: 36px;
+}
+
+#input-form .btn-primary {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.required-field-validation {
+    border: 3px solid red;
+}
+
+.row-type {
+    text-transform: capitalize;
+}
