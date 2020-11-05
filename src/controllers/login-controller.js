@@ -2,6 +2,7 @@ import AccountSettingsController from './account-settings-controller';
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 import DataClient from '../data-client';
 import MessageViewController from './message-view-controller';
+import Password from '../password';
 const OTPAuth = require('otpauth');
 const QRCode = require('qrcode');
 const Util = require('../util');
@@ -102,8 +103,7 @@ function LoginController() {
             MessageViewController.setMessage('');
             let username = $('#login-username').val().trim().toLowerCase();
             if (username.length < 1) {
-                MessageViewController.setMessage('Email is required', 'alert-danger');
-                return;
+                MessageViewController.setMessage('Username is required', 'alert-danger');
             }
             let cognitoUser = new AmazonCognitoIdentity.CognitoUser({
                 Username : username,
@@ -126,9 +126,15 @@ function LoginController() {
                     Username : username,
                     Pool : new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData())
                 });
+                let password = $('#forgot-password-new-password').val();
+                let issues = Password.getPasswordValidationIssues();
+                if (issues.length) {
+                    MessageViewController.setMessage(issues, 'alert-danger');
+                    return;
+                }
                 cognitoUser.confirmPassword(
                     $('#forgot-password-verification-code').val().trim(),
-                    $('#forgot-password-new-password').val(),
+                    password,
                     {
                         onFailure(err) {
                             Util.log(err);

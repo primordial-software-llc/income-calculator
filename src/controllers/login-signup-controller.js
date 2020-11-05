@@ -1,5 +1,6 @@
 import AccountSettingsController from './account-settings-controller';
 import DataClient from '../data-client';
+import Password from '../password';
 const Util = require('../util');
 
 function LoginSignupController() {
@@ -25,20 +26,7 @@ function LoginSignupController() {
         if ($('#login-username').val().trim().length < 1) {
             issues.push('Email is required');
         }
-        let password = $('#login-password').val().trim();
-        if (password.length < 1) {
-            issues.push('Password is required');
-        } else if (password.length < 8) {
-            issues.push('Password must be at least 8 characters');
-        } if (!new RegExp(/[A-Z]/).test(password)) {
-            issues.push('Password must contain at least one uppercase character');
-        } else if (!new RegExp(/[a-z]/).test(password)) {
-            issues.push('Password must contain at least one lowercase character');
-        } else if (!new RegExp(/[0-9]/).test(password)) {
-            issues.push('Password must contain at least one number');
-        } else if (!new RegExp(/[\.!@#\$%\^&\*\(\)_]/).test(password)) {
-            issues.push('Password must contain at least one of the following special characters: .!@#$%^&*()_');
-        }
+        issues = issues.concat(Password.getPasswordValidationIssues($('#login-password').val().trim()));
         if (!$('#acceptLicense').is(':checked')) {
             issues.push('You must agree to the license to proceed');
         }
