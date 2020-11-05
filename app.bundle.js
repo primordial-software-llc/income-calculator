@@ -22183,6 +22183,8 @@ function LoginController() {
         }
       });
       $('#submit-password-reset-verification-code').click(async function () {
+        _messageViewController.default.setMessage('');
+
         let username = $('#login-username').val().trim().toLowerCase();
         let cognitoUser = new AmazonCognitoIdentity.CognitoUser({
           Username: username,
@@ -22190,7 +22192,7 @@ function LoginController() {
         });
         let password = $('#forgot-password-new-password').val();
 
-        let issues = _password.default.getPasswordValidationIssues();
+        let issues = _password.default.getPasswordValidationIssues(password);
 
         if (issues.length) {
           _messageViewController.default.setMessage(issues, 'alert-danger');

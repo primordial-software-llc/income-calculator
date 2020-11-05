@@ -121,13 +121,14 @@ function LoginController() {
                 }
             });
             $('#submit-password-reset-verification-code').click(async function() {
+                MessageViewController.setMessage('');
                 let username = $('#login-username').val().trim().toLowerCase();
                 let cognitoUser = new AmazonCognitoIdentity.CognitoUser({
                     Username : username,
                     Pool : new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData())
                 });
                 let password = $('#forgot-password-new-password').val();
-                let issues = Password.getPasswordValidationIssues();
+                let issues = Password.getPasswordValidationIssues(password);
                 if (issues.length) {
                     MessageViewController.setMessage(issues, 'alert-danger');
                     return;
