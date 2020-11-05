@@ -23688,7 +23688,7 @@ class PropertyCustomersController {
         $('#item').append('<option value="Parking A">Parking A</option>');
         $('#item').append('<option value="Parking B">Parking B</option>');
         $('#item').append('<option value="Bar A">Bar A</option>');
-        $('#item').append('<option value="Bar A">Bar A</option>');
+        $('#item').append('<option value="Bar B">Bar B</option>');
         $('#item').append('<option value="Restaurant">Restaurant</option>');
       } else {
         $('#item').append('<option value="Contractor">Contractor</option>');
