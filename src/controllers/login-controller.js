@@ -98,6 +98,52 @@ function LoginController() {
             MessageViewController.setMessage('', 'alert-danger');
             await login($('#login-username').val().trim(), $('#login-password').val().trim());
         });
+        $('#forgot-password-button').click(async function() {
+            MessageViewController.setMessage('');
+            let username = $('#login-username').val().trim().toLowerCase();
+            if (username.length < 1) {
+                MessageViewController.setMessage('Email is required', 'alert-danger');
+                return;
+            }
+            let cognitoUser = new AmazonCognitoIdentity.CognitoUser({
+                Username : username,
+                Pool : new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData())
+            });
+            cognitoUser.forgotPassword({
+                onSuccess: function (result) {
+                    MessageViewController.setMessage('A verification code has been sent to your email address. Enter the verification code below', 'alert-info');
+                    $('.login-form').addClass('hide');
+                    $('.forgot-password-verification-mode').removeClass('hide');
+                },
+                onFailure: function (err) {
+                    Util.log(err)
+                    MessageViewController.setMessage(JSON.stringify(err), 'alert-danger');
+                }
+            });
+            $('#submit-password-reset-verification-code').click(async function() {
+                let username = $('#login-username').val().trim().toLowerCase();
+                let cognitoUser = new AmazonCognitoIdentity.CognitoUser({
+                    Username : username,
+                    Pool : new AmazonCognitoIdentity.CognitoUserPool(Util.getPoolData())
+                });
+                cognitoUser.confirmPassword(
+                    $('#forgot-password-verification-code').val().trim(),
+                    $('#forgot-password-new-password').val(),
+                    {
+                        onFailure(err) {
+                            Util.log(err);
+                            MessageViewController.setMessage(JSON.stringify(err), 'alert-danger');
+                        },
+                        onSuccess() {
+                            MessageViewController.setMessage('Password reset.', 'alert-success');
+                            $('#forgot-password-verification-code').val('');
+                            $('#forgot-password-new-password').val('');
+                            $('.login-form').removeClass('hide');
+                            $('.forgot-password-verification-mode').addClass('hide');
+                        },
+                })
+            });
+        });
     }
     this.init = function () {
         new AccountSettingsController().init({}, null, false);

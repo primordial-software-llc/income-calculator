@@ -39,10 +39,6 @@ export default class LoanViewModel {
                     interestParams.DayOfTheWeek = Moment(weeklyTxn.date).toDate().getUTCDay();
                     interestParams.payment = weeklyTxn.amount;
                 } else if (monthlyTxn) {
-                    console.log(monthlyTxn.date);
-                    console.log(Moment(monthlyTxn.date));
-                    console.log(Moment(monthlyTxn.date).toDate().getUTCDate());
-                    console.log(debt);
                     interestParams.DayOfTheMonth = Moment(monthlyTxn.date).toDate().getUTCDate();
                     interestParams.payment = monthlyTxn.amount;
                 }
