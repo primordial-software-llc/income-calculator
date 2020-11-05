@@ -21253,13 +21253,18 @@ function PayoffDateCalculator() {
                 params.abortDate.getTime() <= response.date.getTime()) {
                 break;
             }
-            if (response.date.getUTCDay() === params.DayOfTheWeek) {
-                let weeklyInterest = this.getWeeklyInterest(balance, params.rate);
-                response.totalInterest += weeklyInterest;
-                if (weeklyInterest > params.payment) {
+            if (
+                (params.DayOfTheWeek && response.date.getUTCDay() === params.DayOfTheWeek) ||
+                (params.DayOfTheMonth && response.date.getUTCDate() === params.DayOfTheMonth)
+            ) {
+                let interest = params.DayOfTheWeek
+                    ? this.getWeeklyInterest(balance, params.rate)
+                    : this.getMonthlyInterest(balance, params.rate);
+                response.totalInterest += interest;
+                if (interest > params.payment) {
                     throw 'payment must be greater than interest accrued.';
                 }
-                let principle = params.payment - weeklyInterest;
+                let principle = params.payment - interest;
                 balance -= principle;
             }
             response.date.setUTCDate(response.date.getUTCDate() + 1);
@@ -24734,12 +24739,6 @@ exports.getModel = function () {
   };
 };
 
-function getWeeklyAmount(budget, debtName) {
-  let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
-  let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
-  return monthlyTxn ? Currency(monthlyTxn.amount, Util.getCurrencyDefaults()).divide(cal.WEEKS_IN_MONTH).toString() : weeklyTxn ? weeklyTxn.amount : 0;
-}
-
 exports.setView = function (budget, obfuscate) {
   if (budget.failed && budget.failed.length > 0) {
     $('#message-container').html(`<div class="alert alert-warning" role="alert">
@@ -24766,7 +24765,9 @@ exports.setView = function (budget, obfuscate) {
       nonCurrentLiabilitiesTotal = nonCurrentLiabilitiesTotal.add(loan.amount);
     }
 
-    let loanView = new _loanViewModel.default().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
+    let monthlyTxn = budget.monthlyRecurringExpenses.find(x => (x.name || '').toLowerCase() === (loan.name || '').toLowerCase() && x.type === 'expense');
+    let weeklyTxn = budget.weeklyRecurringExpenses.find(x => (x.name || '').toLowerCase() === (loan.name || '').toLowerCase() && x.type === 'expense');
+    let loanView = new _loanViewModel.default().getView(loan, weeklyTxn, monthlyTxn, obfuscate);
     $('#balance-input-group').append(loanView);
   }
 
@@ -25332,6 +25333,8 @@ const Util = require('../../util');
 
 const Currency = require('currency.js');
 
+const Moment = require('moment/moment');
+
 class LoanViewModel {
   getModels() {
     let balances = [];
@@ -25350,20 +25353,32 @@ class LoanViewModel {
     };
   }
 
-  getView(debt, weeklyAmount, disable) {
+  getView(debt, weeklyTxn, monthlyTxn, disable) {
     let payOffDateText;
     let totalInterestText;
     let lifetimeInterestText;
 
-    if (weeklyAmount) {
+    if (weeklyTxn || monthlyTxn) {
       try {
-        let balanceStatement = payoffDateCalculator.getPayoffDate({
+        var interestParams = {
           startTime: Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()),
           totalAmount: debt.amount,
-          payment: weeklyAmount,
-          DayOfTheWeek: cal.FRIDAY,
           rate: debt.rate
-        });
+        };
+
+        if (weeklyTxn) {
+          interestParams.DayOfTheWeek = Moment(weeklyTxn.date).toDate().getUTCDay();
+          interestParams.payment = weeklyTxn.amount;
+        } else if (monthlyTxn) {
+          console.log(monthlyTxn.date);
+          console.log(Moment(monthlyTxn.date));
+          console.log(Moment(monthlyTxn.date).toDate().getUTCDate());
+          console.log(debt);
+          interestParams.DayOfTheMonth = Moment(monthlyTxn.date).toDate().getUTCDate();
+          interestParams.payment = monthlyTxn.amount;
+        }
+
+        let balanceStatement = payoffDateCalculator.getPayoffDate(interestParams);
         payOffDateText = balanceStatement.date.getUTCFullYear() + '-' + (balanceStatement.date.getUTCMonth() + 1) + '-' + balanceStatement.date.getUTCDate();
         totalInterestText = Util.format(Math.ceil(balanceStatement.totalInterest));
       } catch (err) {
@@ -25423,7 +25438,7 @@ class LoanViewModel {
 
 exports.default = LoanViewModel;
 
-},{"../../calculators/calendar":65,"../../calculators/payoff-date-calculator":68,"../../util":99,"currency.js":27}],110:[function(require,module,exports){
+},{"../../calculators/calendar":65,"../../calculators/payoff-date-calculator":68,"../../util":99,"currency.js":27,"moment/moment":32}],110:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

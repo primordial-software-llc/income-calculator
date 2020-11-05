@@ -10,12 +10,7 @@ const Util = require('../../util');
 exports.getModel = function () {
     return { balances: new LoanViewModel().getModels() };
 };
-function getWeeklyAmount(budget, debtName) {
-    let monthlyTxn = budget.monthlyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
-    let weeklyTxn = budget.weeklyRecurringExpenses.find(x => x.name === debtName && x.type === 'expense');
-    return monthlyTxn ? Currency(monthlyTxn.amount, Util.getCurrencyDefaults()).divide(cal.WEEKS_IN_MONTH).toString()
-        : weeklyTxn ? weeklyTxn.amount : 0;
-}
+
 exports.setView = function (budget, obfuscate) {
     if (budget.failed && budget.failed.length > 0) {
         $('#message-container').html(`<div class="alert alert-warning" role="alert">
@@ -41,7 +36,13 @@ exports.setView = function (budget, obfuscate) {
         } else {
             nonCurrentLiabilitiesTotal = nonCurrentLiabilitiesTotal.add(loan.amount);
         }
-        let loanView = new LoanViewModel().getView(loan, getWeeklyAmount(budget, loan.name), obfuscate);
+        let monthlyTxn = budget.monthlyRecurringExpenses.find(x => (x.name || '').toLowerCase() === (loan.name || '').toLowerCase() && x.type === 'expense');
+        let weeklyTxn = budget.weeklyRecurringExpenses.find(x => (x.name || '').toLowerCase() === (loan.name || '').toLowerCase() && x.type === 'expense');
+        let loanView = new LoanViewModel().getView(
+            loan,
+            weeklyTxn,
+            monthlyTxn,
+            obfuscate);
         $('#balance-input-group').append(loanView);
     }
 

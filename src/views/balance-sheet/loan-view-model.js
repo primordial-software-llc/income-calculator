@@ -3,6 +3,7 @@ const PayoffDateCalculator = require('../../calculators/payoff-date-calculator')
 const payoffDateCalculator = new PayoffDateCalculator();
 const Util = require('../../util');
 const Currency = require('currency.js');
+const Moment = require('moment/moment');
 export default class LoanViewModel {
     getModels() {
         let balances = [];
@@ -19,23 +20,33 @@ export default class LoanViewModel {
             "rate": Util.cleanseNumericString($(target).find('input.rate').val().trim())
         };
     }
-    getView(debt, weeklyAmount, disable) {
+    getView(debt, weeklyTxn, monthlyTxn, disable) {
         let payOffDateText;
         let totalInterestText;
         let lifetimeInterestText;
-        if (weeklyAmount) {
+        if (weeklyTxn || monthlyTxn) {
             try {
-                let balanceStatement = payoffDateCalculator.getPayoffDate({
+                var interestParams = {
                     startTime: Date.UTC(
                         new Date().getUTCFullYear(),
                         new Date().getUTCMonth(),
                         new Date().getUTCDate()
                     ),
                     totalAmount: debt.amount,
-                    payment: weeklyAmount,
-                    DayOfTheWeek: cal.FRIDAY,
                     rate: debt.rate
-                });
+                }
+                if (weeklyTxn) {
+                    interestParams.DayOfTheWeek = Moment(weeklyTxn.date).toDate().getUTCDay();
+                    interestParams.payment = weeklyTxn.amount;
+                } else if (monthlyTxn) {
+                    console.log(monthlyTxn.date);
+                    console.log(Moment(monthlyTxn.date));
+                    console.log(Moment(monthlyTxn.date).toDate().getUTCDate());
+                    console.log(debt);
+                    interestParams.DayOfTheMonth = Moment(monthlyTxn.date).toDate().getUTCDate();
+                    interestParams.payment = monthlyTxn.amount;
+                }
+                let balanceStatement = payoffDateCalculator.getPayoffDate(interestParams);
                 payOffDateText = balanceStatement.date.getUTCFullYear() + '-' +
                     (balanceStatement.date.getUTCMonth() + 1) + '-' +
                     balanceStatement.date.getUTCDate();
