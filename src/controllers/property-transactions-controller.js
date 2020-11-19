@@ -34,6 +34,9 @@ export default class PropertyCustomersController {
                 <div class="col-xs-4 row-memo">Memo</div>
             </div>`);
             let item = itemDictionary.find(x => x.account === transaction.account);
+            if (!item) {
+                item = itemDictionary.find(x => x.product === transaction.product);
+            }
             transactionView.find('.row-type').text(transaction.type);
             transactionView.find('.row-item').text(item.name);
             transactionView.find('.row-amount').text(Util.format(transaction.amount));
@@ -57,6 +60,7 @@ export default class PropertyCustomersController {
                 $('#item').append('<option value="Restaurant">Restaurant</option>');
             } else {
                 $('#item').append('<option value="Contractor">Contractor</option>');
+                $('#item').append('<option value="Cost of Goods Sold">Cost of Goods Sold</option>');
             }
         });
         $('#type').change();
@@ -70,7 +74,7 @@ export default class PropertyCustomersController {
             if (window.confirm('Are you sure you would like to send all transactions to the accounting system?')) {
                 let result;
                 try {
-                    result = await self.dataClient.post('point-of-sale/transaction', journalEntry);
+                    result = await self.dataClient.post('point-of-sale/send-to-accounting', {});
                 } catch (error) {
                     Util.log(error);
                     MessageViewController.setRequestErrorMessage(error);
@@ -114,7 +118,8 @@ export default class PropertyCustomersController {
             { name: "Bar A", account: 1862, product: 241 },
             { name: "Bar B", account: 1863, product: 240 },
             { name: "Restaurant", account: 1864, product: 238 },
-            { name: "Contractor", account: 1906, product: 47 }
+            { name: "Contractor", account: 1906, product: 47 },
+            { name: "Cost of Goods Sold", product: 69 }
         ];
     }
 }
