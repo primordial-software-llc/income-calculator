@@ -177,7 +177,7 @@ h4 {
 }
 
 .amount-description-column {
-    height: 40px;
+    min-height: 40px;
 }
 
 .transferring {
@@ -430,6 +430,11 @@ select.form-control {
     100% { transform: rotate(360deg); }
 }
 
+.dotted-underline-row.row.transaction-input-view {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
 /* Imago styles */
 .color-imago-cream {
     color: #FFFACD;
@@ -468,6 +473,10 @@ select.form-control {
 .p-left-15 {
     padding-left: 15px;
 }
+.p-right-15 {
+    padding-right: 15px;
+}
+
 .p-15 {
     padding: 15px;
 }

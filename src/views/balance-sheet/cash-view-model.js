@@ -39,7 +39,7 @@ export default class CashViewModel extends AssetViewModel {
               <div class="col-xs-1">Transfer</div>
           </div>`);
     }
-    getReadOnlyView(currentAssetAccount, totalOfType, disable, pending) {
+    getReadOnlyView(currentAssetAccount, disable, pending) {
         let startingCurrentBalance = currentAssetAccount.currentBalance === null || currentAssetAccount.currentBalance === undefined
             ? currentAssetAccount.amount
             : currentAssetAccount.currentBalance;

@@ -21,16 +21,12 @@ export default class AssetViewModel {
     getContainer(assetType) {
         return `<div class="row group-row">
           <div class="col-xs-11">
-              <h3 class="color-imago-cream">${assetType.getViewDescription()}
-              </h3>
+              <h4>${assetType.getViewDescription()}</h4>
           </div>
       </div>
       <div id="${assetType.getViewType()}-container">
           <div class="${assetType.getViewType()}-header-container"></div>
           <div id="${assetType.getViewType()}-input-group" class="form-group"></div>
-      </div>
-      <div class="subtotal color-imago-cream">
-          Total ${assetType.getViewDescription()}<span id="${assetType.getViewType()}-total-amount" class="pull-right amount"></span>
       </div>`;
     }
 }

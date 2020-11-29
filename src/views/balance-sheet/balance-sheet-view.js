@@ -1,5 +1,4 @@
 import BondViewModel from './bond-view-model';
-const cal = require('../../calculators/calendar');
 import CashViewModel from './cash-view-model';
 const Currency = require('currency.js');
 import EquityViewModel from './equity-view-model';
@@ -28,8 +27,6 @@ exports.setView = function (budget, obfuscate) {
     let currentLiabilitiesTotal = Currency(0, Util.getCurrencyDefaults());
     let nonCurrentLiabilitiesTotal = Currency(0, Util.getCurrencyDefaults());
 
-    let currentAssetTotal = Currency(0, Util.getCurrencyDefaults());
-    let nonCurrentAssetTotal = Currency(0, Util.getCurrencyDefaults());
     for (let loan of budget.balances) {
         if (loan.isCurrent) {
             currentLiabilitiesTotal = currentLiabilitiesTotal.add(loan.amount);
@@ -53,41 +50,48 @@ exports.setView = function (budget, obfuscate) {
         new EquityViewModel(),
         new PropertyPlantAndEquipmentViewModel()];
     for (let viewModel of viewModels) {
-        let assetTypeTotal = Currency(0, Util.getCurrencyDefaults());
         let assetsOfType = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === viewModel.getViewType().toLowerCase());
+        if (!assetsOfType) {
+            continue;
+        }
         if (viewModel.sort) {
             viewModel.sort(assetsOfType);
         }
-        if (assetsOfType.length > 0) {
-            $('#all-assets-container').append(viewModel.getContainer(viewModel));
-            $(`.${viewModel.getViewType().toLowerCase()}-header-container`).append(viewModel.getReadOnlyHeaderView());
-        }
+        let container = viewModel.isCurrentAsset() ? '#current-assets-container' : '#non-current-assets-container';
+        $(container).append(viewModel.getContainer(viewModel));
+        $(`.${viewModel.getViewType().toLowerCase()}-header-container`).append(viewModel.getReadOnlyHeaderView());
         for (let asset of assetsOfType) {
-            assetTypeTotal = assetTypeTotal.add(Util.getAmount(asset));
+            $(`#${viewModel.getViewType().toLowerCase()}-input-group`).append(viewModel.getReadOnlyView(asset, obfuscate, budget.pending));
         }
-        for (let asset of assetsOfType) {
-            $(`#${viewModel.getViewType().toLowerCase()}-input-group`).append(viewModel.getReadOnlyView(asset, assetTypeTotal, obfuscate, budget.pending));
-        }
-        if (viewModel.isCurrentAsset()) {
-            currentAssetTotal = currentAssetTotal.add(assetTypeTotal);
-        } else {
-            nonCurrentAssetTotal = nonCurrentAssetTotal.add(assetTypeTotal);
-        }
-        $(`#${viewModel.getViewType().toLowerCase()}-total-amount`).text(Util.format(assetTypeTotal.toString()));
     }
 
+    let currentAssetTotal =  budget.assets.filter(x => viewModels.find(vm =>(x.type || '').toLowerCase() === vm.getViewType().toLowerCase()).isCurrentAsset())
+        .reduce((accumulator, currentValue) => accumulator.add(Util.getAmount(currentValue)), Currency(0, Util.getCurrencyDefaults()));
+    let nonCurrentAssetTotal = budget.assets.filter(x => !viewModels.find(vm =>(x.type || '').toLowerCase() === vm.getViewType().toLowerCase()).isCurrentAsset())
+        .reduce((accumulator, currentValue) => accumulator.add(Util.getAmount(currentValue)), Currency(0, Util.getCurrencyDefaults()));
     let assetsTotal = currentAssetTotal.add(nonCurrentAssetTotal);
+
+    $('#total-tangible-assets').text(Util.format(nonCurrentAssetTotal));
+
+
     let liabilitiesTotal = currentLiabilitiesTotal.add(nonCurrentLiabilitiesTotal);
     let currentNet = currentAssetTotal.subtract(currentLiabilitiesTotal);
     let nonCurrentNet = nonCurrentAssetTotal.subtract(nonCurrentLiabilitiesTotal);
+
+
+
+
+    // (accumulator, currentValue) => accumulator.add(currentValue), );
+
+
+    $('#total-current-assets').text(Util.format(currentAssetTotal.toString()));
+
 
     $('#loan-total-amount-value').text(`(${Util.format(liabilitiesTotal.toString())})`);
     $('#total-current-liabilities').text(Util.format(currentLiabilitiesTotal));
     $('#total-current-net').text(Util.format(currentNet))
     $('#total-non-current-liabilities').text(Util.format(nonCurrentLiabilitiesTotal));
     $('#total-non-current-net').text(Util.format(nonCurrentNet));
-    $('#total-tangible-assets').text(Util.format(nonCurrentAssetTotal));
-    $('#total-non-tangible-assets').text(Util.format(currentAssetTotal.toString()));
     $('#total-debt').text(`(${Util.format(liabilitiesTotal)})`);
     let net = Currency(0, Util.getCurrencyDefaults())
         .subtract(liabilitiesTotal)

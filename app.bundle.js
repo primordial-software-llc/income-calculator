@@ -24669,27 +24669,47 @@ function obfuscateViewModel(viewModel) {
   }
 }
 
+function getAccountName(bank, account) {
+  return [bank.item.institution.name, account.subtype, account.mask].filter(x => x).join(' - ');
+}
+
 function mergeModels(data, bankData) {
   let viewModel = JSON.parse(JSON.stringify(data));
   viewModel.assets = viewModel.assets || [];
   viewModel.balances = viewModel.balances || [];
   viewModel.failed = bankData.failedAccounts;
 
-  for (let bankAccount of bankData.allAccounts || []) {
-    for (let account of bankAccount.accounts.filter(x => x.type !== 'credit' && (x.subtype === 'retirement' || x.subtype === '401k' || x.subtype === 'hsa' || x.subtype === 'ira'))) {
+  for (let bank of bankData.allAccounts || []) {
+    let assetAccounts = JSON.parse(JSON.stringify(bank.accounts.filter(x => x.type !== 'credit')));
+    let nonCurrentAccountTypes = ['retirement', '401k', 'hsa', 'ira', 'roth'];
+    let nonCurrentIncome = assetAccounts.filter(x => nonCurrentAccountTypes.find(y => x.subtype === y));
+    let currentIncome = assetAccounts.filter(x => !nonCurrentAccountTypes.find(y => x.subtype === y) && x.subtype !== 'brokerage');
+    let brokerageIncome = assetAccounts.filter(x => x.type !== 'credit' && x.subtype === 'brokerage');
+
+    for (let account of brokerageIncome) {
       viewModel.assets.push({
-        type: 'property-plant-and-equipment',
-        name: [bankAccount.item.institution.name, account.subtype, account.mask].filter(x => x).join(' - '),
+        type: 'cash-or-stock',
+        name: getAccountName(bank, account),
         amount: account.balances.current,
         id: account['account_id'],
         isAuthoritative: true
       });
     }
 
-    for (let account of bankAccount.accounts.filter(x => x.type !== 'credit' && x.subtype !== 'retirement' && x.subtype !== '401k' && x.subtype !== 'hsa' && x.subtype !== 'ira')) {
+    for (let account of nonCurrentIncome) {
+      viewModel.assets.push({
+        type: 'property-plant-and-equipment',
+        name: getAccountName(bank, account),
+        amount: account.balances.current,
+        id: account['account_id'],
+        isAuthoritative: true
+      });
+    }
+
+    for (let account of currentIncome) {
       viewModel.assets.push({
         type: 'cash',
-        name: [bankAccount.item.institution.name, account.subtype, account.mask].filter(x => x).join(' - '),
+        name: getAccountName(bank, account),
         amount: account.balances.available,
         currentBalance: account.balances.current,
         id: account['account_id'],
@@ -24697,10 +24717,10 @@ function mergeModels(data, bankData) {
       });
     }
 
-    for (let account of bankAccount.accounts.filter(x => x.type === 'credit')) {
+    for (let account of bank.accounts.filter(x => x.type === 'credit')) {
       viewModel.balances.push({
         type: account.type,
-        name: `${bankAccount.item.institution.name} - ${account.subtype} - ${account.mask}`,
+        name: getAccountName(bank, account),
         amount: account.balances.current,
         isAuthoritative: true,
         isCurrent: true
@@ -24789,16 +24809,12 @@ class AssetViewModel {
   getContainer(assetType) {
     return `<div class="row group-row">
           <div class="col-xs-11">
-              <h3 class="color-imago-cream">${assetType.getViewDescription()}
-              </h3>
+              <h4>${assetType.getViewDescription()}</h4>
           </div>
       </div>
       <div id="${assetType.getViewType()}-container">
           <div class="${assetType.getViewType()}-header-container"></div>
           <div id="${assetType.getViewType()}-input-group" class="form-group"></div>
-      </div>
-      <div class="subtotal color-imago-cream">
-          Total ${assetType.getViewDescription()}<span id="${assetType.getViewType()}-total-amount" class="pull-right amount"></span>
       </div>`;
   }
 
@@ -24822,8 +24838,6 @@ var _loanViewModel = _interopRequireDefault(require("./loan-view-model"));
 var _inventoryViewModel = _interopRequireDefault(require("./inventory-view-model"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-const cal = require('../../calculators/calendar');
 
 const Currency = require('currency.js');
 
@@ -24851,8 +24865,6 @@ exports.setView = function (budget, obfuscate) {
   $('#balance-input-group').empty();
   let currentLiabilitiesTotal = Currency(0, Util.getCurrencyDefaults());
   let nonCurrentLiabilitiesTotal = Currency(0, Util.getCurrencyDefaults());
-  let currentAssetTotal = Currency(0, Util.getCurrencyDefaults());
-  let nonCurrentAssetTotal = Currency(0, Util.getCurrencyDefaults());
 
   for (let loan of budget.balances) {
     if (loan.isCurrent) {
@@ -24870,46 +24882,39 @@ exports.setView = function (budget, obfuscate) {
   let viewModels = [new _cashViewModel.default(), new _bondViewModel.default(), new _inventoryViewModel.default(), new _equityViewModel.default(), new _propertyPlantAndEquipmentViewModel.default()];
 
   for (let viewModel of viewModels) {
-    let assetTypeTotal = Currency(0, Util.getCurrencyDefaults());
     let assetsOfType = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === viewModel.getViewType().toLowerCase());
+
+    if (!assetsOfType) {
+      continue;
+    }
 
     if (viewModel.sort) {
       viewModel.sort(assetsOfType);
     }
 
-    if (assetsOfType.length > 0) {
-      $('#all-assets-container').append(viewModel.getContainer(viewModel));
-      $(`.${viewModel.getViewType().toLowerCase()}-header-container`).append(viewModel.getReadOnlyHeaderView());
-    }
+    let container = viewModel.isCurrentAsset() ? '#current-assets-container' : '#non-current-assets-container';
+    $(container).append(viewModel.getContainer(viewModel));
+    $(`.${viewModel.getViewType().toLowerCase()}-header-container`).append(viewModel.getReadOnlyHeaderView());
 
     for (let asset of assetsOfType) {
-      assetTypeTotal = assetTypeTotal.add(Util.getAmount(asset));
+      $(`#${viewModel.getViewType().toLowerCase()}-input-group`).append(viewModel.getReadOnlyView(asset, obfuscate, budget.pending));
     }
-
-    for (let asset of assetsOfType) {
-      $(`#${viewModel.getViewType().toLowerCase()}-input-group`).append(viewModel.getReadOnlyView(asset, assetTypeTotal, obfuscate, budget.pending));
-    }
-
-    if (viewModel.isCurrentAsset()) {
-      currentAssetTotal = currentAssetTotal.add(assetTypeTotal);
-    } else {
-      nonCurrentAssetTotal = nonCurrentAssetTotal.add(assetTypeTotal);
-    }
-
-    $(`#${viewModel.getViewType().toLowerCase()}-total-amount`).text(Util.format(assetTypeTotal.toString()));
   }
 
+  let currentAssetTotal = budget.assets.filter(x => viewModels.find(vm => (x.type || '').toLowerCase() === vm.getViewType().toLowerCase()).isCurrentAsset()).reduce((accumulator, currentValue) => accumulator.add(Util.getAmount(currentValue)), Currency(0, Util.getCurrencyDefaults()));
+  let nonCurrentAssetTotal = budget.assets.filter(x => !viewModels.find(vm => (x.type || '').toLowerCase() === vm.getViewType().toLowerCase()).isCurrentAsset()).reduce((accumulator, currentValue) => accumulator.add(Util.getAmount(currentValue)), Currency(0, Util.getCurrencyDefaults()));
   let assetsTotal = currentAssetTotal.add(nonCurrentAssetTotal);
+  $('#total-tangible-assets').text(Util.format(nonCurrentAssetTotal));
   let liabilitiesTotal = currentLiabilitiesTotal.add(nonCurrentLiabilitiesTotal);
   let currentNet = currentAssetTotal.subtract(currentLiabilitiesTotal);
-  let nonCurrentNet = nonCurrentAssetTotal.subtract(nonCurrentLiabilitiesTotal);
+  let nonCurrentNet = nonCurrentAssetTotal.subtract(nonCurrentLiabilitiesTotal); // (accumulator, currentValue) => accumulator.add(currentValue), );
+
+  $('#total-current-assets').text(Util.format(currentAssetTotal.toString()));
   $('#loan-total-amount-value').text(`(${Util.format(liabilitiesTotal.toString())})`);
   $('#total-current-liabilities').text(Util.format(currentLiabilitiesTotal));
   $('#total-current-net').text(Util.format(currentNet));
   $('#total-non-current-liabilities').text(Util.format(nonCurrentLiabilitiesTotal));
   $('#total-non-current-net').text(Util.format(nonCurrentNet));
-  $('#total-tangible-assets').text(Util.format(nonCurrentAssetTotal));
-  $('#total-non-tangible-assets').text(Util.format(currentAssetTotal.toString()));
   $('#total-debt').text(`(${Util.format(liabilitiesTotal)})`);
   let net = Currency(0, Util.getCurrencyDefaults()).subtract(liabilitiesTotal).add(currentAssetTotal).add(nonCurrentAssetTotal);
   $('#total-assets').text(Util.format(assetsTotal));
@@ -24917,7 +24922,7 @@ exports.setView = function (budget, obfuscate) {
   $('#net-total').text(Util.format(net));
 };
 
-},{"../../calculators/calendar":65,"../../util":100,"./bond-view-model":105,"./cash-view-model":106,"./equity-view-model":107,"./inventory-view-model":109,"./loan-view-model":110,"./property-plant-and-equipment-view-model":111,"currency.js":27}],105:[function(require,module,exports){
+},{"../../util":100,"./bond-view-model":105,"./cash-view-model":106,"./equity-view-model":107,"./inventory-view-model":109,"./loan-view-model":110,"./property-plant-and-equipment-view-model":111,"currency.js":27}],105:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24943,7 +24948,7 @@ class BondViewModel extends _assetViewModel.default {
   }
 
   getViewDescription() {
-    return 'Bond';
+    return 'Bonds';
   }
 
   getViewType() {
@@ -24973,39 +24978,39 @@ class BondViewModel extends _assetViewModel.default {
 
   getHeaderView() {
     return $(`<div class="row table-header-row">
-              <div class="col-xs-4">Face Value</div>
               <div class="col-xs-4">Issue Date</div>
               <div class="col-xs-4">Time to Maturity</div>
+              <div class="col-xs-4">Face Value</div>
           </div>`);
   }
 
   getReadOnlyHeaderView() {
     return $(`<div class="row table-header-row color-imago-cream">
-              <div class="col-xs-2">Face Value</div>
               <div class="col-xs-4">Issue Date</div>
               <div class="col-xs-3">Time to Maturity</div>
               <div class="col-xs-2">Maturity Date</div>
               <div class="col-xs-1">Liquidate</div>
+              <div class="col-xs-2">Face Value</div>
           </div>`);
   }
 
-  getReadOnlyView(bond, totalOfType, disable) {
+  getReadOnlyView(bond, disable) {
     bond = bond || {};
     let maturityDateText = bond.issueDate ? Moment(bond.issueDate).add(bond.daysToMaturation, 'days').format('YYYY-MM-DD') : '';
     bond.issueDate = bond.issueDate || new Date().toISOString();
     bond.amount = bond.amount || '0.00';
     let viewContainer = $('<div></div>');
-    let view = $(`<div class="bond-item transaction-input-view row">
-                    <div class="col-xs-2 text-right vertical-align amount-description-column">
-                        ${Util.format(bond.amount)}
-                    </div>
-                    <div class="col-xs-4 text-center vertical-align amount-description-column">
+    let view = $(`<div class="bond-item transaction-input-view row dotted-underline-row">
+                    <div class="col-xs-4 text-center vertical-align amount-description-column dotted-underline truncate-with-ellipsis">
                         ${Moment(bond.issueDate).format('YYYY-MM-DD')}
                     </div>
-                    <div class="col-xs-3 text-center">
+                    <div class="col-xs-3 text-center vertical-align amount-description-column dotted-underline truncate-with-ellipsis">
                         ${bond.daysToMaturation / 7} weeks
                     </div>
-                    <div class="col-xs-2 text-center vertical-align amount-description-column">${maturityDateText}</div>
+                    <div class="col-xs-2 text-center vertical-align amount-description-column dotted-underline truncate-with-ellipsis">${maturityDateText}</div>
+                    <div class="col-xs-2 text-right vertical-align amount-description-column dotted-underline truncate-with-ellipsis">
+                        ${Util.format(bond.amount)}
+                    </div>
         `);
     viewContainer.append(view);
     let liquidateButton = $(`<div class="col-xs-1">
@@ -25021,12 +25026,6 @@ class BondViewModel extends _assetViewModel.default {
   getView(readOnlyAmount) {
     return $(`<div class="bond-item transaction-input-view row">
                     <div class="col-xs-4">
-                        <div class="input-group">
-                            <div class="input-group-addon ">$</div>
-                            <input class="amount form-control text-right" type="text" placeholder="0.00" />
-                        </div>
-                    </div>
-                    <div class="col-xs-4">
                         <input class="col-xs-3 issue-date form-control" type="text" value="${Moment(new Date().toISOString()).format('YYYY-MM-DD UTC Z')}" />
                     </div>
                     <div class="col-xs-4">
@@ -25037,7 +25036,13 @@ class BondViewModel extends _assetViewModel.default {
                             <option value="${7 * 26}">26 Weeks</option>
                             <option value="${7 * 56}">52 Weeks</option>
                         </select>
-                    </div>`);
+                    <div class="col-xs-4">
+                        <div class="input-group">
+                            <div class="input-group-addon ">$</div>
+                            <input class="amount form-control text-right" type="text" placeholder="0.00" />
+                        </div>
+                    </div>
+                </div>`);
   }
 
 }
@@ -25118,7 +25123,7 @@ class CashViewModel extends _assetViewModel.default {
           </div>`);
   }
 
-  getReadOnlyView(currentAssetAccount, totalOfType, disable, pending) {
+  getReadOnlyView(currentAssetAccount, disable, pending) {
     let startingCurrentBalance = currentAssetAccount.currentBalance === null || currentAssetAccount.currentBalance === undefined ? currentAssetAccount.amount : currentAssetAccount.currentBalance;
 
     let currentBalanceIncludingPending = _currentBalanceCalculator.default.getCurrentBalance(currentAssetAccount.name, startingCurrentBalance.toString(), pending, currentAssetAccount.type, currentAssetAccount.id);
@@ -25205,7 +25210,7 @@ class EquityViewModel extends _assetViewModel.default {
   }
 
   getViewDescription() {
-    return 'Stock';
+    return 'Stocks';
   }
 
   getViewType() {
@@ -25224,43 +25229,34 @@ class EquityViewModel extends _assetViewModel.default {
     };
   }
 
-  getAllocation(total, subtotal) {
-    let allocation = Currency(subtotal, {
-      precision: 4
-    }).divide(total).multiply(100).toString();
-    return Currency(allocation, {
-      precision: 2
-    }).toString() + "%";
-  }
-
   getReadOnlyHeaderView() {
     return $(`<div class="row table-header-row color-imago-cream">
+              <div class="col-xs-4">Name</div>
               <div class="col-xs-2">Shares</div>
               <div class="col-xs-2">Share Price</div>
               <div class="col-xs-3">Current Value</div>
-              <div class="col-xs-2">Name</div>
-              <div class="col-xs-2">Allocation</div>
               <div class="col-xs-1">Liquidate</div>
           </div>`);
   }
 
-  getReadOnlyView(equity, totalOfType, disable) {
-    let amount = Util.getAmount({
-      "sharePrice": equity.sharePrice,
-      "shares": equity.shares
-    });
+  getReadOnlyView(equity, disable) {
     equity.name = equity.name || '';
-    let allocation = this.getAllocation(totalOfType, amount);
-    let view = $(`<div class="asset-item row transaction-input-view">
-                    <div class="col-xs-2 text-right vertical-align amount-description-column">${Util.formatShares(equity.shares)}</div>
-                    <div class="col-xs-2 text-right vertical-align amount-description-column">${Util.format(equity.sharePrice)}</div>
-                    <div class="col-xs-3 text-right vertical-align amount-description-column">${Util.format(amount)}</div>
-                    <div class="col-xs-2 text-center vertical-align amount-description-column asset-name link-color-white" >
-                        <a target="_blank" href="https://finance.yahoo.com/quote/${equity.name}" title="View Chart">${equity.name}</a>
-                    </div>
-                    <div class="col-xs-2 text-right vertical-align amount-description-column">${allocation.toString()}</div>
+    let view = $(`<div class="asset-item row transaction-input-view dotted-underline-row">
+                    <div class="col-xs-4 text-left vertical-align amount-description-column asset-name dotted-underline truncate-with-ellipsis"><div></div></div>
+                    <div class="col-xs-2 text-right vertical-align amount-description-column asset-shares dotted-underline truncate-with-ellipsis"></div>
+                    <div class="col-xs-2 text-right vertical-align amount-description-column asset-share-price dotted-underline truncate-with-ellipsis"></div>
+                    <div class="col-xs-3 text-right vertical-align amount-description-column asset-amount dotted-underline truncate-with-ellipsis"></div>
                   </div>
         `);
+    view.find('.asset-name > div').text(equity.name);
+
+    if (equity.isAuthoritative) {
+      view.find('.asset-name > div').prepend(`<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>&nbsp;`);
+    }
+
+    view.find('.asset-shares').text(equity.shares ? Util.formatShares(equity.shares) : '');
+    view.find('.asset-share-price').text(equity.sharePrice ? Util.format(equity.sharePrice) : '');
+    view.find('.asset-amount').text(Util.format(Util.getAmount(equity)));
     let transferButton = $(`<div class="col-xs-1">
                             <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
@@ -25561,7 +25557,7 @@ class PropertyPlantAndEquipmentViewModel extends _assetViewModel.default {
     return 'property-plant-and-equipment';
   }
 
-  getReadOnlyView(model, totalOfType, disable) {
+  getReadOnlyView(model, disable) {
     let icon = model.isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
     let view = $(`
         <div>

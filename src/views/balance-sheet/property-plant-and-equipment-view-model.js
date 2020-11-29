@@ -6,7 +6,7 @@ export default class PropertyPlantAndEquipmentViewModel extends AssetViewModel {
     isCurrentAsset() { return false; }
     getViewDescription() { return 'Non-Liquid Assets' };
     getViewType() { return 'property-plant-and-equipment' };
-    getReadOnlyView(model, totalOfType, disable) {
+    getReadOnlyView(model, disable) {
         let icon = model.isAuthoritative
             ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`
             : '';
