@@ -7,35 +7,36 @@ export default class PropertyPlantAndEquipmentViewModel extends AssetViewModel {
     getViewDescription() { return 'Non-Liquid Assets' };
     getViewType() { return 'property-plant-and-equipment' };
     getReadOnlyView(model, disable) {
-        let icon = model.isAuthoritative
-            ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`
-            : '';
         let view = $(`
         <div>
             <div class="dotted-underline-row row transaction-input-view">
                 <div class="col-xs-8 vertical-align amount-description-column">
-                    <div class="dotted-underline truncate-with-ellipsis">
-                        ${icon}
-                        ${model.name}
-                    </div>
+                    <div class="dotted-underline truncate-with-ellipsis model-name"></div>
                 </div>
                 <div class="col-xs-3 text-right vertical-align amount-description-column">
-                    <div class="dotted-underline">${Util.format(model.amount)}</div>
+                    <div class="dotted-underline model-amount"></div>
                 </div>
-                <div class="col-xs-1 transfer-button">
-                    <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
-                        <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
-                    </button>
-                  </div>
+                <div class="col-xs-1 transfer-button"></div>
             </div>
         </div>`);
-
-        new TransferController().init(
-            view.find('.transfer-button'),
-            view,
-            model.name,
-            [new CashViewModel()],
-            model.id);
+        view.find('.model-name').text(model.name);
+        if (model.isAuthoritative) {
+            view.find('.model-name').prepend(`<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`);
+        }
+        view.find('.model-amount').text(Util.format(model.amount));
+        let transferButton;
+        if (!model.isAuthoritative) {
+            transferButton = $(`<button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
+                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+            </button>`);
+            view.find('.transfer-button').append(transferButton);
+            new TransferController().init(
+                transferButton,
+                view,
+                model.name,
+                [new CashViewModel()],
+                model.id);
+        }
         return view;
     }
     getView() {

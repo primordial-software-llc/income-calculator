@@ -51,7 +51,7 @@ exports.setView = function (budget, obfuscate) {
         new PropertyPlantAndEquipmentViewModel()];
     for (let viewModel of viewModels) {
         let assetsOfType = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === viewModel.getViewType().toLowerCase());
-        if (!assetsOfType) {
+        if (!assetsOfType.length) {
             continue;
         }
         if (viewModel.sort) {
@@ -73,20 +73,11 @@ exports.setView = function (budget, obfuscate) {
 
     $('#total-tangible-assets').text(Util.format(nonCurrentAssetTotal));
 
-
     let liabilitiesTotal = currentLiabilitiesTotal.add(nonCurrentLiabilitiesTotal);
     let currentNet = currentAssetTotal.subtract(currentLiabilitiesTotal);
     let nonCurrentNet = nonCurrentAssetTotal.subtract(nonCurrentLiabilitiesTotal);
 
-
-
-
-    // (accumulator, currentValue) => accumulator.add(currentValue), );
-
-
     $('#total-current-assets').text(Util.format(currentAssetTotal.toString()));
-
-
     $('#loan-total-amount-value').text(`(${Util.format(liabilitiesTotal.toString())})`);
     $('#total-current-liabilities').text(Util.format(currentLiabilitiesTotal));
     $('#total-current-net').text(Util.format(currentNet))

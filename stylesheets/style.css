@@ -386,7 +386,7 @@ select.form-control {
 }
 
 .dotted-underline-row > div:last-child {
-    padding-left: 0;
+    padding-left: 15px;
 }
 
 /* Forms */

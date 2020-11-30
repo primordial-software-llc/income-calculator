@@ -27,7 +27,6 @@ export default class EquityViewModel extends AssetViewModel {
           </div>`);
     }
     getReadOnlyView(equity, disable) {
-        equity.name = equity.name || '';
         let view = $(`<div class="asset-item row transaction-input-view dotted-underline-row">
                     <div class="col-xs-4 text-left vertical-align amount-description-column asset-name dotted-underline truncate-with-ellipsis"><div></div></div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column asset-shares dotted-underline truncate-with-ellipsis"></div>
@@ -35,6 +34,7 @@ export default class EquityViewModel extends AssetViewModel {
                     <div class="col-xs-3 text-right vertical-align amount-description-column asset-amount dotted-underline truncate-with-ellipsis"></div>
                   </div>
         `);
+        equity.name = equity.name || '';
         view.find('.asset-name > div').text(equity.name);
         if (equity.isAuthoritative) {
             view.find('.asset-name > div').prepend(`<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>&nbsp;`);
@@ -42,20 +42,22 @@ export default class EquityViewModel extends AssetViewModel {
         view.find('.asset-shares').text(equity.shares ? Util.formatShares(equity.shares) : '');
         view.find('.asset-share-price').text(equity.sharePrice ? Util.format(equity.sharePrice) : '');
         view.find('.asset-amount').text(Util.format(Util.getAmount(equity)));
-        let transferButton = $(`<div class="col-xs-1">
+        let viewContainer = $('<div></div>');
+        viewContainer.append(view);
+        if (!equity.isAuthoritative) {
+            let transferButton = $(`<div class="col-xs-1">
                             <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
                             </button>
                           </div>`);
-        view.append(transferButton);
-        let viewContainer = $('<div></div>');
-        viewContainer.append(view);
-        new TransferController().init(
-            transferButton,
-            viewContainer,
-            equity.name,
-            [new CashViewModel()],
-            equity.id);
+            view.append(transferButton);
+            new TransferController().init(
+                transferButton,
+                viewContainer,
+                equity.name,
+                [new CashViewModel()],
+                equity.id);
+        }
         return viewContainer;
     };
     getHeaderView() {

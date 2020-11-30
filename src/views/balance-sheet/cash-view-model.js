@@ -74,30 +74,32 @@ export default class CashViewModel extends AssetViewModel {
                     <div class="col-xs-3 text-right vertical-align amount-description-column">
                         <div class="dotted-underline link-color-white-always-underline">${currentBalanceView}</div>
                     </div>
+                    <div class="col-xs-1 transfer-button-container"></div>
             </div>
         `);
-        let transferButton = $(`<div class="col-xs-1">
-                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
-                                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
-                            </button>
-                          </div>`);
-        view.append(transferButton);
+        let transferButton;
         let viewContainer = $('<div></div>');
         viewContainer.append(view);
-        new TransferController().init(
-            transferButton,
-            viewContainer,
-            currentAssetAccount.name,
-            [
-                new CashViewModel(),
-                new EquityViewModel(),
-                new ExpenseViewModel(),
-                new PropertyPlantAndEquipmentViewModel(),
-                new BondViewModel(),
-                new InventoryViewModel()
-            ],
-            currentAssetAccount.id
-        );
+        if (!currentAssetAccount.isAuthoritative) {
+            transferButton = $(`<button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
+                                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+                            </button>`);
+            view.find('.transfer-button-container').append(transferButton);
+            new TransferController().init(
+                transferButton,
+                viewContainer,
+                currentAssetAccount.name,
+                [
+                    new CashViewModel(),
+                    new EquityViewModel(),
+                    new ExpenseViewModel(),
+                    new PropertyPlantAndEquipmentViewModel(),
+                    new BondViewModel(),
+                    new InventoryViewModel()
+                ],
+                currentAssetAccount.id
+            );
+        }
         return viewContainer;
     };
     getView(readOnlyAmount) {

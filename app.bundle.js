@@ -24884,7 +24884,7 @@ exports.setView = function (budget, obfuscate) {
   for (let viewModel of viewModels) {
     let assetsOfType = (budget.assets || []).filter(x => (x.type || '').toLowerCase() === viewModel.getViewType().toLowerCase());
 
-    if (!assetsOfType) {
+    if (!assetsOfType.length) {
       continue;
     }
 
@@ -24907,8 +24907,7 @@ exports.setView = function (budget, obfuscate) {
   $('#total-tangible-assets').text(Util.format(nonCurrentAssetTotal));
   let liabilitiesTotal = currentLiabilitiesTotal.add(nonCurrentLiabilitiesTotal);
   let currentNet = currentAssetTotal.subtract(currentLiabilitiesTotal);
-  let nonCurrentNet = nonCurrentAssetTotal.subtract(nonCurrentLiabilitiesTotal); // (accumulator, currentValue) => accumulator.add(currentValue), );
-
+  let nonCurrentNet = nonCurrentAssetTotal.subtract(nonCurrentLiabilitiesTotal);
   $('#total-current-assets').text(Util.format(currentAssetTotal.toString()));
   $('#loan-total-amount-value').text(`(${Util.format(liabilitiesTotal.toString())})`);
   $('#total-current-liabilities').text(Util.format(currentLiabilitiesTotal));
@@ -24989,8 +24988,8 @@ class BondViewModel extends _assetViewModel.default {
               <div class="col-xs-4">Issue Date</div>
               <div class="col-xs-3">Time to Maturity</div>
               <div class="col-xs-2">Maturity Date</div>
-              <div class="col-xs-1">Liquidate</div>
               <div class="col-xs-2">Face Value</div>
+              <div class="col-xs-1">Liquidate</div>
           </div>`);
   }
 
@@ -25146,17 +25145,21 @@ class CashViewModel extends _assetViewModel.default {
                     <div class="col-xs-3 text-right vertical-align amount-description-column">
                         <div class="dotted-underline link-color-white-always-underline">${currentBalanceView}</div>
                     </div>
+                    <div class="col-xs-1 transfer-button-container"></div>
             </div>
         `);
-    let transferButton = $(`<div class="col-xs-1">
-                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
-                                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
-                            </button>
-                          </div>`);
-    view.append(transferButton);
+    let transferButton;
     let viewContainer = $('<div></div>');
     viewContainer.append(view);
-    new TransferController().init(transferButton, viewContainer, currentAssetAccount.name, [new CashViewModel(), new _equityViewModel.default(), new ExpenseViewModel(), new _propertyPlantAndEquipmentViewModel.default(), new _bondViewModel.default(), new _inventoryViewModel.default()], currentAssetAccount.id);
+
+    if (!currentAssetAccount.isAuthoritative) {
+      transferButton = $(`<button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate or Stock">
+                                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+                            </button>`);
+      view.find('.transfer-button-container').append(transferButton);
+      new TransferController().init(transferButton, viewContainer, currentAssetAccount.name, [new CashViewModel(), new _equityViewModel.default(), new ExpenseViewModel(), new _propertyPlantAndEquipmentViewModel.default(), new _bondViewModel.default(), new _inventoryViewModel.default()], currentAssetAccount.id);
+    }
+
     return viewContainer;
   }
 
@@ -25240,7 +25243,6 @@ class EquityViewModel extends _assetViewModel.default {
   }
 
   getReadOnlyView(equity, disable) {
-    equity.name = equity.name || '';
     let view = $(`<div class="asset-item row transaction-input-view dotted-underline-row">
                     <div class="col-xs-4 text-left vertical-align amount-description-column asset-name dotted-underline truncate-with-ellipsis"><div></div></div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column asset-shares dotted-underline truncate-with-ellipsis"></div>
@@ -25248,6 +25250,7 @@ class EquityViewModel extends _assetViewModel.default {
                     <div class="col-xs-3 text-right vertical-align amount-description-column asset-amount dotted-underline truncate-with-ellipsis"></div>
                   </div>
         `);
+    equity.name = equity.name || '';
     view.find('.asset-name > div').text(equity.name);
 
     if (equity.isAuthoritative) {
@@ -25257,15 +25260,19 @@ class EquityViewModel extends _assetViewModel.default {
     view.find('.asset-shares').text(equity.shares ? Util.formatShares(equity.shares) : '');
     view.find('.asset-share-price').text(equity.sharePrice ? Util.format(equity.sharePrice) : '');
     view.find('.asset-amount').text(Util.format(Util.getAmount(equity)));
-    let transferButton = $(`<div class="col-xs-1">
+    let viewContainer = $('<div></div>');
+    viewContainer.append(view);
+
+    if (!equity.isAuthoritative) {
+      let transferButton = $(`<div class="col-xs-1">
                             <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
                             </button>
                           </div>`);
-    view.append(transferButton);
-    let viewContainer = $('<div></div>');
-    viewContainer.append(view);
-    new TransferController().init(transferButton, viewContainer, equity.name, [new _cashViewModel.default()], equity.id);
+      view.append(transferButton);
+      new TransferController().init(transferButton, viewContainer, equity.name, [new _cashViewModel.default()], equity.id);
+    }
+
     return viewContainer;
   }
 
@@ -25558,27 +25565,35 @@ class PropertyPlantAndEquipmentViewModel extends _assetViewModel.default {
   }
 
   getReadOnlyView(model, disable) {
-    let icon = model.isAuthoritative ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>` : '';
     let view = $(`
         <div>
             <div class="dotted-underline-row row transaction-input-view">
                 <div class="col-xs-8 vertical-align amount-description-column">
-                    <div class="dotted-underline truncate-with-ellipsis">
-                        ${icon}
-                        ${model.name}
-                    </div>
+                    <div class="dotted-underline truncate-with-ellipsis model-name"></div>
                 </div>
                 <div class="col-xs-3 text-right vertical-align amount-description-column">
-                    <div class="dotted-underline">${Util.format(model.amount)}</div>
+                    <div class="dotted-underline model-amount"></div>
                 </div>
-                <div class="col-xs-1 transfer-button">
-                    <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
-                        <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
-                    </button>
-                  </div>
+                <div class="col-xs-1 transfer-button"></div>
             </div>
         </div>`);
-    new TransferController().init(view.find('.transfer-button'), view, model.name, [new _cashViewModel.default()], model.id);
+    view.find('.model-name').text(model.name);
+
+    if (model.isAuthoritative) {
+      view.find('.model-name').prepend(`<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`);
+    }
+
+    view.find('.model-amount').text(Util.format(model.amount));
+    let transferButton;
+
+    if (!model.isAuthoritative) {
+      transferButton = $(`<button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
+                <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
+            </button>`);
+      view.find('.transfer-button').append(transferButton);
+      new TransferController().init(transferButton, view, model.name, [new _cashViewModel.default()], model.id);
+    }
+
     return view;
   }
 

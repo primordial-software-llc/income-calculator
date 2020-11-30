@@ -38,8 +38,8 @@ export default class BondViewModel extends AssetViewModel {
               <div class="col-xs-4">Issue Date</div>
               <div class="col-xs-3">Time to Maturity</div>
               <div class="col-xs-2">Maturity Date</div>
-              <div class="col-xs-1">Liquidate</div>
               <div class="col-xs-2">Face Value</div>
+              <div class="col-xs-1">Liquidate</div>
           </div>`);
     }
     getReadOnlyView(bond, disable) {
