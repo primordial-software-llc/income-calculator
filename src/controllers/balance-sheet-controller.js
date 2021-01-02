@@ -1,5 +1,5 @@
 import AccountSettingsController from './account-settings-controller';
-const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
+import BalanceSheetView from '../views/balance-sheet/balance-sheet-view';
 import DataClient from '../data-client';
 import LoanViewModel from '../views/balance-sheet/loan-view-model';
 import BalanceSheetViewModel from '../view-models/balance-sheet-view-model';
@@ -11,7 +11,7 @@ async function refresh() {
         let bankData = await new DataClient().get('accountBalance'); // Synchronous so there are no uncaught promises if authentication fails. Call to budget is fast anyway.
         let obfuscate = Util.obfuscate();
         let viewModel = BalanceSheetViewModel.getViewModel(data, bankData, obfuscate);
-        balanceSheetView.setView(viewModel, obfuscate);
+        new BalanceSheetView().setView(viewModel, obfuscate);
     } catch (err) {
         Util.log(err);
     }
@@ -24,7 +24,7 @@ export default class BalanceSheetController {
         return `${Util.rootUrl()}/pages/balance-sheet.html`;
     }
     async init(usernameResponse) {
-        new AccountSettingsController().init(balanceSheetView, usernameResponse, true);
+        new AccountSettingsController().init(new BalanceSheetView(), usernameResponse, true);
         if (Util.obfuscate()) {
             $('#add-new-balance').prop('disabled', true);
         }

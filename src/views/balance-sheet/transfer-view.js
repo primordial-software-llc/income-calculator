@@ -3,7 +3,11 @@ function TransferView() {
     this.getView = function (name, allowableTransferViewModels) {
         let options = '';
         for (let viewModel of allowableTransferViewModels) {
-            options += `<option value="${viewModel.getViewType()}">${viewModel.getViewDescription()}</option>`;
+            let description = viewModel.getViewDescription();
+            if (viewModel.isCurrentAsset) {
+                description = `${!viewModel.isCurrentAsset() ? 'Non-Liquid - ' : 'Liquid - '}${description}`;
+            }
+            options += `<option value="${viewModel.getViewType()}">${description}</option>`;
         }
         let defaultTransactionDate = Moment().add(1, 'days').format('YYYY-MM-DD UTC Z');
         return `<form class="transferring">

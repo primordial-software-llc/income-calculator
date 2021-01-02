@@ -32,6 +32,7 @@ export default class EquityViewModel extends AssetViewModel {
                     <div class="col-xs-2 text-right vertical-align amount-description-column asset-shares dotted-underline truncate-with-ellipsis"></div>
                     <div class="col-xs-2 text-right vertical-align amount-description-column asset-share-price dotted-underline truncate-with-ellipsis"></div>
                     <div class="col-xs-3 text-right vertical-align amount-description-column asset-amount dotted-underline truncate-with-ellipsis"></div>
+                    <div class="col-xs-1 transfer-button-container"></div>
                   </div>
         `);
         equity.name = equity.name || '';
@@ -45,11 +46,9 @@ export default class EquityViewModel extends AssetViewModel {
         let viewContainer = $('<div></div>');
         viewContainer.append(view);
         if (!equity.isAuthoritative) {
-            let transferButton = $(`<div class="col-xs-1">
-                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
+            let transferButton = $(`<button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
-                            </button>
-                          </div>`);
+                            </button>`);
             view.append(transferButton);
             new TransferController().init(
                 transferButton,

@@ -31,7 +31,7 @@ export default class InventoryViewModel extends AssetViewModel {
         </div>`);
 
         new TransferController().init(
-            view.find('.transfer-button'),
+            view.find('.transfer-button > button'),
             view,
             model.name,
             [new CashViewModel()],

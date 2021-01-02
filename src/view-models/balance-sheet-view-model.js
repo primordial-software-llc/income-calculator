@@ -47,7 +47,7 @@ function mergeModels(data, bankData) {
         }
         for (let account of nonCurrentIncome) {
             viewModel.assets.push({
-                type: 'property-plant-and-equipment',
+                type: 'non-liquid-stocks-and-bonds',
                 name: getAccountName(bank, account),
                 amount: account.balances.current,
                 id: account['account_id'],

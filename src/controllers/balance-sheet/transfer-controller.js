@@ -10,8 +10,8 @@ function TransferController() {
         allowableTransferViewModels,
         debitId,
         readOnlyAmount) {
-        transferButton.find('button').click(function () {
-            transferButton.find('button').attr('disabled', true);
+        transferButton.click(function () {
+            transferButton.attr('disabled', true);
             let transferView = $(new TransferView().getView(debitAccountName, allowableTransferViewModels));
             viewContainer.append(transferView);
             let viewModel;
@@ -61,7 +61,7 @@ function TransferController() {
                 }
             });
             cancelTransferBtn.click(function () {
-                transferButton.find('button').attr("disabled", false);
+                transferButton.attr("disabled", false);
                 transferView.remove();
             });
         });

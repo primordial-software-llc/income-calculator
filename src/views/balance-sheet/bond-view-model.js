@@ -61,14 +61,13 @@ export default class BondViewModel extends AssetViewModel {
                     <div class="col-xs-2 text-right vertical-align amount-description-column dotted-underline truncate-with-ellipsis">
                         ${Util.format(bond.amount)}
                     </div>
+                    <div class="col-xs-1 transfer-button-container"></div>
         `);
         viewContainer.append(view);
-        let liquidateButton = $(`<div class="col-xs-1">
-                            <button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate bond">
+        let liquidateButton = $(`<button ${disable ? 'disabled="disabled"' : ''} type="button" class="btn btn-success add-remove-btn" title="Liquidate bond">
                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"></span>
-                            </button>
-                          </div>`);
-        view.append(liquidateButton);
+                            </button>`);
+        view.find('.transfer-button-container').append(liquidateButton);
         new TransferController().init(
             liquidateButton,
             viewContainer,
@@ -81,18 +80,12 @@ export default class BondViewModel extends AssetViewModel {
         return viewContainer;
     };
     getView(readOnlyAmount) {
-        return $(`<div class="bond-item transaction-input-view row">
+        let view = $(`<div class="bond-item transaction-input-view row">
                     <div class="col-xs-4">
                         <input class="col-xs-3 issue-date form-control" type="text" value="${Moment(new Date().toISOString()).format('YYYY-MM-DD UTC Z')}" />
                     </div>
                     <div class="col-xs-4">
-                        <select class="type form-control">
-                            <option value="${7*4}">4 Weeks</option>
-                            <option value="${7*8}">8 Weeks</option>
-                            <option value="${7*13}">13 Weeks</option>
-                            <option value="${7*26}">26 Weeks</option>
-                            <option value="${7*56}">52 Weeks</option>
-                        </select>
+                        <select class="type form-control"></select>
                     <div class="col-xs-4">
                         <div class="input-group">
                             <div class="input-group-addon ">$</div>
@@ -100,6 +93,13 @@ export default class BondViewModel extends AssetViewModel {
                         </div>
                     </div>
                 </div>`);
+
+        let treasuryBillIntervalsInWeeks = [4, 8, 13, 26, 52 ];
+        for (let interval of treasuryBillIntervalsInWeeks) {
+            view.find('select').append(`<option value="${7*interval}">${interval} Weeks</option>`)
+        }
+
+        return view;
     };
 
 }

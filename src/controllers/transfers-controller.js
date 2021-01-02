@@ -1,6 +1,6 @@
 import AccountSettingsController from './account-settings-controller';
 import TransferView from '../views/transfer-view';
-const balanceSheetView = require('../views/balance-sheet/balance-sheet-view');
+import BalanceSheetView from '../views/balance-sheet/balance-sheet-view';
 const Currency = require('currency.js');
 import DataClient from '../data-client';
 const Util = require('../util');
@@ -99,7 +99,7 @@ export default class TransfersController {
         }
     }
     async init(usernameResponse) {
-        new AccountSettingsController().init(balanceSheetView, usernameResponse, true);
+        new AccountSettingsController().init(new BalanceSheetView, usernameResponse, true);
         this.refresh();
     }
 }

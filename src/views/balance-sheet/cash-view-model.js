@@ -1,3 +1,4 @@
+import AssetViewModels from '../../view-models/asset-view-models';
 import BondViewModel from './bond-view-model';
 import CurrentBalanceCalculator from '../../calculators/current-balance-calculator';
 const ExpenseViewModel = require('./expense-view-model');
@@ -89,14 +90,7 @@ export default class CashViewModel extends AssetViewModel {
                 transferButton,
                 viewContainer,
                 currentAssetAccount.name,
-                [
-                    new CashViewModel(),
-                    new EquityViewModel(),
-                    new ExpenseViewModel(),
-                    new PropertyPlantAndEquipmentViewModel(),
-                    new BondViewModel(),
-                    new InventoryViewModel()
-                ],
+                AssetViewModels.getAssetViewModels().concat(new ExpenseViewModel()),
                 currentAssetAccount.id
             );
         }

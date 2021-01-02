@@ -3,9 +3,14 @@ import AssetViewModel from "./asset-view-model";
 const TransferController = require('../../controllers/balance-sheet/transfer-controller');
 const Util = require('../../util');
 export default class PropertyPlantAndEquipmentViewModel extends AssetViewModel {
+    constructor(viewDescription, viewType) {
+        super();
+        this.viewDescription = viewDescription;
+        this.viewType = viewType;
+    }
     isCurrentAsset() { return false; }
-    getViewDescription() { return 'Non-Liquid Assets' };
-    getViewType() { return 'property-plant-and-equipment' };
+    getViewDescription() { return this.viewDescription };
+    getViewType() { return this.viewType };
     getReadOnlyView(model, disable) {
         let view = $(`
         <div>
@@ -21,7 +26,7 @@ export default class PropertyPlantAndEquipmentViewModel extends AssetViewModel {
         </div>`);
         view.find('.model-name').text(model.name);
         if (model.isAuthoritative) {
-            view.find('.model-name').prepend(`<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`);
+            view.find('.model-name').prepend(`<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>&nbsp;`);
         }
         view.find('.model-amount').text(Util.format(model.amount));
         let transferButton;

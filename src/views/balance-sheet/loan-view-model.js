@@ -1,4 +1,3 @@
-const cal = require('../../calculators/calendar');
 const PayoffDateCalculator = require('../../calculators/payoff-date-calculator');
 const payoffDateCalculator = new PayoffDateCalculator();
 const Util = require('../../util');
