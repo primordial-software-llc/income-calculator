@@ -61,18 +61,18 @@ export default class PropertySpotsController {
             '7cbad948-f2f1-4930-8dd6-f930f7df4518', // building 7
             '3d737dc0-6675-4530-9018-1e2db6a73774', // 301 building 8
             '39885837-2841-417f-ba82-9b2c0db70458', // Rear sheds s24
-            '16916bcb-cb22-436e-9b77-86697a397a25', // Field A 8
-            '5407aaae-46cd-4f69-af83-b9665b644cef', // Field B 8
-            '92c4e679-ba81-4753-a5e7-a65b4909c50b', // Field C 8
-            '8dc98089-a238-4f98-ace8-b8c8f20b8016', // Field D 8
-            '8a1d2523-fe4c-401e-881a-d21f20cd8de7', // Field E 8
-            'f898bf04-800f-4711-9b01-cac1a21144f7', // Field F 8
-            'b10ccdcc-b4cb-4e36-b30d-393cc7569143', // Field G 8
-            'e3820f9e-e4ad-4aa9-8945-1501449ff0ba', // Field H 8 - North Walkway
-            '4d14e171-46ff-440b-8ca1-10129a71aba3', // Field I Parking
-            'fb6b507f-aae4-44ad-aa96-29aca8b113ca', // Field J Parking
-            '4a01797e-25a2-4cb7-91df-78bfd380f5a0', // Field K Parking
-            'fb627c18-236d-4263-91e6-aecdfba6d08e', // Field L Parking
+            '26fa11b9-27a0-4c60-96dd-4c332964b94d', // Field A North Walkway
+            '8e09992f-a0ac-4234-8702-834136a50047', // Field B North Walkway
+            '8c15ca4a-6a77-4e9d-b0fe-5724e1b0f1b9', // Field C North Walkway
+            'e917f760-9201-4058-aaf5-d8e3893bc406', // Field D North Walkway
+            '39e649e3-5df8-46c1-a866-a0b3c11f3a64', // Field E North Walkway
+            '2706a573-0c9c-4492-8b40-ef3bd72ee931', // Field F North Walkway
+            '35f4b217-8aaa-4b22-8f3d-c8b52641aefe', // Field G North Walkway
+            '4a7822d7-891b-4cd7-93c6-91ef6d8f9e36', // Field H North Walkway
+            '9365d417-430e-447f-811c-37e8e64a3b4e', // Field I Parking
+            '8edfa4f7-734c-4c3f-97b7-77d142ca60f8', // Field J Parking
+            '2c838bb8-21ea-4b68-940f-3ea4da068617', // Field K Parking
+            'e920ac13-8314-48e4-9609-e9f1a9cf6407', // Field L Parking
             'a8f4d1d7-a3c4-4def-b969-06a544ec3424' // South walkway South walkway
         ];
     }
@@ -91,16 +91,12 @@ export default class PropertySpotsController {
             for (let spot of rowOfSpots) {
                 let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
                 let spotView = $(SpotView.getSpotView(spot, reservedByVendor, this.showBalances));
-
                 if (reservedByVendor) {
                     spotView.find('.spot-vendor-link').text(CustomerDescription.getCustomerDescription(reservedByVendor));
-
                     if (this.showBalances && reservedByVendor && reservedByVendor.balance > 1) {
                         spotView.find('.spot-vendor-details').text(`Balance: ${Util.format(reservedByVendor.balance)}`);
                     }
                 }
-
-
                 this.initSpotView(spotView, spot, section, sectionSpots);
                 rowOfSpotsContainer.append(spotView);
             }
@@ -144,7 +140,8 @@ export default class PropertySpotsController {
             let patch = {
                 id: spot.id,
                 bottom: spotView.find('.spot-bottom').val(),
-                right: spotView.find('.spot-right').val()
+                right: spotView.find('.spot-right').val(),
+                restricted: spotView.find('.spot-restricted-input').is(":checked")
             };
             let updatedSpot = await dataClient.patch('point-of-sale/spot', patch);
             let spotIndex = self.spots.findIndex(x => x.id === updatedSpot.id);

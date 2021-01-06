@@ -11,6 +11,11 @@ body {
 
 }
 
+.form-control-checkbox {
+    height: 34px;
+    width: 34px;
+}
+
 .spots-sections-outer-container {
     display: flex;
 }
@@ -18,6 +23,11 @@ body {
 .spot-sections-container {
     display: flex;
     flex-flow: row;
+}
+
+.spot-restricted {
+    background-color: #808080;
+    color: white;
 }
 
 .spot-reserved {
