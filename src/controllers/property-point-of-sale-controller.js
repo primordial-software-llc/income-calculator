@@ -86,7 +86,7 @@ export default class PropertyPointOfSaleController {
         let rentalSectionPromise = dataClient.get('point-of-sale/spots?cache-level=cache-everything');
         let promiseResults = await Promise.all([customerPromise, rentalSectionPromise]);
         this.customers = promiseResults[0];
-        this.spots = promiseResults[1];
+        this.spots = promiseResults[1].filter(x => !x.restricted);
         for (let spot of this.spots) {
             $('#spot-list').append(`<option>${self.getSpotDescription(spot)}</option>`);
         }

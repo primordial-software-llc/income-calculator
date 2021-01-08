@@ -44,7 +44,7 @@ export default class PropertyCustomersController {
         let vendorPromise = dataClient.get(`point-of-sale/spot-reservations?vendorId=${Util.getParameterByName("id")}`);
         let promiseResults = await Promise.all([customerPromise, rentalSectionPromise, vendorPromise]);
         let customer = promiseResults[0];
-        this.spots = promiseResults[1];
+        this.spots = promiseResults[1].filter(x => !x.restricted);
         this.spotReservations = promiseResults[2];
         for (let spot of this.spots) {
             $('#spot-list').append(`<option>${self.getSpotDescription(spot)}</option>`);
