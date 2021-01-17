@@ -7,55 +7,7 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.primordial-software.com/pages/budget.html</loc>
-    <lastmod>2019-11-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://www.primordial-software.com/pages/budget-calendar.html</loc>
-    <lastmod>2019-11-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://www.primordial-software.com/pages/balance-sheet.html</loc>
-    <lastmod>2019-11-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://www.primordial-software.com/pages/transfers.html</loc>
-    <lastmod>2019-11-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://www.primordial-software.com/pages/deposit.html</loc>
-    <lastmod>2019-11-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>http://www.primordial-software.com/</loc>
-    <lastmod>2019-11-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://www.primordial-software.com/pages/prices.html</loc>
-    <lastmod>2019-11-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>http://www.primordial-software.com/</loc>
-    <lastmod>2019-11-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://www.primordial-software.com/pages/banks.html</loc>
+    <loc>https://www.primordial-software.com/src/LICENSE.txt</loc>
     <lastmod>2019-11-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
