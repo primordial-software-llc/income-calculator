@@ -22,15 +22,12 @@ export default class PropertySpotsController {
     }
     getIndefiniteSpotReservationVendor(spotId) {
         return this.customers
-            .find(vendor =>
-                vendor.spots &&
-                vendor.spots.find(spot => spot.id === spotId));
+            .find(vendor => vendor.spots && vendor.spots.find(spot => spot.id === spotId));
     }
     getOneTimeSpotReservationVendor(spotId) {
         let oneTimeSpotReservation = this.spotReservations.find(x => x.spotId === spotId);
         if (oneTimeSpotReservation) {
-            let vendor = this.customers.find(x => x.quickBooksOnlineId === oneTimeSpotReservation.quickBooksOnlineId);
-            return vendor;
+            return this.customers.find(x => x.quickBooksOnlineId === oneTimeSpotReservation.quickBooksOnlineId);
         }
     }
     getRow(firstSpot, spots) {
@@ -286,9 +283,12 @@ export default class PropertySpotsController {
         });
         $('#show-add-spot-form-btn').click(() => {
             $('#add-spot-form').removeClass('hide');
+            MessageViewController.setMessage('');
         });
         $('#add-spot-cancel').click(() => {
             $('#add-spot-form').addClass('hide');
+            $('#add-spot-form-input-name').val('');
+            $("#add-spot-form-input-section option:first").attr("selected", true);
         });
         $('#add-spot-save').click(async () => {
             let newSpot = {
@@ -300,10 +300,19 @@ export default class PropertySpotsController {
                 }
             };
             $('#add-spot-save').prop('disabled', true);
-            await dataClient.patch('point-of-sale/spot', newSpot);
-            self.spots.push(newSpot);
-            $('#add-spot-form').addClass('hide');
-            self.buildMap();
+            try {
+                await dataClient.patch('point-of-sale/spot', newSpot);
+                self.spots.push(newSpot);
+                $('#add-spot-form').addClass('hide');
+                $('#add-spot-save').prop('disabled', false);
+                $('#add-spot-form-input-name').val('');
+                $("#add-spot-form-input-section").val($("#add-spot-form-input-section option:first").val());
+                self.buildMap();
+                MessageViewController.setMessage('Spot added.', 'alert-success');
+            } catch (error) {
+                $('#add-spot-save').prop('disabled', false);
+                Util.log(error);
+            }
         });
         for (let section of this.sections) {
             let sectionOption = $('<option></option>');
