@@ -130,18 +130,21 @@ export default class PropertySpotsController {
             availableRightSpots.push(sectionSpots.find(x => x.id === spot.right));
             rightIndex = availableRightSpots.findIndex(x => x.id == spot.right) + 1;
         }
+        spotView.find('.spot-restricted-input').prop('checked', spot.restricted);
+        spotView.find('.spot-edit-name').val(spot.name);
         spotView.find('.spot-cancel').click(function() {
             spotView.find('.spot-bottom').prop('selectedIndex', bottomIndex);
             spotView.find('.spot-right').prop('selectedIndex', rightIndex);
             spotView.find('.form').addClass('hide');
         });
-        spotView.find('.spot-save').click(async function() {
+        spotView.find('.spot-save').click(async () => {
             let dataClient = new DataClient();
             let patch = {
                 id: spot.id,
                 bottom: spotView.find('.spot-bottom').val(),
                 right: spotView.find('.spot-right').val(),
-                restricted: spotView.find('.spot-restricted-input').is(":checked")
+                restricted: spotView.find('.spot-restricted-input').is(":checked"),
+                name: spotView.find('.spot-edit-name').val()
             };
             let updatedSpot = await dataClient.patch('point-of-sale/spot', patch);
             let spotIndex = self.spots.findIndex(x => x.id === updatedSpot.id);
@@ -149,6 +152,7 @@ export default class PropertySpotsController {
             spotView.find('.form').addClass('hide');
             self.buildMap();
         });
+
         spotView.find('.spot-bottom').append(`<option value="">Select a Spot</option>`);
         spotView.find('.spot-right').append(`<option value="">Select a Spot</option>`);
         for (let spot of availableBottomSpots) {
@@ -262,16 +266,16 @@ export default class PropertySpotsController {
             }
         }
         this.buildMap();
-        $('#edit-map-btn').click(function () {
+        $('#edit-map-btn').click(() => {
             $('#edit-map-btn').prop('disabled', true);
-            $('.spot-sections-container').addClass('edit-mode');
+            $('body').addClass('edit-mode');
         });
-        $('#show-balances-btn').click(function () {
+        $('#show-balances-btn').click(() => {
             $('#show-balances-btn').prop('disabled', true);
             self.setShowBalances(true);
             self.buildMap();
         });
-        $("#rental-date").on('change', async function () {
+        $("#rental-date").on('change', async () => {
             try {
                 MessageViewController.setMessage('');
                 self.spotReservations = await dataClient.get(`point-of-sale/spot-reservations?rentalDate=${encodeURIComponent($('#rental-date').val())}`);
@@ -280,5 +284,33 @@ export default class PropertySpotsController {
                 MessageViewController.setRequestErrorMessage(error);
             }
         });
+        $('#show-add-spot-form-btn').click(() => {
+            $('#add-spot-form').removeClass('hide');
+        });
+        $('#add-spot-cancel').click(() => {
+            $('#add-spot-form').addClass('hide');
+        });
+        $('#add-spot-save').click(async () => {
+            let newSpot = {
+                id: Util.guid(),
+                name: $('#add-spot-form-input-name').val().trim(),
+                section: {
+                    id: $('#add-spot-form-input-section').val(),
+                    name: $('#add-spot-form-input-section option:selected').text()
+                }
+            };
+            $('#add-spot-save').prop('disabled', true);
+            await dataClient.patch('point-of-sale/spot', newSpot);
+            self.spots.push(newSpot);
+            $('#add-spot-form').addClass('hide');
+            self.buildMap();
+        });
+        for (let section of this.sections) {
+            let sectionOption = $('<option></option>');
+            sectionOption.text(section.name);
+            sectionOption.val(section.id);
+            $('#add-spot-form-input-section').append(sectionOption);
+        }
+
     }
 }

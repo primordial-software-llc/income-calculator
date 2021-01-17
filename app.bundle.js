@@ -23454,18 +23454,21 @@ class PropertySpotsController {
       rightIndex = availableRightSpots.findIndex(x => x.id == spot.right) + 1;
     }
 
+    spotView.find('.spot-restricted-input').prop('checked', spot.restricted);
+    spotView.find('.spot-edit-name').val(spot.name);
     spotView.find('.spot-cancel').click(function () {
       spotView.find('.spot-bottom').prop('selectedIndex', bottomIndex);
       spotView.find('.spot-right').prop('selectedIndex', rightIndex);
       spotView.find('.form').addClass('hide');
     });
-    spotView.find('.spot-save').click(async function () {
+    spotView.find('.spot-save').click(async () => {
       let dataClient = new _dataClient.default();
       let patch = {
         id: spot.id,
         bottom: spotView.find('.spot-bottom').val(),
         right: spotView.find('.spot-right').val(),
-        restricted: spotView.find('.spot-restricted-input').is(":checked")
+        restricted: spotView.find('.spot-restricted-input').is(":checked"),
+        name: spotView.find('.spot-edit-name').val()
       };
       let updatedSpot = await dataClient.patch('point-of-sale/spot', patch);
       let spotIndex = self.spots.findIndex(x => x.id === updatedSpot.id);
@@ -23597,16 +23600,16 @@ class PropertySpotsController {
     }
 
     this.buildMap();
-    $('#edit-map-btn').click(function () {
+    $('#edit-map-btn').click(() => {
       $('#edit-map-btn').prop('disabled', true);
-      $('.spot-sections-container').addClass('edit-mode');
+      $('body').addClass('edit-mode');
     });
-    $('#show-balances-btn').click(function () {
+    $('#show-balances-btn').click(() => {
       $('#show-balances-btn').prop('disabled', true);
       self.setShowBalances(true);
       self.buildMap();
     });
-    $("#rental-date").on('change', async function () {
+    $("#rental-date").on('change', async () => {
       try {
         _messageViewController.default.setMessage('');
 
@@ -23616,6 +23619,34 @@ class PropertySpotsController {
         _messageViewController.default.setRequestErrorMessage(error);
       }
     });
+    $('#show-add-spot-form-btn').click(() => {
+      $('#add-spot-form').removeClass('hide');
+    });
+    $('#add-spot-cancel').click(() => {
+      $('#add-spot-form').addClass('hide');
+    });
+    $('#add-spot-save').click(async () => {
+      let newSpot = {
+        id: _util.default.guid(),
+        name: $('#add-spot-form-input-name').val().trim(),
+        section: {
+          id: $('#add-spot-form-input-section').val(),
+          name: $('#add-spot-form-input-section option:selected').text()
+        }
+      };
+      $('#add-spot-save').prop('disabled', true);
+      await dataClient.patch('point-of-sale/spot', newSpot);
+      self.spots.push(newSpot);
+      $('#add-spot-form').addClass('hide');
+      self.buildMap();
+    });
+
+    for (let section of this.sections) {
+      let sectionOption = $('<option></option>');
+      sectionOption.text(section.name);
+      sectionOption.val(section.id);
+      $('#add-spot-form-input-section').append(sectionOption);
+    }
   }
 
 }
@@ -26291,13 +26322,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _customerDescription = _interopRequireDefault(require("../../customer-description"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 class SpotView {
   static getSpotView(spot, reservedByVendor, showBalances) {
-    let spotDescription = spot.name;
+    let spotDescription = spot.name || '';
     let css = 'spot-cell-inner spot-description-text';
     css += `${!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1 ? ' field' : ''}`;
 
@@ -26316,6 +26343,12 @@ class SpotView {
                     </div>
                     <input type="button" class="btn btn-default spot-edit-btn" value="Edit" />
                     <form class="p-15 form hide">
+                        <div class="form-group row">
+                            <label class="col-xs-3 col-form-label col-form-label-lg">Name</label>
+                            <div class="col-xs-9">
+                                <input class="form-control spot-edit-name" />
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label class="col-xs-3 col-form-label col-form-label-lg">Bottom</label>
                             <div class="col-xs-9">
@@ -26346,7 +26379,7 @@ class SpotView {
 
 exports.default = SpotView;
 
-},{"../../customer-description":95}],124:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

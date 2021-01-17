@@ -1,8 +1,6 @@
-import CustomerDescription from '../../customer-description';
-
 export default class SpotView {
     static getSpotView(spot, reservedByVendor, showBalances) {
-        let spotDescription = spot.name;
+        let spotDescription = spot.name || '';
         let css = 'spot-cell-inner spot-description-text';
         css += `${!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1 ? ' field' : ''}`;
         if (reservedByVendor) {
@@ -19,6 +17,12 @@ export default class SpotView {
                     </div>
                     <input type="button" class="btn btn-default spot-edit-btn" value="Edit" />
                     <form class="p-15 form hide">
+                        <div class="form-group row">
+                            <label class="col-xs-3 col-form-label col-form-label-lg">Name</label>
+                            <div class="col-xs-9">
+                                <input class="form-control spot-edit-name" />
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label class="col-xs-3 col-form-label col-form-label-lg">Bottom</label>
                             <div class="col-xs-9">

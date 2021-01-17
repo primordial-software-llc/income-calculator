@@ -21,18 +21,39 @@
         <a class="property-nav-item" href="property-spots.html">Map</a>
         <a class="property-nav-item" href="qr-test.html">Cards</a>
     </div>
+    <div id="messageAlert" class="hide alert" role="alert"></div>
     <form id="input-form" class="p-15 form">
-        <div id="messageAlert" class="hide alert" role="alert"></div>
         <div class="form-group row">
             <label class="col-xs-3 col-form-label col-form-label-lg">Rental Date</label>
             <div class="col-xs-9">
-                <input id="rental-date" class="disable-on-save form-control" type="date">
+                <input id="rental-date" class="form-control" type="date">
             </div>
         </div>
         <div class="form-group row">
             <div class="col-xs-12">
                 <input type="button" id="edit-map-btn" value="Edit Map" />
                 <input type="button" id="show-balances-btn" value="Show Balances" />
+                <input type="button" id="show-add-spot-form-btn" value="Add Spot" />
+            </div>
+        </div>
+    </form>
+    <form id="add-spot-form" class="p-15 form hide">
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label col-form-label-lg">Name</label>
+            <div class="col-xs-9">
+                <input id="add-spot-form-input-name" class="form-control">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-xs-3 col-form-label col-form-label-lg">Section</label>
+            <div class="col-xs-9">
+                <select id="add-spot-form-input-section" class="form-control"></select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-xs-12">
+                <input type="button" id="add-spot-cancel" class="btn btn-default" value="Cancel">
+                <input type="button" id="add-spot-save" class="btn btn-primary" value="Save">
             </div>
         </div>
     </form>

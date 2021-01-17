@@ -70,12 +70,16 @@ body {
     display: none;
 }
 
-.edit-mode .spot-cell-inner {
-    width: 600px;
+#show-add-spot-form-btn {
+    display: none;
 }
 
-.edit-mode.vertical-spot .spot-cell-inner {
-    width: 208px;
+.edit-mode #show-add-spot-form-btn {
+    display: inline-block;
+}
+
+.edit-mode .spot-cell-inner {
+    width: 600px;
 }
 
 .edit-mode .spot-edit-btn {
