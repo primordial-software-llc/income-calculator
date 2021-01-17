@@ -21360,6 +21360,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const Util = require('../util');
 
+function getNavItemHtml(user) {
+  let authenticatedControllers = _nav.default.getAuthenticatedControllers(user);
+
+  let navItemHtml = authenticatedControllers.filter(controllerType => !controllerType.hideInNav || !controllerType.hideInNav()).map(controllerType => _nav.default.getNavItemView(controllerType.getUrl(), controllerType.getName()));
+  return navItemHtml;
+}
+
 class AccountSettingsController {
   constructor() {
     this.save = this.save.bind(this);
@@ -21443,21 +21450,27 @@ class AccountSettingsController {
       }
     });
 
-    let authenticatedControllers = _nav.default.getAuthenticatedControllers(user);
-
-    let navItemHtml = authenticatedControllers.filter(controllerType => !controllerType.hideInNav || !controllerType.hideInNav()).map(controllerType => _nav.default.getNavItemView(controllerType.getUrl(), controllerType.getName()));
-    $('.tab-nav-bar').append(navItemHtml.join(''));
-
     if (injectFooter) {
-      $('body').append(_footerView.default.getView(navItemHtml.join('')));
+      $('body').append(_footerView.default.getView());
     }
+
+    this.setNavigation(user, injectFooter);
 
     if (user) {
       $('#account-settings-view-cognito-user').text(user.email);
-      $('#account-settings-view-license-agreement').append(`Agreed to license on ${user.licenseAgreement.agreementDateUtc}` // Leave this out until the origin ip issue is used instead of the content delivery ip // + `from IP ${user.licenseAgreement.ipAddress}`
-      );
+      $('#account-settings-view-license-agreement').append(`Agreed to license on ${user.licenseAgreement.agreementDateUtc} from IP ${user.licenseAgreement.ipAddress}`);
       $('#account-settings-view-first-name').text(user.firstName);
       $('#account-settings-view-last-name').text(user.lastName);
+    }
+  }
+
+  setNavigation(user, injectFooter) {
+    let navItemHtml = getNavItemHtml(user).join('');
+    $('.tab-nav-bar').empty();
+    $('.tab-nav-bar').append(navItemHtml);
+
+    if (injectFooter) {
+      $('.authenticated-sitemap-footer').html(navItemHtml);
     }
   }
 
@@ -23826,8 +23839,8 @@ class PricesController {
     return `${Util.rootUrl()}/pages/purchase.html`;
   }
 
-  async init(usernameResponse) {
-    new _accountSettingsController.default().init(PricesView, usernameResponse, true);
+  async init(user) {
+    new _accountSettingsController.default().init(PricesView, user, true);
     $('#billing-start-date').text(Moment().format('MMMM Do YYYY'));
     $('#submit-purchase').click(async function () {
       if (!$('#agreedToBillingTerms').is(':checked')) {
@@ -23878,6 +23891,13 @@ class PricesController {
         $('.purchase-form').hide();
 
         _messageViewController.default.setMessage('Purchase successful, you now have access to the <a href="/pages/banks.html">Banks</a> page. Your card has been charged.', 'alert-success', true);
+
+        try {
+          user = await new _dataClient.default().getBudget();
+          new _accountSettingsController.default().setNavigation(user, true);
+        } catch (err) {
+          Util.log(err);
+        }
       }
     });
   }
@@ -26130,7 +26150,7 @@ class FooterView {
         <div class="loader-group hide modal-backdrop fade in"></div>`;
   }
 
-  static getView(navHtml) {
+  static getView() {
     return `
         <div class="imago-footer-public imago-bg-blue text-center">
             <div class="footer-text-group">
@@ -26144,9 +26164,7 @@ class FooterView {
                 <a target="_blank" href="https://www.primordial-software.com/src/LICENSE.txt">license</a>
             </div>
         </div>
-        <div class="authenticated-sitemap-footer">
-            ${navHtml}
-        </div>
+        <div class="authenticated-sitemap-footer"></div>
         <div id="account-settings-container">
             <div class="modal fade" id="account-settings-view" role="dialog">
               <div class="modal-dialog">

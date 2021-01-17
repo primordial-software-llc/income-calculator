@@ -3,6 +3,17 @@ import Navigation from '../nav';
 import DataClient from '../data-client';
 const Util = require('../util');
 
+
+function getNavItemHtml(user) {
+    let authenticatedControllers = Navigation.getAuthenticatedControllers(user)
+    let navItemHtml = authenticatedControllers
+        .filter(controllerType => !controllerType.hideInNav || !controllerType.hideInNav())
+        .map(controllerType =>
+            Navigation.getNavItemView(controllerType.getUrl(), controllerType.getName())
+        );
+    return navItemHtml;
+}
+
 export default class AccountSettingsController {
     constructor() {
         this.save = this.save.bind(this);
@@ -72,28 +83,27 @@ export default class AccountSettingsController {
                 downloadLink.click();
             }
         });
-
-        let authenticatedControllers = Navigation.getAuthenticatedControllers(user)
-        let navItemHtml = authenticatedControllers
-            .filter(controllerType => !controllerType.hideInNav || !controllerType.hideInNav())
-            .map(controllerType =>
-            Navigation.getNavItemView(controllerType.getUrl(), controllerType.getName())
-        );
-        $('.tab-nav-bar').append(navItemHtml.join(''));
-
         if (injectFooter) {
-            $('body').append(FooterView.getView(navItemHtml.join('')));
+            $('body').append(FooterView.getView());
         }
-
+        this.setNavigation(user, injectFooter);
         if (user) {
             $('#account-settings-view-cognito-user').text(user.email);
             $('#account-settings-view-license-agreement').append(
-                `Agreed to license on ${user.licenseAgreement.agreementDateUtc}`
-                // Leave this out until the origin ip issue is used instead of the content delivery ip // + `from IP ${user.licenseAgreement.ipAddress}`
+                `Agreed to license on ${user.licenseAgreement.agreementDateUtc} from IP ${user.licenseAgreement.ipAddress}`
             );
             $('#account-settings-view-first-name').text(user.firstName);
             $('#account-settings-view-last-name').text(user.lastName);
         }
-
     };
+
+    setNavigation(user, injectFooter) {
+        let navItemHtml = getNavItemHtml(user).join('');
+        $('.tab-nav-bar').empty();
+        $('.tab-nav-bar').append(navItemHtml);
+
+        if (injectFooter) {
+            $('.authenticated-sitemap-footer').html(navItemHtml);
+        }
+    }
 }

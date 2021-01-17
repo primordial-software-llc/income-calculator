@@ -7,7 +7,7 @@ export default class FooterView {
           </div>
         <div class="loader-group hide modal-backdrop fade in"></div>`;
     }
-    static getView(navHtml) {
+    static getView() {
         return `
         <div class="imago-footer-public imago-bg-blue text-center">
             <div class="footer-text-group">
@@ -21,9 +21,7 @@ export default class FooterView {
                 <a target="_blank" href="https://www.primordial-software.com/src/LICENSE.txt">license</a>
             </div>
         </div>
-        <div class="authenticated-sitemap-footer">
-            ${navHtml}
-        </div>
+        <div class="authenticated-sitemap-footer"></div>
         <div id="account-settings-container">
             <div class="modal fade" id="account-settings-view" role="dialog">
               <div class="modal-dialog">

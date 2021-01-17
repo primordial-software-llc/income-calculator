@@ -11,8 +11,8 @@ export default class PricesController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/purchase.html`;
     }
-    async init(usernameResponse) {
-        new AccountSettingsController().init(PricesView, usernameResponse, true);
+    async init(user) {
+        new AccountSettingsController().init(PricesView, user, true);
         $('#billing-start-date').text(Moment().format('MMMM Do YYYY'));
         $('#submit-purchase').click(async function() {
             if (!$('#agreedToBillingTerms').is(':checked')) {
@@ -58,6 +58,12 @@ export default class PricesController {
                     'alert-success',
                     true
                 );
+                try {
+                    user = await new DataClient().getBudget();
+                    new AccountSettingsController().setNavigation(user, true);
+                } catch (err) {
+                    Util.log(err);
+                }
             }
         });
     };
