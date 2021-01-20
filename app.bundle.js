@@ -22961,7 +22961,11 @@ class PropertyPointOfSaleController {
   }
 
   initForm() {
-    $('#sale-date').prop('disabled', false).val(Moment().format('YYYY-MM-DD'));
+    $('.spot-edit-btn').hide();
+    let rentalDate = Moment();
+    let diff = (7 - rentalDate.day() + 7) % 7;
+    rentalDate.add(diff, 'day');
+    $('#sale-date').prop('disabled', false).val(rentalDate.format('YYYY-MM-DD'));
     $('#sale-vendor').prop('disabled', false).val('');
     $('#sale-prior-balance').prop('disabled', false).val('');
     $('#sale-rental-amount').prop('disabled', false).val('');
@@ -23000,7 +23004,8 @@ class PropertyPointOfSaleController {
         $('#invoices').empty();
 
         for (let invoice of invoices) {
-          let balance = invoice.Balance === '0' || invoice.Balance === 0 ? 'PAID' : Util.format(invoice.Balance);
+          let paidAmount = (0, _currency.default)(invoice.TotalAmt, Util.getCurrencyDefaults()).subtract(invoice.Balance);
+          let balance = `Paid ${Util.format(paidAmount)} of ${Util.format(invoice.TotalAmt)}. Owes ${Util.format(invoice.Balance)}`;
           $('#invoices').append(`<div>&bull;&nbsp;${invoice.TxnDate} - ${balance}</div>`);
         }
       }).catch(error => {
