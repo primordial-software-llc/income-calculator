@@ -21909,13 +21909,13 @@ class BudgetController {
   }
 
   constructor() {
-    this.homeView = {};
+    this.homeView = new _budgetView.default();
   }
 
   async refresh() {
     try {
       let data = await new _dataClient.default().getBudget();
-      this.homeView.setView(data, Util.obfuscate());
+      this.homeView.setView(data, Util.obfuscate(), (await this.getAccounts()));
     } catch (err) {
       Util.log(err);
     }
@@ -21932,7 +21932,6 @@ class BudgetController {
   }
 
   async init(usernameResponse) {
-    this.homeView = new _budgetView.default();
     new _accountSettingsController.default().init(this.homeView, usernameResponse, true);
     $('.add-new-budget-item').prop('disabled', true);
     let self = this;
@@ -25828,6 +25827,13 @@ function getTransactionModel(target) {
   };
 }
 
+function selectOptionByText(selectElement, textToSelect) {
+  let dateValue = selectElement.find('option').filter(function () {
+    return $.trim($(this).text().trim().toLowerCase()) === (textToSelect || '').trim().toLowerCase();
+  }).val();
+  selectElement.val(dateValue);
+}
+
 class BudgetView {
   constructor() {
     this.data = {};
@@ -25877,46 +25883,66 @@ class BudgetView {
             </form>`;
   }
 
-  getTransactionView(transaction, viewType, disable) {
+  getTransactionView(transaction, viewType, obfuscate, accounts) {
     let date = transaction.date || '';
     transaction.type = transaction.type || 'expense';
     let paidReceivedVerbiage = transaction.type.toLowerCase() === 'expense' ? 'paid by' : 'received at';
     let paidByHtml = transaction.paymentSource ? ` <div class="payment-source-appended-to-name">${paidReceivedVerbiage} <span class="transaction-payment-source">${transaction.paymentSource}</span></div>` : '';
     let view = $(`
         <div class="row transaction-input-view ${viewType.iteration}-budget-item budget-${transaction.type}-item display-flex" data-txntype="${transaction.type}">
-            <div class="col-xs-2 display-flex-valign-center capitalize">
-                ${transaction.type}
+            <div class="col-xs-${viewType.iteration === 'biweekly' ? 2 : 3} display-flex-valign-center text-right color-black">
+                <div class="amount">
+                    $${transaction.amount ? Util.formatShares(transaction.amount) : Util.format(0)}
+                </div>
             </div>
-            <div class="col-xs-2 display-flex-valign-center text-right amount color-black">
-                $${transaction.amount ? Util.formatShares(transaction.amount) : Util.format(0)}
-            </div>
-            <div class="col-xs-3 display-flex-valign-center"><span class="date" data-date="${date}">${new viewType().getDateText(date)}</span></div>
-            <div class="col-xs-4 display-flex-valign-center"><span class="name">${transaction.name || ''}</span>${paidByHtml}</div>
-            <div class="col-xs-1 add-remove-btn-container display-flex-valign-center">
-                <button ${disable ? 'disabled="disabled"' : ''} class="btn remove row-remove-button add-remove-btn-container add-remove-btn">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                </button>
+            <div class="col-xs-${viewType.iteration === 'biweekly' ? 3 : 2} display-flex-valign-center"><span class="date" data-date="${date}">${new viewType().getDateText(date)}</span></div>
+            <div class="col-xs-6 display-flex-valign-center"><span class="name">${transaction.name || ''}</span>${paidByHtml}</div>
+            <div class="col-xs-3 display-flex-valign-center">
+                <div class="pull-right">
+                    <button title="edit" class="btn edit row-edit-button add-remove-btn-container add-remove-btn">
+                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                    </button>
+                    <button title="delete" class="btn remove row-remove-button add-remove-btn-container add-remove-btn">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </button>
+                </div>
             </div>
         </div>`);
     view.find('.row-remove-button').click(function () {
       view.remove();
     });
+    view.find('.row-edit-button').click(function () {
+      console.log(transaction);
+      let editView = $(BudgetView.getEditableTransactionView(viewType, accounts));
+      editView.find('input.amount').val(transaction.amount);
+      editView.find('input.name').val(transaction.name);
+
+      if (viewType.iteration == _monthlyView.default.iteration || viewType.iteration === _weeklyView.default.iteration) {
+        selectOptionByText(editView.find('select.date'), new viewType().getDateText(date).toString());
+      } else if (viewType.iteration === _biweeklyView.default.iteration) {
+        editView.find('input.date').val(transaction.name);
+      }
+
+      selectOptionByText(editView.find('select.transaction-type'), transaction.type);
+      selectOptionByText(editView.find('select.transaction-payment-source'), transaction.paymentSource);
+      view.replaceWith(editView);
+    });
     return view;
   }
 
-  setView(budget, obfuscate) {
+  setView(budget, obfuscate, accounts) {
     this.data = budget;
 
     for (let transaction of budget.biweekly) {
-      $('#biweekly-input-group').append(this.getTransactionView(transaction, _biweeklyView.default, obfuscate));
+      $('#biweekly-input-group').append(this.getTransactionView(transaction, _biweeklyView.default, obfuscate, accounts));
     }
 
     for (let transaction of budget.weeklyRecurringExpenses) {
-      $('#weekly-input-group').append(this.getTransactionView(transaction, _weeklyView.default, obfuscate));
+      $('#weekly-input-group').append(this.getTransactionView(transaction, _weeklyView.default, obfuscate, accounts));
     }
 
     for (let transaction of budget.monthlyRecurringExpenses) {
-      $('#monthly-input-group').append(this.getTransactionView(transaction, _monthlyView.default, obfuscate));
+      $('#monthly-input-group').append(this.getTransactionView(transaction, _monthlyView.default, obfuscate, accounts));
     }
 
     $('.add-new-budget-item').prop('disabled', obfuscate);

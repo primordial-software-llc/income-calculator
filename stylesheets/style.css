@@ -159,8 +159,14 @@ h4 {
 }
 
 .add-remove-btn {
-    width: 100%;
     height: 40px;
+    width: 75px;
+}
+
+.edit {
+    background-color: #aaa;
+    color: white;
+    cursor: pointer;
 }
 
 .transaction-input-view > .remove,

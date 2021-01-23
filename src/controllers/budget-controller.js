@@ -15,12 +15,12 @@ export default class BudgetController {
         return `${Util.rootUrl()}/pages/budget.html`;
     }
     constructor() {
-        this.homeView = {};
+        this.homeView = new BudgetView();
     }
     async refresh() {
         try {
             let data = await new DataClient().getBudget();
-            this.homeView.setView(data, Util.obfuscate());
+            this.homeView.setView(data, Util.obfuscate(), await this.getAccounts());
         } catch (err) {
             Util.log(err);
         }
@@ -33,7 +33,6 @@ export default class BudgetController {
         return creditableAccounts.concat((viewModel.balances || []).filter(x => x.type ==='credit').map(x => x.name));
     }
     async init(usernameResponse) {
-        this.homeView = new BudgetView();
         new AccountSettingsController().init(this.homeView, usernameResponse, true);
         $('.add-new-budget-item').prop('disabled', true);
         let self = this;
