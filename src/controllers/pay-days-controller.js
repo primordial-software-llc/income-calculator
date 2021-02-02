@@ -12,15 +12,25 @@ function getView(paymentNumber, payDate) {
                     <div class="col-xs-11">${payDate}</div>
                 </div>`;
 }
+
+function getFriday(date) {
+    let diff = date.day() === 6
+        ? 6
+        : 5 - date.day();
+    date.add(diff, 'day');
+    return date;
+}
+// There is a biweekly pay schedule in source control,
+// but I removed it, because I'm not sure I could ever make this public.
+// The problem is it needs to come from the budget and honestly
+// this should be a paid feature, because if you have a 401k you could
+// probably afford
 function getPayDates() {
     let paymentDates = [];
-    let current = moment().utc().startOf('day');
+    let current = getFriday(moment().utc().startOf('day'));
     let end = moment().utc().endOf('year');
-    let firstPayDateTime = moment('2019-04-12T00:00:00.000Z', moment.ISO_8601);
     while (current < end) {
-        let diffFromFirstPayDate = new UtcDay().getDayDiff(firstPayDateTime, current.valueOf());
-        let modulusIntervalsFromFirstPayDate = diffFromFirstPayDate % cal.BIWEEKLY_INTERVAL;
-        if (modulusIntervalsFromFirstPayDate === 0) {
+        if (current.day() === 5) {
             paymentDates.push(current.toISOString());
         }
         current = current.add(1, 'day');

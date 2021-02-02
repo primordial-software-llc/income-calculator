@@ -9,18 +9,15 @@ export default class BanksController {
         return `${Util.rootUrl()}/pages/banks.html`;
     }
     async init(usernameResponse) {
+        let dataClient = new DataClient();
         new AccountSettingsController().init({}, usernameResponse, true);
-        $('#link-button').on('click', function(e) {
-            let selectedProducts = ['transactions'];
+        $('#link-button').on('click', async function() {
+            let linkTokenResponse = await dataClient.post('create-link-token');
             let handler = Plaid.create({
-                clientName: 'My App',
-                env: Util.getBankIntegrationEnvironment(),
-                key: '7e6391ab6cbcc3b212440b5821bfa7',
-                product: selectedProducts,
-                onSuccess: async function(public_token, plaidAuth) {
-                    let dataClient = new DataClient();
+                token: linkTokenResponse.link_token,
+                onSuccess: async function(public_token, metaData) {
                     try {
-                        let result = await dataClient.post('link-access-token', plaidAuth);
+                        let result = await dataClient.post('link-access-token', { "public_token": public_token });
                         window.location.reload();
                     } catch (err) {
                         Util.log(err);
@@ -41,7 +38,6 @@ export default class BanksController {
             });
             handler.open();
         });
-        let dataClient = new DataClient();
         let bankLinks = await dataClient.get('bank-link');
         for (let bankLink of bankLinks) {
             let bankLinkView = $('<div class="bank-link-item-container"></div>');
@@ -55,19 +51,22 @@ export default class BanksController {
                 let data = { itemId: bankLink['item_id'] };
                 let result;
                 try {
-                    result = await dataClient.post('create-public-token', data);
+                    result = await dataClient.post('create-link-token', data);
                 } catch (err) {
                     Util.log(err);
                     return;
                 }
                 let handler = Plaid.create({
-                    clientName: 'My App',
-                    env: Util.getBankIntegrationEnvironment(),
-                    key: '7e6391ab6cbcc3b212440b5821bfa7',
-                    product: ['transactions'],
-                    token: result['public_token'],
+                    token: result.link_token,
                     onSuccess: async function(public_token, metadata) {
-                    }
+                    },
+                    onExit: function(err, metadata) {
+                        // The user exited the Link flow.
+                        if (err != null && err.error_code !== 'item-no-error') {
+                            // The user encountered a Plaid API error prior to exiting.
+                            Util.log(err);
+                        }
+                    },
                 });
                 handler.open();
             });

@@ -21654,19 +21654,17 @@ class BanksController {
   }
 
   async init(usernameResponse) {
+    let dataClient = new _dataClient.default();
     new _accountSettingsController.default().init({}, usernameResponse, true);
-    $('#link-button').on('click', function (e) {
-      let selectedProducts = ['transactions'];
+    $('#link-button').on('click', async function () {
+      let linkTokenResponse = await dataClient.post('create-link-token');
       let handler = Plaid.create({
-        clientName: 'My App',
-        env: Util.getBankIntegrationEnvironment(),
-        key: '7e6391ab6cbcc3b212440b5821bfa7',
-        product: selectedProducts,
-        onSuccess: async function (public_token, plaidAuth) {
-          let dataClient = new _dataClient.default();
-
+        token: linkTokenResponse.link_token,
+        onSuccess: async function (public_token, metaData) {
           try {
-            let result = await dataClient.post('link-access-token', plaidAuth);
+            let result = await dataClient.post('link-access-token', {
+              "public_token": public_token
+            });
             window.location.reload();
           } catch (err) {
             Util.log(err);
@@ -21687,7 +21685,6 @@ class BanksController {
       });
       handler.open();
     });
-    let dataClient = new _dataClient.default();
     let bankLinks = await dataClient.get('bank-link');
 
     for (let bankLink of bankLinks) {
@@ -21705,19 +21702,22 @@ class BanksController {
         let result;
 
         try {
-          result = await dataClient.post('create-public-token', data);
+          result = await dataClient.post('create-link-token', data);
         } catch (err) {
           Util.log(err);
           return;
         }
 
         let handler = Plaid.create({
-          clientName: 'My App',
-          env: Util.getBankIntegrationEnvironment(),
-          key: '7e6391ab6cbcc3b212440b5821bfa7',
-          product: ['transactions'],
-          token: result['public_token'],
-          onSuccess: async function (public_token, metadata) {}
+          token: result.link_token,
+          onSuccess: async function (public_token, metadata) {},
+          onExit: function (err, metadata) {
+            // The user exited the Link flow.
+            if (err != null && err.error_code !== 'item-no-error') {
+              // The user encountered a Plaid API error prior to exiting.
+              Util.log(err);
+            }
+          }
         });
         handler.open();
       });
@@ -22426,17 +22426,24 @@ function getView(paymentNumber, payDate) {
                 </div>`;
 }
 
+function getFriday(date) {
+  let diff = date.day() === 6 ? 6 : 5 - date.day();
+  date.add(diff, 'day');
+  return date;
+} // There is a biweekly pay schedule in source control,
+// but I removed it, because I'm not sure I could ever make this public.
+// The problem is it needs to come from the budget and honestly
+// this should be a paid feature, because if you have a 401k you could
+// probably afford
+
+
 function getPayDates() {
   let paymentDates = [];
-  let current = moment().utc().startOf('day');
+  let current = getFriday(moment().utc().startOf('day'));
   let end = moment().utc().endOf('year');
-  let firstPayDateTime = moment('2019-04-12T00:00:00.000Z', moment.ISO_8601);
 
   while (current < end) {
-    let diffFromFirstPayDate = new UtcDay().getDayDiff(firstPayDateTime, current.valueOf());
-    let modulusIntervalsFromFirstPayDate = diffFromFirstPayDate % cal.BIWEEKLY_INTERVAL;
-
-    if (modulusIntervalsFromFirstPayDate === 0) {
+    if (current.day() === 5) {
       paymentDates.push(current.toISOString());
     }
 
