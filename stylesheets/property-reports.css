@@ -1,11 +1,3 @@
-body .property-nav .property-nav-item {
-    margin-left: 20px;
-    margin-right: 20px;
-    color: blue;
-    text-decoration: underline;
-    font-size: 36px;
-}
-
 .report-row {
     margin-bottom: 10px;
     display: flex;

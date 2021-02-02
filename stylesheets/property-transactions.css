@@ -20,14 +20,6 @@ body .form-control {
     font-size: 30px;
 }
 
-body .property-nav .property-nav-item {
-    margin-left: 20px;
-    margin-right: 20px;
-    color: blue;
-    text-decoration: underline;
-    font-size: 36px;
-}
-
 #input-form .btn-primary {
     margin-top: 0;
     margin-bottom: 0;

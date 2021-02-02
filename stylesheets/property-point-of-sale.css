@@ -38,14 +38,6 @@ body .form-control {
     align-items: flex-end;
 }
 
-body .property-nav .property-nav-item {
-    margin-left: 20px;
-    margin-right: 20px;
-    color: blue;
-    text-decoration: underline;
-    font-size: 36px;
-}
-
 .debit-bg-color {
     background-color: #ffcccc;
 }
