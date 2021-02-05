@@ -12,7 +12,13 @@ export default class BanksController {
         let dataClient = new DataClient();
         new AccountSettingsController().init({}, usernameResponse, true);
         $('#link-button').on('click', async function() {
-            let linkTokenResponse = await dataClient.post('create-link-token');
+            let linkTokenResponse;
+            try {
+                linkTokenResponse = await dataClient.post('create-link-token');
+            } catch (error) {
+                Util.log(error)
+                return;
+            }
             let handler = Plaid.create({
                 token: linkTokenResponse.link_token,
                 onSuccess: async function(public_token, metaData) {

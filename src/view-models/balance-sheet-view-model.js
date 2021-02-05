@@ -20,7 +20,7 @@ function obfuscateViewModel(viewModel) {
     }
 }
 function getAccountName(bank, account) {
-    return [bank.item.institution.name, account.subtype, account.mask]
+    return [bank.item.institution.name, account.subtype, account.mask || account.name]
         .filter(x => x)
         .join(' - ');
 }
