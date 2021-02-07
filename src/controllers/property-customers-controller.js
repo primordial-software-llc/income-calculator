@@ -1,5 +1,4 @@
 import AccountSettingsController from './account-settings-controller';
-import AddSpotView from '../views/add-spot-view';
 import CustomerDescription from '../customer-description';
 import CustomerSort from '../customer-sort';
 import DataClient from '../data-client';

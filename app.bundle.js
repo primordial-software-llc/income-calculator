@@ -22823,8 +22823,6 @@ exports.default = void 0;
 
 var _accountSettingsController = _interopRequireDefault(require("./account-settings-controller"));
 
-var _addSpotView = _interopRequireDefault(require("../views/add-spot-view"));
-
 var _customerDescription = _interopRequireDefault(require("../customer-description"));
 
 var _customerSort = _interopRequireDefault(require("../customer-sort"));
@@ -22933,7 +22931,7 @@ class PropertyCustomersController {
 
 exports.default = PropertyCustomersController;
 
-},{"../customer-description":95,"../customer-sort":96,"../data-client":97,"../util":100,"../views/add-spot-view":103,"./account-settings-controller":71,"./message-view-controller":81,"moment":32}],87:[function(require,module,exports){
+},{"../customer-description":95,"../customer-sort":96,"../data-client":97,"../util":100,"./account-settings-controller":71,"./message-view-controller":81,"moment":32}],87:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23421,26 +23419,39 @@ class PropertySpotsController {
     let ct = 1;
 
     do {
-      let rowOfSpots = this.getRow(leftSpot, sectionSpots);
-      let rowOfSpotsContainer = $(`<div class="spot-row-container"></div>`);
+      let row = this.getRow(leftSpot, sectionSpots);
+      let rowContainer = $(`<div class="spot-row-container"></div>`);
 
-      for (let spot of rowOfSpots) {
-        let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
-        let spotView = $(_spotView.default.getSpotView(spot, reservedByVendor, this.showBalances));
+      for (let rowIndex = 0; rowIndex < row.length; rowIndex++) {
+        let spot = row[rowIndex];
+        let cell = $('<div class="spot-cell-container"></div>');
 
-        if (reservedByVendor) {
-          spotView.find('.spot-vendor-link').text(_customerDescription.default.getCustomerDescription(reservedByVendor));
-
-          if (this.showBalances && reservedByVendor && reservedByVendor.balance > 1) {
-            spotView.find('.spot-vendor-details').text(`Balance: ${_util.default.format(reservedByVendor.balance)}`);
-          }
+        if (!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1) {
+          cell.addClass('field');
         }
 
-        this.initSpotView(spotView, spot, section, sectionSpots);
-        rowOfSpotsContainer.append(spotView);
+        do {
+          let reserver = this.getVendorWhoReservedSpot(spot.id);
+          let spotView = $(_spotView.default.getSpotView(spot, reserver, this.showBalances));
+
+          if (reserver) {
+            spotView.find('.spot-vendor-link').text(_customerDescription.default.getCustomerDescription(reserver));
+
+            if (this.showBalances && reserver && reserver.balance > 1) {
+              spotView.find('.spot-vendor-details').text(`Balance: ${_util.default.format(reserver.balance)}`);
+            }
+          }
+
+          this.initSpotView(spotView, spot, section, sectionSpots);
+          cell.append(spotView);
+          spot = rowIndex === 0 ? undefined : sectionSpots.find(x => x.id === spot.bottom);
+        } while (spot);
+
+        cell.addClass(`spot-cell-with-parts-` + cell.children().length);
+        rowContainer.append(cell);
       }
 
-      sectionView.append(rowOfSpotsContainer);
+      sectionView.append(rowContainer);
       leftSpot = sectionSpots.find(x => x.id === leftSpot.bottom);
       ct += 1;
 
@@ -26387,7 +26398,6 @@ class SpotView {
   static getSpotView(spot, reservedByVendor, showBalances) {
     let spotDescription = spot.name || '';
     let css = 'spot-cell-inner spot-description-text';
-    css += `${!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1 ? ' field' : ''}`;
 
     if (reservedByVendor) {
       spotDescription += ` - <a class="spot-vendor-link" href="/pages/property-customer-edit.html?id=${reservedByVendor.id}">

@@ -34,21 +34,57 @@ body {
     display: flex;
 }
 
+.spot-cell-container {
+    height: 40px;
+}
+
+.edit-mode .spot-cell-container {
+    height: 100%;
+}
+
+.spot-cell-container.field {
+    height: 103px;
+}
+
+.vertical-spot .spot-cell-container {
+    height: 300px;
+    writing-mode: vertical-rl;
+}
+
 .spot-cell {
     border-right: 1px solid black;
     border-bottom: 1px solid black;
 }
 
 .spot-cell-inner {
-    height: 40px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 300px;
 }
 
-.spot-cell-inner.field {
-    min-height: 103px;
+.spot-cell-with-parts-1 .spot-cell {
+    height: 100%;
+}
+
+.spot-cell-with-parts-2 .spot-cell {
+    height: 50%;
+    font-size: .5em;
+}
+
+.spot-cell-with-parts-3 .spot-cell {
+    height: 33.333%;
+    font-size: .333em;
+}
+
+.spot-cell-with-parts-4 .spot-cell {
+    height: 25%;
+    font-size: .25em;
+}
+
+.spot-cell-with-parts-5 .spot-cell-inner {
+    height: 20%;
+    font-size: .20em;
 }
 
 .spot-cell a {
@@ -79,8 +115,6 @@ body {
 }
 
 .vertical-spot .spot-cell-inner {
-    height: 300px;
-    writing-mode: vertical-rl;
     width: 102px;
     padding-top: 7px;
     padding-bottom: 7px;

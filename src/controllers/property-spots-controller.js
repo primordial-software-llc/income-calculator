@@ -83,21 +83,31 @@ export default class PropertySpotsController {
         }
         let ct = 1;
         do {
-            let rowOfSpots = this.getRow(leftSpot, sectionSpots);
-            let rowOfSpotsContainer = $(`<div class="spot-row-container"></div>`);
-            for (let spot of rowOfSpots) {
-                let reservedByVendor = this.getVendorWhoReservedSpot(spot.id);
-                let spotView = $(SpotView.getSpotView(spot, reservedByVendor, this.showBalances));
-                if (reservedByVendor) {
-                    spotView.find('.spot-vendor-link').text(CustomerDescription.getCustomerDescription(reservedByVendor));
-                    if (this.showBalances && reservedByVendor && reservedByVendor.balance > 1) {
-                        spotView.find('.spot-vendor-details').text(`Balance: ${Util.format(reservedByVendor.balance)}`);
-                    }
+            let row = this.getRow(leftSpot, sectionSpots);
+            let rowContainer = $(`<div class="spot-row-container"></div>`);
+            for (let rowIndex = 0; rowIndex < row.length; rowIndex++) {
+                let spot = row[rowIndex];
+                let cell = $('<div class="spot-cell-container"></div>');
+                if (!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1) {
+                    cell.addClass('field');
                 }
-                this.initSpotView(spotView, spot, section, sectionSpots);
-                rowOfSpotsContainer.append(spotView);
+                do {
+                    let reserver = this.getVendorWhoReservedSpot(spot.id);
+                    let spotView = $(SpotView.getSpotView(spot, reserver, this.showBalances));
+                    if (reserver) {
+                        spotView.find('.spot-vendor-link').text(CustomerDescription.getCustomerDescription(reserver));
+                        if (this.showBalances && reserver && reserver.balance > 1) {
+                            spotView.find('.spot-vendor-details').text(`Balance: ${Util.format(reserver.balance)}`);
+                        }
+                    }
+                    this.initSpotView(spotView, spot, section, sectionSpots);
+                    cell.append(spotView);
+                    spot = rowIndex === 0 ? undefined : sectionSpots.find(x => x.id === spot.bottom);
+                } while (spot)
+                cell.addClass(`spot-cell-with-parts-` + cell.children().length)
+                rowContainer.append(cell);
             }
-            sectionView.append(rowOfSpotsContainer);
+            sectionView.append(rowContainer);
             leftSpot = sectionSpots.find(x => x.id === leftSpot.bottom);
             ct += 1;
             if (ct > 1000) {

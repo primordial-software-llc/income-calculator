@@ -2,7 +2,6 @@ export default class SpotView {
     static getSpotView(spot, reservedByVendor, showBalances) {
         let spotDescription = spot.name || '';
         let css = 'spot-cell-inner spot-description-text';
-        css += `${!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1 ? ' field' : ''}`;
         if (reservedByVendor) {
             spotDescription += ` - <a class="spot-vendor-link" href="/pages/property-customer-edit.html?id=${reservedByVendor.id}">
                                    </a>`;
