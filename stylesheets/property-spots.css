@@ -1,6 +1,5 @@
 body {
     overflow-x: scroll;
-
 }
 
 .form-control-checkbox {
@@ -35,32 +34,32 @@ body {
 }
 
 .spot-cell-container {
-    height: 40px;
+    width: 300px;
 }
 
 .edit-mode .spot-cell-container {
     height: 100%;
-}
-
-.spot-cell-container.field {
-    height: 103px;
+    width: 600px;
 }
 
 .vertical-spot .spot-cell-container {
-    height: 300px;
     writing-mode: vertical-rl;
+    width: 102px;
 }
 
 .spot-cell {
     border-right: 1px solid black;
     border-bottom: 1px solid black;
+    width: 100%;
 }
 
 .spot-cell-inner {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    width: 300px;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
 }
 
 .spot-cell-with-parts-1 .spot-cell {
@@ -106,16 +105,11 @@ body {
     display: inline-block;
 }
 
-.edit-mode .spot-cell-inner {
-    width: 600px;
-}
-
 .edit-mode .spot-edit-btn {
-    display: block;
+    display: inline-block;
 }
 
 .vertical-spot .spot-cell-inner {
-    width: 102px;
     padding-top: 7px;
     padding-bottom: 7px;
 }
@@ -138,4 +132,25 @@ body {
 
 .spot-with-balance a {
     color: white;
+}
+
+.property-foot-height-1 {
+    height: 5.15px;
+}
+
+.property-foot-height-10 {
+    height: 51.5px;
+}
+
+.property-foot-height-20 {
+    height: 103px;
+}
+
+.property-foot-height-30 {
+    height: 154.5px;
+}
+
+.property-foot-height-58 {
+    height: 300px;
+    max-height: 300px;
 }

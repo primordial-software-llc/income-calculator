@@ -23425,10 +23425,22 @@ class PropertySpotsController {
       for (let rowIndex = 0; rowIndex < row.length; rowIndex++) {
         let spot = row[rowIndex];
         let cell = $('<div class="spot-cell-container"></div>');
+        let heightInFeet;
 
         if (!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1) {
-          cell.addClass('field');
+          heightInFeet = 20;
+        } else if (section.name === 'Rear Sheds' || section.name === 'Building 8') {
+          heightInFeet = 58;
+        } else {
+          heightInFeet = 10;
         }
+
+        if (spot.heightInFeet) {
+          console.log('setting by database: ' + spot.heightInFeet);
+          heightInFeet = spot.heightInFeet;
+        }
+
+        cell.addClass(`property-foot-height-${heightInFeet}`);
 
         do {
           let reserver = this.getVendorWhoReservedSpot(spot.id);
@@ -23483,28 +23495,6 @@ class PropertySpotsController {
       rightIndex = availableRightSpots.findIndex(x => x.id == spot.right) + 1;
     }
 
-    spotView.find('.spot-restricted-input').prop('checked', spot.restricted);
-    spotView.find('.spot-edit-name').val(spot.name);
-    spotView.find('.spot-cancel').click(function () {
-      spotView.find('.spot-bottom').prop('selectedIndex', bottomIndex);
-      spotView.find('.spot-right').prop('selectedIndex', rightIndex);
-      spotView.find('.form').addClass('hide');
-    });
-    spotView.find('.spot-save').click(async () => {
-      let dataClient = new _dataClient.default();
-      let patch = {
-        id: spot.id,
-        bottom: spotView.find('.spot-bottom').val(),
-        right: spotView.find('.spot-right').val(),
-        restricted: spotView.find('.spot-restricted-input').is(":checked"),
-        name: spotView.find('.spot-edit-name').val()
-      };
-      let updatedSpot = await dataClient.patch('point-of-sale/spot', patch);
-      let spotIndex = self.spots.findIndex(x => x.id === updatedSpot.id);
-      self.spots[spotIndex] = updatedSpot;
-      spotView.find('.form').addClass('hide');
-      self.buildMap();
-    });
     spotView.find('.spot-bottom').append(`<option value="">Select a Spot</option>`);
     spotView.find('.spot-right').append(`<option value="">Select a Spot</option>`);
 
@@ -23518,6 +23508,34 @@ class PropertySpotsController {
 
     spotView.find('.spot-bottom').prop('selectedIndex', bottomIndex);
     spotView.find('.spot-right').prop('selectedIndex', rightIndex);
+    spotView.find('.spot-restricted-input').prop('checked', spot.restricted);
+    spotView.find('.spot-edit-name').val(spot.name);
+    console.log(spot.heightInFeet);
+    spotView.find('.spot-edit-height').val(spot.heightInFeet);
+    spotView.find('.spot-cancel').click(function () {
+      spotView.find('.spot-bottom').prop('selectedIndex', bottomIndex);
+      spotView.find('.spot-right').prop('selectedIndex', rightIndex);
+      spotView.find('.spot-restricted-input').prop('checked', spot.restricted);
+      spotView.find('.spot-edit-name').val(spot.name);
+      spotView.find('.spot-edit-height').val(spot.heightInFeet);
+      spotView.find('.form').addClass('hide');
+    });
+    spotView.find('.spot-save').click(async () => {
+      let dataClient = new _dataClient.default();
+      let patch = {
+        id: spot.id,
+        bottom: spotView.find('.spot-bottom').val(),
+        right: spotView.find('.spot-right').val(),
+        restricted: spotView.find('.spot-restricted-input').is(":checked"),
+        name: spotView.find('.spot-edit-name').val(),
+        heightInFeet: spotView.find('.spot-edit-height').val()
+      };
+      let updatedSpot = await dataClient.patch('point-of-sale/spot', patch);
+      let spotIndex = self.spots.findIndex(x => x.id === updatedSpot.id);
+      self.spots[spotIndex] = updatedSpot;
+      spotView.find('.form').addClass('hide');
+      self.buildMap();
+    });
   }
 
   setShowBalances(showBalances) {
@@ -26417,7 +26435,13 @@ class SpotView {
                         <div class="form-group row">
                             <label class="col-xs-3 col-form-label col-form-label-lg">Name</label>
                             <div class="col-xs-9">
-                                <input class="form-control spot-edit-name" />
+                                <input type="text" class="form-control spot-edit-name" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-xs-3 col-form-label col-form-label-lg">Right</label>
+                            <div class="col-xs-9">
+                                <select class="form-control spot-right"></select>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -26427,9 +26451,9 @@ class SpotView {
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-xs-3 col-form-label col-form-label-lg">Right</label>
+                            <label class="col-xs-3 col-form-label col-form-label-lg">Height in Feet</label>
                             <div class="col-xs-9">
-                                <select class="form-control spot-right"></select>
+                                <input type="number" class="form-control spot-edit-height" />
                             </div>
                         </div>
                         <div class="form-group row">

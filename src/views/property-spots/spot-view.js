@@ -19,7 +19,13 @@ export default class SpotView {
                         <div class="form-group row">
                             <label class="col-xs-3 col-form-label col-form-label-lg">Name</label>
                             <div class="col-xs-9">
-                                <input class="form-control spot-edit-name" />
+                                <input type="text" class="form-control spot-edit-name" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-xs-3 col-form-label col-form-label-lg">Right</label>
+                            <div class="col-xs-9">
+                                <select class="form-control spot-right"></select>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -29,9 +35,9 @@ export default class SpotView {
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-xs-3 col-form-label col-form-label-lg">Right</label>
+                            <label class="col-xs-3 col-form-label col-form-label-lg">Height in Feet</label>
                             <div class="col-xs-9">
-                                <select class="form-control spot-right"></select>
+                                <input type="number" class="form-control spot-edit-height" />
                             </div>
                         </div>
                         <div class="form-group row">
