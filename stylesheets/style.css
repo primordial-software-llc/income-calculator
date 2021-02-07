@@ -558,3 +558,7 @@ select.form-control {
     cursor: pointer;
     margin-right: 30px;
 }
+
+.property-selected-nav-item {
+    text-decoration: underline;
+}
