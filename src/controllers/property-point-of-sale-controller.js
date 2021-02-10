@@ -29,6 +29,8 @@ export default class PropertyPointOfSaleController {
         $('#sale-rental-amount').prop('disabled', false).val('');
         $('#sale-payment').prop('disabled', false).val('');
         $('#sale-memo').prop('disabled', false).val('');
+        $('#charge-confirmation-first-name').text(this.user.firstName);
+        $('#charge-confirmation-last-name').text(this.user.lastName);
     }
     getSpotDescription(spot) {
         let description = '';
@@ -82,8 +84,149 @@ export default class PropertyPointOfSaleController {
             $('#invoices').empty();
         }
     }
+    async saveReceipt() {
+        let self = this;
+        MessageViewController.setMessage('');
+        $('.required-field-validation').removeClass('required-field-validation');
+        let validationMessages = [];
+        let vendor = $("#sale-vendor").val().trim();
+        let customerMatch = self.getCustomer(vendor);
+        let spots = [];
+        let chargeCard = $('#make-card-payment-option').is(":checked");
+        let cardNumber = $('#card-number').val().trim();
+        let thisPayment = $('#sale-payment').val().trim();
+        let expirationMonth = $('#expiration-month').val().trim();
+        let expirationYear = $('#expiration-year').val().trim();
+        let cvv = $('#card-cvv').val().trim();
+        for (let spotTextInput of $('.spot-input').toArray()) {
+            let spotDescription = $(spotTextInput).val().trim();
+            if (spotDescription.length === 0) {
+                continue;
+            }
+            let spot = self.getSpot(spotDescription);
+            if (!spot) {
+                $(spotTextInput).addClass('required-field-validation');
+                validationMessages.push(`${spotDescription} is not a valid spot`);
+            } else {
+                spots.push(spot);
+            }
+        }
+        if (vendor.length < 1) {
+            $("#sale-vendor").addClass('required-field-validation');
+            validationMessages.push('Vendor is required.');
+        }
+        if (chargeCard) {
+            if (thisPayment.length < 1) {
+                $('#sale-payment').addClass('required-field-validation');
+                validationMessages.push(`Payment is required.`);
+            }
+            if (cardNumber.length < 1) {
+                $('#card-number').addClass('required-field-validation');
+                validationMessages.push(`Credit card number is required.`);
+            }
+            if (expirationMonth.length < 1) {
+                $('#expiration-month').addClass('required-field-validation');
+                validationMessages.push(`Expiration month is required.`);
+            }
+            if (expirationYear.length < 1) {
+                $('#expiration-year').addClass('required-field-validation');
+                validationMessages.push(`Expiration year is required.`);
+            }
+            if (cvv.length < 1) {
+                $('#card-cvv').addClass('required-field-validation');
+                validationMessages.push(`CVV is required.`);
+            }
+        }
+        if (validationMessages.length > 0) {
+            MessageViewController.setMessage(validationMessages, 'alert-danger');
+            return;
+        }
+        let receipt = {
+            id: Util.guid(),
+            rentalDate: $('#sale-date').val().trim(),
+            customer: {
+                id: customerMatch ? customerMatch.quickBooksOnlineId : '',
+                name: vendor
+            },
+            amountOfAccount: $('#sale-prior-balance').val().trim(),
+            rentalAmount: $('#sale-rental-amount').val().trim(),
+            thisPayment: thisPayment,
+            memo: $('#sale-memo').val().trim(),
+            spots: spots,
+            makeCardPayment: chargeCard,
+            cardPayment: {
+                cardNumber: cardNumber,
+                expirationMonth: $('#expiration-month').val().trim(),
+                expirationYear: $('#expiration-year').val().trim(),
+                cvv: $('#card-cvv').val().trim()
+            }
+        };
+        let receiptResult;
+        try {
+            receiptResult = await new DataClient().post('point-of-sale/receipt', receipt);
+        } catch (error) {
+            Util.log(error)
+            MessageViewController.setRequestErrorMessage(error);
+            return;
+        }
+        if (receiptResult.cardAuthorizationResult && receiptResult.cardAuthorizationResult.error) {
+            Util.log(receiptResult.cardAuthorizationResult.error);
+            MessageViewController.setMessage(receiptResult.cardAuthorizationResult.error.message, 'alert-danger');
+            return
+        }
+        if (receiptResult.cardCaptureResult && receiptResult.cardCaptureResult.error) {
+            Util.log(receiptResult.cardCaptureResult.error);
+            MessageViewController.setMessage(cardCaptureResult.error.message, 'alert-danger');
+            return
+        }
+        $('#sale-id').text(receiptResult.id);
+        let receiptNumber = receiptResult.invoice ? `I${receiptResult.invoice.Id}` : '';
+        for (let payment of receiptResult.payments || []) {
+            receiptNumber += `P${payment.Id}`;
+        }
+        $('#receipt-number').text(receiptNumber);
+        let saleBy = (`${self.user.firstName} ${self.user.lastName}`.trim() || self.user.email);
+        $('#sale-by').text(saleBy);
+        let timestamp = Moment(receiptResult.timestamp);
+        $('#sale-timestamp').text(timestamp.format('L LT'));
+        $('#sale-date-text').text(receipt.rentalDate);
+        $('#sale-vendor-text').text(receipt.customer.name);
+        let amountOfAccount = Currency(receipt.amountOfAccount, Util.getCurrencyDefaults());
+        $('.prior-balance-receipt-group').toggle(!!receipt.amountOfAccount);
+        let rentalAmount = Currency(receipt.rentalAmount, Util.getCurrencyDefaults());
+        let payment = Currency(receipt.thisPayment, Util.getCurrencyDefaults());
+        $('#sale-prior-balance-text').text(Util.format(amountOfAccount.toString()));
+        $('#sale-rental-amount-text').text(Util.format(rentalAmount.toString()));
+        $('#sale-payment-text').text(Util.format(payment.toString()));
+        let balanceDue = amountOfAccount.add(rentalAmount);
+        balanceDue = balanceDue.subtract(payment);
+        $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
+        let allSpots = spots;
+        if (customerMatch && customerMatch.spots) {
+            allSpots = customerMatch.spots.concat(allSpots);
+        }
+        $('.spots-receipt-group').toggle(allSpots.length > 0);
+        $('#sale-spots-text').text(allSpots.map(x => self.getSpotDescription(x)).join(", "));
+        $('.memo-receipt-group').toggle(!!receipt.memo);
+        $('#sale-memo-text').text(receipt.memo);
+        $('.disable-on-save').prop('disabled', true);
+        $('.spot-input').prop('disabled', true);
+        $('.remove-spot-btn').prop('disabled', true);
+        $('.card-charge-receipt-group').toggle(chargeCard);
+        if (chargeCard) {
+            $('#sale-paid-with-card-ending').text(cardNumber.substring(cardNumber.length - 4));
+            $('#sale-card-charge-reference-number').text(receiptResult.cardAuthorizationResult.ref_num);
+            $('#sale-card-charge-id').text(receiptResult.cardAuthorizationResult.id);
+        }
+        $('#card-number').val('xxxx xxxx xxxx ' + cardNumber.substring(cardNumber.length - 4));
+        $('#expiration-month').val('XX');
+        $('#expiration-year').val('XX');
+        $('#card-cvv').val('XXX');
+        window.print();
+    }
     async init(user) {
         let self = this;
+        self.user = user;
         this.initForm();
         this.addSpot();
         new AccountSettingsController().init({}, user, false);
@@ -147,90 +290,31 @@ export default class PropertyPointOfSaleController {
                 console.log(error);
             });
         });
-        $('#sale-save').click(async function() {
-            MessageViewController.setMessage('');
-            let validationMessages = [];
-            let vendor = $("#sale-vendor").val().trim();
-            let customerMatch = self.getCustomer(vendor);
-            let spots = [];
-            for (let spotTextInput of $('.spot-input').toArray()) {
-                $(spotTextInput).removeClass('required-field-validation');
-                let spotDescription = $(spotTextInput).val().trim();
-                if (spotDescription.length === 0) {
-                    continue;
-                }
-                let spot = self.getSpot(spotDescription);
-                if (!spot) {
-                    $(spotTextInput).addClass('required-field-validation');
-                    validationMessages.push(`${spotDescription} is not a valid spot`);
-                } else {
-                    spots.push(spot);
-                }
-            }
-            if (validationMessages.length > 0) {
-                MessageViewController.setMessage(validationMessages, 'alert-danger');
-                return;
-            }
-            let receipt = {
-                rentalDate: $('#sale-date').val().trim(),
-                customer: {
-                    id: customerMatch ? customerMatch.quickBooksOnlineId : '',
-                    name: vendor
-                },
-                amountOfAccount: $('#sale-prior-balance').val().trim(),
-                rentalAmount: $('#sale-rental-amount').val().trim(),
-                thisPayment: $('#sale-payment').val().trim(),
-                memo: $('#sale-memo').val().trim(),
-                spots: spots
-            };
-            let receiptResult;
-            try {
-                receiptResult = await new DataClient().post('point-of-sale/receipt', receipt);
-            } catch (error) {
-                Util.log(error)
-                MessageViewController.setRequestErrorMessage(error);
-                return;
-            }
-            $('#sale-id').text(receiptResult.id);
-            let receiptNumber = receiptResult.invoice ? `I${receiptResult.invoice.Id}` : '';
-            for (let payment of receiptResult.payments || []) {
-                receiptNumber += `P${payment.Id}`;
-            }
-            $('#receipt-number').text(receiptNumber);
-            let saleBy = (`${user.firstName} ${user.lastName}`.trim() || user.email);
-            $('#sale-by').text(saleBy);
-            let timestamp = Moment(receiptResult.timestamp);
-            $('#sale-timestamp').text(timestamp.format('L LT'));
-            $('#sale-date-text').text(receipt.rentalDate);
-            $('#sale-vendor-text').text(receipt.customer.name);
-            let amountOfAccount = Currency(receipt.amountOfAccount, Util.getCurrencyDefaults());
-            $('.prior-balance-receipt-group').toggle(!!receipt.amountOfAccount);
-            let rentalAmount = Currency(receipt.rentalAmount, Util.getCurrencyDefaults());
-            let payment = Currency(receipt.thisPayment, Util.getCurrencyDefaults());
-            $('#sale-prior-balance-text').text(Util.format(amountOfAccount.toString()));
-            $('#sale-rental-amount-text').text(Util.format(rentalAmount.toString()));
-            $('#sale-payment-text').text(Util.format(payment.toString()));
-            let balanceDue = amountOfAccount.add(rentalAmount);
-            balanceDue = balanceDue.subtract(payment);
-            $('#sale-new-balance-text').text(Util.format(balanceDue.toString()));
-            let allSpots = spots;
-            if (customerMatch && customerMatch.spots) {
-                allSpots = customerMatch.spots.concat(allSpots);
-            }
-            $('.spots-receipt-group').toggle(allSpots.length > 0);
-            $('#sale-spots-text').text(allSpots.map(x => self.getSpotDescription(x)).join(", "));
-            $('.memo-receipt-group').toggle(!!receipt.memo);
-            $('#sale-memo-text').text(receipt.memo);
-            $('.disable-on-save').prop('disabled', true);
-            $('.spot-input').prop('disabled', true);
-            $('.remove-spot-btn').prop('disabled', true);
-            window.print();
+        $('#sale-save').click(async () => {
+            let cardNumber = $('#card-number').val().trim();
+            $('#charge-confirmation-last4').text(cardNumber.substring(cardNumber.length - 4));
+            $('#charge-confirmation-amount').text(Util.format($('#sale-payment').val().trim()));
+            $('#charge-confirmation-customer').text($("#sale-vendor").val().trim());
+            $('#charge-confirmation-yes').prop('disabled', false);
+            $('#charge-confirmation-modal').modal('show');
         });
-        $('#sale-print').click(function () {
-            window.print();
+        $('#charge-confirmation-yes').click(async function () {
+            $('#charge-confirmation-yes').prop('disabled', true);
+            $('#charge-confirmation-modal').modal('hide');
+            await self.saveReceipt(true);
         });
-        $('#sale-new').click(function() {
-            window.location.reload();
+        $('#sale-print').click(() => window.print());
+        $('#sale-new').click(() => window.location.reload());
+        $('#make-card-payment-option').change(function() {
+            $('#card-number').val('');
+            $('#expiration-month').val('');
+            $('#expiration-year').val('');
+            $('#card-cvv').val('');
+            if (this.checked) {
+                $('.card-row').removeClass('hide');
+            } else {
+                $('.card-row').addClass('hide');
+            }
         });
     }
 }

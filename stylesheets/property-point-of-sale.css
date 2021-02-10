@@ -63,7 +63,15 @@ body .form-control {
     border: 3px solid red;
 }
 
+.form-control-checkbox {
+    height: 34px;
+    width: 34px;
+}
+
 @media print {
+    html {
+        background-color: #FFF;
+    }
     span, div {
         font-size: 12px !important;
         font-weight: bold;

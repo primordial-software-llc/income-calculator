@@ -39,6 +39,9 @@
       <div class="receipt-data-group">New Balance:&nbsp;<span id="sale-new-balance-text"></span></div>
       <div class="receipt-data-group spots-receipt-group">Spots:&nbsp;<span id="sale-spots-text"></span></div>
       <div class="receipt-data-group memo-receipt-group">Memo:&nbsp;<span id="sale-memo-text"></span></div>
+      <div class="receipt-data-group card-charge-receipt-group paid-with-card-ending-receipt-group">Paid with card ending in: <span id="sale-paid-with-card-ending"></span></div>
+      <div class="receipt-data-group card-charge-receipt-group card-charge-reference-number-receipt-group">Card charge reference number: <span id="sale-card-charge-reference-number"></span></div>
+      <div class="receipt-data-group card-charge-receipt-group card-charge-id-receipt-group">Card charge id: <span id="sale-card-charge-id"></span></div>
       <br />
       <div class="text-center">
           Booths and outside spaces reserved will be held until 8:00am.
@@ -109,12 +112,54 @@
               </div>
           </div>
           <div class="form-group row">
-              <label class="col-xs-3 col-form-label col-form-label-lg">This Payment</label>
+              <div class="col-xs-3">
+                  <label class="col-form-label col-form-label-lg">This Payment</label>
+              </div>
               <div class="col-xs-9">
                   <div class="input-group">
                       <div class="input-group-addon">$</div>
                       <input id="sale-payment" class="disable-on-save credit-bg-color form-control text-right" type="number" placeholder="0.00" />
                   </div>
+              </div>
+          </div>
+          <div class="form-group row">
+              <div class="col-xs-3">
+                  <label class="col-form-label col-form-label-lg">Make Card Payment</label>
+              </div>
+              <div class="col-xs-9">
+                  <input id="make-card-payment-option" type="checkbox" class="form-control-checkbox disable-on-save">
+              </div>
+          </div>
+          <div class="form-group row card-row hide">
+              <div class="col-xs-3">
+                  <label class="col-form-label col-form-label-lg">Card Number</label>
+              </div>
+              <div class="col-xs-9">
+                  <input type="text" inputmode="numeric" id="card-number" class="form-group disable-on-save form-control text-right" placeholder="xxxx xxxx xxxx xxxx" />
+              </div>
+          </div>
+          <div class="form-group row card-row hide">
+              <div class="col-xs-3">
+                  <label class="col-form-label col-form-label-lg">Expiration Month</label>
+              </div>
+              <div class="col-xs-9">
+                  <input type="text" inputmode="numeric" id="expiration-month" class="form-group disable-on-save form-control text-right" placeholder="MM" />
+              </div>
+          </div>
+          <div class="form-group row card-row hide">
+              <div class="col-xs-3">
+                  <label class="col-form-label col-form-label-lg">Expiration Year</label>
+              </div>
+              <div class="col-xs-9">
+                  <input type="text" inputmode="numeric" id="expiration-year" class="form-group disable-on-save form-control text-right" placeholder="YY" />
+              </div>
+          </div>
+          <div class="form-group row card-row hide">
+              <div class="col-xs-3">
+                  <label class="col-form-label col-form-label-lg">CVV</label>
+              </div>
+              <div class="col-xs-9">
+                  <input type="text" inputmode="numeric" id="card-cvv" class="form-group disable-on-save form-control text-right" placeholder="e.g. 123" />
               </div>
           </div>
           <div class="form-group row">
@@ -139,6 +184,23 @@
           <input id="sale-print" type="button" value="Print" class="btn btn-primary" />
           <input id="sale-new" type="button" value="New Receipt" class="btn btn-primary" />
       </form>
+      <div class="modal fade" id="charge-confirmation-modal">
+          <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <div>I <span id="charge-confirmation-first-name"></span> <span id="charge-confirmation-last-name"></span> affirm that I have permission from the card owner to charge the card below.</div>
+                      <br />
+                      <div>Amount: <strong><span id="charge-confirmation-amount"></span></strong></div>
+                      <div>Vendor: <span id="charge-confirmation-customer"></span></div>
+                      <div>Card Ending: <span id="charge-confirmation-last4"></span></div>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-default pull-left" data-dismiss="modal">No</button>
+                      <button id="charge-confirmation-yes" type="button" class="btn btn-danger">Yes</button>
+                  </div>
+              </div>
+          </div>
+      </div>
   </div>
   </body>
 </html>
