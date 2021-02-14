@@ -222,6 +222,9 @@ export default class PropertyPointOfSaleController {
         $('#expiration-month').val('XX');
         $('#expiration-year').val('XX');
         $('#card-cvv').val('XXX');
+        $('#charge-confirmation-last4').text(cardNumber.substring(cardNumber.length - 4));
+        $('#charge-confirmation-amount').text(Util.format($('#sale-payment').val().trim()));
+        $('#charge-confirmation-customer').text($("#sale-vendor").val().trim());
         window.print();
     }
     async init(user) {
@@ -291,12 +294,12 @@ export default class PropertyPointOfSaleController {
             });
         });
         $('#sale-save').click(async () => {
-            let cardNumber = $('#card-number').val().trim();
-            $('#charge-confirmation-last4').text(cardNumber.substring(cardNumber.length - 4));
-            $('#charge-confirmation-amount').text(Util.format($('#sale-payment').val().trim()));
-            $('#charge-confirmation-customer').text($("#sale-vendor").val().trim());
-            $('#charge-confirmation-yes').prop('disabled', false);
-            $('#charge-confirmation-modal').modal('show');
+            if ($('#make-card-payment-option').is(":checked")) {
+                $('#charge-confirmation-yes').prop('disabled', false);
+                $('#charge-confirmation-modal').modal('show');
+            } else {
+                await self.saveReceipt(true);
+            }
         });
         $('#charge-confirmation-yes').click(async function () {
             $('#charge-confirmation-yes').prop('disabled', true);
