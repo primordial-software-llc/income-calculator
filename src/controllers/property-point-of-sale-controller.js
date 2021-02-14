@@ -86,6 +86,8 @@ export default class PropertyPointOfSaleController {
     }
     async saveReceipt() {
         let self = this;
+        $('#sale-save').prop('disabled', true);
+        $('#charge-confirmation-yes').prop('disabled', true);
         MessageViewController.setMessage('');
         $('.required-field-validation').removeClass('required-field-validation');
         let validationMessages = [];
@@ -161,23 +163,24 @@ export default class PropertyPointOfSaleController {
                 cvv: $('#card-cvv').val().trim()
             }
         };
-        let receiptResult;
+        let receiptResult, receiptError;
         try {
             receiptResult = await new DataClient().post('point-of-sale/receipt', receipt);
         } catch (error) {
-            Util.log(error)
-            MessageViewController.setRequestErrorMessage(error);
+            receiptError = MessageViewController.getRequestErrorMessage(error);
+        }
+        if (receiptResult && receiptResult.cardAuthorizationResult && receiptResult.cardAuthorizationResult.error) {
+            receiptError = receiptResult.cardAuthorizationResult.error.message || JSON.stringify(receiptResult.cardAuthorizationResult.error);
+        }
+        if (receiptResult && receiptResult.cardCaptureResult && receiptResult.cardCaptureResult.error) {
+            receiptError = receiptResult.cardCaptureResult.error.message || JSON.stringify(receiptResult.cardCaptureResult.error);
+        }
+        if (receiptError) {
+            $('#sale-save').prop('disabled', false);
+            $('#charge-confirmation-yes').prop('disabled', false);
+            Util.log(receiptError);
+            MessageViewController.setMessage(receiptError, 'alert-danger');
             return;
-        }
-        if (receiptResult.cardAuthorizationResult && receiptResult.cardAuthorizationResult.error) {
-            Util.log(receiptResult.cardAuthorizationResult.error);
-            MessageViewController.setMessage(receiptResult.cardAuthorizationResult.error.message, 'alert-danger');
-            return
-        }
-        if (receiptResult.cardCaptureResult && receiptResult.cardCaptureResult.error) {
-            Util.log(receiptResult.cardCaptureResult.error);
-            MessageViewController.setMessage(cardCaptureResult.error.message, 'alert-danger');
-            return
         }
         $('#sale-id').text(receiptResult.id);
         let receiptNumber = receiptResult.invoice ? `I${receiptResult.invoice.Id}` : '';
@@ -222,9 +225,6 @@ export default class PropertyPointOfSaleController {
         $('#expiration-month').val('XX');
         $('#expiration-year').val('XX');
         $('#card-cvv').val('XXX');
-        $('#charge-confirmation-last4').text(cardNumber.substring(cardNumber.length - 4));
-        $('#charge-confirmation-amount').text(Util.format($('#sale-payment').val().trim()));
-        $('#charge-confirmation-customer').text($("#sale-vendor").val().trim());
         window.print();
     }
     async init(user) {
@@ -295,16 +295,19 @@ export default class PropertyPointOfSaleController {
         });
         $('#sale-save').click(async () => {
             if ($('#make-card-payment-option').is(":checked")) {
+                let cardNumber = $('#card-number').val().trim();
+                $('#charge-confirmation-last4').text(cardNumber.substring(cardNumber.length - 4));
+                $('#charge-confirmation-amount').text(Util.format($('#sale-payment').val().trim()));
+                $('#charge-confirmation-customer').text($("#sale-vendor").val().trim());
                 $('#charge-confirmation-yes').prop('disabled', false);
                 $('#charge-confirmation-modal').modal('show');
             } else {
-                await self.saveReceipt(true);
+                await self.saveReceipt();
             }
         });
         $('#charge-confirmation-yes').click(async function () {
-            $('#charge-confirmation-yes').prop('disabled', true);
             $('#charge-confirmation-modal').modal('hide');
-            await self.saveReceipt(true);
+            await self.saveReceipt();
         });
         $('#sale-print').click(() => window.print());
         $('#sale-new').click(() => window.location.reload());

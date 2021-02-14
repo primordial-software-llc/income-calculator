@@ -4,7 +4,7 @@
  */
 export default class MessageViewController {
 
-    static setRequestErrorMessage(error) {
+    static getRequestErrorMessage(error) {
         let jsonErrorResponse;
         try {
             if (error.response) {
@@ -13,10 +13,13 @@ export default class MessageViewController {
         } catch (jsonParseError) {
             // Not a json response.
         }
-        let message = jsonErrorResponse && jsonErrorResponse.error
+        return jsonErrorResponse && jsonErrorResponse.error
             ? jsonErrorResponse.error
             : JSON.stringify(error, 0, 4);
-        this.setMessage(message, 'alert-danger');
+    }
+
+    static setRequestErrorMessage(error) {
+        this.setMessage(this.getRequestErrorMessage(error), 'alert-danger');
     }
 
     static setMessage(message, messageType, isSingleHtmlMessage) {

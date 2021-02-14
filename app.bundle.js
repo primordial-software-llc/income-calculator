@@ -22356,7 +22356,7 @@ exports.default = void 0;
     <div id="messageAlert" class="hide alert" role="alert"></div>
  */
 class MessageViewController {
-  static setRequestErrorMessage(error) {
+  static getRequestErrorMessage(error) {
     let jsonErrorResponse;
 
     try {
@@ -22366,8 +22366,11 @@ class MessageViewController {
     } catch (jsonParseError) {// Not a json response.
     }
 
-    let message = jsonErrorResponse && jsonErrorResponse.error ? jsonErrorResponse.error : JSON.stringify(error, 0, 4);
-    this.setMessage(message, 'alert-danger');
+    return jsonErrorResponse && jsonErrorResponse.error ? jsonErrorResponse.error : JSON.stringify(error, 0, 4);
+  }
+
+  static setRequestErrorMessage(error) {
+    this.setMessage(this.getRequestErrorMessage(error), 'alert-danger');
   }
 
   static setMessage(message, messageType, isSingleHtmlMessage) {
@@ -23041,6 +23044,8 @@ class PropertyPointOfSaleController {
 
   async saveReceipt() {
     let self = this;
+    $('#sale-save').prop('disabled', true);
+    $('#charge-confirmation-yes').prop('disabled', true);
 
     _messageViewController.default.setMessage('');
 
@@ -23131,30 +23136,28 @@ class PropertyPointOfSaleController {
         cvv: $('#card-cvv').val().trim()
       }
     };
-    let receiptResult;
+    let receiptResult, receiptError;
 
     try {
       receiptResult = await new _dataClient.default().post('point-of-sale/receipt', receipt);
     } catch (error) {
-      Util.log(error);
-
-      _messageViewController.default.setRequestErrorMessage(error);
-
-      return;
+      receiptError = _messageViewController.default.getRequestErrorMessage(error);
     }
 
-    if (receiptResult.cardAuthorizationResult && receiptResult.cardAuthorizationResult.error) {
-      Util.log(receiptResult.cardAuthorizationResult.error);
-
-      _messageViewController.default.setMessage(receiptResult.cardAuthorizationResult.error.message, 'alert-danger');
-
-      return;
+    if (receiptResult && receiptResult.cardAuthorizationResult && receiptResult.cardAuthorizationResult.error) {
+      receiptError = receiptResult.cardAuthorizationResult.error.message || JSON.stringify(receiptResult.cardAuthorizationResult.error);
     }
 
-    if (receiptResult.cardCaptureResult && receiptResult.cardCaptureResult.error) {
-      Util.log(receiptResult.cardCaptureResult.error);
+    if (receiptResult && receiptResult.cardCaptureResult && receiptResult.cardCaptureResult.error) {
+      receiptError = receiptResult.cardCaptureResult.error.message || JSON.stringify(receiptResult.cardCaptureResult.error);
+    }
 
-      _messageViewController.default.setMessage(cardCaptureResult.error.message, 'alert-danger');
+    if (receiptError) {
+      $('#sale-save').prop('disabled', false);
+      $('#charge-confirmation-yes').prop('disabled', false);
+      Util.log(receiptError);
+
+      _messageViewController.default.setMessage(receiptError, 'alert-danger');
 
       return;
     }
@@ -23208,9 +23211,6 @@ class PropertyPointOfSaleController {
     $('#expiration-month').val('XX');
     $('#expiration-year').val('XX');
     $('#card-cvv').val('XXX');
-    $('#charge-confirmation-last4').text(cardNumber.substring(cardNumber.length - 4));
-    $('#charge-confirmation-amount').text(Util.format($('#sale-payment').val().trim()));
-    $('#charge-confirmation-customer').text($("#sale-vendor").val().trim());
     window.print();
   }
 
@@ -23297,16 +23297,19 @@ class PropertyPointOfSaleController {
     });
     $('#sale-save').click(async () => {
       if ($('#make-card-payment-option').is(":checked")) {
+        let cardNumber = $('#card-number').val().trim();
+        $('#charge-confirmation-last4').text(cardNumber.substring(cardNumber.length - 4));
+        $('#charge-confirmation-amount').text(Util.format($('#sale-payment').val().trim()));
+        $('#charge-confirmation-customer').text($("#sale-vendor").val().trim());
         $('#charge-confirmation-yes').prop('disabled', false);
         $('#charge-confirmation-modal').modal('show');
       } else {
-        await self.saveReceipt(true);
+        await self.saveReceipt();
       }
     });
     $('#charge-confirmation-yes').click(async function () {
-      $('#charge-confirmation-yes').prop('disabled', true);
       $('#charge-confirmation-modal').modal('hide');
-      await self.saveReceipt(true);
+      await self.saveReceipt();
     });
     $('#sale-print').click(() => window.print());
     $('#sale-new').click(() => window.location.reload());
