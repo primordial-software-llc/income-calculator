@@ -15,6 +15,9 @@ export default class PropertyCustomersController {
     static hideInNav() {
         return true;
     }
+    static showInPropertyNav() {
+        return true;
+    }
     getView(customerPaymentSetting) {
         let paymentFrequency = customerPaymentSetting.paymentFrequency || '&nbsp;';
         let amount = customerPaymentSetting.rentPrice

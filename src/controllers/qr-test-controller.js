@@ -5,10 +5,13 @@ const QRCode = require('qrcode');
 
 export default class QrTestController {
     static getName() {
-        return 'QR Test';
+        return 'Cards';
     }
     static getUrl() {
         return `${Util.rootUrl()}/pages/qr-test.html`;
+    }
+    static showInPropertyNav() {
+        return true;
     }
     getQrCodePromise(data) {
         return new Promise((resolve, reject) => {

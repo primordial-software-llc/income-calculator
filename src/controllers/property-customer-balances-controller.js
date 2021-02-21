@@ -13,6 +13,9 @@ export default class PropertyCustomerBalancesController {
     static hideInNav() {
         return true;
     }
+    static showInPropertyNav() {
+        return true;
+    }
     async init(user) {
         new AccountSettingsController().init({}, user, false);
         this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');

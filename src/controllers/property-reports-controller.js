@@ -1,6 +1,7 @@
 import AccountSettingsController from './account-settings-controller';
 import DataClient from '../data-client';
 import MessageViewController from './message-view-controller';
+import Nav from '../nav';
 const Util = require('../util');
 const Moment = require('moment/moment');
 const Currency = require('currency.js');
@@ -14,7 +15,21 @@ export default class PropertyReportsController {
     static hideInNav() {
         return true;
     }
+    static showInPropertyNav() {
+        return true;
+    }
+    initNav(user) {
+        let controllers = Nav.getAuthenticatedControllers(user)
+            .filter(x => x.showInPropertyNav && x.showInPropertyNav());
+        console.log(controllers);
+        for (let controller of controllers) {
+            $('.property-navigation').append(`
+                <a class="property-nav-item" href="${controller.getUrl()}">${controller.getName()}</a>
+            `);
+        }
+    }
     async init(user) {
+        this.initNav(user);
         let self = this;
         new AccountSettingsController().init({}, user, false);
         let dataClient = new DataClient();

@@ -15,6 +15,7 @@ import PropertyCustomerEditController from './controllers/property-customer-edit
 import PropertySpotsController from './controllers/property-spots-controller';
 import PropertyReportsController from './controllers/property-reports-controller';
 import PropertyTransactionsController from './controllers/property-transactions-controller';
+import QrTestController from './controllers/qr-test-controller';
 
 export default class Navigation {
     static getNavItemView(url, name) {
@@ -39,6 +40,7 @@ export default class Navigation {
             authenticatedControllers.push(PropertyCustomerEditController);
             authenticatedControllers.push(PropertySpotsController);
             authenticatedControllers.push(PropertyTransactionsController);
+            authenticatedControllers.push(QrTestController);
         }
         if (email === 'timg456789@yahoo.com' ||
             email === 'kmanrique506@hotmail.com') {

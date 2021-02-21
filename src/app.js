@@ -36,8 +36,6 @@ async function init() {
         controller = new LoginSignupController();
     } else if (pageName.startsWith('index.html')) {
         controller = new HomeController();
-    } else if (pageName.startsWith('qr-test.html')) {
-        controller = new QrTestController();
     }
     try {
         if (controller) {

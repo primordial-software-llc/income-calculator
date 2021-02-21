@@ -10,6 +10,9 @@ export default class TransactionsController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/transactions.html`;
     }
+    static showInPropertyNav() {
+        return true;
+    }
     async init(usernameResponse) {
         new AccountSettingsController().init({}, usernameResponse, true);
         $('#search-transactions').click(async function() {

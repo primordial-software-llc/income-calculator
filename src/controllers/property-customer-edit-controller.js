@@ -4,7 +4,7 @@ import CustomerDescription from '../customer-description';
 import DataClient from '../data-client';
 import MessageViewController from './message-view-controller';
 const Util = require('../util');
-export default class PropertyCustomersController {
+export default class PropertyCustomerEditController {
     static getName() {
         return 'Customer Edit';
     }

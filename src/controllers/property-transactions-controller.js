@@ -3,7 +3,7 @@ import DataClient from '../data-client';
 const Moment = require('moment');
 import MessageViewController from './message-view-controller';
 const Util = require('../util');
-export default class PropertyCustomersController {
+export default class PropertyTransactionsController {
     static getName() {
         return 'Transactions';
     }

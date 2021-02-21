@@ -4,7 +4,7 @@ import DataClient from '../data-client';
 import MessageViewController from './message-view-controller';
 import Moment from 'moment/moment';
 import Util from '../util';
-import CustomerDescription from "../customer-description";
+import CustomerDescription from '../customer-description';
 
 export default class PropertySpotsController {
     static getName() {
@@ -14,6 +14,9 @@ export default class PropertySpotsController {
         return `${Util.rootUrl()}/pages/property-spots.html`;
     }
     static hideInNav() {
+        return true;
+    }
+    static showInPropertyNav() {
         return true;
     }
     getVendorWhoReservedSpot(spotId) {
