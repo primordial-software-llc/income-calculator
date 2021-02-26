@@ -5,6 +5,7 @@ const Moment = require('moment/moment');
 import DataClient from '../data-client';
 import AccountSettingsController from './account-settings-controller';
 import MessageViewController from './message-view-controller';
+import Navigation from '../nav';
 const Util = require('../util');
 export default class PropertyPointOfSaleController {
     static getName() {
@@ -12,6 +13,9 @@ export default class PropertyPointOfSaleController {
     }
     static getUrl() {
         return `${Util.rootUrl()}/pages/property-point-of-sale.html`;
+    }
+    static showInPropertyNav() {
+        return true;
     }
     addSpot(additionalSpot) {
         let id = Util.guid();
@@ -228,6 +232,7 @@ export default class PropertyPointOfSaleController {
         window.print();
     }
     async init(user) {
+        $('.property-navigation').append(Navigation.getPropertyNav(user, PropertyPointOfSaleController.getUrl()));
         let self = this;
         self.user = user;
         this.initForm();

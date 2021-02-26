@@ -17,7 +17,6 @@ async function init() {
     try {
         if (pageName &&
             !pageName.startsWith('login.html') &&
-            !pageName.startsWith('qr-test.html') &&
             !pageName.startsWith('login-signup.html')) {
             usernameResponse = await new DataClient().getBudget();
         }

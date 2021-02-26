@@ -5,6 +5,7 @@ import MessageViewController from './message-view-controller';
 import Moment from 'moment/moment';
 import Util from '../util';
 import CustomerDescription from '../customer-description';
+import Navigation from '../nav';
 
 export default class PropertySpotsController {
     static getName() {
@@ -259,6 +260,7 @@ export default class PropertySpotsController {
         $('#spot-sections-container-right-bottom').append(southWalkwaySectionView);
     }
     async init(user) {
+        $('.property-navigation').append(Navigation.getPropertyNav(user, PropertySpotsController.getUrl()));
         $('.spot-edit-btn').hide();
         let self = this;
         let date = Moment();

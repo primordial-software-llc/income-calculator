@@ -18,6 +18,20 @@ import PropertyTransactionsController from './controllers/property-transactions-
 import QrTestController from './controllers/qr-test-controller';
 
 export default class Navigation {
+    static getPropertyNav(user, currentControllerUrl) {
+        let navContainer = $('<div></div>');
+        let controllers = this.getAuthenticatedControllers(user)
+            .filter(x => x.showInPropertyNav && x.showInPropertyNav());
+        for (let controller of controllers) {
+            var link = $(`<a class="property-nav-item" href="${controller.getUrl()}">${controller.getName()}</a>`);
+            if (controller.getUrl() === currentControllerUrl)
+            {
+                link.addClass('property-selected-nav-item');
+            }
+            navContainer.append(link);
+        }
+        return navContainer;
+    }
     static getNavItemView(url, name) {
         return `<a class="tab-nav-item" href="${url}" title="${name}">
                   <span class="ac-gn-link-text">${name}</span>

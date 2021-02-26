@@ -1,5 +1,6 @@
 import CustomerDescription from '../customer-description';
 import DataClient from '../data-client';
+import Navigation from '../nav';
 const Util = require('../util');
 const QRCode = require('qrcode');
 
@@ -52,6 +53,7 @@ export default class QrTestController {
             customerDescription.toLowerCase().replace(/\s+/g, " ")); // Data list and input automatically replace multiple whitespaces with a single white space
     }
     async init(user) {
+        $('.property-navigation').append(Navigation.getPropertyNav(user, QrTestController.getUrl()));
         let self = this;
         this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
         for (let customer of this.customers) {

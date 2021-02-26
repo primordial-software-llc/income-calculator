@@ -3,6 +3,8 @@ import AddSpotView from '../views/add-spot-view';
 import CustomerDescription from '../customer-description';
 import DataClient from '../data-client';
 import MessageViewController from './message-view-controller';
+import Navigation from '../nav';
+import PropertyCustomersController from './property-customers-controller';
 const Util = require('../util');
 export default class PropertyCustomerEditController {
     static getName() {
@@ -36,6 +38,7 @@ export default class PropertyCustomerEditController {
         return cancelledReservations;
     }
     async init(user) {
+        $('.property-navigation').append(Navigation.getPropertyNav(user, PropertyCustomersController.getUrl()));
         let self = this;
         new AccountSettingsController().init({}, user, false);
         let dataClient = new DataClient();

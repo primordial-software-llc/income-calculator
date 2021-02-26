@@ -4,6 +4,7 @@ import CustomerSort from '../customer-sort';
 import DataClient from '../data-client';
 const Moment = require('moment');
 import MessageViewController from './message-view-controller';
+import Navigation from '../nav';
 const Util = require('../util');
 export default class PropertyCustomersController {
     static getName() {
@@ -70,6 +71,7 @@ export default class PropertyCustomersController {
         }
     }
     async init(user) {
+        $('.property-navigation').append(Navigation.getPropertyNav(user, PropertyCustomersController.getUrl()));
         let self = this;
         new AccountSettingsController().init({}, user, false);
         this.customerPaymentSettings = await new DataClient().get('point-of-sale/customer-payment-settings');

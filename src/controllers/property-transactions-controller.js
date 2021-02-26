@@ -2,6 +2,7 @@ import AccountSettingsController from './account-settings-controller';
 import DataClient from '../data-client';
 const Moment = require('moment');
 import MessageViewController from './message-view-controller';
+import Navigation from '../nav';
 const Util = require('../util');
 export default class PropertyTransactionsController {
     static getName() {
@@ -46,6 +47,7 @@ export default class PropertyTransactionsController {
         }
     }
     async init(user) {
+        $('.property-navigation').append(Navigation.getPropertyNav(user, PropertyTransactionsController.getUrl()));
         let self = this;
         this.dataClient = new DataClient();
         new AccountSettingsController().init({}, user, false);

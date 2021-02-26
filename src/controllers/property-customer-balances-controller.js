@@ -2,6 +2,7 @@ import AccountSettingsController from './account-settings-controller';
 import CustomerDescription from '../customer-description';
 import CustomerSort from '../customer-sort';
 import DataClient from '../data-client';
+import Navigation from '../nav';
 const Util = require('../util');
 export default class PropertyCustomerBalancesController {
     static getName() {
@@ -17,6 +18,7 @@ export default class PropertyCustomerBalancesController {
         return true;
     }
     async init(user) {
+        $('.property-navigation').append(Navigation.getPropertyNav(user, PropertyCustomerBalancesController.getUrl()));
         new AccountSettingsController().init({}, user, false);
         this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
         this.customers.sort(CustomerSort.sort);
