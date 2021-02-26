@@ -3,3 +3,11 @@
     display: flex;
     align-items: flex-end;
 }
+
+.dotted-underline-row > div:last-child {
+    padding-left: 0px;
+}
+
+.black-dotted-double-underline {
+    border-bottom: 6px double #000;
+}

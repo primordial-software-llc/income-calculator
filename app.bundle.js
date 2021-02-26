@@ -22563,6 +22563,8 @@ var _nav = _interopRequireDefault(require("../nav"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+const Currency = require('currency.js');
+
 const Util = require('../util');
 
 class PropertyCustomerBalancesController {
@@ -22587,8 +22589,10 @@ class PropertyCustomerBalancesController {
     new _accountSettingsController.default().init({}, user, false);
     this.customers = await new _dataClient.default().get('point-of-sale/customer-payment-settings');
     this.customers.sort(_customerSort.default.sort);
+    let total = Currency(0, Util.getCurrencyDefaults());
 
     for (let customer of this.customers.filter(x => x.balance > 0)) {
+      total = total.add(customer.balance);
       $('.customer-balance-container').append(`
                 <div class="row dotted-underline-row customer-balance-row">
                     <div class="col-xs-7 vertical-align customer-balance-column">
@@ -22609,13 +22613,28 @@ class PropertyCustomerBalancesController {
                 </div>
             `);
     }
+
+    $('.customer-balance-container').append(`
+            <div class="row dotted-underline-row customer-balance-row">
+                <div class="col-xs-7 vertical-align customer-balance-column">
+                    <div class="black-dotted-double-underline">
+                        <strong>Total</strong>
+                    </div>
+                </div>
+                <div class="col-xs-5 text-right vertical-align customer-balance-column">
+                    <div class="black-dotted-double-underline">
+                        <strong>${Util.format(total.toString())}</strong>
+                    </div>
+                </div>
+            </div>
+        `);
   }
 
 }
 
 exports.default = PropertyCustomerBalancesController;
 
-},{"../customer-description":95,"../customer-sort":96,"../data-client":97,"../nav":98,"../util":100,"./account-settings-controller":71}],85:[function(require,module,exports){
+},{"../customer-description":95,"../customer-sort":96,"../data-client":97,"../nav":98,"../util":100,"./account-settings-controller":71,"currency.js":27}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23896,6 +23915,10 @@ class PropertyTransactionsController {
     return true;
   }
 
+  static showInPropertyNav() {
+    return true;
+  }
+
   async loadTransactions() {
     let unsentTransactions;
 
@@ -24289,10 +24312,6 @@ class TransactionsController {
 
   static getUrl() {
     return `${Util.rootUrl()}/pages/transactions.html`;
-  }
-
-  static showInPropertyNav() {
-    return true;
   }
 
   async init(usernameResponse) {

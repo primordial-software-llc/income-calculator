@@ -1,6 +1,7 @@
 import AccountSettingsController from './account-settings-controller';
 import CustomerDescription from '../customer-description';
 import CustomerSort from '../customer-sort';
+const Currency = require('currency.js');
 import DataClient from '../data-client';
 import Navigation from '../nav';
 const Util = require('../util');
@@ -22,7 +23,9 @@ export default class PropertyCustomerBalancesController {
         new AccountSettingsController().init({}, user, false);
         this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
         this.customers.sort(CustomerSort.sort);
+        let total = Currency(0, Util.getCurrencyDefaults());
         for (let customer of this.customers.filter(x => x.balance > 0)) {
+            total = total.add(customer.balance);
             $('.customer-balance-container').append(`
                 <div class="row dotted-underline-row customer-balance-row">
                     <div class="col-xs-7 vertical-align customer-balance-column">
@@ -43,5 +46,19 @@ export default class PropertyCustomerBalancesController {
                 </div>
             `);
         }
+        $('.customer-balance-container').append(`
+            <div class="row dotted-underline-row customer-balance-row">
+                <div class="col-xs-7 vertical-align customer-balance-column">
+                    <div class="black-dotted-double-underline">
+                        <strong>Total</strong>
+                    </div>
+                </div>
+                <div class="col-xs-5 text-right vertical-align customer-balance-column">
+                    <div class="black-dotted-double-underline">
+                        <strong>${Util.format(total.toString())}</strong>
+                    </div>
+                </div>
+            </div>
+        `);
     }
 }

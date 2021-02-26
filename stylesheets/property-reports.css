@@ -7,3 +7,7 @@
 .amount-cell {
     padding-right: 45px;
 }
+
+.dotted-underline-row > div:last-child {
+    padding-left: 0px;
+}

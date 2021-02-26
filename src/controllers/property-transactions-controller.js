@@ -14,6 +14,9 @@ export default class PropertyTransactionsController {
     static hideInNav() {
         return true;
     }
+    static showInPropertyNav() {
+        return true;
+    }
     async loadTransactions() {
         let unsentTransactions;
         try {

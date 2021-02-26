@@ -9,3 +9,7 @@
     color: #000;
     text-decoration: underline;
 }
+
+.dotted-underline-row > div:last-child {
+    padding-left: 0px;
+}
