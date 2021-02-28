@@ -11,6 +11,9 @@ export default class QrTestController {
     static getUrl() {
         return `${Util.rootUrl()}/pages/qr-test.html`;
     }
+    static hideInNav() {
+        return true;
+    }
     static showInPropertyNav() {
         return true;
     }
