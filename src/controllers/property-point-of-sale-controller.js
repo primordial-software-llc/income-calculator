@@ -144,6 +144,7 @@ export default class PropertyPointOfSaleController {
             }
         }
         if (validationMessages.length > 0) {
+            $('#sale-save').prop('disabled', false);
             MessageViewController.setMessage(validationMessages, 'alert-danger');
             return;
         }
@@ -212,6 +213,7 @@ export default class PropertyPointOfSaleController {
         if (customerMatch && customerMatch.spots) {
             allSpots = customerMatch.spots.concat(allSpots);
         }
+        $('.rental-charge-receipt-group').toggle(thisPayment.length);
         $('.spots-receipt-group').toggle(allSpots.length > 0);
         $('#sale-spots-text').text(allSpots.map(x => self.getSpotDescription(x)).join(", "));
         $('.memo-receipt-group').toggle(!!receipt.memo);
@@ -326,6 +328,9 @@ export default class PropertyPointOfSaleController {
             } else {
                 $('.card-row').addClass('hide');
             }
+        });
+        $("#sale-rental-amount").on('input', function () {
+            $('.rental-date-row').toggle((this.value || '').trim().length > 0);
         });
     }
 }
