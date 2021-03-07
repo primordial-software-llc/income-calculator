@@ -11,3 +11,11 @@
 .dotted-underline-row > div:last-child {
     padding-left: 0px;
 }
+
+.black-solid-underline {
+    border-bottom: 1px solid #000;
+}
+
+.black-double-underline {
+    border-bottom: 1px double #000;
+}
