@@ -6,6 +6,7 @@ import DataClient from '../data-client';
 import AccountSettingsController from './account-settings-controller';
 import MessageViewController from './message-view-controller';
 import Navigation from '../nav';
+import PointOfSaleValidation from '../property/point-of-sale-validation';
 const Util = require('../util');
 export default class PropertyPointOfSaleController {
     static getName() {
@@ -94,16 +95,10 @@ export default class PropertyPointOfSaleController {
         $('#charge-confirmation-yes').prop('disabled', true);
         MessageViewController.setMessage('');
         $('.required-field-validation').removeClass('required-field-validation');
-        let validationMessages = [];
         let vendor = $("#sale-vendor").val().trim();
         let customerMatch = self.getCustomer(vendor);
         let spots = [];
-        let chargeCard = $('#make-card-payment-option').is(":checked");
-        let cardNumber = $('#card-number').val().trim();
-        let thisPayment = $('#sale-payment').val().trim();
-        let expirationMonth = $('#expiration-month').val().trim();
-        let expirationYear = $('#expiration-year').val().trim();
-        let cvv = $('#card-cvv').val().trim();
+        let validationMessages = [];
         for (let spotTextInput of $('.spot-input').toArray()) {
             let spotDescription = $(spotTextInput).val().trim();
             if (spotDescription.length === 0) {
@@ -117,37 +112,6 @@ export default class PropertyPointOfSaleController {
                 spots.push(spot);
             }
         }
-        if (vendor.length < 1) {
-            $("#sale-vendor").addClass('required-field-validation');
-            validationMessages.push('Vendor is required.');
-        }
-        if (chargeCard) {
-            if (thisPayment.length < 1) {
-                $('#sale-payment').addClass('required-field-validation');
-                validationMessages.push(`Payment is required.`);
-            }
-            if (cardNumber.length < 1) {
-                $('#card-number').addClass('required-field-validation');
-                validationMessages.push(`Credit card number is required.`);
-            }
-            if (expirationMonth.length < 1) {
-                $('#expiration-month').addClass('required-field-validation');
-                validationMessages.push(`Expiration month is required.`);
-            }
-            if (expirationYear.length < 1) {
-                $('#expiration-year').addClass('required-field-validation');
-                validationMessages.push(`Expiration year is required.`);
-            }
-            if (cvv.length < 1) {
-                $('#card-cvv').addClass('required-field-validation');
-                validationMessages.push(`CVV is required.`);
-            }
-        }
-        if (validationMessages.length > 0) {
-            $('#sale-save').prop('disabled', false);
-            MessageViewController.setMessage(validationMessages, 'alert-danger');
-            return;
-        }
         let receipt = {
             id: Util.guid(),
             rentalDate: $('#sale-date').val().trim(),
@@ -157,17 +121,23 @@ export default class PropertyPointOfSaleController {
             },
             amountOfAccount: $('#sale-prior-balance').val().trim(),
             rentalAmount: $('#sale-rental-amount').val().trim(),
-            thisPayment: thisPayment,
+            thisPayment: $('#sale-payment').val().trim(),
             memo: $('#sale-memo').val().trim(),
             spots: spots,
-            makeCardPayment: chargeCard,
+            makeCardPayment: $('#make-card-payment-option').is(":checked"),
             cardPayment: {
-                cardNumber: cardNumber,
+                cardNumber: $('#card-number').val().trim(),
                 expirationMonth: $('#expiration-month').val().trim(),
                 expirationYear: $('#expiration-year').val().trim(),
                 cvv: $('#card-cvv').val().trim()
             }
         };
+        validationMessages = validationMessages.concat(new PointOfSaleValidation().getValidation(receipt));
+        if (validationMessages.length > 0) {
+            $('#sale-save').prop('disabled', false);
+            MessageViewController.setMessage(validationMessages, 'alert-danger');
+            return;
+        }
         let receiptResult, receiptError;
         try {
             receiptResult = await new DataClient().post('point-of-sale/receipt', receipt);
@@ -213,7 +183,7 @@ export default class PropertyPointOfSaleController {
         if (customerMatch && customerMatch.spots) {
             allSpots = customerMatch.spots.concat(allSpots);
         }
-        $('.rental-charge-receipt-group').toggle(thisPayment.length);
+        $('.rental-charge-receipt-group').toggle(receipt.thisPayment.length);
         $('.spots-receipt-group').toggle(allSpots.length > 0);
         $('#sale-spots-text').text(allSpots.map(x => self.getSpotDescription(x)).join(", "));
         $('.memo-receipt-group').toggle(!!receipt.memo);
@@ -221,13 +191,13 @@ export default class PropertyPointOfSaleController {
         $('.disable-on-save').prop('disabled', true);
         $('.spot-input').prop('disabled', true);
         $('.remove-spot-btn').prop('disabled', true);
-        $('.card-charge-receipt-group').toggle(chargeCard);
-        if (chargeCard) {
-            $('#sale-paid-with-card-ending').text(cardNumber.substring(cardNumber.length - 4));
+        $('.card-charge-receipt-group').toggle(receipt.chargeCard);
+        if (receipt.chargeCard) {
+            $('#sale-paid-with-card-ending').text(receipt.cardNumber.substring(receipt.cardNumber.length - 4));
             $('#sale-card-charge-reference-number').text(receiptResult.cardAuthorizationResult.ref_num);
             $('#sale-card-charge-id').text(receiptResult.cardAuthorizationResult.id);
         }
-        $('#card-number').val('xxxx xxxx xxxx ' + cardNumber.substring(cardNumber.length - 4));
+        $('#card-number').val('xxxx xxxx xxxx ' + receipt.cardNumber.substring(receipt.cardNumber.length - 4));
         $('#expiration-month').val('XX');
         $('#expiration-year').val('XX');
         $('#card-cvv').val('XXX');
@@ -309,12 +279,22 @@ export default class PropertyPointOfSaleController {
                 $('#charge-confirmation-yes').prop('disabled', false);
                 $('#charge-confirmation-modal').modal('show');
             } else {
-                await self.saveReceipt();
+                try {
+                    await self.saveReceipt();
+                } catch (error) {
+                    $('#sale-save').prop('disabled', false);
+                    Util.log(error);
+                }
             }
         });
         $('#charge-confirmation-yes').click(async function () {
             $('#charge-confirmation-modal').modal('hide');
-            await self.saveReceipt();
+            try {
+                await self.saveReceipt();
+            } catch (error) {
+                $('#sale-save').prop('disabled', false);
+                Util.log(error);
+            }
         });
         $('#sale-print').click(() => window.print());
         $('#sale-new').click(() => window.location.reload());
