@@ -23054,7 +23054,11 @@ class PropertyPointOfSaleController {
   }
 
   loadCustomer(customer) {
+    let self = this;
+
     if (customer) {
+      self.invoices = undefined;
+      $('#sale-save').prop('disabled', true);
       $('#sale-prior-balance').val(customer.balance);
       $('#sale-payment-frequency').text(customer.paymentFrequency);
       $('#vendor-notes').text(customer.memo);
@@ -23062,6 +23066,7 @@ class PropertyPointOfSaleController {
       let end = Moment().add('30', 'days').format('YYYY-MM-DD');
       $('#invoices').append(`<div>Loading invoices...</div>`);
       new _dataClient.default(true).get(`point-of-sale/customer-invoices?id=${customer.id}&start=${start}&end=${end}`).then(invoices => {
+        self.invoices = invoices;
         $('#invoices').empty();
 
         for (let invoice of invoices) {
@@ -23072,6 +23077,8 @@ class PropertyPointOfSaleController {
       }).catch(error => {
         alert(JSON.stringify(error) + " " + error);
         Util.log(error);
+      }).finally(() => {
+        $('#sale-save').prop('disabled', false);
       });
       $('#spot-container').empty();
 
@@ -23083,6 +23090,7 @@ class PropertyPointOfSaleController {
       $('#sale-payment-frequency').text('');
       $('#vendor-notes').text('');
       $('#invoices').empty();
+      self.invoices = [];
     }
   }
 
@@ -23172,6 +23180,27 @@ class PropertyPointOfSaleController {
       return;
     }
 
+    $('.receipt-payments-group').empty();
+    $('.receipt-payments-group').append('Payment Details:');
+
+    if (receiptResult.invoice) {
+      this.invoices.push(receiptResult.invoice);
+    }
+
+    for (let payment of receiptResult.payments) {
+      let paymentForInvoice = payment.Line && payment.Line.length ? this.invoices.find(x => x.Id.toString() === payment.Line[0].LinkedTxn[0].TxnId.toString()) : null;
+      let paymentDescription = $('<span></span>');
+      paymentDescription.text(Util.format(payment.TotalAmt));
+
+      if (paymentForInvoice) {
+        paymentDescription.text(paymentDescription.text() + ` applied to invoice dated ${paymentForInvoice.TxnDate}`);
+      } else {
+        paymentDescription.text(paymentDescription.text() + ' not applied to an invoice');
+      }
+
+      $('.receipt-payments-group').append(`<br/ >&nbsp;&nbsp;&nbsp;&nbsp;&bull;`).append(paymentDescription);
+    }
+
     $('#sale-id').text(receiptResult.id);
     let receiptNumber = receiptResult.invoice ? `I${receiptResult.invoice.Id}` : '';
 
@@ -23210,15 +23239,15 @@ class PropertyPointOfSaleController {
     $('.disable-on-save').prop('disabled', true);
     $('.spot-input').prop('disabled', true);
     $('.remove-spot-btn').prop('disabled', true);
-    $('.card-charge-receipt-group').toggle(receipt.chargeCard);
+    $('.card-charge-receipt-group').toggle(receipt.makeCardPayment);
 
-    if (receipt.chargeCard) {
-      $('#sale-paid-with-card-ending').text(receipt.cardNumber.substring(receipt.cardNumber.length - 4));
+    if (receipt.makeCardPayment) {
+      $('#sale-paid-with-card-ending').text(receipt.cardPayment.cardNumber.substring(receipt.cardPayment.cardNumber.length - 4));
       $('#sale-card-charge-reference-number').text(receiptResult.cardAuthorizationResult.ref_num);
       $('#sale-card-charge-id').text(receiptResult.cardAuthorizationResult.id);
     }
 
-    $('#card-number').val('xxxx xxxx xxxx ' + receipt.cardNumber.substring(receipt.cardNumber.length - 4));
+    $('#card-number').val('xxxx xxxx xxxx ' + receipt.cardPayment.cardNumber.substring(receipt.cardPayment.cardNumber.length - 4));
     $('#expiration-month').val('XX');
     $('#expiration-year').val('XX');
     $('#card-cvv').val('XXX');
