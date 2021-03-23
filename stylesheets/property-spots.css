@@ -38,7 +38,7 @@ body {
 }
 
 .edit-mode .spot-cell-container {
-    height: 100%;
+    height: 100% !important;
     width: 600px;
 }
 
@@ -132,25 +132,4 @@ body {
 
 .spot-with-balance a {
     color: white;
-}
-
-.property-foot-height-1 {
-    height: 5.15px;
-}
-
-.property-foot-height-10 {
-    height: 51.5px;
-}
-
-.property-foot-height-20 {
-    height: 103px;
-}
-
-.property-foot-height-30 {
-    height: 154.5px;
-}
-
-.property-foot-height-58 {
-    height: 300px;
-    max-height: 300px;
 }

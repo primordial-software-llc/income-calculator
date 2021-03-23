@@ -23659,11 +23659,11 @@ class PropertySpotsController {
         }
 
         if (spot.heightInFeet) {
-          console.log('setting by database: ' + spot.heightInFeet);
           heightInFeet = spot.heightInFeet;
         }
 
-        cell.addClass(`property-foot-height-${heightInFeet}`);
+        const feetToPixels = 5.15;
+        cell.css('height', `${heightInFeet * feetToPixels}px`);
 
         do {
           let reserver = this.getVendorWhoReservedSpot(spot.id);
@@ -23733,7 +23733,6 @@ class PropertySpotsController {
     spotView.find('.spot-right').prop('selectedIndex', rightIndex);
     spotView.find('.spot-restricted-input').prop('checked', spot.restricted);
     spotView.find('.spot-edit-name').val(spot.name);
-    console.log(spot.heightInFeet);
     spotView.find('.spot-edit-height').val(spot.heightInFeet);
     spotView.find('.spot-cancel').click(function () {
       spotView.find('.spot-bottom').prop('selectedIndex', bottomIndex);
