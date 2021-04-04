@@ -3,7 +3,9 @@
     <div id="messageAlert" class="hide alert" role="alert"></div>
  */
 export default class MessageViewController {
-
+    static clearMessage() {
+        this.setMessage('');
+    }
     static getRequestErrorMessage(error) {
         let jsonErrorResponse;
         try {

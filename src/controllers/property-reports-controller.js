@@ -24,6 +24,7 @@ export default class PropertyReportsController {
         new AccountSettingsController().init({}, user, false);
         let dataClient = new DataClient();
         $('#run-cash-basis-income-report').click(async function() {
+            MessageViewController.clearMessage();
             $('#income-container').empty();
             try {
                 let incomePayments = await dataClient.get(`point-of-sale/cash-basis-income` +

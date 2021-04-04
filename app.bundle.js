@@ -22354,6 +22354,10 @@ exports.default = void 0;
     <div id="messageAlert" class="hide alert" role="alert"></div>
  */
 class MessageViewController {
+  static clearMessage() {
+    this.setMessage('');
+  }
+
   static getRequestErrorMessage(error) {
     let jsonErrorResponse;
 
@@ -23433,6 +23437,8 @@ class PropertyReportsController {
     new _accountSettingsController.default().init({}, user, false);
     let dataClient = new _dataClient.default();
     $('#run-cash-basis-income-report').click(async function () {
+      _messageViewController.default.clearMessage();
+
       $('#income-container').empty();
 
       try {
