@@ -19,3 +19,7 @@
 .black-double-underline {
     border-bottom: 1px double #000;
 }
+
+.font-weight-bold {
+    font-weight: bold;
+}
