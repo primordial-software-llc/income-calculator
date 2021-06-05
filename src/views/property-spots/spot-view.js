@@ -9,7 +9,8 @@ export default class SpotView {
         return `                
                 <div class="spot-cell
                         ${spot.restricted ? 'spot-restricted' : reservedByVendor ? 'spot-reserved' : 'spot-open'}
-                        ${showBalances && reservedByVendor && reservedByVendor.balance > 1 ? 'spot-with-balance' : ''}">
+                        ${showBalances && reservedByVendor && reservedByVendor.balance > 1 ? 'spot-with-balance' : ''}"
+                    data-spot-id="${spot.id}">
                     <div class="${css}">
                         ${spotDescription}
                         <div class="spot-vendor-details"></div>
