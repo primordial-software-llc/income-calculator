@@ -98,11 +98,14 @@ export default class PropertySpotsController {
                 if (!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1) {
                     heightInFeet = 20;
                     widthInFeet = 20;
-                } else if (section.name === 'Rear Sheds' || section.name === 'Building 8') {
+                } else if ((section.name || '').toLowerCase() === 'rear sheds') {
                     heightInFeet = 58
                     widthInFeet = 6.95;
+                } else if ((section.name || '').toLowerCase() === 'building 8') {
+                    heightInFeet = 58
+                    widthInFeet = 10.3;
                 } else {
-                    heightInFeet = 20;
+                    heightInFeet = 10;
                     widthInFeet = 20;
                 }
                 if (spot.heightInFeet) {
