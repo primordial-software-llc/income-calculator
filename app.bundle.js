@@ -24699,13 +24699,14 @@ class PropertySpotsController {
     '7cbad948-f2f1-4930-8dd6-f930f7df4518', // building 7
     '3d737dc0-6675-4530-9018-1e2db6a73774', // 301 building 8
     '39885837-2841-417f-ba82-9b2c0db70458', // Rear sheds s24
-    '26fa11b9-27a0-4c60-96dd-4c332964b94d', // Field A North Walkway
-    '8e09992f-a0ac-4234-8702-834136a50047', // Field B North Walkway
-    '8c15ca4a-6a77-4e9d-b0fe-5724e1b0f1b9', // Field C North Walkway
-    'e917f760-9201-4058-aaf5-d8e3893bc406', // Field D North Walkway
-    '39e649e3-5df8-46c1-a866-a0b3c11f3a64', // Field E North Walkway
-    '2706a573-0c9c-4492-8b40-ef3bd72ee931', // Field F North Walkway
-    '35f4b217-8aaa-4b22-8f3d-c8b52641aefe', // Field G North Walkway
+    '4b0da4b7-e066-4dbe-bdb0-4b143ebf0991', // Field S
+    '5133d373-ce65-88c6-bf6f-d1999acbe338', // Field A North Walkway
+    '374ff735-0380-167d-775b-77e6a4b824a1', // Field B North Walkway
+    'f269ac86-9d52-d72f-dc14-c53bd6a03abe', // Field C North Walkway
+    'ab4c4446-0f34-8496-6410-3d8ef38371de', // Field D North Walkway
+    '02ab4f7a-3fb8-eb8d-a64f-27d08df5ead9', // Field E North Walkway
+    'e71c2187-22f7-2297-908a-051a29f98d09', // Field F North Walkway
+    '03263698-e1c8-5dcc-0ce7-d2354a83677e', // Field G North Walkway
     '4a7822d7-891b-4cd7-93c6-91ef6d8f9e36', // Field H North Walkway
     '9365d417-430e-447f-811c-37e8e64a3b4e', // Field I Parking
     '8edfa4f7-734c-4c3f-97b7-77d142ca60f8', // Field J Parking
@@ -24735,21 +24736,30 @@ class PropertySpotsController {
         let spot = row[rowIndex];
         let cell = $('<div class="spot-cell-container"></div>');
         let heightInFeet;
+        let widthInFeet;
 
         if (!spot.section ? -1 : spot.section.name.toLowerCase().indexOf('field') > -1) {
           heightInFeet = 20;
-        } else if (section.name === 'Rear Sheds' || section.name === 'Building 8') {
+          widthInFeet = 20;
+        } else if ((section.name || '').toLowerCase() === 'rear sheds') {
           heightInFeet = 58;
+          widthInFeet = 6.95;
+        } else if ((section.name || '').toLowerCase() === 'building 8') {
+          heightInFeet = 58;
+          widthInFeet = 10.3;
         } else {
           heightInFeet = 10;
+          widthInFeet = 20;
         }
 
         if (spot.heightInFeet) {
           heightInFeet = spot.heightInFeet;
         }
 
-        const feetToPixels = 5.15;
-        cell.css('height', `${heightInFeet * feetToPixels}px`);
+        const heightFeetToPixels = 5.15;
+        const widthFeetToPixels = 15;
+        cell.css('height', `${heightInFeet * heightFeetToPixels}px`);
+        cell.css('width', `${widthInFeet * widthFeetToPixels}px`);
 
         do {
           let reserver = this.getVendorWhoReservedSpot(spot.id);
@@ -24851,7 +24861,11 @@ class PropertySpotsController {
   }
 
   buildMap() {
-    $('.spot-sections-container').empty();
+    $('.spot-sections-container').empty(); // Top
+
+    let fieldS = this.sections.find(x => x.id === '96f25b11-a287-4ab6-997f-b06bdc22a1a8');
+    $('#spot-sections-container-top-top').append(this.getSectionView(fieldS)); // Left
+
     let fieldL = this.sections.find(x => x.id === '3408b26a-b7ed-4e76-8a42-9b574181afae');
     let fieldK = this.sections.find(x => x.id === 'e8651c71-e5dd-4706-a18c-d2ee0e0da00c');
     let fieldJ = this.sections.find(x => x.id === '596c8ac6-ebf9-4438-9973-4a516288d7b9');
@@ -27823,7 +27837,8 @@ class SpotView {
     return `                
                 <div class="spot-cell
                         ${spot.restricted ? 'spot-restricted' : reservedByVendor ? 'spot-reserved' : 'spot-open'}
-                        ${showBalances && reservedByVendor && reservedByVendor.balance > 1 ? 'spot-with-balance' : ''}">
+                        ${showBalances && reservedByVendor && reservedByVendor.balance > 1 ? 'spot-with-balance' : ''}"
+                    data-spot-id="${spot.id}">
                     <div class="${css}">
                         ${spotDescription}
                         <div class="spot-vendor-details"></div>

@@ -37,6 +37,11 @@ body {
     width: 300px;
 }
 
+.spots-container {
+    display: flex;
+    flex-flow: row;
+}
+
 .edit-mode .spot-cell-container {
     height: 100% !important;
     width: 600px;
