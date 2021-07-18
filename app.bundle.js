@@ -24487,7 +24487,7 @@ class PropertyReportsController {
                     ${Moment(income.date).format('YYYY-MM-DD h:mm:ssa')}
                 </div>
             </div>
-            <div class="col-xs-1 vertical-align text-right">
+            <div class="col-xs-1 vertical-align text-right ${!income.accountingPayment ? 'font-strike-through' : ''}">
                 <div class="black-dotted-underline amount-cell">
                     ${Util.format(income.amount)}
                 </div>
@@ -24538,14 +24538,17 @@ class PropertyReportsController {
         let total = Currency(0, Util.getCurrencyDefaults());
 
         for (let receipt of receipts) {
-          total = total.add(receipt.receipt.thisPayment);
-
           if (!receipt.payments || receipt.payments.length <= 0) {
             continue;
           }
 
           for (let payment of receipt.payments) {
             let accountingPayment = accountingPayments.find(x => x.accountingId.toString() === payment.Id.toString());
+
+            if (accountingPayment) {
+              total = total.add(payment.TotalAmt.toString());
+            }
+
             accountingPaymentsNotFoundInReceipts = accountingPaymentsNotFoundInReceipts.filter(x => x.accountingId.toString() !== payment.Id.toString());
             let merchantAccountPaymentStatus = 'N/A';
 
