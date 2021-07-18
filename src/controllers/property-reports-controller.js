@@ -25,12 +25,12 @@ export default class PropertyReportsController {
                     ${income.customer}
                 </div>
             </div>
-            <div class="col-xs-3 vertical-align">
+            <div class="col-xs-2 vertical-align">
                 <div class="black-dotted-underline">
                     ${Moment(income.date).format('YYYY-MM-DD h:mm:ssa')}
                 </div>
             </div>
-            <div class="col-xs-3 vertical-align text-right">
+            <div class="col-xs-1 vertical-align text-right">
                 <div class="black-dotted-underline amount-cell">
                     ${Util.format(income.amount)}
                 </div>
@@ -40,9 +40,14 @@ export default class PropertyReportsController {
                     ${(!!income.pointOfSalePayment).toString()}
                 </div>
             </div>
-            <div class="col-xs-1 vertical-align text-right">
+            <div class="col-xs-2 vertical-align text-right">
                 <div class="black-dotted-underline amount-cell ${(!income.accountingPayment) ? 'text-danger font-weight-bold' : ''}">
                     ${(!!income.accountingPayment).toString()}
+                </div>
+            </div>
+            <div class="col-xs-1 vertical-align text-right">
+                <div class="black-dotted-underline amount-cell ${(income.merchantAccountPaymentStatus || '').toLowerCase() === 'failed' ? 'text-danger font-weight-bold' : ''}">
+                    ${income.merchantAccountPaymentStatus}
                 </div>
             </div>
         </div>`;
@@ -58,7 +63,6 @@ export default class PropertyReportsController {
             try {
                 const startDate = Moment($('#start-date').val(), 'YYYY-MM-DD');
                 const endDate = Moment($('#end-date').val() + ' 23:59:59', 'YYYY-MM-DD HH:mm:ss');
-                console.log(startDate.utc().toISOString());
                 let reportRequests = await Promise.all([
                     dataClient.get(`point-of-sale/cash-basis-income?start=${$('#start-date').val()}&end=${$('#end-date').val()}`),
                     dataClient.get(`point-of-sale/card-charges?` +
@@ -69,6 +73,7 @@ export default class PropertyReportsController {
                         `&end=${endDate.toISOString()}`)
                 ]);
                 let accountingPayments = reportRequests[0];
+                let accountingPaymentsNotFoundInReceipts = JSON.parse(JSON.stringify(accountingPayments));
                 let cardCharges = reportRequests[1];
                 let receipts = reportRequests[2];
                 let cardTotal = Currency(0, Util.getCurrencyDefaults());
@@ -79,27 +84,43 @@ export default class PropertyReportsController {
                 }
                 let total = Currency(0, Util.getCurrencyDefaults());
                 for (let receipt of receipts) {
-                    total = total.add(receipt.thisPayment);
+                    total = total.add(receipt.receipt.thisPayment);
                     if (!receipt.payments || receipt.payments.length <= 0) {
-                        return;
+                        continue;
                     }
                     for (let payment of receipt.payments) {
                         let accountingPayment = accountingPayments.find(x => x.accountingId.toString() === payment.Id.toString());
-                        accountingPayments = accountingPayments.filter(x => x.accountingId.toString() != payment.Id.toString());
+                        accountingPaymentsNotFoundInReceipts = accountingPaymentsNotFoundInReceipts.filter(x => x.accountingId.toString() !== payment.Id.toString());
+                        let merchantAccountPaymentStatus = 'N/A';
+                        if (receipt.receipt.makeCardPayment) {
+                            let merchantPayment = cardCharges.find(x => x.id === receipt.cardCaptureResult.id);
+                            if (merchantPayment && merchantPayment.captured && merchantPayment.paid && merchantPayment.status === 'succeeded') {
+                                merchantAccountPaymentStatus = 'success'
+                            } else {
+                                merchantAccountPaymentStatus = 'failed';
+                            }
+                        }
                         $('#income-container').append(self.getRowView({
                             customer: payment.CustomerRef.name,
                             date: receipt.timestamp,
                             amount: payment.TotalAmt,
                             pointOfSalePayment: receipt,
-                            accountingPayment: accountingPayment
+                            accountingPayment: accountingPayment,
+                            merchantAccountPaymentStatus: merchantAccountPaymentStatus
                         }));
                     }
                 }
-                console.log('accounting payments not found in quickbooks');
-                for (let ap of accountingPayments) {
-                    console.log(ap);
+                for (let accountingPayment of accountingPaymentsNotFoundInReceipts) {
+                    total = total.add(accountingPayment.amount);
+                    $('#income-container').append(self.getRowView({
+                        customer: accountingPayment.customer,
+                        date: accountingPayment.date,
+                        amount: accountingPayment.amount,
+                        accountingPayment: accountingPayment,
+                        merchantAccountPaymentStatus: 'N/A'
+                    }));
                 }
-                let cashTotal = Currency(total, Util.getCurrencyDefaults()).subtract(cardTotal);
+                let cashTotal = Currency(total, Util.getCurrencyDefaults()).subtract(cardTotal.toString());
                 $('#income-container').append(`
                     <div class="row dotted-underline-row report-row">
                         <div class="col-xs-9 vertical-align">
