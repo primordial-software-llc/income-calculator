@@ -52,6 +52,17 @@ body {
     width: 102px;
 }
 
+.edit-mode .vertical-spot .spot-cell-container {
+    writing-mode: horizontal-tb;
+}
+
+.edit-mode .spots-container .form {
+    width: 600px;
+    background: white;
+    position: relative;
+    color: black;
+}
+
 .spot-cell {
     border-right: 1px solid black;
     border-bottom: 1px solid black;

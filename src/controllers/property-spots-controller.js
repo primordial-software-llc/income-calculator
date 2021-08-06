@@ -20,13 +20,16 @@ export default class PropertySpotsController {
     static showInPropertyNav() {
         return true;
     }
+    // Need to go through and move everyone who had their spot removed from being marked as inactive.
+    // For now temporarily, active vendors are ordered first from the server.
     getVendorWhoReservedSpot(spotId) {
-        return this.getIndefiniteSpotReservationVendor(spotId) ||
-            this.getOneTimeSpotReservationVendor(spotId);
+        return this.getOneTimeSpotReservationVendor(spotId) ||
+            this.getIndefiniteSpotReservationVendor(spotId);
     }
     getIndefiniteSpotReservationVendor(spotId) {
-        return this.customers
-            .find(vendor => vendor.spots && vendor.spots.find(spot => spot.id === spotId));
+        var customerCopy = JSON.parse(JSON.stringify(this.customers));
+        customerCopy.sort((a, b) => b.isActive - a.isActive);
+        return customerCopy.find(vendor => vendor.spots && vendor.spots.find(spot => spot.id === spotId));
     }
     getOneTimeSpotReservationVendor(spotId) {
         let oneTimeSpotReservation = this.spotReservations.find(x => x.spotId === spotId);
@@ -119,7 +122,9 @@ export default class PropertySpotsController {
                     let reserver = this.getVendorWhoReservedSpot(spot.id);
                     let spotView = $(SpotView.getSpotView(spot, reserver, this.showBalances));
                     if (reserver) {
-                        spotView.find('.spot-vendor-link').text(CustomerDescription.getCustomerDescription(reserver));
+                        var customerDescription = CustomerDescription.getCustomerDescription(reserver);
+                        spotView.find('.spot-vendor-link').text(customerDescription);
+                        spotView.find('.spot-vendor-link').attr('title', customerDescription);
                         if (this.showBalances && reserver && reserver.balance > 1) {
                             spotView.find('.spot-vendor-details').text(`Balance: ${Util.format(reserver.balance)}`);
                         }
@@ -154,12 +159,26 @@ export default class PropertySpotsController {
         let bottomIndex = 0;
         let rightIndex = 0;
         if (spot.bottom) {
-            availableBottomSpots.push(sectionSpots.find(x => x.id === spot.bottom));
-            bottomIndex = availableBottomSpots.findIndex(x => x.id == spot.bottom) + 1;
+            let bottomSpot = sectionSpots.find(x => x.id === spot.bottom);
+            if (!bottomSpot) {
+                let errorMessage = `Spot bottom of ${spot.id} - ${spot.section.name} - ${spot.name} was not found by id ${spot.bottom}. The spot may have been deleted or removed from the section ${spot.section.name}`;
+                Util.log(errorMessage);
+                MessageViewController.setMessage(errorMessage, 'alert-danger');
+            } else {
+                availableBottomSpots.push(bottomSpot);
+                bottomIndex = availableBottomSpots.findIndex(x => x.id == spot.bottom) + 1;
+            }
         }
         if (spot.right) {
-            availableRightSpots.push(sectionSpots.find(x => x.id === spot.right));
-            rightIndex = availableRightSpots.findIndex(x => x.id == spot.right) + 1;
+            let rightSpot = sectionSpots.find(x => x.id === spot.right);
+            if (!rightSpot) {
+                let errorMessage = `Spot right of ${spot.id} - ${spot.section.name} - ${spot.name} was not found by id ${spot.right}. The spot may have been deleted or removed from the section ${spot.section.name}`;
+                Util.log(errorMessage);
+                MessageViewController.setMessage(errorMessage, 'alert-danger');
+            } else {
+                availableRightSpots.push(rightSpot);
+                rightIndex = availableRightSpots.findIndex(x => x.id == spot.right) + 1;
+            }
         }
         spotView.find('.spot-bottom').append(`<option value="">Select a Spot</option>`);
         spotView.find('.spot-right').append(`<option value="">Select a Spot</option>`);
@@ -286,7 +305,7 @@ export default class PropertySpotsController {
         let dataClient = new DataClient();
         try {
             let promiseResults = await Promise.all([
-                dataClient.get('point-of-sale/customer-payment-settings'),
+                dataClient.get('point-of-sale/customer-payment-settings?includeInactiveCustomersWithSpots=true'),
                 dataClient.get('point-of-sale/spots'),
                 dataClient.get(`point-of-sale/spot-reservations?rentalDate=${encodeURIComponent($('#rental-date').val())}`)
             ]);
