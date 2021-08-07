@@ -46,8 +46,7 @@ export default class Navigation {
         let email = ((user || {}).email || '').toLowerCase();
         if (email === 'timg456789@yahoo.com' ||
             email === 'kmanrique506@hotmail.com' ||
-            email === 'taniagkocher@gmail.com' ||
-            email === 'cvillavicencio921@gmail.com') {
+            email === 'george.loyola21@gmail.com') {
             authenticatedControllers.push(PropertyPointOfSaleController);
             authenticatedControllers.push(PropertyCustomerBalancesController);
             authenticatedControllers.push(PropertyCustomersController);
