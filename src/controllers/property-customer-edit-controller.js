@@ -45,7 +45,13 @@ export default class PropertyCustomerEditController {
         let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings-by-id?id=${Util.getParameterByName("id")}`);
         let rentalSectionPromise = dataClient.get('point-of-sale/spots'); //?cache-level=cache-everything');
         let vendorPromise = dataClient.get(`point-of-sale/spot-reservations?vendorId=${Util.getParameterByName("id")}`);
-        let promiseResults = await Promise.all([customerPromise, rentalSectionPromise, vendorPromise]);
+        let promiseResults;
+        try {
+            promiseResults = await Promise.all([customerPromise, rentalSectionPromise, vendorPromise]);
+        } catch (error) {
+            Util.log(error);
+            MessageViewController.setRequestErrorMessage(error);
+        }
         let customer = promiseResults[0];
         this.spots = promiseResults[1].filter(x => !x.restricted);
         this.spotReservations = promiseResults[2];

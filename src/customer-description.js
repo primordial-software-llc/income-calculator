@@ -1,21 +1,27 @@
 export default class CustomerDescription {
     static getCustomerDescription(customer) {
-
-        if (customer.id === 'bc9ead41-4601-4021-8f32-63e71f8ee9b6') {
-            console.log('break here');
-        }
+        let description = '';
 
         if (customer.hasOwnProperty("isActive") &&
             customer.isActive !== null &&
             !customer.isActive) {
-            return `Deleted vendor with QuickBooks Online Id ${customer.quickBooksOnlineId} and website id ${customer.id}`;
+            description += `*Deleted* `;
         }
 
-        let description = customer.displayName;
+        description += customer.displayName || '';
         let fullName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
         if (fullName && fullName.toLowerCase() !== customer.displayName.toLowerCase()) {
             description += ' : ' + fullName;
         }
+
+        if (customer.hasOwnProperty("isActive") &&
+            customer.isActive !== null &&
+            !customer.isActive &&
+            !customer.displayName) {
+            description = description.trim();
+            description += ` vendor with QuickBooks Online Id ${customer.quickBooksOnlineId} and website id ${customer.id}`;
+        }
+        
         return description;
     }
 }

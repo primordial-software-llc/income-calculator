@@ -22715,7 +22715,16 @@ class PropertyCustomerEditController {
     let rentalSectionPromise = dataClient.get('point-of-sale/spots'); //?cache-level=cache-everything');
 
     let vendorPromise = dataClient.get(`point-of-sale/spot-reservations?vendorId=${Util.getParameterByName("id")}`);
-    let promiseResults = await Promise.all([customerPromise, rentalSectionPromise, vendorPromise]);
+    let promiseResults;
+
+    try {
+      promiseResults = await Promise.all([customerPromise, rentalSectionPromise, vendorPromise]);
+    } catch (error) {
+      Util.log(error);
+
+      _messageViewController.default.setRequestErrorMessage(error);
+    }
+
     let customer = promiseResults[0];
     this.spots = promiseResults[1].filter(x => !x.restricted);
     this.spotReservations = promiseResults[2];
@@ -23631,7 +23640,7 @@ class PropertySpotsController {
   static showInPropertyNav() {
     return true;
   } // Need to go through and move everyone who had their spot removed from being marked as inactive.
-  // For now temporarily, active vendors are ordered first from the server.
+  // For now temporarily, active vendors are ordered first.
 
 
   getVendorWhoReservedSpot(spotId) {
@@ -24666,19 +24675,22 @@ exports.default = void 0;
 
 class CustomerDescription {
   static getCustomerDescription(customer) {
-    if (customer.id === 'bc9ead41-4601-4021-8f32-63e71f8ee9b6') {
-      console.log('break here');
-    }
+    let description = '';
 
     if (customer.hasOwnProperty("isActive") && customer.isActive !== null && !customer.isActive) {
-      return `Deleted vendor with QuickBooks Online Id ${customer.quickBooksOnlineId} and website id ${customer.id}`;
+      description += `*Deleted* `;
     }
 
-    let description = customer.displayName;
+    description += customer.displayName || '';
     let fullName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
 
     if (fullName && fullName.toLowerCase() !== customer.displayName.toLowerCase()) {
       description += ' : ' + fullName;
+    }
+
+    if (customer.hasOwnProperty("isActive") && customer.isActive !== null && !customer.isActive && !customer.displayName) {
+      description = description.trim();
+      description += ` vendor with QuickBooks Online Id ${customer.quickBooksOnlineId} and website id ${customer.id}`;
     }
 
     return description;

@@ -21,7 +21,7 @@ export default class PropertySpotsController {
         return true;
     }
     // Need to go through and move everyone who had their spot removed from being marked as inactive.
-    // For now temporarily, active vendors are ordered first from the server.
+    // For now temporarily, active vendors are ordered first.
     getVendorWhoReservedSpot(spotId) {
         return this.getOneTimeSpotReservationVendor(spotId) ||
             this.getIndefiniteSpotReservationVendor(spotId);
