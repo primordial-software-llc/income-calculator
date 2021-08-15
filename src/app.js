@@ -5,8 +5,8 @@ import HomeController from './controllers/home-controller';
 const LoginController = require('./controllers/login-controller');
 import LoginSignupController from './controllers/login-signup-controller';
 import Navigation from './nav';
-import QrTestController from './controllers/qr-test-controller';
 const Util = require('./util');
+import PropertyApp from './property-app';
 
 async function init() {
     $('body').append(FooterView.getLoadingIndicatorView());
@@ -43,7 +43,6 @@ async function init() {
     } catch (error) {
         Util.log(error);
     }
-
 }
 
 $(document).ready(function () {

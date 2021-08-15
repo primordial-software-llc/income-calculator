@@ -58,7 +58,7 @@ export default class QrTestController {
     async init(user) {
         $('.property-navigation').append(Navigation.getPropertyNav(user, QrTestController.getUrl()));
         let self = this;
-        this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
+        this.customers = await new DataClient().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId}`);
         for (let customer of this.customers) {
             $('#sale-vendor-list').append(`<option>${CustomerDescription.getCustomerDescription(customer)}</option>`);
         }

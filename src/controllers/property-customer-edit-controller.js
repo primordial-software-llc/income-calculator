@@ -38,16 +38,27 @@ export default class PropertyCustomerEditController {
         return cancelledReservations;
     }
     async init(user) {
+        const vendorId = Util.getParameterByName("id");
         $('.property-navigation').append(Navigation.getPropertyNav(user, PropertyCustomersController.getUrl()));
         let self = this;
         new AccountSettingsController().init({}, user, false);
+        if (user.propertyLocationId.toLowerCase() !== '6b14e1ca-78a7-42a6-900a-4b837f07e613') {
+            $('.indefinite-spots-row').hide();
+            $('.one-time-spots-row').hide();
+        }
         let dataClient = new DataClient();
-        let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings-by-id?id=${Util.getParameterByName("id")}`);
-        let rentalSectionPromise = dataClient.get('point-of-sale/spots'); //?cache-level=cache-everything');
-        let vendorPromise = dataClient.get(`point-of-sale/spot-reservations?vendorId=${Util.getParameterByName("id")}`);
+        let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings-by-id?id=${vendorId}`);
+        let rentalSectionPromise = dataClient.get('point-of-sale/spots');
+        let vendorPromise = dataClient.get(`point-of-sale/spot-reservations?vendorId=${vendorId}`);
         let promiseResults;
         try {
-            promiseResults = await Promise.all([customerPromise, rentalSectionPromise, vendorPromise]);
+            promiseResults = await Promise.all([
+                customerPromise,
+                rentalSectionPromise,
+                vendorPromise,
+                dataClient.get(`point-of-sale/location`),
+                dataClient.get(`point-of-sale/vendor/location?vendorId=${vendorId}`)
+            ]);
         } catch (error) {
             Util.log(error);
             MessageViewController.setRequestErrorMessage(error);
@@ -55,6 +66,15 @@ export default class PropertyCustomerEditController {
         let customer = promiseResults[0];
         this.spots = promiseResults[1].filter(x => !x.restricted);
         this.spotReservations = promiseResults[2];
+        let locations = promiseResults[3];
+        let vendorLocations = promiseResults[4];
+        for (let location of locations) {
+            var locationOption = $("<option />").val(location.id).text(location.name);
+            if (vendorLocations.find(x => x.locationId.toLowerCase() === location.id.toLowerCase())) {
+                locationOption.prop('selected', true);
+            }
+            $('#vendor-location').append(locationOption);
+        }
         for (let spot of this.spots) {
             $('#spot-list').append(`<option>${self.getSpotDescription(spot)}</option>`);
         }
@@ -135,9 +155,19 @@ export default class PropertyCustomerEditController {
                 }
                 updates.memo = newMemo;
             }
+            let locationUpdates = [];
+            for (let vendorLocationUpdate of $('#vendor-location').val()) {
+                locationUpdates.push({
+                    vendorId: vendorId,
+                    locationId: vendorLocationUpdate
+                });
+            }
             try {
                 let dataClient = new DataClient();
-                let savePromises = [dataClient.patch(`point-of-sale/vendor`, updates)];
+                let savePromises = [
+                    dataClient.patch(`point-of-sale/vendor`, updates),
+                    dataClient.post(`point-of-sale/vendor/location`, locationUpdates),
+                ];
                 let cancelledReservations = self.getCancelledReservations();
                 for (let cancelledReservation of cancelledReservations) {
                     savePromises.push(dataClient.delete('point-of-sale/spot-reservation', cancelledReservation));

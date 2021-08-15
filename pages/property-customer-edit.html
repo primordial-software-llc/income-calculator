@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/property-customer-edit.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/property-common.css">
-    <title>Net Income Calculator</title>
+    <title>Property Rental Management</title>
     <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
     <script type="text/javascript" src="../app.bundle.js"></script>
@@ -45,6 +45,15 @@
         </div>
         <div class="form-group row">
             <div class="col-xs-3">
+                <label class="col-form-label col-form-label-lg">Location(s):</label>
+                <div>Hold ctrl to select multiple</div>
+            </div>
+            <div class="col-xs-9">
+                <select id="vendor-location" multiple></select>
+            </div>
+        </div>
+        <div class="form-group row indefinite-spots-row">
+            <div class="col-xs-3">
                 <label class="col-form-label col-form-label-lg">Spot(s)</label>
                 <input id="add-new-spot" type="button" value="Add Spot" class="btn btn-primary" />
             </div>
@@ -59,7 +68,7 @@
                 <textarea id="memo" class="form-control"></textarea>
             </div>
         </div>
-        <div class="form-group row">
+        <div class="form-group row one-time-spots-row">
             <div class="col-xs-3">
                 <label class="col-form-label col-form-label-lg">One Time Reservations</label>
             </div>

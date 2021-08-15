@@ -96,7 +96,7 @@ export default class PropertyPointOfSaleController {
             self.invoices = [];
         }
     }
-    async saveReceipt() {
+    async saveReceipt(user) {
         let self = this;
         $('#sale-save').prop('disabled', true);
         $('#charge-confirmation-yes').prop('disabled', true);
@@ -137,7 +137,8 @@ export default class PropertyPointOfSaleController {
                 expirationMonth: $('#expiration-month').val().trim(),
                 expirationYear: $('#expiration-year').val().trim(),
                 cvv: $('#card-cvv').val().trim()
-            }
+            },
+            locationId: user.propertyLocationId
         };
         validationMessages = validationMessages.concat(new PointOfSaleValidation().getValidation(receipt));
         if (validationMessages.length > 0) {
@@ -240,7 +241,7 @@ export default class PropertyPointOfSaleController {
         this.addSpot();
         new AccountSettingsController().init({}, user, false);
         let dataClient = new DataClient();
-        let customerPromise = dataClient.get('point-of-sale/customer-payment-settings');
+        let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId}`);
         let rentalSectionPromise = dataClient.get('point-of-sale/spots?cache-level=cache-everything');
         let promiseResults = await Promise.all([customerPromise, rentalSectionPromise]);
         this.customers = promiseResults[0];
@@ -309,7 +310,7 @@ export default class PropertyPointOfSaleController {
                 $('#charge-confirmation-modal').modal('show');
             } else {
                 try {
-                    await self.saveReceipt();
+                    await self.saveReceipt(user);
                 } catch (error) {
                     $('#sale-save').prop('disabled', false);
                     Util.log(error);
@@ -319,7 +320,7 @@ export default class PropertyPointOfSaleController {
         $('#charge-confirmation-yes').click(async function () {
             $('#charge-confirmation-modal').modal('hide');
             try {
-                await self.saveReceipt();
+                await self.saveReceipt(user);
             } catch (error) {
                 $('#sale-save').prop('disabled', false);
                 Util.log(error);

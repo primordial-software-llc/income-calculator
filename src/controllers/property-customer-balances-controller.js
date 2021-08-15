@@ -21,7 +21,7 @@ export default class PropertyCustomerBalancesController {
     async init(user) {
         $('.property-navigation').append(Navigation.getPropertyNav(user, PropertyCustomerBalancesController.getUrl()));
         new AccountSettingsController().init({}, user, false);
-        this.customers = await new DataClient().get('point-of-sale/customer-payment-settings');
+        this.customers = await new DataClient().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId}`);
         this.customers.sort(CustomerSort.sort);
         let total = Currency(0, Util.getCurrencyDefaults());
         for (let customer of this.customers.filter(x => x.balance > 0)) {

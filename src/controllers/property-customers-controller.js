@@ -5,6 +5,7 @@ import DataClient from '../data-client';
 const Moment = require('moment');
 import MessageViewController from './message-view-controller';
 import Navigation from '../nav';
+import PropertyApp from '../property-app.js';
 const Util = require('../util');
 export default class PropertyCustomersController {
     static getName() {
@@ -71,21 +72,25 @@ export default class PropertyCustomersController {
         }
     }
     async init(user) {
-        $('.property-navigation').append(Navigation.getPropertyNav(user, PropertyCustomersController.getUrl()));
         let self = this;
         new AccountSettingsController().init({}, user, false);
-        this.customerPaymentSettings = await new DataClient().get('point-of-sale/customer-payment-settings');
+        $('.property-navigation').append(Navigation.getPropertyNav(user, PropertyCustomersController.getUrl()));
+        if (new PropertyApp().isAuthorizedToCreateMassInvoices(user.email)) {
+            $('#create-weekly-invoices').show();
+            $('#create-monthly-invoices').show();
+            $('#create-weekly-invoices').click(async function() {
+                await self.createInvoices('weekly', new Date());
+            });
+            $('#create-monthly-invoices').click(async function() {
+                let today = new Date();
+                let date = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+                await self.createInvoices('monthly', date);
+            });
+        }
+        this.customerPaymentSettings = await new DataClient().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId}`);
         this.customerPaymentSettings.sort(CustomerSort.sort);
         for (let customer of this.customerPaymentSettings) {
             $('.customers-container').append(this.getView(customer));
         }
-        $('#create-weekly-invoices').click(async function() {
-            await self.createInvoices('weekly', new Date());
-        })
-        $('#create-monthly-invoices').click(async function() {
-            let today = new Date();
-            let date = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-            await self.createInvoices('monthly', date);
-        });
     }
 }

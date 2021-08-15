@@ -16,6 +16,8 @@ import PropertySpotsController from './controllers/property-spots-controller';
 import PropertyReportsController from './controllers/property-reports-controller';
 import PropertyTransactionsController from './controllers/property-transactions-controller';
 import QrTestController from './controllers/qr-test-controller';
+import PropertySettingsController from './controllers/property-settings-controller';
+import PropertyApp from './property-app';
 
 export default class Navigation {
     static getPropertyNav(user, currentControllerUrl) {
@@ -44,16 +46,17 @@ export default class Navigation {
             authenticatedControllers.push(PayDaysController);
         }
         let email = ((user || {}).email || '').toLowerCase();
-        if (email === 'timg456789@yahoo.com' ||
-            email === 'kmanrique506@hotmail.com' ||
-            email === 'george.loyola21@gmail.com') {
+        if (new PropertyApp().isPropertyAppUser(email)) {
             authenticatedControllers.push(PropertyPointOfSaleController);
             authenticatedControllers.push(PropertyCustomerBalancesController);
             authenticatedControllers.push(PropertyCustomersController);
             authenticatedControllers.push(PropertyCustomerEditController);
-            authenticatedControllers.push(PropertySpotsController);
             authenticatedControllers.push(PropertyTransactionsController);
             authenticatedControllers.push(QrTestController);
+            authenticatedControllers.push(PropertySettingsController);
+            if (user.propertyLocationId.toLowerCase() === '6b14e1ca-78a7-42a6-900a-4b837f07e613') {
+                authenticatedControllers.push(PropertySpotsController);
+            }
         }
         if (email === 'timg456789@yahoo.com' ||
             email === 'kmanrique506@hotmail.com') {

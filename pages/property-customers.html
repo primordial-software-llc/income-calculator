@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/property-customers.css">
     <link rel="stylesheet" type="text/css" href="../stylesheets/property-common.css">
-    <title>Net Income Calculator</title>
+    <title>Property Rental Management</title>
     <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
     <script type="text/javascript" src="../app.bundle.js"></script>
@@ -16,8 +16,13 @@
 <body class="bg-color-imago-light-gray container-fluid">
 <div class="no-print property-nav p-15 property-navigation"></div>
 <div id="messageAlert" class="hide alert" role="alert"></div>
-<input id="create-weekly-invoices" type="button" value="Create Weekly Invoices" class="btn btn-primary" />
-<input id="create-monthly-invoices" type="button" value="Create Monthly Invoices" class="btn btn-primary" />
+<input style="display: none;" id="create-weekly-invoices" type="button" value="Create Weekly Invoices" class="btn btn-primary margin-bottom-15 margin-top-15" />
+<input style="display: none;" id="create-monthly-invoices" type="button" value="Create Monthly Invoices" class="btn btn-primary margin-bottom-15 margin-top-15" />
+<ul>
+    <li>Weekly invoices are created every Sunday at 7pm UTC-5</li>
+    <li>Monthly invoices are created 6 days before the last day of the month at 7pm UTC-5</li>
+</ul>
+
 <div class="customers-container p-15">
     <div class="row table-header-row">
         <div class="col-xs-5">Vendor</div>
