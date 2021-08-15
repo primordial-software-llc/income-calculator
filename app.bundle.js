@@ -22591,7 +22591,7 @@ class PropertyCustomerBalancesController {
   async init(user) {
     $('.property-navigation').append(_nav.default.getPropertyNav(user, PropertyCustomerBalancesController.getUrl()));
     new _accountSettingsController.default().init({}, user, false);
-    this.customers = await new _dataClient.default().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId}`);
+    this.customers = await new _dataClient.default().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId || ''}`);
     this.customers.sort(_customerSort.default.sort);
     let total = Currency(0, Util.getCurrencyDefaults());
 
@@ -22712,7 +22712,7 @@ class PropertyCustomerEditController {
     let self = this;
     new _accountSettingsController.default().init({}, user, false);
 
-    if (user.propertyLocationId.toLowerCase() !== '6b14e1ca-78a7-42a6-900a-4b837f07e613') {
+    if ((user.propertyLocationId || '').toLowerCase() !== '6b14e1ca-78a7-42a6-900a-4b837f07e613') {
       $('.indefinite-spots-row').hide();
       $('.one-time-spots-row').hide();
     }
@@ -23005,7 +23005,7 @@ class PropertyCustomersController {
       });
     }
 
-    this.customerPaymentSettings = await new _dataClient.default().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId}`);
+    this.customerPaymentSettings = await new _dataClient.default().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId || ''}`);
     this.customerPaymentSettings.sort(_customerSort.default.sort);
 
     for (let customer of this.customerPaymentSettings) {
@@ -23190,7 +23190,7 @@ class PropertyPointOfSaleController {
         expirationYear: $('#expiration-year').val().trim(),
         cvv: $('#card-cvv').val().trim()
       },
-      locationId: user.propertyLocationId
+      locationId: user.propertyLocationId || ''
     };
     validationMessages = validationMessages.concat(new _pointOfSaleValidation.default().getValidation(receipt));
 
@@ -23310,7 +23310,7 @@ class PropertyPointOfSaleController {
     this.addSpot();
     new _accountSettingsController.default().init({}, user, false);
     let dataClient = new _dataClient.default();
-    let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId}`);
+    let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId || ''}`);
     let rentalSectionPromise = dataClient.get('point-of-sale/spots?cache-level=cache-everything');
     let promiseResults = await Promise.all([customerPromise, rentalSectionPromise]);
     this.customers = promiseResults[0];
@@ -23695,7 +23695,7 @@ class PropertySettingsController {
       userPropertyLocation.append($("<option />").val(location.id).text(location.name));
     }
 
-    userPropertyLocation.val(user.propertyLocationId);
+    userPropertyLocation.val(user.propertyLocationId || '');
     $('#user-email').text(user.email);
     $('#user-first-name').text(user.firstName);
     $('#user-last-name').text(user.lastName);
@@ -24561,7 +24561,7 @@ class QrTestController {
   async init(user) {
     $('.property-navigation').append(_nav.default.getPropertyNav(user, QrTestController.getUrl()));
     let self = this;
-    this.customers = await new _dataClient.default().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId}`);
+    this.customers = await new _dataClient.default().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId || ''}`);
 
     for (let customer of this.customers) {
       $('#sale-vendor-list').append(`<option>${_customerDescription.default.getCustomerDescription(customer)}</option>`);

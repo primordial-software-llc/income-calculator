@@ -37,7 +37,7 @@ export default class PropertySettingsController {
                 $("<option />").val(location.id).text(location.name)
             );
         }
-        userPropertyLocation.val(user.propertyLocationId);
+        userPropertyLocation.val(user.propertyLocationId || '');
 
         $('#user-email').text(user.email);
         $('#user-first-name').text(user.firstName);

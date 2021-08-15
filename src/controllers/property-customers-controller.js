@@ -87,7 +87,7 @@ export default class PropertyCustomersController {
                 await self.createInvoices('monthly', date);
             });
         }
-        this.customerPaymentSettings = await new DataClient().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId}`);
+        this.customerPaymentSettings = await new DataClient().get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId || ''}`);
         this.customerPaymentSettings.sort(CustomerSort.sort);
         for (let customer of this.customerPaymentSettings) {
             $('.customers-container').append(this.getView(customer));

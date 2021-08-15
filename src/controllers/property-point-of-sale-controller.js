@@ -138,7 +138,7 @@ export default class PropertyPointOfSaleController {
                 expirationYear: $('#expiration-year').val().trim(),
                 cvv: $('#card-cvv').val().trim()
             },
-            locationId: user.propertyLocationId
+            locationId: user.propertyLocationId || ''
         };
         validationMessages = validationMessages.concat(new PointOfSaleValidation().getValidation(receipt));
         if (validationMessages.length > 0) {
@@ -241,7 +241,7 @@ export default class PropertyPointOfSaleController {
         this.addSpot();
         new AccountSettingsController().init({}, user, false);
         let dataClient = new DataClient();
-        let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId}`);
+        let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId || ''}`);
         let rentalSectionPromise = dataClient.get('point-of-sale/spots?cache-level=cache-everything');
         let promiseResults = await Promise.all([customerPromise, rentalSectionPromise]);
         this.customers = promiseResults[0];

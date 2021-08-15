@@ -42,7 +42,7 @@ export default class PropertyCustomerEditController {
         $('.property-navigation').append(Navigation.getPropertyNav(user, PropertyCustomersController.getUrl()));
         let self = this;
         new AccountSettingsController().init({}, user, false);
-        if (user.propertyLocationId.toLowerCase() !== '6b14e1ca-78a7-42a6-900a-4b837f07e613') {
+        if ((user.propertyLocationId || '').toLowerCase() !== '6b14e1ca-78a7-42a6-900a-4b837f07e613') {
             $('.indefinite-spots-row').hide();
             $('.one-time-spots-row').hide();
         }
