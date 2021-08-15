@@ -54,7 +54,7 @@ export default class Navigation {
             authenticatedControllers.push(PropertyTransactionsController);
             authenticatedControllers.push(QrTestController);
             authenticatedControllers.push(PropertySettingsController);
-            if (user.propertyLocationId.toLowerCase() === '6b14e1ca-78a7-42a6-900a-4b837f07e613') {
+            if ((user.propertyLocationId || '').toLowerCase() === '6b14e1ca-78a7-42a6-900a-4b837f07e613') {
                 authenticatedControllers.push(PropertySpotsController);
             }
         }

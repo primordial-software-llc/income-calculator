@@ -25128,7 +25128,7 @@ class Navigation {
       authenticatedControllers.push(_qrTestController.default);
       authenticatedControllers.push(_propertySettingsController.default);
 
-      if (user.propertyLocationId.toLowerCase() === '6b14e1ca-78a7-42a6-900a-4b837f07e613') {
+      if ((user.propertyLocationId || '').toLowerCase() === '6b14e1ca-78a7-42a6-900a-4b837f07e613') {
         authenticatedControllers.push(_propertySpotsController.default);
       }
     }
