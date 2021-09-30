@@ -6,7 +6,6 @@ const LoginController = require('./controllers/login-controller');
 import LoginSignupController from './controllers/login-signup-controller';
 import Navigation from './nav';
 const Util = require('./util');
-import PropertyApp from './property-app';
 
 async function init() {
     $('body').append(FooterView.getLoadingIndicatorView());
