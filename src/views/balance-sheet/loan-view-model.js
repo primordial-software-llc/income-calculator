@@ -52,11 +52,15 @@ export default class LoanViewModel {
             }
             lifetimeInterestText = Currency(totalInterestText).divide(debt.amount).multiply(100).toString() + '%';
         } else {
-            let isCreditCard = debt.type === 'credit';
-            payOffDateText = isCreditCard ? 'no payment specified' : 'WARNING: no payment specified'; // Warning is intended for long-term loans.
+            payOffDateText = 'WARNING: no payment specified'; // Warning is intended for long-term loans.
             let infinitySymbol = '&#8734;';
-            totalInterestText = isCreditCard ? 'N/A' : infinitySymbol;
-            lifetimeInterestText = isCreditCard ? 'N/A' : infinitySymbol;
+            totalInterestText = infinitySymbol;
+            lifetimeInterestText = infinitySymbol;
+        }
+        if (debt.isAuthoritative) {
+            payOffDateText = 'N/A';
+            totalInterestText = 'N/A';
+            lifetimeInterestText = 'N/A';
         }
         let icon = debt.isAuthoritative
             ? `<span title="This account data is current and directly from your bank account" alt="This account data is current and directly from your bank account" class="glyphicon glyphicon-cloud" aria-hidden="true" style="color: #5cb85c;"></span>`
