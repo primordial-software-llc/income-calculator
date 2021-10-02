@@ -24616,9 +24616,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const Currency = require('currency.js');
 
-const Util = require('../util');
-
 const Moment = require('moment/moment');
+
+const Util = require('../util');
 
 function getAccountName(institutionName, account) {
   // Financial institution name format is defined in balance sheet view model.
@@ -24634,7 +24634,36 @@ class TransactionsController {
     return `${Util.rootUrl()}/pages/transactions.html`;
   }
 
+  convertTransactionToBudgetItem(transaction) {
+    return {
+      "date": Moment.utc(transaction.transactionDetail.date, 'YYYY-MM-DD').toISOString(),
+      "name": transaction.transactionDetail.name,
+      "paymentSource": getAccountName(transaction.institutionName, transaction.account),
+      "amount": Currency(transaction.transactionDetail.amount, Util.getCurrencyDefaults()).multiply(-1).toString(),
+      "type": transaction.account.subtype === 'checking' && transaction.transactionDetail.amount > 0 ? "expense" : "income",
+      "frequency": "monthly"
+    };
+  }
+
+  async appendTransactionsToBudget(originalBudget, transactions) {
+    let patchData = {};
+    patchData.budgetItems = originalBudget.budgetItems || [];
+
+    for (let transaction of transactions) {
+      patchData.budgetItems.push(this.convertTransactionToBudgetItem(transaction));
+    }
+
+    try {
+      let dataClient = new _dataClient.default();
+      let response = await dataClient.patch('budget', patchData);
+      window.location.href = '/pages/budget.html';
+    } catch (err) {
+      Util.log(err);
+    }
+  }
+
   async init(usernameResponse) {
+    let self = this;
     new _accountSettingsController.default().init({}, usernameResponse, true);
     $('#search-transactions').click(async function () {
       $('#transactions-container').empty();
@@ -24663,19 +24692,8 @@ class TransactionsController {
         $('#convert-to-budget').prop('disabled', false);
       }
 
-      $('#convert-to-budget').unbind('click');
-      $('#convert-to-budget').click(function () {
-        for (let transaction of transactions) {
-          let budgetItem = {
-            "date": Moment.utc(transaction.transactionDetail.date, 'YYYY-MM-DD').toISOString(),
-            "name": transaction.transactionDetail.name,
-            "paymentSource": getAccountName(transaction.institutionName, transaction.account),
-            "amount": Currency(transaction.transactionDetail.amount, Util.getCurrencyDefaults()).multiply(-1).toString(),
-            "type": transaction.account.subtype === 'checking' && transaction.transactionDetail.amount > 0 ? "expense" : "income",
-            "frequency": "monthly"
-          };
-          console.log(budgetItem);
-        }
+      $('#append-to-budget').unbind('click').click(function () {
+        self.appendTransactionsToBudget(usernameResponse, transactions);
       });
     });
     $('#convert-to-budget').prop('disabled', true);

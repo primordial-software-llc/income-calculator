@@ -3,7 +3,6 @@ import Navigation from '../nav';
 import DataClient from '../data-client';
 const Util = require('../util');
 
-
 function getNavItemHtml(user) {
     let authenticatedControllers = Navigation.getAuthenticatedControllers(user)
     let navItemHtml = authenticatedControllers
