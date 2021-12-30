@@ -23172,6 +23172,10 @@ class PropertyPointOfSaleController {
 
     let receipt = {
       id: Util.guid(),
+      invoiceItem: {
+        "id": $('#sale-invoice-item').val(),
+        "name": $("#sale-invoice-item option:selected").text()
+      },
       rentalDate: $('#sale-date').val().trim(),
       customer: {
         id: customerMatch ? customerMatch.quickBooksOnlineId : '',
@@ -23260,6 +23264,7 @@ class PropertyPointOfSaleController {
     $('#sale-by').text(saleBy);
     let timestamp = Moment(receiptResult.timestamp);
     $('#sale-timestamp').text(timestamp.format('L LT'));
+    $('#sale-invoice-item-text').text(receipt.invoiceItem.name);
     $('#sale-date-text').text(receipt.rentalDate);
     $('#sale-vendor-text').text(receipt.customer.name);
     let amountOfAccount = (0, _currency.default)(receipt.amountOfAccount, Util.getCurrencyDefaults());
@@ -23278,7 +23283,7 @@ class PropertyPointOfSaleController {
       allSpots = customerMatch.spots.concat(allSpots);
     }
 
-    $('.rental-charge-receipt-group').toggle(receipt.thisPayment.length);
+    $('.rental-charge-receipt-group').toggle(!!receipt.rentalAmount.length);
     $('.spots-receipt-group').toggle(allSpots.length > 0);
     $('#sale-spots-text').text(allSpots.map(x => self.getSpotDescription(x)).join(", "));
     $('.memo-receipt-group').toggle(!!receipt.memo);
@@ -23311,7 +23316,8 @@ class PropertyPointOfSaleController {
     let dataClient = new _dataClient.default();
     let customerPromise = dataClient.get(`point-of-sale/customer-payment-settings?locationId=${user.propertyLocationId || ''}`);
     let rentalSectionPromise = dataClient.get('point-of-sale/spots?cache-level=cache-everything');
-    let promiseResults = await Promise.all([customerPromise, rentalSectionPromise]);
+    let invoiceItemsPromise = dataClient.get(`point-of-sale/invoice-items?locationId=${user.propertyLocationId || ''}&cache-level=cache-everything`);
+    let promiseResults = await Promise.all([customerPromise, rentalSectionPromise, invoiceItemsPromise]);
     this.customers = promiseResults[0];
     this.spots = promiseResults[1].filter(x => !x.restricted);
 
@@ -23321,6 +23327,10 @@ class PropertyPointOfSaleController {
 
     for (let customer of this.customers) {
       $('#sale-vendor-list').append(`<option>${_customerDescription.default.getCustomerDescription(customer)}</option>`);
+    }
+
+    for (let invoiceItem of promiseResults[2]) {
+      $('#sale-invoice-item').append(`<option value="${invoiceItem.Id}">${invoiceItem.Name}</option>`);
     }
 
     $('#add-new-spot').click(function () {
@@ -23425,7 +23435,7 @@ class PropertyPointOfSaleController {
       }
     });
     $("#sale-rental-amount").on('input', function () {
-      $('.rental-date-row').toggle((this.value || '').trim().length > 0);
+      $('.invoice-child-row').toggle((this.value || '').trim().length > 0);
     });
   }
 

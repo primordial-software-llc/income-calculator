@@ -24,11 +24,12 @@
           <br />(863) 682-4809
       </div>
       <br />
-      <div class="rental-charge-receipt-group">Rental Date:&nbsp;<span id="sale-date-text"></span></div>
+      <div class="rental-charge-receipt-group">Invoice Item:&nbsp;<span id="sale-invoice-item-text"></span></div>
+      <div class="rental-charge-receipt-group">Invoice Date:&nbsp;<span id="sale-date-text"></span></div>
       <div class="receipt-data-group">Vendor:&nbsp;<span id="sale-vendor-text"></span></div>
       <div class="receipt-data-group prior-balance-receipt-group">Prior Balance:&nbsp;<span id="sale-prior-balance-text"></span></div>
-      <div class="receipt-data-group rental-charge-receipt-group">Rental Amount:&nbsp;<span id="sale-rental-amount-text"></span></div>
-      <div class="receipt-data-group">This Payment:&nbsp;<span id="sale-payment-text"></span></div>
+      <div class="receipt-data-group rental-charge-receipt-group">Invoice Amount:&nbsp;<span id="sale-rental-amount-text"></span></div>
+      <div class="receipt-data-group">Payment Amount:&nbsp;<span id="sale-payment-text"></span></div>
       <div class="receipt-data-group">New Balance:&nbsp;<span id="sale-new-balance-text"></span></div>
       <div class="receipt-data-group spots-receipt-group">Spots:&nbsp;<span id="sale-spots-text"></span></div>
       <div class="receipt-data-group memo-receipt-group">Memo:&nbsp;<span id="sale-memo-text"></span></div>
@@ -91,7 +92,7 @@
               </div>
           </div>
           <div class="form-group row">
-              <label class="col-xs-3 col-form-label col-form-label-lg">Rental Amount</label>
+              <label class="col-xs-3 col-form-label col-form-label-lg">Invoice Amount</label>
               <div class="col-xs-9">
                   <div class="input-group">
                       <div class="input-group-addon">$</div>
@@ -99,15 +100,21 @@
                   </div>
               </div>
           </div>
-          <div class="form-group row rental-date-row" style="display: none;">
-              <label class="col-xs-3 col-form-label col-form-label-lg">Rental Date</label>
+          <div class="form-group row rental-date-row invoice-child-row" style="display: none;">
+              <label class="col-xs-3 col-form-label col-form-label-lg">Invoice Date</label>
               <div class="col-xs-9">
                   <input id="sale-date" class="disable-on-save form-control" type="date">
               </div>
           </div>
+          <div class="form-group row invoice-child-row" style="display: none;">
+              <label class="col-xs-3 col-form-label col-form-label-lg">Invoice Item</label>
+              <div class="col-xs-9">
+                  <select class="disable-on-save form-control" id="sale-invoice-item"></select>
+              </div>
+          </div>
           <div class="form-group row">
               <div class="col-xs-3">
-                  <label class="col-form-label col-form-label-lg">This Payment</label>
+                  <label class="col-form-label col-form-label-lg">Payment Amount</label>
               </div>
               <div class="col-xs-9">
                   <div class="input-group">

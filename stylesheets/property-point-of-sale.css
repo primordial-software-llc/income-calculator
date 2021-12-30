@@ -2,6 +2,7 @@ body label.col-form-label-lg,
 .input-group-addon,
 body textarea.form-control,
 body input.form-control,
+body select.form-control,
 body #input-form
 {
     font-size: 30px;
