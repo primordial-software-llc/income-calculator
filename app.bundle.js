@@ -21929,8 +21929,7 @@ class BudgetController {
 
     let viewModel = _balanceSheetViewModel.default.getViewModel(budget, bankData, Util.obfuscate());
 
-    let creditableAccounts = (viewModel.assets || []).filter(x => x.name && x.type === 'cash').map(x => x.name);
-    return creditableAccounts.concat((viewModel.balances || []).filter(x => x.type === 'credit').map(x => x.name));
+    return (viewModel.assets || []).map(x => x.name);
   }
 
   async init(usernameResponse) {
