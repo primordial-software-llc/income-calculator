@@ -28,7 +28,8 @@ export default class BudgetController {
         let bankData = await new DataClient().get('accountBalance');
         let viewModel = BalanceSheetViewModel.getViewModel(budget, bankData, Util.obfuscate());
         let creditableAccounts = (viewModel.assets || []).filter(x => x.name && x.type === 'cash').map(x => x.name);
-        return creditableAccounts.concat((viewModel.balances || []).filter(x => x.type ==='credit').map(x => x.name));
+        return creditableAccounts.concat((viewModel.balances || [])
+            .filter(x => x.type === 'credit' || x.type === 'non-liquid-stocks-and-bonds').map(x => x.name));
     }
     async init(usernameResponse) {
         new AccountSettingsController().init(this.homeView, usernameResponse, true);
