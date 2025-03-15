@@ -1,158 +1,695 @@
 <!DOCTYPE html>
-<html lang="en" class="public-content">
+<html lang="en">
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=.5, user-scalable=0">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
-    <link rel="stylesheet" type="text/css" href="../stylesheets/home.css">
-    <title>Net Income Calculator</title>
-    <script type="text/javascript" src="../javascript/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="../javascript/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../app.bundle.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Primordial Software - Technology Solutions</title>
+    <meta name="description" content="Primordial Software provides innovative technology solutions including Budget Sidekick financial management and K&T Textiles export services. Custom software development since 2019.">
+    <meta property="og:title" content="Primordial Software - Technology Solutions">
+    <meta property="og:description" content="Innovative technology solutions for business and personal finance management.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.primordial-software.com/">
+    <link rel="canonical" href="https://www.primordial-software.com/">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Primordial Software",
+      "url": "https://www.primordial-software.com/",
+      "logo": "https://www.primordial-software.com/images/logo.png",
+      "description": "Primordial Software provides innovative technology solutions including Budget Sidekick financial management and K&T Textiles export services.",
+      "foundingDate": "2019",
+      "email": "support@primordial-software.com",
+      "sameAs": [
+        "http://www.budgetsidekick.com",
+        "http://www.kandttextiles.com"
+      ],
+      "owns": [
+        {
+          "@type": "Product",
+          "name": "Budget Sidekick",
+          "description": "Financial management platform for business and personal finance with account hierarchies and flexible categorization.",
+          "url": "http://www.budgetsidekick.com"
+        },
+        {
+          "@type": "Product",
+          "name": "K&T Textiles",
+          "description": "Premium fabric and apparel exports connecting quality manufacturers with global markets.",
+          "url": "http://www.kandttextiles.com"
+        }
+      ]
+    }
+    </script>
+    <!-- Bootstrap 5 CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom styles -->
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --light-gray: #f8f9fa;
+            --dark-blue: #0a4275;
+            --cream: #f5f5dc;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+        
+        .header-section {
+            background-color: var(--dark-blue);
+            color: white;
+            padding: 5rem 0;
+            position: relative;
+            background-image: linear-gradient(135deg, rgba(13, 110, 253, 0.8), rgba(10, 66, 117, 0.9)), url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            background-size: cover;
+            overflow: hidden;
+        }
+        
+        .header-section::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(135deg, transparent 50%, white 50%);
+            background-size: 20px 20px;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header-subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .header-tagline {
+            font-size: 1.2rem;
+            font-weight: 400;
+            padding: 0.75rem 1.5rem;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 1rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        .company-card {
+            height: 100%;
+            transition: transform 0.3s;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .company-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+        
+        .section-heading {
+            position: relative;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .section-heading:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+        
+        .text-center .section-heading:after {
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+        }
+        
+        .text-white.section-heading:after {
+            background-color: white;
+            width: 120px;
+        }
+        
+        .bg-light-gray {
+            background-color: var(--light-gray);
+        }
+        
+        .bg-dark-blue {
+            background-color: var(--dark-blue);
+            color: white;
+        }
+        
+        footer {
+            background-color: var(--dark-blue);
+            color: white;
+            padding: 2rem 0;
+        }
+        
+        .footer-link {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        .footer-link:hover {
+            color: var(--cream);
+        }
+        
+        /* Custom style for the companies heading */
+        .companies-heading:after {
+            width: 200px !important;
+            background-color: white !important;
+        }
+        
+        /* Custom style for company card icons */
+        .company-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .company-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .company-icon-primary svg path {
+            fill: var(--primary-color);
+        }
+        
+        /* Budget Sidekick logo styles */
+        .budget-sidekick-logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 15px;
+        }
+        
+        .logo-text {
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+        }
+        
+        .budget {
+            fill: #1e3a5f;
+        }
+        
+        .sidekick {
+            fill: #3498db;
+        }
+        
+        .feature-card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.12);
+        }
+        
+        .feature-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .feature-icon-wrapper {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1rem auto;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .budget-sidekick-section {
+            background-color: #f0f4f8;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230d6efd' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            position: relative;
+            border-top: 5px solid #e1e8f0;
+            border-bottom: 5px solid #e1e8f0;
+        }
+        
+        .budget-sidekick-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.85) 100%);
+            z-index: 0;
+        }
+        
+        .budget-sidekick-content {
+            position: relative;
+            z-index: 1;
+            padding: 3rem 0;
+        }
+        
+        .legacy-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 2rem;
+            margin-top: 2rem;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .bs-section-header {
+            background-color: rgba(13, 110, 253, 0.05);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 3rem;
+            border: 1px solid rgba(13, 110, 253, 0.1);
+        }
+        
+        .feature-card {
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            height: 100%;
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.12);
+        }
+        
+        .feature-card .card-body {
+            padding: 1.75rem;
+        }
+        
+        .feature-icon-wrapper {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1.25rem auto;
+            border: 2px solid rgba(13, 110, 253, 0.2);
+        }
+    </style>
 </head>
-<body class="container">
-    <div class="imago-header home-page">
-        <div class="header-overlay">
-            <span class="p-15 link-color-white text-decoration-underline font-bold pull-right"><a href="pages/budget.html">Login</a></span>
-            <div class="header-text">
-                Income Calculator
-            </div>
-        </div>
-    </div>
-    <div class="imago-body-public">
-        <div class="imago-gray-bg-blue-text home-subheading-text color-imago-blue bg-color-imago-light-gray">
-            Set a budget, create a balance sheet
-            and monitor all of your credit cards and bank accounts in one place.
-        </div>
-        <div class="row budget-calendar-section">
-            <div class="col-xs-3">
-                <img class="home-icon-blue-budget-calendar"
-                     src="https://www.primordial-software.com/images/budget-icon.jpg"
-                     alt="budget icon" />
-            </div>
-            <div class="col-xs-3">
-                <div class="font-subheading1 color-imago-blue">Budget</div>
-                <div class="home-content-blue-budget-calendar">
-                    The budget feature allows you to define biweekly, monthly,
-                    weekly income and expenses.
-                </div>
-            </div>
-            <div class="col-xs-3">
-                <img class="home-icon-blue-budget-calendar"
-                     src="https://www.primordial-software.com/docs/imago-design/calendario-financiero-planificacion-financiera-presupuesto-mensual-planificacion-plana-ilustracion-vectorial-diseno-diseno-planificacion-financiera-graficos-moviles-web_1200-331.jpg"
-                     alt="calendar icon" />
-            </div>
-            <div class="col-xs-3">
-                <div class="font-subheading1 color-imago-blue">Calendar</div>
-                <div class="home-content-blue-budget-calendar">
-                    The calendar gives you a monthly summary of your income and expenses.
-                </div>
-            </div>
-        </div>
-        <div class="row home-row-balance-sheet-bank-integration bg-color-imago-blue">
-            <div class="col-xs-6">
-                <div class="font-subheading1 color-imago-cream">
-                    The Balance Sheet Tracks
-                </div>
-                <ul class="color-white">
-                    <li>Loans</li>
-                    <li>Credit Cards</li>
-                    <li>Equities: public and private</li>
-                    <li>Checking Accounts</li>
-                    <li>Savings Accounts</li>
-                    <li>Credit Cards</li>
-                    <li>US Treasury Bills</li>
-                    <li>Tangible Property</li>
-                </ul>
-            </div>
-            <div class="col-xs-6">
-                <div class="font-subheading1 color-imago-cream">
-                    Bank Integration
-                </div>
-                <div class="color-white">
-                    The bank integration provides real-time credit card, checking and savings account balances
-                    for your balance sheet. The bank integration supports 9,600 financial institutions. We
-                    use Plaid to connect to your bank allowing us to access account data from large or small banks.
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12 pricing-banner-column">
-                <a href="/pages/login-signup.html">
-                    <img class="pricing-banner" src="https://raw.githubusercontent.com/primordial-software-llc/income-calculator/master/images/pricing-banner.jpg"
-                         alt="Pricing. Budget and calendar is free. Balance Sheet and Bank Integration cost $10.00 USD per month. Bank integration allows connecting up to 5 Banks at one time and accessing unlimited accounts within each bank." />
-                </a>
-            </div>
-        </div>
-        <div class="row home-row-signup-data">
-            <div class="col-xs-6 signup-section vertical-align">
-                <div class="w-100 color-imago-blue">
-                    <div class="text-center data-header">
-                        Signup
+<body>
+    <!-- Header -->
+    <header class="header-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-10 text-center header-content">
+                    <h1 class="header-title">Primordial Software</h1>
+                    <p class="header-subtitle">Innovative Technology Solutions</p>
+                    <div class="header-tagline">
+                        <i class="bi bi-globe me-2"></i>Building innovative software solutions and expanding into global markets
                     </div>
-                    <div class="color-white">
-                        <ol>
-                            <li>Create an account <a href="/pages/login-signup.html">here</a></li>
-                            <li>Start using the budget and calendar features after confirming your email</li>
-                            <li>When you are ready to upgrade to unlock the bank integration and create your balance sheet
-                                click the Purchase Full Version button when logged in.</li>
-                        </ol>
+                    <div class="mt-4">
+                        <a href="pages/budget.html" class="btn btn-outline-light btn-lg px-4">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Legacy Login
+                        </a>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6 data-section bg-color-imago-light-gray vertical-align">
-                <div class="text-center color-imago-blue">
-                    <div class="data-header">
-                        Data
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- About Us Section -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h2 class="section-heading">About Primordial Software</h2>
+                        <p>
+                            Primordial Software is a technology company specializing in custom software development and consulting services. 
+                            With a proven track record of delivering high-quality solutions, we help businesses streamline operations, 
+                            improve efficiency, and achieve their technology goals.
+                        </p>
+                        <p>
+                            Our expertise spans financial software, business integrations, and custom application development. 
+                            We pride ourselves on building reliable, secure, and user-friendly solutions that address real business needs.
+                        </p>
                     </div>
-                    <div class="data-content">
-                        Your data will never be sold to third parties
-                        and can be downloaded at anytime in JSON format.
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Companies Section -->
+        <section class="py-5 bg-dark-blue">
+            <div class="container">
+                <div class="row mb-4">
+                    <div class="col-md-12 text-center">
+                        <h2 class="section-heading text-white companies-heading">Our Companies & Products</h2>
                     </div>
-                    <a target="_blank" title="download sample data" href="/docs/sample-data.json">
-                        <img class="download-data-sample-button"
-                             src="https://www.primordial-software.com/images/download-data-button.png" />
-                    </a>
+                </div>
+                <div class="row g-4">
+                    <!-- K&T Textiles -->
+                    <div class="col-md-6">
+                        <div class="card company-card h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center">
+                                    <div style="width: 100px; height: 100px; margin-right: 20px;">
+                                        <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="100" height="100" aria-labelledby="kt-title kt-desc" role="img">
+                                            <title id="kt-title">K&T Textiles Logo</title>
+                                            <desc id="kt-desc">A globe icon representing K&T Textiles' global export business</desc>
+                                            <g clip-path="url(#a)"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.27 14.1a6.5 6.5 0 0 0 3.67-3.45q-1.24.21-2.7.34-.31 1.83-.97 3.1M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.48-1.52a7 7 0 0 1-.96 0H7.5a4 4 0 0 1-.84-1.32q-.38-.89-.63-2.08a40 40 0 0 0 3.92 0q-.25 1.2-.63 2.08a4 4 0 0 1-.84 1.31zm2.94-4.76q1.66-.15 2.95-.43a7 7 0 0 0 0-2.58q-1.3-.27-2.95-.43a18 18 0 0 1 0 3.44m-1.27-3.54a17 17 0 0 1 0 3.64 39 39 0 0 1-4.3 0 17 17 0 0 1 0-3.64 39 39 0 0 1 4.3 0m1.1-1.17q1.45.13 2.69.34a6.5 6.5 0 0 0-3.67-3.44q.65 1.26.98 3.1M8.48 1.5l.01.02q.41.37.84 1.31.38.89.63 2.08a40 40 0 0 0-3.92 0q.25-1.2.63-2.08a4 4 0 0 1 .85-1.32 7 7 0 0 1 .96 0m-2.75.4a6.5 6.5 0 0 0-3.67 3.44 29 29 0 0 1 2.7-.34q.31-1.83.97-3.1M4.58 6.28q-1.66.16-2.95.43a7 7 0 0 0 0 2.58q1.3.27 2.95.43a18 18 0 0 1 0-3.44m.17 4.71q-1.45-.12-2.69-.34a6.5 6.5 0 0 0 3.67 3.44q-.65-1.27-.98-3.1" fill="#0d6efd"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title text-primary">K&T Textiles</h3>
+                                        <p class="card-text">
+                                            K&T Textiles specializes in premium fabric and apparel exports since 2020, connecting quality manufacturers with global markets. We provide comprehensive export services including logistics, quality control, and global distribution.
+                                        </p>
+                                        <a href="http://www.kandttextiles.com" target="_blank" class="btn btn-primary mt-2">
+                                            Visit K&T Textiles <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Budget Sidekick -->
+                    <div class="col-md-6">
+                        <div class="card company-card h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center">
+                                    <div style="width: 100px; height: 100px; margin-right: 20px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="100" height="100" aria-labelledby="bs-title bs-desc" role="img">
+                                            <title id="bs-title">Budget Sidekick Logo</title>
+                                            <desc id="bs-desc">A financial graph showing upward and downward trends with data points</desc>
+                                            <g transform="translate(0,5)"><path d="M5 40 L15 30 L25 35 L35 5 L45 15" fill="none" stroke="#27ae60" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="15" cy="30" r="3" fill="#3498db"></circle><circle cx="25" cy="35" r="3" fill="#3498db"></circle><circle cx="35" cy="5" r="3" fill="#3498db"></circle><path d="M0 45 L50 45" stroke="#1e3a5f" stroke-width="2"></path><path d="M0 0 L0 45" stroke="#1e3a5f" stroke-width="2"></path></g>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title text-primary">Budget Sidekick</h3>
+                                        <p class="card-text">
+                                            Our flagship financial management platform for business and personal finance. Track income and expenses across multiple revenue streams and entities with powerful account hierarchies and flexible categorization.
+                                        </p>
+                                        <a href="http://www.budgetsidekick.com" target="_blank" class="btn btn-primary mt-2">
+                                            Visit Budget Sidekick <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Budget Sidekick Details Section -->
+        <section class="py-0 budget-sidekick-section">
+            <div class="container budget-sidekick-content">
+                <div class="bs-section-header">
+                    <div class="row mb-4">
+                        <div class="col-lg-8 mx-auto text-center">
+                            <h2 class="section-heading mb-3">Budget Sidekick</h2>
+                            <p class="lead mb-3">
+                                Simple Ledgers for Business & Personal Finance
+                            </p>
+                            <div class="d-flex justify-content-center my-3">
+                                <div style="width: 80px; height: 80px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="80" height="80" aria-labelledby="bs-icon-title bs-icon-desc" role="img">
+                                        <title id="bs-icon-title">Budget Sidekick Graph Icon</title>
+                                        <desc id="bs-icon-desc">A simplified financial graph showing the Budget Sidekick logo</desc>
+                                        <g transform="translate(0,5)"><path d="M5 40 L15 30 L25 35 L35 5 L45 15" fill="none" stroke="#27ae60" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="15" cy="30" r="3" fill="#3498db"></circle><circle cx="25" cy="35" r="3" fill="#3498db"></circle><circle cx="35" cy="5" r="3" fill="#3498db"></circle><path d="M0 45 L50 45" stroke="#1e3a5f" stroke-width="2"></path><path d="M0 0 L0 45" stroke="#1e3a5f" stroke-width="2"></path></g>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="mb-0">
+                                Our modern financial management platform that helps you track income and expenses across multiple revenue streams and entities with powerful account hierarchies.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="card feature-card">
+                            <div class="card-body text-center">
+                                <div class="feature-icon-wrapper">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#0d6efd" class="bi bi-diagram-3" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M6 3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5v1A1.5 1.5 0 0 1 8.5 6v1H14a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0V8h-5v.5a.5.5 0 0 1-1 0v-1A.5.5 0 0 1 2 7h5.5V6A1.5 1.5 0 0 1 6 4.5v-1zM8.5 5a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1zM0 11.5A1.5 1.5 0 0 1 1.5 10h1A1.5 1.5 0 0 1 4 11.5v1A1.5 1.5 0 0 1 2.5 14h-1A1.5 1.5 0 0 1 0 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5A1.5 1.5 0 0 1 7.5 10h1a1.5 1.5 0 0 1 1.5 1.5v1A1.5 1.5 0 0 1 8.5 14h-1A1.5 1.5 0 0 1 6 12.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1zm4.5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-1zm1.5-.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1z"/>
+                                    </svg>
+                                </div>
+                                <h4 class="feature-title text-primary">Nested Accounts</h4>
+                                <p class="mb-0">Organize finances with intuitive hierarchical account structures</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card feature-card">
+                            <div class="card-body text-center">
+                                <div class="feature-icon-wrapper">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#0d6efd" class="bi bi-buildings" viewBox="0 0 16 16">
+                                        <path d="M14.763.075A.5.5 0 0 1 15 .5v15a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5V14h-1v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V10a.5.5 0 0 1 .342-.474L6 7.64V4.5a.5.5 0 0 1 .276-.447l8-4a.5.5 0 0 1 .487.022ZM6 8.694 1 10.36V15h5V8.694ZM7 15h2v-1.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5V15h2V1.309l-7 3.5V15Z"/>
+                                        <path d="M2 11h1v1H2v-1Zm2 0h1v1H4v-1Zm-2 2h1v1H2v-1Zm2 0h1v1H4v-1Zm4-4h1v1H8V9Zm2 0h1v1h-1V9Zm-2 2h1v1H8v-1Zm2 0h1v1h-1v-1Zm2-2h1v1h-1V9Zm0 2h1v1h-1v-1ZM8 7h1v1H8V7Zm2 0h1v1h-1V7Zm2 0h1v1h-1V7ZM8 5h1v1H8V5Zm2 0h1v1h-1V5Zm2 0h1v1h-1V5Zm0-2h1v1h-1V3Z"/>
+                                    </svg>
+                                </div>
+                                <h4 class="feature-title text-primary">Multiple Entities</h4>
+                                <p class="mb-0">Manage personal finances and business accounts in one place</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card feature-card">
+                            <div class="card-body text-center">
+                                <div class="feature-icon-wrapper">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#0d6efd" class="bi bi-tags" viewBox="0 0 16 16">
+                                        <path d="M3 2v4.586l7 7L14.586 9l-7-7H3zM2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586V2z"/>
+                                        <path d="M5.5 5a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm0 1a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM1 7.086a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l.043-.043-7.457-7.457L1 7.086z"/>
+                                    </svg>
+                                </div>
+                                <h4 class="feature-title text-primary">Flexible Categories</h4>
+                                <p class="mb-0">Create detailed reports with customizable transaction tagging</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-5">
+                    <div class="col-md-12 text-center">
+                        <a href="http://www.budgetsidekick.com" target="_blank" class="btn btn-lg btn-primary px-4 py-3">
+                            Learn More About Budget Sidekick <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="legacy-card mt-5">
+                    <div class="row align-items-center">
+                        <div class="col-md-9">
+                            <h3 class="text-primary mb-3">Legacy Financial Tools</h3>
+                            <p class="mb-md-0">
+                                Our original financial management platform continues to serve existing users with budget tracking, 
+                                balance sheet management, and business integrations including QuickBooks Online connectivity and 
+                                point-of-sale functionality with customer management.
+                            </p>
+                        </div>
+                        <div class="col-md-3 text-md-end text-center mt-3 mt-md-0">
+                            <a href="pages/budget.html" class="btn btn-outline-primary">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Legacy Login
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="py-5 bg-light-gray">
+            <div class="container">
+                <div class="row mb-4">
+                    <div class="col-lg-12 text-center">
+                        <h2 class="section-heading">Frequently Asked Questions</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="accordion" id="faqAccordion">
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="headingOne">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        What is Budget Sidekick and how does it differ from other financial tools?
+                                    </button>
+                                </h3>
+                                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        <p>Budget Sidekick is a comprehensive financial management platform designed for both business and personal finance. Unlike many other tools, Budget Sidekick offers nested account hierarchies, allowing you to organize finances with intuitive structures. It supports multiple entities in one place and provides flexible categorization for detailed reporting. The platform is particularly valuable for users who need to track income and expenses across multiple revenue streams.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="headingTwo">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        What services does K&T Textiles provide?
+                                    </button>
+                                </h3>
+                                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        <p>K&T Textiles specializes in premium fabric and apparel exports, connecting quality manufacturers with global markets since 2020. We provide comprehensive export services including logistics management, quality control processes, and global distribution networks. Our expertise helps manufacturers reach international markets while ensuring product quality and timely delivery.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="headingThree">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                        What consulting services does Primordial Software offer?
+                                    </button>
+                                </h3>
+                                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        <p>Primordial Software offers expert consulting services in custom software development, business process automation, financial system integration, data security and encryption, and cloud infrastructure optimization. Our team brings years of experience building secure, scalable solutions for businesses of all sizes. We specialize in creating reliable, user-friendly solutions that address real business needs and help organizations streamline operations.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="headingFour">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                        Can I still access the legacy financial tools?
+                                    </button>
+                                </h3>
+                                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        <p>Yes, our original financial management platform continues to serve existing users. It provides budget tracking, balance sheet management, and business integrations including QuickBooks Online connectivity and point-of-sale functionality with customer management. Existing users can access these tools through the Legacy Login button in the header or in the Budget Sidekick section.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h3 class="accordion-header" id="headingFive">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                        How long has Primordial Software been in business?
+                                    </button>
+                                </h3>
+                                <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        <p>Primordial Software has been providing innovative technology solutions since 2019. Over the years, we've expanded our offerings to include financial management platforms like Budget Sidekick and established K&T Textiles in 2020 to serve the global textile market. Our experience allows us to deliver high-quality solutions that help businesses streamline operations and achieve their technology goals.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Consulting Services -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h2 class="section-heading">Consulting Services</h2>
+                        <p>
+                            Beyond our products, Primordial Software offers expert consulting services in:
+                        </p>
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check-circle-fill text-primary me-2"></i> Custom software development</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check-circle-fill text-primary me-2"></i> Business process automation</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check-circle-fill text-primary me-2"></i> Financial system integration</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check-circle-fill text-primary me-2"></i> Data security and encryption</li>
+                            <li class="list-group-item bg-transparent"><i class="bi bi-check-circle-fill text-primary me-2"></i> Cloud infrastructure optimization</li>
+                        </ul>
+                        <p>
+                            Our team brings years of experience building secure, scalable solutions for businesses of all sizes.
+                        </p>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <img src="/images/typing-on-tablet.jpg" alt="Person typing on tablet device while reviewing financial data" class="img-fluid rounded shadow">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <p>Contact us at support@primordial-software.com</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <p>Copyright 2019-<span id="currentYear"></span> &copy; All Rights Reserved | Primordial Software, LLC</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <p>
+                        By using this site, you agree to our <a class="footer-link" target="_blank" href="https://www.primordial-software.com/src/LICENSE.txt">software license terms</a>, 
+                        which include provisions regarding no warranty, limitation of liability, and usage restrictions.
+                    </p>
                 </div>
             </div>
         </div>
-        <div class="row privacy-and-security">
-            <div class="col-xs-8">
-                <div class="font-subheading1 color-imago-blue">Privacy and Security</div>
-                <strong>
-                    Protecting your financial data from unauthorized access is a top priority.
-                    Here are the steps we take to protect your financial data.
-                </strong>
-                <ul>
-                    <li>
-                        Your data is encrypted with <a href="https://aws.amazon.com/kms/" target="_blank">Amazon Web Services KMS</a>.
-                    </li>
-                    <li>All connections are SSL encrypted with a certificate from Amazon Web Services</li>
-                    <li><a href="https://aws.amazon.com/cognito/details/" target="_blank">Amazon Web Services Cognito</a> is used for authentication with multi-factor authentication required</li>
-                    <li>
-                        Our software never has direct access to your bank's username and password.
-                        Our bank integrations are built with a well known and trusted third party <a href="https://plaid.com/" target="_blank">Plaid</a> which manages the bank login process ensuring it's secure.
-                    </li>
-                </ul>
-            </div>
-            <div class="col-xs-4 typing-on-tablet-background text-right">
-                <img src="/images/typing-on-tablet.jpg" alt="person typing on tablet" />
-            </div>
-        </div>
-    </div>
-    <div class="row imago-footer-public imago-bg-blue text-center">
-        <div class="footer-text-group">
-            Contact us at Support@Primordial-software.com
-        </div>
-        <div class="footer-text-group">
-            Copyright 2019-2021 &copy; All Rights Reserved | Primordial Software, LLC | 7602 BLUE IRIS LANE TAMPA, FL 33619
-        </div>
-        <div class="footer-text-group">
-            By viewing this site you agree to our
-            <a target="_blank" href="https://www.primordial-software.com/src/LICENSE.txt">license</a>
-        </div>
-    </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    <!-- Custom Scripts -->
+    <script>
+        // Set current year for copyright
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+    
+    <!-- Lazy loading for images -->
+    <script>
+        if ('loading' in HTMLImageElement.prototype) {
+            // Browser supports native lazy loading
+            const images = document.querySelectorAll('img[loading="lazy"]');
+            images.forEach(img => {
+                img.src = img.dataset.src;
+            });
+        } else {
+            // Fallback for browsers that don't support lazy loading
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js';
+            document.body.appendChild(script);
+        }
+    </script>
 </body>
 </html>
