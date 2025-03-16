@@ -96,33 +96,6 @@ An 18% APR loan paid weekly with a balance of $500 in the last week of December 
     $90 interest over 12 months = $7.50 interest per month
     $7.50 interest over 4 weeks (4.348125) = $1.72488141 per week
     
-#### Example
-
-Something seems off, here's why. Let's say you have a balance of 1573 @ .2013 APR. That means the next months interest is: 1573 * (.2013/12) or about $26. Right now the loan calculator shows this as a total interest for the lifetime of the loan at $125 per week at only $43. So even though I think I have it in tests, I want to lay out my next test even though I'm pretty sure I've done this before after noticing the discrepancy and large loans appear correct.
-
-APR                 = .2013
-Monthly Interest    = .2013/12 = 0.016775
-Monthly Payment     = 500
-
-(This is even optimistic since it's 4 weeks per month and the docs say paying weekly as the scenario.)
-
-Balance     Interest    Interest Balance    Post Payment Balance
-1573        $26         $1599               $1099
-1099        $19         $1118               $688
-688         $12         $700                $200
-200         $4          $204                $0
-
-Total Interest = $61
-
-^^^ Is ridiculously high, because the scenario is weekly payments. You would be dumb if you could pay off a loan less frequently than monthly payments, if you are accruing income more frequently than monthly. How dumb, well maybe I could show that with some more work. So you have a few extra payments and less compound interest and I've been rounding up on the interest rates. It actually still is off enough to show more information, because the calculator says this is only $43 in interest. Is is it wrong?
-
-I don't know, but I have another test case. Also the calculator has payoff date of 3 months so it shows that's correct, but as you can see the last payment has a far lower balance than the payment so interest isn't enough there.
-
-Ahh, this is actually going to get rather complex. The UI has some logic that desperately needs to get pulled out I think. That week month is a problem. And nothing in this core library has anything about. Here's what I'll do is duplicate the functionality, but I'll have it for proper monthly than have a fun time merging and restoring the tests. Yuck!
-
-
-
-
 Fields
 
 $: Amount in dollars
