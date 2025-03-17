@@ -335,6 +335,40 @@
             margin: 0 auto 1.25rem auto;
             border: 2px solid rgba(13, 110, 253, 0.2);
         }
+        
+        .social-links {
+            margin-bottom: 1rem;
+        }
+        
+        .social-link {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            margin: 0 10px;
+            line-height: 1;
+        }
+        
+        .social-link:hover {
+            color: #fff;
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .social-link i {
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
@@ -560,7 +594,7 @@
                                 </h3>
                                 <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                                     <div class="accordion-body">
-                                        <p>Budget Sidekick is a comprehensive financial management platform designed for both business and personal finance. Unlike many other tools, Budget Sidekick offers nested account hierarchies, allowing you to organize finances with intuitive structures. It supports multiple entities in one place and provides flexible categorization for detailed reporting. The platform is particularly valuable for users who need to track income and expenses across multiple revenue streams.</p>
+                                        <p>Budget Sidekick is a comprehensive financial management platform designed for both business and personal finance. Unlike many other tools, Budget Sidekick offers nested account hierarchies, allowing you to organize finances with intuitive structures. It supports multiple entities in one place and provides flexible categorization for detailed reporting. Visit <a href="http://www.budgetsidekick.com" class="text-primary">www.budgetsidekick.com</a> to see how our platform can help you track income and expenses across multiple revenue streams.</p>
                                     </div>
                                 </div>
                             </div>
@@ -572,7 +606,7 @@
                                 </h3>
                                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
                                     <div class="accordion-body">
-                                        <p>K&T Textiles specializes in premium fabric and apparel exports, connecting quality manufacturers with global markets since 2020. We provide comprehensive export services including logistics management, quality control processes, and global distribution networks. Our expertise helps manufacturers reach international markets while ensuring product quality and timely delivery.</p>
+                                        <p>K&T Textiles specializes in premium fabric and apparel exports, connecting quality manufacturers with global markets since 2020. We provide comprehensive export services including logistics management, quality control processes, and global distribution networks. Our expertise helps manufacturers reach international markets while ensuring product quality and timely delivery. Visit <a href="http://www.kandttextiles.com" class="text-primary">www.kandttextiles.com</a> to learn more about our export services.</p>
                                     </div>
                                 </div>
                             </div>
@@ -584,7 +618,7 @@
                                 </h3>
                                 <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
                                     <div class="accordion-body">
-                                        <p>Primordial Software offers expert consulting services in custom software development, business process automation, financial system integration, data security and encryption, and cloud infrastructure optimization. Our team brings years of experience building secure, scalable solutions for businesses of all sizes. We specialize in creating reliable, user-friendly solutions that address real business needs and help organizations streamline operations.</p>
+                                        <p>Primordial Software offers expert consulting services in custom software development, business process automation, financial system integration, data security and encryption, and cloud infrastructure optimization. Our team brings years of experience building secure, scalable solutions for businesses of all sizes. We specialize in creating reliable, user-friendly solutions that address real business needs and help organizations streamline operations. Contact us at <a href="mailto:support@primordial-software.com" class="text-primary">support@primordial-software.com</a> to discuss your project needs.</p>
                                     </div>
                                 </div>
                             </div>
@@ -596,7 +630,7 @@
                                 </h3>
                                 <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
                                     <div class="accordion-body">
-                                        <p>Yes, our original financial management platform continues to serve existing users. It provides budget tracking, balance sheet management, and business integrations including QuickBooks Online connectivity and point-of-sale functionality with customer management. Existing users can access these tools through the Legacy Login button in the header or in the Budget Sidekick section.</p>
+                                        <p>Yes, our original financial management platform continues to serve existing users. It provides budget tracking, balance sheet management, and business integrations including QuickBooks Online connectivity and point-of-sale functionality with customer management. Visit <a href="http://www.budgetsidekick.com" class="text-primary">www.budgetsidekick.com</a> to learn more or access these tools through the Legacy Login button in the header.</p>
                                     </div>
                                 </div>
                             </div>
@@ -635,7 +669,7 @@
                             <li class="list-group-item bg-transparent"><i class="bi bi-check-circle-fill text-primary me-2"></i> Cloud infrastructure optimization</li>
                         </ul>
                         <p>
-                            Our team brings years of experience building secure, scalable solutions for businesses of all sizes.
+                            Our team brings years of experience building secure, scalable solutions for businesses of all sizes. Contact us at <a href="mailto:support@primordial-software.com" class="text-primary">support@primordial-software.com</a> to discuss your project needs.
                         </p>
                     </div>
                     <div class="col-lg-4 text-center">
@@ -652,15 +686,16 @@
             <div class="row">
                 <div class="col-md-12 mb-4">
                     <div class="social-links">
-                        <a href="https://www.linkedin.com/in/timothy-gonzalez-7445a1160/" class="social-link mx-2" target="_blank">
-                            <i class="bi bi-linkedin fs-4"></i>
-                        <a href="https://github.com/primordial-software-llc" class="social-link mx-2" target="_blank">
-                            <i class="bi bi-github fs-4"></i>
+                        <a href="https://www.linkedin.com/in/timothy-gonzalez-7445a1160/" class="social-link" target="_blank" aria-label="LinkedIn Profile">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="https://github.com/primordial-software-llc" class="social-link" target="_blank" aria-label="GitHub Profile">
+                            <i class="bi bi-github"></i>
                         </a>
                     </div>
                 </div>
                 <div class="col-md-12 mb-3">
-                    <p>Contact us at support@primordial-software.com</p>
+                    <p>Contact us at <a href="mailto:support@primordial-software.com" class="footer-link">support@primordial-software.com</a></p>
                 </div>
             </div>
             <div class="row">
