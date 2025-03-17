@@ -1,6 +1,2 @@
 User-agent: *
 Allow: /
-
-# Block API subdomain
-Disallow: https://api.primordial-software.com/
-Disallow: https://api.primordial-software.com/* 
