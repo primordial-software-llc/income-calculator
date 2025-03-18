@@ -58,13 +58,47 @@
             "priceCurrency": "USD",
             "priceValidUntil": "2025-12-31",
             "availability": "https://schema.org/InStock",
-            "hasMerchantReturnPolicy": {
-              "@type": "MerchantReturnPolicy",
-              "applicableCountry": "US",
-              "merchantReturnDays": 30,
-              "returnMethod": "https://schema.org/ReturnByMail",
-              "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-              "returnFees": "https://schema.org/FreeReturn"
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingRate": {
+                "@type": "MonetaryAmount",
+                "value": "0",
+                "currency": "USD"
+              },
+              "deliveryTime": {
+                "@type": "ShippingDeliveryTime",
+                "transitTime": {
+                  "@type": "QuantitativeValue",
+                  "unitCode": "min",
+                  "minValue": "1",
+                  "maxValue": "5"
+                },
+                "handlingTime": {
+                  "@type": "QuantitativeValue",
+                  "unitCode": "min",
+                  "value": "0"
+                },
+                "businessDays": {
+                  "@type": "OpeningHoursSpecification",
+                  "dayOfWeek": [
+                    "https://schema.org/Monday",
+                    "https://schema.org/Tuesday",
+                    "https://schema.org/Wednesday",
+                    "https://schema.org/Thursday",
+                    "https://schema.org/Friday",
+                    "https://schema.org/Saturday",
+                    "https://schema.org/Sunday"
+                  ]
+                }
+              },
+              "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "US",
+                "merchantReturnDays": 30,
+                "returnMethod": "https://schema.org/ReturnByMail",
+                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                "returnFees": "https://schema.org/FreeReturn"
+              }
             }
           }
         },
@@ -101,13 +135,50 @@
               "priceCurrency": "USD",
               "description": "Contact for custom pricing"
             },
-            "hasMerchantReturnPolicy": {
-              "@type": "MerchantReturnPolicy",
-              "applicableCountry": "US",
-              "merchantReturnDays": 30,
-              "returnMethod": "https://schema.org/ReturnByMail",
-              "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-              "returnFees": "https://schema.org/FreeReturn"
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingRate": {
+                "@type": "MonetaryAmount",
+                "description": "Rates vary by destination and service level"
+              },
+              "deliveryTime": {
+                "@type": "ShippingDeliveryTime",
+                "transitTime": {
+                  "@type": "QuantitativeValue",
+                  "unitCode": "d",
+                  "minValue": "3",
+                  "maxValue": "45"
+                },
+                "handlingTime": {
+                  "@type": "QuantitativeValue",
+                  "unitCode": "d",
+                  "minValue": "1",
+                  "maxValue": "3"
+                },
+                "cutoffTime": "16:00:00",
+                "businessDays": {
+                  "@type": "OpeningHoursSpecification",
+                  "dayOfWeek": [
+                    "https://schema.org/Monday",
+                    "https://schema.org/Tuesday",
+                    "https://schema.org/Wednesday",
+                    "https://schema.org/Thursday",
+                    "https://schema.org/Friday"
+                  ]
+                }
+              },
+              "shippingDestination": {
+                "@type": "DefinedRegion",
+                "addressCountry": "US"
+              },
+              "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "US",
+                "merchantReturnDays": 30,
+                "returnMethod": "https://schema.org/ReturnByMail",
+                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                "returnFees": "https://schema.org/FreeReturn"
+              }
             }
           }
         }
