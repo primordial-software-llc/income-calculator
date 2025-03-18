@@ -25,27 +25,43 @@
       "foundingDate": "2019",
       "email": "support@primordial-software.com",
       "sameAs": [
-        "http://www.budgetsidekick.com",
-        "http://www.kandttextiles.com"
+        "https://www.budgetsidekick.com",
+        "https://www.kandttextiles.com"
       ],
       "owns": [
         {
           "@type": "Product",
           "name": "Budget Sidekick",
           "description": "Financial management platform for business and personal finance with account hierarchies and flexible categorization.",
-          "url": "http://www.budgetsidekick.com",
+          "url": "https://www.budgetsidekick.com",
+          "image": "https://www.primordial-software.com/images/budget-sidekick-logo.svg",
           "offers": {
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "USD",
-            "availability": "https://schema.org/InStock"
+            "availability": "https://schema.org/InStock",
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingRate": {
+                "@type": "MonetaryAmount",
+                "value": "0",
+                "currency": "USD"
+              }
+            },
+            "hasMerchantReturnPolicy": {
+              "@type": "MerchantReturnPolicy",
+              "applicableCountry": "US",
+              "merchantReturnDays": 30,
+              "returnMethod": "https://schema.org/ReturnByMail"
+            }
           }
         },
         {
           "@type": "Product",
           "name": "K&T Textiles",
           "description": "Premium fabric and apparel exports connecting quality manufacturers with global markets.",
-          "url": "http://www.kandttextiles.com",
+          "url": "https://www.kandttextiles.com",
+          "image": "https://www.primordial-software.com/images/kt-textiles-logo.svg",
           "offers": {
             "@type": "Offer",
             "availability": "https://schema.org/InStock",
@@ -54,6 +70,20 @@
               "price": "0",
               "priceCurrency": "USD",
               "description": "Contact for custom pricing"
+            },
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingRate": {
+                "@type": "MonetaryAmount",
+                "value": "0",
+                "currency": "USD"
+              }
+            },
+            "hasMerchantReturnPolicy": {
+              "@type": "MerchantReturnPolicy",
+              "applicableCountry": "US",
+              "merchantReturnDays": 30,
+              "returnMethod": "https://schema.org/ReturnByMail"
             }
           }
         }
@@ -445,17 +475,14 @@
                             <div class="card-body p-4">
                                 <div class="d-flex align-items-center">
                                     <div style="width: 100px; height: 100px; margin-right: 20px;">
-                                        <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="100" height="100" aria-labelledby="kt-title kt-desc" role="img">
-                                            <title id="kt-title">K&T Textiles Logo</title>
-                                            <desc id="kt-desc">A globe icon representing K&T Textiles' global export business</desc>
-                                            <g clip-path="url(#a)"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.27 14.1a6.5 6.5 0 0 0 3.67-3.45q-1.24.21-2.7.34-.31 1.83-.97 3.1M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.48-1.52a7 7 0 0 1-.96 0H7.5a4 4 0 0 1-.84-1.32q-.38-.89-.63-2.08a40 40 0 0 0 3.92 0q-.25 1.2-.63 2.08a4 4 0 0 1-.84 1.31zm2.94-4.76q1.66-.15 2.95-.43a7 7 0 0 0 0-2.58q-1.3-.27-2.95-.43a18 18 0 0 1 0 3.44m-1.27-3.54a17 17 0 0 1 0 3.64 39 39 0 0 1-4.3 0 17 17 0 0 1 0-3.64 39 39 0 0 1 4.3 0m1.1-1.17q1.45.13 2.69.34a6.5 6.5 0 0 0-3.67-3.44q.65 1.26.98 3.1M8.48 1.5l.01.02q.41.37.84 1.31.38.89.63 2.08a40 40 0 0 0-3.92 0q.25-1.2.63-2.08a4 4 0 0 1 .85-1.32 7 7 0 0 1 .96 0m-2.75.4a6.5 6.5 0 0 0-3.67 3.44 29 29 0 0 1 2.7-.34q.31-1.83.97-3.1M4.58 6.28q-1.66.16-2.95.43a7 7 0 0 0 0 2.58q1.3.27 2.95.43a18 18 0 0 1 0-3.44m.17 4.71q-1.45-.12-2.69-.34a6.5 6.5 0 0 0 3.67 3.44q-.65-1.27-.98-3.1" fill="#0d6efd"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+                                        <img src="/images/kt-textiles-logo.svg" alt="K&T Textiles Logo" width="100" height="100">
                                     </div>
                                     <div>
                                         <h3 class="card-title text-primary">K&T Textiles</h3>
                                         <p class="card-text">
                                             K&T Textiles specializes in premium fabric and apparel exports since 2020, connecting quality manufacturers with global markets. We provide comprehensive export services including logistics, quality control, and global distribution.
                                         </p>
-                                        <a href="http://www.kandttextiles.com" target="_blank" class="btn btn-primary mt-2">
+                                        <a href="https://www.kandttextiles.com" target="_blank" class="btn btn-primary mt-2">
                                             Visit K&T Textiles <i class="bi bi-box-arrow-up-right ms-1"></i>
                                         </a>
                                     </div>
@@ -470,18 +497,14 @@
                             <div class="card-body p-4">
                                 <div class="d-flex align-items-center">
                                     <div style="width: 100px; height: 100px; margin-right: 20px;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="100" height="100" aria-labelledby="bs-title bs-desc" role="img">
-                                            <title id="bs-title">Budget Sidekick Logo</title>
-                                            <desc id="bs-desc">A financial graph showing upward and downward trends with data points</desc>
-                                            <g transform="translate(0,5)"><path d="M5 40 L15 30 L25 35 L35 5 L45 15" fill="none" stroke="#27ae60" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="15" cy="30" r="3" fill="#3498db"></circle><circle cx="25" cy="35" r="3" fill="#3498db"></circle><circle cx="35" cy="5" r="3" fill="#3498db"></circle><path d="M0 45 L50 45" stroke="#1e3a5f" stroke-width="2"></path><path d="M0 0 L0 45" stroke="#1e3a5f" stroke-width="2"></path></g>
-                                        </svg>
+                                        <img src="/images/budget-sidekick-logo.svg" alt="Budget Sidekick Logo" width="100" height="100">
                                     </div>
                                     <div>
                                         <h3 class="card-title text-primary">Budget Sidekick</h3>
                                         <p class="card-text">
                                             Our flagship financial management platform for business and personal finance. Track income and expenses across multiple revenue streams and entities with powerful account hierarchies and flexible categorization.
                                         </p>
-                                        <a href="http://www.budgetsidekick.com" target="_blank" class="btn btn-primary mt-2">
+                                        <a href="https://www.budgetsidekick.com" target="_blank" class="btn btn-primary mt-2">
                                             Visit Budget Sidekick <i class="bi bi-box-arrow-up-right ms-1"></i>
                                         </a>
                                     </div>
@@ -565,7 +588,7 @@
                 
                 <div class="row mt-5">
                     <div class="col-md-12 text-center">
-                        <a href="http://www.budgetsidekick.com" target="_blank" class="btn btn-lg btn-primary px-4 py-3">
+                        <a href="https://www.budgetsidekick.com" target="_blank" class="btn btn-lg btn-primary px-4 py-3">
                             Learn More About Budget Sidekick <i class="bi bi-arrow-right ms-2"></i>
                         </a>
                     </div>
@@ -610,7 +633,7 @@
                                 </h3>
                                 <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                                     <div class="accordion-body">
-                                        <p>Budget Sidekick is a comprehensive financial management platform designed for both business and personal finance. Unlike many other tools, Budget Sidekick offers nested account hierarchies, allowing you to organize finances with intuitive structures. It supports multiple entities in one place and provides flexible categorization for detailed reporting. Visit <a href="http://www.budgetsidekick.com" class="text-primary">www.budgetsidekick.com</a> to see how our platform can help you track income and expenses across multiple revenue streams.</p>
+                                        <p>Budget Sidekick is a comprehensive financial management platform designed for both business and personal finance. Unlike many other tools, Budget Sidekick offers nested account hierarchies, allowing you to organize finances with intuitive structures. It supports multiple entities in one place and provides flexible categorization for detailed reporting. Visit <a href="https://www.budgetsidekick.com" class="text-primary">www.budgetsidekick.com</a> to see how our platform can help you track income and expenses across multiple revenue streams.</p>
                                     </div>
                                 </div>
                             </div>
@@ -622,7 +645,7 @@
                                 </h3>
                                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
                                     <div class="accordion-body">
-                                        <p>K&T Textiles specializes in premium fabric and apparel exports, connecting quality manufacturers with global markets since 2020. We provide comprehensive export services including logistics management, quality control processes, and global distribution networks. Our expertise helps manufacturers reach international markets while ensuring product quality and timely delivery. Visit <a href="http://www.kandttextiles.com" class="text-primary">www.kandttextiles.com</a> to learn more about our export services.</p>
+                                        <p>K&T Textiles specializes in premium fabric and apparel exports, connecting quality manufacturers with global markets since 2020. We provide comprehensive export services including logistics management, quality control processes, and global distribution networks. Our expertise helps manufacturers reach international markets while ensuring product quality and timely delivery. Visit <a href="https://www.kandttextiles.com" class="text-primary">www.kandttextiles.com</a> to learn more about our export services.</p>
                                     </div>
                                 </div>
                             </div>
@@ -646,7 +669,7 @@
                                 </h3>
                                 <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
                                     <div class="accordion-body">
-                                        <p>Yes, our original financial management platform continues to serve existing users. It provides budget tracking, balance sheet management, and business integrations including QuickBooks Online connectivity and point-of-sale functionality with customer management. Visit <a href="http://www.budgetsidekick.com" class="text-primary">www.budgetsidekick.com</a> to learn more or access these tools through the Legacy Login button in the header.</p>
+                                        <p>Yes, our original financial management platform continues to serve existing users. It provides budget tracking, balance sheet management, and business integrations including QuickBooks Online connectivity and point-of-sale functionality with customer management. Visit <a href="https://www.budgetsidekick.com" class="text-primary">www.budgetsidekick.com</a> to learn more or access these tools through the Legacy Login button in the header.</p>
                                     </div>
                                 </div>
                             </div>
