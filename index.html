@@ -58,19 +58,12 @@
             "priceCurrency": "USD",
             "priceValidUntil": "2025-12-31",
             "availability": "https://schema.org/InStock",
-            "shippingDetails": {
-              "@type": "OfferShippingDetails",
-              "shippingRate": {
-                "@type": "MonetaryAmount",
-                "value": "0",
-                "currency": "USD"
-              }
-            },
             "hasMerchantReturnPolicy": {
               "@type": "MerchantReturnPolicy",
               "applicableCountry": "US",
               "merchantReturnDays": 30,
-              "returnMethod": "https://schema.org/ReturnByMail"
+              "returnMethod": "https://schema.org/ReturnByMail",
+              "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow"
             }
           }
         },
@@ -100,26 +93,19 @@
           "offers": {
             "@type": "Offer",
             "availability": "https://schema.org/InStock",
+            "priceValidUntil": "2025-12-31",
             "priceSpecification": {
               "@type": "PriceSpecification",
               "price": "0",
               "priceCurrency": "USD",
-              "priceValidUntil": "2025-12-31",
               "description": "Contact for custom pricing"
-            },
-            "shippingDetails": {
-              "@type": "OfferShippingDetails",
-              "shippingRate": {
-                "@type": "MonetaryAmount",
-                "value": "0",
-                "currency": "USD"
-              }
             },
             "hasMerchantReturnPolicy": {
               "@type": "MerchantReturnPolicy",
               "applicableCountry": "US",
               "merchantReturnDays": 30,
-              "returnMethod": "https://schema.org/ReturnByMail"
+              "returnMethod": "https://schema.org/ReturnByMail",
+              "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow"
             }
           }
         }
