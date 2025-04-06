@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "tape ./test-archive/*.js",
-    "build": "browserify src/app.js -p esmify -o app.bundle.js"
+    "build": "browserify src/app.js -p esmify -o app.bundle.js",
+    "generate-favicon": "svg-to-ico favicon.svg favicon.ico --sizes 16,32,48"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
     "aws-sdk": "^2.438.0",
     "browser-resolve": "^2.0.0",
     "currency.js": "1.2.1",
+    "esmify": "^2.1.1",
     "jquery": "^3.5.1",
     "moment": "^2.27.0",
     "otpauth": "^5.0.3",
@@ -30,7 +32,7 @@
   },
   "devDependencies": {
     "browserify": "^16.5.2",
-    "esmify": "^2.1.1",
+    "svg-to-ico": "^1.0.15",
     "tape": "4.5.1"
   }
 }
